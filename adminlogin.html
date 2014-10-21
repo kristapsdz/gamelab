@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+		<meta charset="utf-8" /> 
+		<title>gamelab | Administration</title>
+		<style>
+			#loginError, #ajaxError { display: none; }
+		</style>
+		<script>
+			"use strict";
+			function sendLogin(oFormElement) 
+			{
+				var xmlhttp = new XMLHttpRequest();
+				var formdata = new FormData(oFormElement);
+
+				document.getElementById('loginError').style.display = 'none';
+				document.getElementById('ajaxError').style.display = 'none';
+				
+				xmlhttp.onreadystatechange=function() {
+					if (xmlhttp.readyState==4 && xmlhttp.status==200) {
+						location.href = '/~kristaps/valgrind-admin.cgi/home.html';
+					} else if (xmlhttp.readyState == 4 && xmlhttp.status == 400) {
+						document.getElementById('loginError').style.display = 'block';
+					} else if (xmlhttp.readyState == 4) {
+						document.getElementById('ajaxError').style.display = 'block';
+					}
+				} 
+				xmlhttp.open(oFormElement.method, oFormElement.action, true);
+				xmlhttp.send(formdata);
+				return(false);
+			}
+		</script>
+	</head>
+	<body>
+		<p id="loginError">Login error occured.</p>
+		<p id="ajaxError">AJAX error occured.</p>
+		<form action="/~kristaps/valgrind-admin.cgi/dologin.html" method="post" onsubmit="return(sendLogin(this));">
+			<input type="email" name="email" />
+			<input type="password" name="password" />
+			<input type="submit" />
+		</form>
+	</body>
+</html>
