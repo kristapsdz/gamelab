@@ -13,44 +13,79 @@
 #include "kcgi.h"
 
 enum	page {
+	PAGE_DOADDPLAYERS,
+	PAGE_DOCHANGEMAIL,
+	PAGE_DOCHANGEPASS,
 	PAGE_DOLOGIN,
+	PAGE_DOLOGOUT,
 	PAGE_HOME,
 	PAGE_INDEX,
 	PAGE_LOGIN,
-	PAGE_LOGOUT,
+	PAGE_STYLE,
 	PAGE__MAX
 };
 
-enum	html {
-	HTML_HOME,
-	HTML_LOGIN,
-	HTML__MAX
+enum	cntt {
+	CNTT_CSS_STYLE,
+	CNTT_HTML_HOME,
+	CNTT_HTML_LOGIN,
+	CNTT__MAX
 };
 
 enum	key {
 	KEY_EMAIL,
+	KEY_EMAIL1,
+	KEY_EMAIL2,
+	KEY_EMAIL3,
 	KEY_PASSWORD,
+	KEY_PASSWORD1,
+	KEY_PASSWORD2,
+	KEY_PASSWORD3,
+	KEY_PLAYERS,
 	KEY_SESSCOOKIE,
 	KEY_SESSID,
 	KEY__MAX
 };
 
+enum	templ {
+	TEMPL_CGIBIN,
+	TEMPL_HTDOCS,
+	TEMPL__MAX
+};
+
 static const char *const pages[PAGE__MAX] = {
+	"doaddplayers", /* PAGE_DOADDPLAYERS */
+	"dochangemail", /* PAGE_DOCHANGEMAIL */
+	"dochangepass", /* PAGE_DOCHANGEPASS */
 	"dologin", /* PAGE_DOLOGIN */
+	"dologout", /* PAGE_DOLOGOUT */
 	"home", /* PAGE_HOME */
 	"index", /* PAGE_INDEX */
 	"login", /* PAGE_LOGIN */
-	"logout", /* PAGE_LOGOUT */
+	"style", /* PAGE_STYLE */
 };
 
-static const char *const htmls[HTML__MAX] = {
-	"adminhome.html", /* HTML_HOME */
-	"adminlogin.html", /* HTML_LOGIN */
+static	const char *const templs[TEMPL__MAX] = {
+	"cgibin",
+	"htdocs"
+};
+
+static const char *const cntts[CNTT__MAX] = {
+	"style.css", /* CNTT_CSS_STYLE */
+	"adminhome.html", /* CNTT_HTML_HOME */
+	"adminlogin.html", /* CNTT_HTML_LOGIN */
 };
 
 static const struct kvalid keys[KEY__MAX] = {
 	{ kvalid_email, "email" }, /* KEY_EMAIL */
+	{ kvalid_email, "email1" }, /* KEY_EMAIL1 */
+	{ kvalid_email, "email2" }, /* KEY_EMAIL2 */
+	{ kvalid_email, "email3" }, /* KEY_EMAIL3 */
 	{ kvalid_stringne, "password" }, /* KEY_PASSWORD */
+	{ kvalid_stringne, "password1" }, /* KEY_PASSWORD1 */
+	{ kvalid_stringne, "password2" }, /* KEY_PASSWORD2 */
+	{ kvalid_stringne, "password3" }, /* KEY_PASSWORD3 */
+	{ kvalid_stringne, "players" }, /* KEY_PLAYERS */
 	{ kvalid_int, "sesscookie" }, /* KEY_SESSCOOKIE */
 	{ kvalid_int, "sessid" }, /* KEY_SESSID */
 };
@@ -74,44 +109,107 @@ send303(struct kreq *r, enum page dest, int dostatus)
 	free(page);
 }
 
-static void
-sendhome(struct kreq *r)
+static int
+sendtempl(size_t key, void *arg)
 {
-	struct ktemplate t;
+	const char	*p;
+	struct kreq	*r = arg;
 
-	memset(&t, 0, sizeof(struct ktemplate));
+	switch (key) {
+	case (TEMPL_CGIBIN):
+		khtml_text(r, r->pname);
+		break;
+	case (TEMPL_HTDOCS):
+		p = getenv("HTML_URI");
+		khtml_text(r, NULL != p ? p : "");
+		break;
+	default:
+		break;
+	}
+	return(1);
+}
 
-	khttp_head(r, kresps[KRESP_STATUS], 
-		"%s", khttps[KHTTP_200]);
-	khttp_head(r, kresps[KRESP_CONTENT_TYPE], 
-		"%s", kmimetypes[r->mime]);
-	khttp_body(r);
-	khttp_template(r, &t, htmls[HTML_HOME]);
+static int
+kpairbad(struct kreq *r, enum key key)
+{
+
+	return(NULL == r->fieldmap[key] || NULL != r->fieldnmap[key]);
 }
 
 static void
-sendlogin(struct kreq *r)
+sendcontent(struct kreq *r, enum cntt cntt)
 {
 	struct ktemplate t;
 
-	memset(&t, 0, sizeof(struct ktemplate));
+	t.key = templs;
+	t.keysz = TEMPL__MAX;
+	t.arg = r;
+	t.cb = sendtempl;
 
 	khttp_head(r, kresps[KRESP_STATUS], 
 		"%s", khttps[KHTTP_200]);
 	khttp_head(r, kresps[KRESP_CONTENT_TYPE], 
 		"%s", kmimetypes[r->mime]);
 	khttp_body(r);
-	khttp_template(r, &t, htmls[HTML_LOGIN]);
+	khttp_template(r, &t, cntts[cntt]);
+}
+
+static void
+senddochangemail(struct kreq *r)
+{
+
+	if (kpairbad(r, KEY_EMAIL1) ||
+		kpairbad(r, KEY_EMAIL2) ||
+		kpairbad(r, KEY_EMAIL3)) {
+		khttp_head(r, kresps[KRESP_STATUS], 
+			"%s", khttps[KHTTP_400]);
+		khttp_head(r, kresps[KRESP_CONTENT_TYPE], 
+			"%s", kmimetypes[r->mime]);
+	} else {
+		khttp_head(r, kresps[KRESP_STATUS], 
+			"%s", khttps[KHTTP_200]);
+		khttp_head(r, kresps[KRESP_CONTENT_TYPE], 
+			"%s", kmimetypes[r->mime]);
+	}
+	khttp_body(r);
+}
+
+static void
+senddochangepass(struct kreq *r)
+{
+
+	if (kpairbad(r, KEY_PASSWORD1) ||
+		kpairbad(r, KEY_PASSWORD2) ||
+		kpairbad(r, KEY_PASSWORD3)) {
+		khttp_head(r, kresps[KRESP_STATUS], 
+			"%s", khttps[KHTTP_400]);
+		khttp_head(r, kresps[KRESP_CONTENT_TYPE], 
+			"%s", kmimetypes[r->mime]);
+	} else {
+		khttp_head(r, kresps[KRESP_STATUS], 
+			"%s", khttps[KHTTP_200]);
+		khttp_head(r, kresps[KRESP_CONTENT_TYPE], 
+			"%s", kmimetypes[r->mime]);
+	}
+	khttp_body(r);
+}
+
+static void
+senddoaddplayers(struct kreq *r)
+{
+
+	khttp_head(r, kresps[KRESP_STATUS], 
+		"%s", khttps[KHTTP_200]);
+	khttp_head(r, kresps[KRESP_CONTENT_TYPE], 
+		"%s", kmimetypes[r->mime]);
+	khttp_body(r);
 }
 
 static void
 senddologin(struct kreq *r)
 {
 
-	if (NULL == r->fieldmap[KEY_EMAIL] ||
-		NULL == r->fieldmap[KEY_PASSWORD] ||
-		NULL != r->fieldnmap[KEY_EMAIL] ||
-		NULL != r->fieldnmap[KEY_PASSWORD]) {
+	if (kpairbad(r, KEY_EMAIL) || kpairbad(r, KEY_PASSWORD)) {
 		khttp_head(r, kresps[KRESP_STATUS], 
 			"%s", khttps[KHTTP_400]);
 		khttp_head(r, kresps[KRESP_CONTENT_TYPE], 
@@ -132,7 +230,7 @@ senddologin(struct kreq *r)
 }
 
 static void
-sendlogout(struct kreq *r)
+senddologout(struct kreq *r)
 {
 
 	khttp_head(r, kresps[KRESP_STATUS], 
@@ -170,27 +268,34 @@ main(void)
 
 	switch (r.page) {
 	case (PAGE_INDEX):
-		/* "Meta-page" that redirect us home or to login. */
 		send303(&r, sessvalid(&r) ? PAGE_HOME : PAGE_LOGIN, 1);
 		break;
 	case (PAGE_HOME):
-		/* Here we do all of our administration. */
 		if ( ! sessvalid(&r)) 
 			send303(&r, PAGE_LOGIN, 1);
 		else
-			sendhome(&r);
+			sendcontent(&r, CNTT_HTML_HOME);
+		break;
+	case (PAGE_DOADDPLAYERS):
+		senddoaddplayers(&r);
+		break;
+	case (PAGE_DOCHANGEMAIL):
+		senddochangemail(&r);
+		break;
+	case (PAGE_DOCHANGEPASS):
+		senddochangepass(&r);
 		break;
 	case (PAGE_DOLOGIN):
-		/* Accept the login form. */
 		senddologin(&r);
 		break;
-	case (PAGE_LOGOUT):
-		/* Log us out and redirect to index. */
-		sendlogout(&r);
+	case (PAGE_DOLOGOUT):
+		senddologout(&r);
 		break;
 	case (PAGE_LOGIN):
-		/* Post the login form. */
-		sendlogin(&r);
+		sendcontent(&r, CNTT_HTML_LOGIN);
+		break;
+	case (PAGE_STYLE):
+		sendcontent(&r, CNTT_CSS_STYLE);
 		break;
 	default:
 		/* Page not found... */

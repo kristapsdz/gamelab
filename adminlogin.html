@@ -4,76 +4,49 @@
 		<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
 		<meta charset="utf-8" /> 
 		<title>Gamelab | Login Admin</title>
+		<link rel="stylesheet" href="@@cgibin@@/style.css" type="text/css" />
 		<style>
 			body { background-color: #eee; }
-			#loginError, #ajaxError { display: none; }
 			form { margin: 0; }
-			fieldset { position: relative; 
-				max-width: 768px; 
-				border: thin solid #aaa;
-				box-shadow: 2px 2px 4px #ccc;
-				background-color: #fff;
-				margin: 1em auto 0 auto; 
-				padding: 8ex 0 2ex 0;
-				width: 100%; }
-			legend { position: absolute; 
-				padding: 1.2ex;
-				border-right: thin solid #888899;
-				color: #fff;
-				border-bottom: thin solid #888899;
-				font-size: 16pt;
-				left: 0; 
-				top: 0; 
-				background-color: #8888aa; }
-			input { width: 80%;
-				height: 34px;
-				border: thin solid #aaa;
-				border-radius: 6px;
-				padding: 0;
-				font-size: 13pt;
-				margin: 1em auto 1em auto; 
-				display: block; }
-			input[type=password] { padding-left: 34px;
-				background-repeat: no-repeat;
-				background-image: url('lock.png'); }
-			input[type=email] { padding-left: 34px;
-				background-repeat: no-repeat;
-				background-image: url('mail.png'); }
+			h1 { max-width: 768px; 
+				width: 100%;
+				margin: 1em auto 0 auto; }
+			fieldset { max-width: 768px; }
 		</style>
+		<script src="@@htdocs@@/script.js"></script>
 		<script>
-			"use strict";
-			function sendLogin(oFormElement) 
-			{
-				var xmlhttp = new XMLHttpRequest();
-				var formdata = new FormData(oFormElement);
-
+			function doError(err) {
+				document.getElementById('loggingIn').value = 'Login';
+				if (400 == err)
+					document.getElementById('loginError').style.display = 'inherit';
+				else
+					document.getElementById('ajaxError').style.display = 'inherit';
+			}
+			function doSuccess() {
+				document.getElementById('loggingIn').value = 'Success!';
+				location.href = '@@cgibin@@/home.html';
+			}
+			function doSetup() {
 				document.getElementById('loginError').style.display = 'none';
 				document.getElementById('ajaxError').style.display = 'none';
-				
-				xmlhttp.onreadystatechange=function() {
-					if (xmlhttp.readyState==4 && xmlhttp.status==200) {
-						location.href = '/~kristaps/valgrind-admin.cgi/home.html';
-					} else if (xmlhttp.readyState == 4 && xmlhttp.status == 400) {
-						document.getElementById('loginError').style.display = 'block';
-					} else if (xmlhttp.readyState == 4) {
-						document.getElementById('ajaxError').style.display = 'block';
-					}
-				} 
-				xmlhttp.open(oFormElement.method, oFormElement.action, true);
-				xmlhttp.send(formdata);
-				return(false);
+				document.getElementById('loggingIn').value = 'Logging in...';
 			}
 		</script>
 	</head>
 	<body>
-		<p id="loginError">Login error occured.</p>
-		<p id="ajaxError">AJAX error occured.</p>
-		<form action="/~kristaps/valgrind-admin.cgi/dologin.html" method="post" onsubmit="return(sendLogin(this));">
+		<form action="@@cgibin@@/dologin.html" method="post" onsubmit="return(sendForm(this, doSetup, doError, doSuccess));">
+			<h1>gamelab</h1>
 			<fieldset>
-				<legend>Administrator Login</legend>
-				<input type="email" placeholder="Email" name="email" />
-				<input type="password" placeholder="Password" name="password" />
-				<input type="submit" style="display: none;"/>
+				<div>
+					<div class="legend">Administrator Login</div>
+					<div class="error"><div id="loginError">Incorrect e-mail or password.</div></div>
+					<div class="error"><div id="ajaxError">A technical error has occured.</div></div>
+				</div>
+				<div class="fields">
+					<input type="email" placeholder="Email" required="required" name="email" />
+					<input type="password" placeholder="Password" required="required" name="password" />
+					<input id="loggingIn" type="submit" value="Login" />
+				</div>
 			</fieldset>
 		</form>
 	</body>

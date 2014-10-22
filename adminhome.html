@@ -3,10 +3,134 @@
 	<head>
 		<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
 		<meta charset="utf-8" /> 
-		<title>gamelab | Administration</title>
+		<title>Gamelab Administration</title>
+		<link rel="stylesheet" href="@@cgibin@@/style.css" type="text/css" />
+		<style>
+			body { margin: 0; }
+			a { text-decoration: none; }
+			nav ul { list-style-type: none; 
+				background-color: #ccc; 
+				padding: 0; 
+				margin: 0; }
+			nav li { display: inline-block; 
+				font-size: 16pt; 
+				padding: 1ex; }
+			nav li:first-child { font-size: 18pt;
+				color: #fff;
+				background-color: #8888aa; }
+			fieldset { max-width: 1024px; }
+		</style>
+		<script src="@@htdocs@@/script.js"></script>
+		<script>
+			function doHide(name) {
+				var e;
+				if (null != (e = document.getElementById(name)))
+					e.style.display = 'none';
+			}
+			function doUnhide(name) {
+				var e;
+				if (null != (e = document.getElementById(name)))
+					e.style.display = 'inherit';
+			}
+
+			function doSuccess(submitName, formName) {
+				document.getElementById(submitName).value = 'Submit';
+				document.getElementById(formName).reset();
+			}
+			function doError(err, submitName, errName) {
+				document.getElementById(submitName).value = 'Submit';
+				doUnhide(errName + (400 == err ? 'Form' : 'System'));
+			}
+			function doSetup(submitName, errName) {
+				document.getElementById(submitName).value = 'Submitting...';
+				doHide(errName + 'Form');
+				doHide(errName + 'System');
+			}
+
+			function doAddPlayersSuccess(resp) {
+				doSuccess('addPlayersSubmit', 'addPlayers');
+			}
+			function doChangeMailSuccess(resp) {
+				doSuccess('changeMailSubmit', 'changeMail');
+			}
+			function doChangePassSuccess(resp) {
+				doSuccess('changePassSubmit', 'changePass');
+			}
+
+			function doAddPlayersError(err) {
+				doError(err, 'addPlayersSubmit', 'addPlayersErr');
+			}
+			function doChangeMailError(err) {
+				doError(err, 'changeMailSubmit', 'changeMailErr');
+			}
+			function doChangePassError(err) {
+				doError(err, 'changePassSubmit', 'changePassErr');
+			}
+
+			function doAddPlayersSetup() {
+				doSetup('addPlayersSubmit', 'addPlayersErr');
+			}
+			function doChangeMailSetup() {
+				doSetup('changeMailSubmit', 'changeMailErr');
+			}
+			function doChangePassSetup() {
+				doSetup('changePassSubmit', 'changePassErr');
+			}
+		</script>
 	</head>
 	<body>
-		Here you are.
-		<a href="/~kristaps/valgrind-admin.cgi/logout.html">logout</a>
+		<nav>
+			<ul>
+				<li>Administrator</li>
+				<li><a href="@@cgibin@@/dologout.html">Logout</a></li>
+			</ul>
+		</nav>
+		<form action="@@cgibin@@/dochangemail.html" method="post" id="changeMail" onsubmit="return(sendForm(this, doChangeMailSetup, doChangeMailError, doChangeMailSuccess));">
+			<fieldset>
+				<div>
+					<div class="legend">Change Administrator E-mail</div>
+					<div class="error"><div id="changeMailErrSystem">An unexpected error occurred.</div></div>
+					<div class="error"><div id="changeMailErrForm">Invalid new or existing e-mail address.</div></div>
+				</div>
+				<div class="fields">
+					<input type="email" name="email1" placeholder="Existing E-mail"/>
+					<input type="email" name="email2" placeholder="New E-mail"/>
+					<input type="email" name="email3" placeholder="Repeat New E-mail"/>
+					<input id="changeMailSubmit" type="submit" value="Submit" />
+				</div>
+			</fieldset>
+		</form>
+		<form action="@@cgibin@@/dochangepass.html" method="post" id="changePass" onsubmit="return(sendForm(this, doChangePassSetup, doChangePassError, doChangePassSuccess));">
+			<fieldset>
+				<div>
+					<div class="legend">Change Administrator Password</div>
+					<div class="error"><div id="changePassErrSystem">An unexpected error occurred.</div></div>
+					<div class="error"><div id="changePassErrForm">Invalid new or existing password.</div></div>
+				</div>
+				<div class="fields">
+					<input type="password" name="password1" placeholder="Existing Password"/>
+					<input type="password" name="password2" placeholder="New Password"/>
+					<input type="password" name="password3" placeholder="Repeat New Password"/>
+					<input id="changePassSubmit" type="submit" value="Submit" />
+				</div>
+			</fieldset>
+		</form>
+		<form action="@@cgibin@@/doaddplayers.html" method="post" id="addPlayers" onsubmit="return(sendForm(this, doAddPlayersSetup, doAddPlayersError, doAddPlayersSuccess));">
+			<fieldset>
+				<div>
+					<div class="legend">Add Players</div>
+					<div class="error"><div id="addPlayersErrSystem">An unexpected system error occurred.</div></div>
+				</div>
+				<div class="fields">
+					<div>
+						Add players to the game using this form.
+						Players consist of e-mail addresses separated by white-space (newlines, tabs, spaces, whatever).
+						Once you submit, the players will be e-mailed a temporary password that they may use to log in to the system.
+					</div>
+					<textarea name="players" placeholder="Space-separated player e-mail addresses..."></textarea>
+					<input id="addPlayersSubmit" type="submit" value="Submit" />
+				</div>
+			</fieldset>
+		</form>
 	</body>
 </html>
