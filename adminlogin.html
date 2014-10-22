@@ -3,9 +3,42 @@
 	<head>
 		<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
 		<meta charset="utf-8" /> 
-		<title>gamelab | Administration</title>
+		<title>Gamelab | Login Admin</title>
 		<style>
+			body { background-color: #eee; }
 			#loginError, #ajaxError { display: none; }
+			form { margin: 0; }
+			fieldset { position: relative; 
+				max-width: 768px; 
+				border: thin solid #aaa;
+				box-shadow: 2px 2px 4px #ccc;
+				background-color: #fff;
+				margin: 1em auto 0 auto; 
+				padding: 8ex 0 2ex 0;
+				width: 100%; }
+			legend { position: absolute; 
+				padding: 1.2ex;
+				border-right: thin solid #888899;
+				color: #fff;
+				border-bottom: thin solid #888899;
+				font-size: 16pt;
+				left: 0; 
+				top: 0; 
+				background-color: #8888aa; }
+			input { width: 80%;
+				height: 34px;
+				border: thin solid #aaa;
+				border-radius: 6px;
+				padding: 0;
+				font-size: 13pt;
+				margin: 1em auto 1em auto; 
+				display: block; }
+			input[type=password] { padding-left: 34px;
+				background-repeat: no-repeat;
+				background-image: url('lock.png'); }
+			input[type=email] { padding-left: 34px;
+				background-repeat: no-repeat;
+				background-image: url('mail.png'); }
 		</style>
 		<script>
 			"use strict";
@@ -36,9 +69,12 @@
 		<p id="loginError">Login error occured.</p>
 		<p id="ajaxError">AJAX error occured.</p>
 		<form action="/~kristaps/valgrind-admin.cgi/dologin.html" method="post" onsubmit="return(sendLogin(this));">
-			<input type="email" name="email" />
-			<input type="password" name="password" />
-			<input type="submit" />
+			<fieldset>
+				<legend>Administrator Login</legend>
+				<input type="email" placeholder="Email" name="email" />
+				<input type="password" placeholder="Password" name="password" />
+				<input type="submit" style="display: none;"/>
+			</fieldset>
 		</form>
 	</body>
 </html>
