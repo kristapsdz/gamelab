@@ -94,15 +94,52 @@ static const struct kvalid keys[KEY__MAX] = {
 	{ kvalid_int, "sessid" }, /* KEY_SESSID */
 };
 
+static int
+sess_valid(struct kreq *r)
+{
+
+	if (NULL == r->cookiemap[KEY_SESSID] ||
+		NULL == r->cookiemap[KEY_SESSCOOKIE]) 
+		return(0);
+
+	return(db_sess_valid(r->cookiemap[KEY_SESSID]->parsed.i,
+		r->cookiemap[KEY_SESSCOOKIE]->parsed.i));
+}
+
+static int
+kpairbad(struct kreq *r, enum key key)
+{
+
+	return(NULL == r->fieldmap[key] || NULL != r->fieldnmap[key]);
+}
+
+static int
+admin_valid(struct kreq *r)
+{
+
+	if (kpairbad(r, KEY_EMAIL) || kpairbad(r, KEY_PASSWORD))
+		return(0);
+
+	return(db_admin_valid(r->fieldmap[KEY_EMAIL]->parsed.s,
+		r->fieldmap[KEY_PASSWORD]->parsed.s));
+}
+
+static void
+http_open(struct kreq *r, enum khttp http)
+{
+
+	khttp_head(r, kresps[KRESP_STATUS], 
+		"%s", khttps[http]);
+	khttp_head(r, kresps[KRESP_CONTENT_TYPE], 
+		"%s", kmimetypes[r->mime]);
+}
+
 static void
 send303(struct kreq *r, enum page dest, int dostatus)
 {
 	char	*page, *full;
 
-	khttp_head(r, kresps[KRESP_STATUS], 
-		"%s", khttps[KHTTP_303]);
-	khttp_head(r, kresps[KRESP_CONTENT_TYPE], 
-		"%s", kmimetypes[r->mime]);
+	http_open(r, KHTTP_303);
 	page = kutil_urlpart(r, r->pname, 
 		ksuffixes[r->mime], pages[dest], NULL);
 	full = kutil_urlabs(KSCHEME_HTTP, r->host, r->port, page);
@@ -133,13 +170,6 @@ sendtempl(size_t key, void *arg)
 	return(1);
 }
 
-static int
-kpairbad(struct kreq *r, enum key key)
-{
-
-	return(NULL == r->fieldmap[key] || NULL != r->fieldnmap[key]);
-}
-
 static void
 sendcontent(struct kreq *r, enum cntt cntt)
 {
@@ -150,10 +180,7 @@ sendcontent(struct kreq *r, enum cntt cntt)
 	t.arg = r;
 	t.cb = sendtempl;
 
-	khttp_head(r, kresps[KRESP_STATUS], 
-		"%s", khttps[KHTTP_200]);
-	khttp_head(r, kresps[KRESP_CONTENT_TYPE], 
-		"%s", kmimetypes[r->mime]);
+	http_open(r, KHTTP_200);
 	khttp_body(r);
 	khttp_template(r, &t, cntts[cntt]);
 }
@@ -164,17 +191,11 @@ senddochangemail(struct kreq *r)
 
 	if (kpairbad(r, KEY_EMAIL1) ||
 		kpairbad(r, KEY_EMAIL2) ||
-		kpairbad(r, KEY_EMAIL3)) {
-		khttp_head(r, kresps[KRESP_STATUS], 
-			"%s", khttps[KHTTP_400]);
-		khttp_head(r, kresps[KRESP_CONTENT_TYPE], 
-			"%s", kmimetypes[r->mime]);
-	} else {
-		khttp_head(r, kresps[KRESP_STATUS], 
-			"%s", khttps[KHTTP_200]);
-		khttp_head(r, kresps[KRESP_CONTENT_TYPE], 
-			"%s", kmimetypes[r->mime]);
-	}
+		kpairbad(r, KEY_EMAIL3))
+		http_open(r, KHTTP_400);
+	else 
+		http_open(r, KHTTP_200);
+
 	khttp_body(r);
 }
 
@@ -184,57 +205,48 @@ senddochangepass(struct kreq *r)
 
 	if (kpairbad(r, KEY_PASSWORD1) ||
 		kpairbad(r, KEY_PASSWORD2) ||
-		kpairbad(r, KEY_PASSWORD3)) {
-		khttp_head(r, kresps[KRESP_STATUS], 
-			"%s", khttps[KHTTP_400]);
-		khttp_head(r, kresps[KRESP_CONTENT_TYPE], 
-			"%s", kmimetypes[r->mime]);
-	} else {
-		khttp_head(r, kresps[KRESP_STATUS], 
-			"%s", khttps[KHTTP_200]);
-		khttp_head(r, kresps[KRESP_CONTENT_TYPE], 
-			"%s", kmimetypes[r->mime]);
-	}
+		kpairbad(r, KEY_PASSWORD3))
+		http_open(r, KHTTP_400);
+	else
+		http_open(r, KHTTP_200);
+
 	khttp_body(r);
 }
 
 static void
 senddoaddgame(struct kreq *r)
 {
+
+	http_open(r, KHTTP_200);
+	khttp_body(r);
 }
 
 static void
 senddoaddplayers(struct kreq *r)
 {
 
-	khttp_head(r, kresps[KRESP_STATUS], 
-		"%s", khttps[KHTTP_200]);
-	khttp_head(r, kresps[KRESP_CONTENT_TYPE], 
-		"%s", kmimetypes[r->mime]);
+	http_open(r, KHTTP_200);
 	khttp_body(r);
 }
 
 static void
 senddologin(struct kreq *r)
 {
+	struct sess	*sess;
 
-	if (kpairbad(r, KEY_EMAIL) || kpairbad(r, KEY_PASSWORD)) {
-		khttp_head(r, kresps[KRESP_STATUS], 
-			"%s", khttps[KHTTP_400]);
-		khttp_head(r, kresps[KRESP_CONTENT_TYPE], 
-			"%s", kmimetypes[r->mime]);
-	} else {
-		khttp_head(r, kresps[KRESP_STATUS], 
-			"%s", khttps[KHTTP_200]);
-		khttp_head(r, kresps[KRESP_CONTENT_TYPE], 
-			"%s", kmimetypes[r->mime]);
+	if (admin_valid(r)) {
+		sess = db_sess_alloc();
+		http_open(r, KHTTP_200);
 		khttp_head(r, kresps[KRESP_SET_COOKIE],
-			"%s=%" PRIu32 "; path=/; expires=", 
-			keys[KEY_SESSCOOKIE].name, arc4random());
+			"%s=%" PRId64 "; path=/; expires=", 
+			keys[KEY_SESSCOOKIE].name, sess->cookie);
 		khttp_head(r, kresps[KRESP_SET_COOKIE],
-			"%s=%" PRIu32 "; path=/; expires=", 
-			keys[KEY_SESSID].name, arc4random());
-	}
+			"%s=%" PRId64 "; path=/; expires=", 
+			keys[KEY_SESSID].name, sess->id);
+		db_sess_free(sess);
+	} else
+		http_open(r, KHTTP_400);
+
 	khttp_body(r);
 }
 
@@ -242,10 +254,7 @@ static void
 senddologout(struct kreq *r)
 {
 
-	khttp_head(r, kresps[KRESP_STATUS], 
-		"%s", khttps[KHTTP_303]);
-	khttp_head(r, kresps[KRESP_CONTENT_TYPE], 
-		"%s", kmimetypes[r->mime]);
+	http_open(r, KHTTP_303);
 	khttp_head(r, kresps[KRESP_SET_COOKIE],
 		"%s=; path=/; expires=", 
 		keys[KEY_SESSCOOKIE].name);
@@ -253,17 +262,6 @@ senddologout(struct kreq *r)
 		"%s=; path=/; expires=", 
 		keys[KEY_SESSID].name);
 	send303(r, PAGE_LOGIN, 0);
-}
-
-static int
-sessvalid(struct kreq *r)
-{
-
-	if (NULL == r->cookiemap[KEY_SESSID] ||
-		NULL == r->cookiemap[KEY_SESSCOOKIE]) 
-		return(0);
-
-	return(1);
 }
 
 int
@@ -277,10 +275,10 @@ main(void)
 
 	switch (r.page) {
 	case (PAGE_INDEX):
-		send303(&r, sessvalid(&r) ? PAGE_HOME : PAGE_LOGIN, 1);
+		send303(&r, sess_valid(&r) ? PAGE_HOME : PAGE_LOGIN, 1);
 		break;
 	case (PAGE_HOME):
-		if ( ! sessvalid(&r)) 
+		if ( ! sess_valid(&r)) 
 			send303(&r, PAGE_LOGIN, 1);
 		else
 			sendcontent(&r, CNTT_HTML_HOME);

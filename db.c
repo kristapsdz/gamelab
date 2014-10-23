@@ -59,7 +59,7 @@ db_tryopen(void)
 	if (NULL != db)
 		return;
 
-	snprintf(dbpath, sizeof(dbpath), "%s/lab.db",
+	snprintf(dbpath, sizeof(dbpath), "%s/gamelab.db",
 		NULL != getenv("DB_DIR") ? getenv("DB_DIR") : ".");
 
 	/* Register exit hook for the destruction of the database. */
@@ -134,6 +134,7 @@ again:
 		return(rc);
 
 	fprintf(stderr, "sqlite3_step: %s\n", sqlite3_errmsg(db));
+	db_finalise(stmt);
 	exit(EXIT_FAILURE);
 }
 
@@ -152,6 +153,7 @@ again:
 	}
 
 	rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
+
 	if (SQLITE_BUSY == rc) {
 		fprintf(stderr, "sqlite3_stmt: "
 			"busy database (%zu)\n", attempt);
@@ -164,10 +166,11 @@ again:
 		usleep(arc4random_uniform(10000));
 		attempt++;
 		goto again;
-	} else if (SQLITE_DONE == rc)
+	} else if (SQLITE_OK == rc)
 		return(stmt);
 
 	fprintf(stderr, "sqlite3_stmt: %s\n", sqlite3_errmsg(db));
+	db_finalise(stmt);
 	exit(EXIT_FAILURE);
 }
 
@@ -180,6 +183,7 @@ db_bind_text(sqlite3_stmt *stmt, size_t pos, const char *val)
 		(stmt, pos, val, -1, SQLITE_STATIC))
 		return;
 	fprintf(stderr, "sqlite3_bind_text: %s\n", sqlite3_errmsg(db));
+	db_finalise(stmt);
 	exit(EXIT_FAILURE);
 }
 
@@ -191,6 +195,7 @@ db_bind_int(sqlite3_stmt *stmt, size_t pos, int64_t val)
 	if (SQLITE_OK == sqlite3_bind_int64(stmt, pos, val))
 		return;
 	fprintf(stderr, "sqlite3_bind_int64: %s\n", sqlite3_errmsg(db));
+	db_finalise(stmt);
 	exit(EXIT_FAILURE);
 }
 
@@ -200,7 +205,7 @@ db_sess_valid(int64_t id, int64_t cookie)
 	int	 	 rc;
 	sqlite3_stmt	*stmt;
 
-	stmt = db_stmt("SELECT 1 FROM sess WHERE id=? AND cookie=?");
+	stmt = db_stmt("SELECT * FROM sess WHERE id=? AND cookie=?");
 	db_bind_int(stmt, 1, id);
 	db_bind_int(stmt, 2, cookie);
 	rc = db_step(stmt, 0);
@@ -208,11 +213,39 @@ db_sess_valid(int64_t id, int64_t cookie)
 	return(SQLITE_ROW == rc);
 }
 
+struct sess *
+db_sess_alloc(void)
+{
+	sqlite3_stmt	*stmt;
+	struct sess	*sess;
+
+	sess = calloc(1, sizeof(struct sess));
+	assert(NULL != sess);
+	sess->cookie = arc4random();
+	stmt = db_stmt("INSERT INTO sess (cookie) VALUES(?)");
+	db_bind_int(stmt, 1, sess->cookie);
+	db_step(stmt, 0);
+	db_finalise(stmt);
+	sess->id = sqlite3_last_insert_rowid(db);
+	fprintf(stderr, "%" PRId64 ": new session cookie %" 
+		PRId64 "\n", sess->id, sess->cookie);
+	return(sess);
+}
+
+void
+db_sess_free(struct sess *sess)
+{
+
+	free(sess);
+}
+
 int
 db_admin_valid(const char *email, const char *pass)
 {
 	sqlite3_stmt	*stmt;
+#if 0
 	const char	*hash;
+#endif
 
 	stmt = db_stmt("SELECT hash FROM admin WHERE email=?");
 	db_bind_text(stmt, 1, email);
@@ -223,12 +256,15 @@ db_admin_valid(const char *email, const char *pass)
 		return(0);
 	} 
 
+#if 0
 	hash = crypt(pass, (char *)sqlite3_column_text(stmt, 0));
 	if (strcmp(hash, (char *)sqlite3_column_text(stmt, 0))) {
+		fprintf(stderr, "hash = %s", hash);
 		fprintf(stderr, "%s: not password\n", pass);
 		db_finalise(stmt);
 		return(0);
 	}
+#endif
 
 	db_finalise(stmt);
 	return(1);
