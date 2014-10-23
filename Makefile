@@ -6,8 +6,10 @@ STATICS	 = mail.png lock.png style.css script.js
 
 all: admin
 
-admin: admin.o
-	$(CC) -L/usr/local/lib -o $@ admin.o -lkcgi -lz
+admin: admin.o db.o
+	$(CC) -L/usr/local/lib -o $@ admin.o db.o -lsqlite3 -lkcgi -lz
+
+admin.o db.o: extern.h
 
 installwww: all
 	install -m 0444 $(PAGES) $(STATICS) $(PREFIX)

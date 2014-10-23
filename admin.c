@@ -10,9 +10,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "kcgi.h"
+#include <kcgi.h>
+
+#include "extern.h"
 
 enum	page {
+	PAGE_DOADDGAME,
 	PAGE_DOADDPLAYERS,
 	PAGE_DOCHANGEMAIL,
 	PAGE_DOCHANGEPASS,
@@ -54,6 +57,7 @@ enum	templ {
 };
 
 static const char *const pages[PAGE__MAX] = {
+	"doaddgame", /* PAGE_DOADDGAME */
 	"doaddplayers", /* PAGE_DOADDPLAYERS */
 	"dochangemail", /* PAGE_DOCHANGEMAIL */
 	"dochangepass", /* PAGE_DOCHANGEPASS */
@@ -195,6 +199,11 @@ senddochangepass(struct kreq *r)
 }
 
 static void
+senddoaddgame(struct kreq *r)
+{
+}
+
+static void
 senddoaddplayers(struct kreq *r)
 {
 
@@ -275,6 +284,9 @@ main(void)
 			send303(&r, PAGE_LOGIN, 1);
 		else
 			sendcontent(&r, CNTT_HTML_HOME);
+		break;
+	case (PAGE_DOADDGAME):
+		senddoaddgame(&r);
 		break;
 	case (PAGE_DOADDPLAYERS):
 		senddoaddplayers(&r);

@@ -6,9 +6,9 @@
 		<title>Gamelab Administration</title>
 		<link rel="stylesheet" href="@@cgibin@@/style.css" type="text/css" />
 		<style>
-			body { margin: 0; }
-			a { text-decoration: none; }
 			nav ul { list-style-type: none; 
+				box-shadow: 2px 2px 4px #ccc;
+				border-bottom: thin solid #aaa;
 				background-color: #ccc; 
 				padding: 0; 
 				margin: 0; }
@@ -18,7 +18,12 @@
 			nav li:first-child { font-size: 18pt;
 				color: #fff;
 				background-color: #8888aa; }
-			fieldset { max-width: 1024px; }
+			fieldset { max-width: 1024px; 
+				box-shadow: none; }
+			.legend { background-color: #ddd; 
+				border-right: thin solid #aaa;
+				border-bottom: thin solid #aaa;
+				color: #000; }
 		</style>
 		<script src="@@htdocs@@/script.js"></script>
 		<script>
@@ -93,9 +98,9 @@
 					<div class="error"><div id="changeMailErrForm">Invalid new or existing e-mail address.</div></div>
 				</div>
 				<div class="fields">
-					<input type="email" name="email1" placeholder="Existing E-mail"/>
-					<input type="email" name="email2" placeholder="New E-mail"/>
-					<input type="email" name="email3" placeholder="Repeat New E-mail"/>
+					<input required="required" type="email" name="email1" placeholder="Existing E-mail"/>
+					<input required="required" type="email" name="email2" placeholder="New E-mail"/>
+					<input required="required" type="email" name="email3" placeholder="Repeat New E-mail"/>
 					<input id="changeMailSubmit" type="submit" value="Submit" />
 				</div>
 			</fieldset>
@@ -108,9 +113,9 @@
 					<div class="error"><div id="changePassErrForm">Invalid new or existing password.</div></div>
 				</div>
 				<div class="fields">
-					<input type="password" name="password1" placeholder="Existing Password"/>
-					<input type="password" name="password2" placeholder="New Password"/>
-					<input type="password" name="password3" placeholder="Repeat New Password"/>
+					<input required="required" type="password" name="password1" placeholder="Existing Password"/>
+					<input required="required" type="password" name="password2" placeholder="New Password"/>
+					<input required="required" type="password" name="password3" placeholder="Repeat New Password"/>
 					<input id="changePassSubmit" type="submit" value="Submit" />
 				</div>
 			</fieldset>
@@ -127,8 +132,23 @@
 						Players consist of e-mail addresses separated by white-space (newlines, tabs, spaces, whatever).
 						Once you submit, the players will be e-mailed a temporary password that they may use to log in to the system.
 					</div>
-					<textarea name="players" placeholder="Space-separated player e-mail addresses..."></textarea>
+					<textarea required="required" name="players" placeholder="Space-separated player e-mail addresses..."></textarea>
 					<input id="addPlayersSubmit" type="submit" value="Submit" />
+				</div>
+			</fieldset>
+		</form>
+		<form action="@@cgibin@@/doaddgame.html" method="post" id="addGame" onsubmit="return(sendForm(this, doAddGameSetup, doAddGameError, doAddGameSuccess));">
+			<fieldset>
+				<div>
+					<div class="legend">Add Game</div>
+					<div class="error"><div id="addGameErrSystem">An unexpected system error occurred.</div></div>
+				</div>
+				<div class="fields">
+					<label>Strategies:</label>
+					<input required="required" type="number" min="2" step="1" name="strategies" value="2"/>
+					<input required="required" type="text" name="name" placeholder="Game Name"/>
+					<input required="required" type="text" name="game" placeholder="Comma-separated values (top-left to bottom-right)"/>
+					<input id="addGameSubmit" type="submit" value="Submit" />
 				</div>
 			</fieldset>
 		</form>
