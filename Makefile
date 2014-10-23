@@ -15,5 +15,12 @@ installwww: all
 	install -m 0444 $(PAGES) $(STATICS) $(PREFIX)
 	install -m 0755 admin $(PREFIX)/admin.cgi
 
+install: installwww gamelab.db
+	install -m 0666 gamelab.db $(PREFIX)
+
+gamelab.db: gamelab.sql
+	rm -f $@
+	sqlite3 $@ < gamelab.sql
+
 clean:
-	rm -f admin admin.o
+	rm -f admin admin.o gamelab.db
