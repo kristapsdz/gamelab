@@ -2,10 +2,11 @@
 /*
  * Copyright (c) 2014 Kristaps Dzonsons <kristaps@kcons.eu>
  */
-#include <sys/types.h>
+#include <sys/param.h>
 
 #include <assert.h>
 #include <inttypes.h>
+#include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
@@ -174,15 +175,20 @@ static void
 sendcontent(struct kreq *r, enum cntt cntt)
 {
 	struct ktemplate t;
+	char		 fname[PATH_MAX];
 
 	t.key = templs;
 	t.keysz = TEMPL__MAX;
 	t.arg = r;
 	t.cb = sendtempl;
 
+	snprintf(fname, sizeof(fname), "%s/%s",
+		NULL != getenv("DB_DIR") ? getenv("DB_DIR") : ".",
+		cntts[cntt]);
+
 	http_open(r, KHTTP_200);
 	khttp_body(r);
-	khttp_template(r, &t, cntts[cntt]);
+	khttp_template(r, &t, fname);
 }
 
 static void
