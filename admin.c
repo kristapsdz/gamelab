@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <gmp.h>
 #include <kcgi.h>
 
 #include "extern.h"
@@ -41,10 +42,14 @@ enum	key {
 	KEY_EMAIL1,
 	KEY_EMAIL2,
 	KEY_EMAIL3,
+	KEY_NAME,
+	KEY_P1,
+	KEY_P2,
 	KEY_PASSWORD,
 	KEY_PASSWORD1,
 	KEY_PASSWORD2,
 	KEY_PASSWORD3,
+	KEY_PAYOFFS,
 	KEY_PLAYERS,
 	KEY_SESSCOOKIE,
 	KEY_SESSID,
@@ -86,10 +91,14 @@ static const struct kvalid keys[KEY__MAX] = {
 	{ kvalid_email, "email1" }, /* KEY_EMAIL1 */
 	{ kvalid_email, "email2" }, /* KEY_EMAIL2 */
 	{ kvalid_email, "email3" }, /* KEY_EMAIL3 */
+	{ kvalid_stringne, "name" }, /* KEY_NAME */
+	{ kvalid_int, "p1" }, /* KEY_P1 */
+	{ kvalid_int, "p2" }, /* KEY_P2 */
 	{ kvalid_stringne, "password" }, /* KEY_PASSWORD */
 	{ kvalid_stringne, "password1" }, /* KEY_PASSWORD1 */
 	{ kvalid_stringne, "password2" }, /* KEY_PASSWORD2 */
 	{ kvalid_stringne, "password3" }, /* KEY_PASSWORD3 */
+	{ kvalid_stringne, "payoffs" }, /* KEY_PAYOFFS */
 	{ kvalid_stringne, "players" }, /* KEY_PLAYERS */
 	{ kvalid_int, "sesscookie" }, /* KEY_SESSCOOKIE */
 	{ kvalid_int, "sessid" }, /* KEY_SESSID */
@@ -222,9 +231,30 @@ senddochangepass(struct kreq *r)
 static void
 senddoaddgame(struct kreq *r)
 {
+	struct game	*game;
 
-	http_open(r, KHTTP_200);
+	if (kpairbad(r, KEY_NAME) ||
+		kpairbad(r, KEY_PAYOFFS) ||
+		kpairbad(r, KEY_P1) ||
+		kpairbad(r, KEY_P2)) {
+		http_open(r, KHTTP_400);
+		khttp_body(r);
+		return;
+	} 
+
+	game = db_game_alloc
+		(r->fieldmap[KEY_PAYOFFS]->parsed.s,
+		 r->fieldmap[KEY_NAME]->parsed.s,
+		 r->fieldmap[KEY_P1]->parsed.i,
+		 r->fieldmap[KEY_P2]->parsed.i);
+
+	if (NULL == game) 
+		http_open(r, KHTTP_400);
+	else
+		http_open(r, KHTTP_200);
+
 	khttp_body(r);
+	db_game_free(game);
 }
 
 static void

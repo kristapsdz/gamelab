@@ -61,6 +61,9 @@
 			function doChangePassSuccess(resp) {
 				doSuccess('changePassSubmit', 'changePass');
 			}
+			function doAddGameSuccess(resp) {
+				doSuccess('addGameSubmit', 'addGame');
+			}
 
 			function doAddPlayersError(err) {
 				doError(err, 'addPlayersSubmit', 'addPlayersErr');
@@ -71,6 +74,9 @@
 			function doChangePassError(err) {
 				doError(err, 'changePassSubmit', 'changePassErr');
 			}
+			function doAddGameError(err) {
+				doError(err, 'addGameSubmit', 'addGameErr');
+			}
 
 			function doAddPlayersSetup() {
 				doSetup('addPlayersSubmit', 'addPlayersErr');
@@ -80,6 +86,9 @@
 			}
 			function doChangePassSetup() {
 				doSetup('changePassSubmit', 'changePassErr');
+			}
+			function doAddGameSetup() {
+				doSetup('addGameSubmit', 'addGameErr');
 			}
 		</script>
 	</head>
@@ -142,12 +151,14 @@
 				<div>
 					<div class="legend">Add Game</div>
 					<div class="error"><div id="addGameErrSystem">An unexpected system error occurred.</div></div>
+					<div class="error"><div id="addGameErrForm">Invalid input.</div></div>
 				</div>
 				<div class="fields">
 					<label>Strategies:</label>
-					<input required="required" type="number" min="2" step="1" name="strategies" value="2"/>
+					<input required="required" type="number" min="2" step="1" name="p1" value="2"/>,
+					<input required="required" type="number" min="2" step="1" name="p2" value="2"/>
 					<input required="required" type="text" name="name" placeholder="Game Name"/>
-					<input required="required" type="text" name="game" placeholder="Comma-separated values (top-left to bottom-right)"/>
+					<input required="required" type="text" name="payoffs" placeholder="Comma-separated values (top-left to bottom-right)"/>
 					<input id="addGameSubmit" type="submit" value="Submit" />
 				</div>
 			</fieldset>

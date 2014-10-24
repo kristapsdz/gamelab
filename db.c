@@ -9,6 +9,7 @@
 #include <unistd.h>
 
 #include <kcgi.h>
+#include <gmp.h>
 #include <sqlite3.h>
 
 #include "extern.h"
@@ -255,7 +256,6 @@ db_admin_valid(const char *email, const char *pass)
 		db_finalise(stmt);
 		return(0);
 	} 
-
 #if 0
 	hash = crypt(pass, (char *)sqlite3_column_text(stmt, 0));
 	if (strcmp(hash, (char *)sqlite3_column_text(stmt, 0))) {
@@ -265,7 +265,87 @@ db_admin_valid(const char *email, const char *pass)
 		return(0);
 	}
 #endif
-
 	db_finalise(stmt);
 	return(1);
+}
+
+void
+db_game_free(struct game *game)
+{
+
+	if (NULL == game)
+		return;
+
+	free(game->payoffs);
+	free(game->name);
+	free(game);
+}
+
+struct game *
+db_game_alloc(const char *poffs, 
+	const char *name, int64_t p1, int64_t p2)
+{
+	char		*buf, *tok, *sv;
+	mpq_t		*rops;
+	size_t		 i, count;
+	sqlite3_stmt	*stmt;
+	struct game	*game;
+
+	sv = buf = strdup(poffs);
+	assert(NULL != buf);
+	fprintf(stderr, "parsing: %s\n", sv);
+
+	/* FIXME: integer overflow. */
+	rops = calloc(p1 * p2, sizeof(mpq_t));
+	fprintf(stderr, "strategies: %zu\n", (size_t)(p1 * p2));
+	assert(NULL != rops);
+
+	for (i = 0; i < (size_t)(p1 * p2); i++)
+		mpq_init(rops[i]);
+
+	/* Verify that these are real numbers. */
+	count = 0;
+	while (NULL != (tok = strsep(&buf, " \t\n\r"))) {
+		fprintf(stderr, "processing: %s\n", tok);
+		if (count > (size_t)(p1 * p2)) {
+			fprintf(stderr, "%s: matrix too big", name);
+			free(sv);
+			free(rops);
+			return(NULL);
+		} else if (-1 != mpq_set_str(rops[count++], tok, 10))
+			continue;
+		fprintf(stderr, "%s: bad payoff: %s\n", name, tok);
+		free(sv);
+		free(rops);
+		return(NULL);
+	}
+	free(sv);
+
+	if (count != (size_t)(p1 * p2)) {
+		fprintf(stderr, "%s: matrix size: %zu != %" 
+			PRId64 "\n", name, count, p1 * p2);
+		free(rops);
+		return(NULL);
+	}
+
+	game = calloc(1, sizeof(struct game));
+	assert(NULL != game);
+	game->payoffs = rops;
+	game->p1 = p1;
+	game->p2 = p2;
+	game->name = strdup(name);
+	assert(NULL != game->name);
+
+	stmt = db_stmt("INSERT INTO game "
+		"(payoffs, p1, p2, name) VALUES(?,?,?,?)");
+	db_bind_text(stmt, 1, poffs);
+	db_bind_int(stmt, 2, game->p1);
+	db_bind_int(stmt, 3, game->p2);
+	db_bind_text(stmt, 4, game->name);
+	db_step(stmt, 0);
+	db_finalise(stmt);
+	game->id = sqlite3_last_insert_rowid(db);
+	fprintf(stderr, "%" PRId64 ": new game: %s", 
+		game->id, game->name);
+	return(game);
 }

@@ -5,22 +5,22 @@ PAGES 	 = adminhome.html \
 STATICS	 = mail.png lock.png script.js
 
 # Mac OSX testing.
-# PREFIX	 = /Users/kristaps/Sites
-# HTDOCS	 = $(PREFIX)
-# CGIBIN	 = $(PREFIX)
-# DATADIR	 = $(PREFIX)
-# STATIC	 = 
+PREFIX	 = /Users/kristaps/Sites
+HTDOCS	 = $(PREFIX)
+CGIBIN	 = $(PREFIX)
+DATADIR	 = $(PREFIX)
+STATIC	 = 
 # OpenBSD production.
-PREFIX	 = /var/www
-HTDOCS	 = $(PREFIX)/htdocs/gamelab
-CGIBIN	 = $(PREFIX)/cgi-bin/gamelab
-DATADIR	 = $(PREFIX)/data/gamelab
-STATIC	 = -static
+# PREFIX	 = /var/www
+# HTDOCS	 = $(PREFIX)/htdocs/gamelab
+# CGIBIN	 = $(PREFIX)/cgi-bin/gamelab
+# DATADIR	 = $(PREFIX)/data/gamelab
+# STATIC	 = -static
 
 all: admin
 
 admin: admin.o db.o
-	$(CC) $(STATIC) -L/usr/local/lib -o $@ admin.o db.o -lsqlite3 -lkcgi -lz
+	$(CC) $(STATIC) -L/usr/local/lib -o $@ admin.o db.o -lsqlite3 -lkcgi -lz -lgmp
 
 admin.o db.o: extern.h
 
