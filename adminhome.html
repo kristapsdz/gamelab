@@ -18,10 +18,19 @@
 			nav li:first-child { font-size: 18pt;
 				color: #fff;
 				background-color: #8888aa; }
-			section ul { margin: 1em auto 1em auto;
-				list-style-type: none; 
-				max-width: 1024px; 
-				padding: 0; }
+			section { max-width: 1024px; 
+				border: thin solid #aaa;
+				margin: 1em auto 1em auto; }
+			section ol { padding: 0; }
+			section li { border: thin solid #ddd; 
+				border-radius: 1ex;
+				margin: 1em;
+				margin-left: 2em;
+				padding: 1ex; }
+			section ol.default { list-style-type: none; }
+			section ol.default li { font-style: italic;
+				margin-left: 1em;
+				color: #666; }
 			fieldset { max-width: 1024px; 
 				box-shadow: none; }
 			.legend { background-color: #ddd; 
@@ -70,7 +79,7 @@
 				loadGames();
 			}
 			function loadGamesSuccess(resp) {
-				var i, results, li, e;
+				var i, j, k, results, li, e;
 
 				if (null == (e = document.getElementById('loadGames')))
 					return;
@@ -78,9 +87,11 @@
 				while (e.firstChild)
 					e.removeChild(e.firstChild);
 
+				e.className = '';
+
 				try  { 
 					results = JSON.parse(resp);
-				} catch (e) {
+				} catch (error) {
 					li = document.createElement('li');
 					li.appendChild(document.createTextNode('Parse error.'));
 					e.appendChild(li);
@@ -90,6 +101,19 @@
 				for (i = 0; i < results.length; i++) {
 					li = document.createElement('li');
 					li.appendChild(document.createTextNode(results[i].name));
+					li.appendChild(document.createTextNode(': {'));
+					for (j = 0; j < results[i].payoffs.length; j++) {
+						if (j > 0)
+							li.appendChild(document.createTextNode(', '));
+						li.appendChild(document.createTextNode('{'));
+						for (k = 0; k < results[i].payoffs[j].length; k++) {
+							if (k > 0)
+								li.appendChild(document.createTextNode(', '));
+							li.appendChild(document.createTextNode(results[i].payoffs[j][k]));
+						}
+						li.appendChild(document.createTextNode('}'));
+					}
+					li.appendChild(document.createTextNode('}'));
 					e.appendChild(li);
 				}
 			}
@@ -131,15 +155,25 @@
 			}
 
 			function loadGames() {
-				var xmlhttp = new XMLHttpRequest();
+				var xmlhttp, li, e;
 
+				if (null == (e = document.getElementById('loadGames'))) 
+					return;
+				while (e.firstChild)
+					e.removeChild(e.firstChild);
+
+				e.className = 'default';
+				li = document.createElement('li');
+				li.appendChild(document.createTextNode('Loading...'));
+				e.appendChild(li);
+
+				xmlhttp = new XMLHttpRequest();
 				xmlhttp.onreadystatechange=function() {
 					if (xmlhttp.readyState==4 && xmlhttp.status==200)
 						loadGamesSuccess(xmlhttp.responseText);
 					else if (xmlhttp.readyState == 4)
 						loadGamesError(xmlhttp.status);
 				} 
-
 				xmlhttp.open('GET', '@@cgibin@@/doloadgames.json', true);
 				xmlhttp.send(null);
 			}
@@ -153,9 +187,12 @@
 			</ul>
 		</nav>
 		<section>
-			<ul id="loadGames">
-				<li>Loading games...</li>
-			</ul>
+			<div class="legend">
+				Current Games
+			</div>
+			<ol id="loadGames" class="default">
+				<li>Loading...</li>
+			</ol>
 		</section>
 		<form action="@@cgibin@@/dochangemail.html" method="post" id="changeMail" onsubmit="return(sendForm(this, doChangeMailSetup, doChangeMailError, doChangeMailSuccess));">
 			<fieldset>

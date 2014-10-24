@@ -301,8 +301,11 @@ db_payoff_to_mpq(char *buf, int64_t p1, int64_t p2)
 	count = 0;
 	while (NULL != (tok = strsep(&buf, " \t\n\r"))) {
 		assert(count < (size_t)(p1 * p2));
-		rc = mpq_set_str(rops[count++], tok, 10);
+		rc = mpq_set_str(rops[count], tok, 10);
 		assert(0 == rc);
+		mpq_canonicalize(rops[count]);
+		assert(0 == rc);
+		count++;
 	}
 
 	assert(count == (size_t)(p1 * p2));
@@ -326,12 +329,15 @@ db_game_load_all(void (*fp)(const struct game *, size_t, void *), void *arg)
 		game.p1 = sqlite3_column_int(stmt, 1);
 		game.p2 = sqlite3_column_int(stmt, 2);
 		game.payoffs = db_payoff_to_mpq(sv, game.p1, game.p2);
-		game.name = (char *)sqlite3_column_text(stmt, 3);
+		assert(NULL != game.payoffs);
+		game.name = strdup((char *)sqlite3_column_text(stmt, 3));
+		assert(NULL != game.name);
 		game.id = sqlite3_column_int(stmt, 4);
 		(*fp)(&game, count++, arg);
 		for (i = 0; i < (size_t)(game.p1 * game.p2); i++)
 			mpq_clear(game.payoffs[i]);
 		free(game.payoffs);
+		free(game.name);
 		free(sv);
 	}
 
@@ -366,8 +372,10 @@ db_game_alloc(const char *poffs,
 			free(sv);
 			free(rops);
 			return(NULL);
-		} else if (-1 != mpq_set_str(rops[count++], tok, 10))
+		} else if (-1 != mpq_set_str(rops[count], tok, 10)) {
+			mpq_canonicalize(rops[count++]);
 			continue;
+		}
 		fprintf(stderr, "%s: bad payoff: %s\n", name, tok);
 		free(sv);
 		free(rops);

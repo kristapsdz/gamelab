@@ -53,7 +53,7 @@ input[type=submit] 	{ background: #3498db;
 				font-family: Arial;
 				color: #ffffff;
 				font-size: 20px;
-				padding: 10px 20px 10px 20px;
+				padding: 5px 20px 5px 20px;
 				text-decoration: none; }
 input[type=submit]:hover { background: #3cb0fd;
 				background-image: -webkit-linear-gradient(top, #3cb0fd, #3498db);
@@ -84,5 +84,7 @@ textarea 		{ display: block;
 
 @media only screen and (max-width: 640px), only screen and (max-device-width: 640px) {
 .legend, .error		{ display: block; }
-h1 			{ margin: 0.5em auto 0 auto; }
+h1 			{ margin: 0.5em auto 0 auto; text-align: center; }
+fieldset 		{ box-shadow: none; 
+			  border: 0; }
 }

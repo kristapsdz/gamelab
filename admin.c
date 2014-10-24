@@ -150,6 +150,33 @@ json_putstring(struct kreq *r, const char *key, const char *val)
 	json_puts(r, val);
 }
 
+static void
+json_putmpqs(struct kreq *r, const char *key, 
+	const mpq_t *vals, int64_t p1, int64_t p2)
+{
+	int64_t		i, j, k;
+	char		buf[128];
+
+	assert('\0' != *key);
+	json_puts(r, key);
+	khttp_puts(r, " : ");
+	khttp_putc(r, '[');
+
+	for (k = i = 0; i < p1; i++) {
+		if (i > 0)
+			khttp_putc(r, ',');
+		khttp_putc(r, '[');
+		for (j = 0; j < p2; j++, k++) {
+			if (j > 0)
+				khttp_putc(r, ',');
+			gmp_snprintf(buf, sizeof(buf), "%Qd", vals[k]);
+			json_puts(r, buf);
+		}
+		khttp_putc(r, ']');
+	}
+	khttp_putc(r, ']');
+}
+
 static int
 sess_valid(struct kreq *r)
 {
@@ -325,6 +352,8 @@ senddoloadgame(const struct game *game, size_t count, void *arg)
 	json_putint(r, "p2", game->p2);
 	khttp_putc(r, ',');
 	json_putstring(r, "name", game->name);
+	khttp_putc(r, ',');
+	json_putmpqs(r, "payoffs", game->payoffs, game->p1, game->p2);
 	khttp_putc(r, '}');
 }
 
