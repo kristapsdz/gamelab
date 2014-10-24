@@ -272,13 +272,70 @@ db_admin_valid(const char *email, const char *pass)
 void
 db_game_free(struct game *game)
 {
+	size_t	 i;
 
 	if (NULL == game)
 		return;
 
+	for (i = 0; i < (size_t)(game->p1 * game->p2); i++)
+		mpq_clear(game->payoffs[i]);
 	free(game->payoffs);
 	free(game->name);
 	free(game);
+}
+
+static mpq_t *
+db_payoff_to_mpq(char *buf, int64_t p1, int64_t p2)
+{
+	mpq_t	*rops;
+	size_t	 i, count;
+	int	 rc;
+	char	*tok;
+
+	rops = calloc(p1 * p2, sizeof(mpq_t));
+	assert(NULL != rops);
+
+	for (i = 0; i < (size_t)(p1 * p2); i++)
+		mpq_init(rops[i]);
+
+	count = 0;
+	while (NULL != (tok = strsep(&buf, " \t\n\r"))) {
+		assert(count < (size_t)(p1 * p2));
+		rc = mpq_set_str(rops[count++], tok, 10);
+		assert(0 == rc);
+	}
+
+	assert(count == (size_t)(p1 * p2));
+	return(rops);
+}
+
+void
+db_game_load_all(void (*fp)(const struct game *, size_t, void *), void *arg)
+{
+	sqlite3_stmt	*stmt;
+	struct game	 game;
+	size_t		 i, count;
+	char		*sv;
+
+	count = 0;
+	stmt = db_stmt("SELECT payoffs,p1,p2,name,id FROM game");
+	while (SQLITE_ROW == db_step(stmt, 0)) {
+		memset(&game, 0, sizeof(struct game));
+		sv = strdup((char *)sqlite3_column_text(stmt, 0));
+		assert(NULL != sv);
+		game.p1 = sqlite3_column_int(stmt, 1);
+		game.p2 = sqlite3_column_int(stmt, 2);
+		game.payoffs = db_payoff_to_mpq(sv, game.p1, game.p2);
+		game.name = (char *)sqlite3_column_text(stmt, 3);
+		game.id = sqlite3_column_int(stmt, 4);
+		(*fp)(&game, count++, arg);
+		for (i = 0; i < (size_t)(game.p1 * game.p2); i++)
+			mpq_clear(game.payoffs[i]);
+		free(game.payoffs);
+		free(sv);
+	}
+
+	db_finalise(stmt);
 }
 
 struct game *
@@ -293,11 +350,9 @@ db_game_alloc(const char *poffs,
 
 	sv = buf = strdup(poffs);
 	assert(NULL != buf);
-	fprintf(stderr, "parsing: %s\n", sv);
 
 	/* FIXME: integer overflow. */
 	rops = calloc(p1 * p2, sizeof(mpq_t));
-	fprintf(stderr, "strategies: %zu\n", (size_t)(p1 * p2));
 	assert(NULL != rops);
 
 	for (i = 0; i < (size_t)(p1 * p2); i++)
@@ -306,7 +361,6 @@ db_game_alloc(const char *poffs,
 	/* Verify that these are real numbers. */
 	count = 0;
 	while (NULL != (tok = strsep(&buf, " \t\n\r"))) {
-		fprintf(stderr, "processing: %s\n", tok);
 		if (count > (size_t)(p1 * p2)) {
 			fprintf(stderr, "%s: matrix too big", name);
 			free(sv);
@@ -345,6 +399,7 @@ db_game_alloc(const char *poffs,
 	db_step(stmt, 0);
 	db_finalise(stmt);
 	game->id = sqlite3_last_insert_rowid(db);
+
 	fprintf(stderr, "%" PRId64 ": new game: %s", 
 		game->id, game->name);
 	return(game);

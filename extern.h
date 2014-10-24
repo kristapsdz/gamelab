@@ -22,6 +22,7 @@ struct game	*db_game_alloc(const char *payoffs,
 			const char *name, 
 			int64_t p1, int64_t p2);
 void		 db_game_free(struct game *game);
+void		 db_game_load_all(void (*fp)(const struct game *, size_t, void *), void *arg);
 
 struct sess	*db_sess_alloc(void);
 int		 db_sess_valid(int64_t id, int64_t cookie);

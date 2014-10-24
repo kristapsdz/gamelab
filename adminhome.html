@@ -18,6 +18,10 @@
 			nav li:first-child { font-size: 18pt;
 				color: #fff;
 				background-color: #8888aa; }
+			section ul { margin: 1em auto 1em auto;
+				list-style-type: none; 
+				max-width: 1024px; 
+				padding: 0; }
 			fieldset { max-width: 1024px; 
 				box-shadow: none; }
 			.legend { background-color: #ddd; 
@@ -63,6 +67,31 @@
 			}
 			function doAddGameSuccess(resp) {
 				doSuccess('addGameSubmit', 'addGame');
+				loadGames();
+			}
+			function loadGamesSuccess(resp) {
+				var i, results, li, e;
+
+				if (null == (e = document.getElementById('loadGames')))
+					return;
+
+				while (e.firstChild)
+					e.removeChild(e.firstChild);
+
+				try  { 
+					results = JSON.parse(resp);
+				} catch (e) {
+					li = document.createElement('li');
+					li.appendChild(document.createTextNode('Parse error.'));
+					e.appendChild(li);
+					return;
+				}
+
+				for (i = 0; i < results.length; i++) {
+					li = document.createElement('li');
+					li.appendChild(document.createTextNode(results[i].name));
+					e.appendChild(li);
+				}
 			}
 
 			function doAddPlayersError(err) {
@@ -77,6 +106,16 @@
 			function doAddGameError(err) {
 				doError(err, 'addGameSubmit', 'addGameErr');
 			}
+			function loadGamesError(err) {
+				var li, e = document.getElementById('loadGames');
+				if (null == e)
+					return;
+				while (e.firstChild)
+					e.removeChild(e.firstChild);
+				li = document.createElement('li');
+				li.appendChild(document.createTextNode('An error occured.'));
+				e.appendChild(li);
+			}
 
 			function doAddPlayersSetup() {
 				doSetup('addPlayersSubmit', 'addPlayersErr');
@@ -90,15 +129,34 @@
 			function doAddGameSetup() {
 				doSetup('addGameSubmit', 'addGameErr');
 			}
+
+			function loadGames() {
+				var xmlhttp = new XMLHttpRequest();
+
+				xmlhttp.onreadystatechange=function() {
+					if (xmlhttp.readyState==4 && xmlhttp.status==200)
+						loadGamesSuccess(xmlhttp.responseText);
+					else if (xmlhttp.readyState == 4)
+						loadGamesError(xmlhttp.status);
+				} 
+
+				xmlhttp.open('GET', '@@cgibin@@/doloadgames.json', true);
+				xmlhttp.send(null);
+			}
 		</script>
 	</head>
-	<body>
+	<body onload="loadGames();">
 		<nav>
 			<ul>
 				<li>Administrator</li>
 				<li><a href="@@cgibin@@/dologout.html">Logout</a></li>
 			</ul>
 		</nav>
+		<section>
+			<ul id="loadGames">
+				<li>Loading games...</li>
+			</ul>
+		</section>
 		<form action="@@cgibin@@/dochangemail.html" method="post" id="changeMail" onsubmit="return(sendForm(this, doChangeMailSetup, doChangeMailError, doChangeMailSuccess));">
 			<fieldset>
 				<div>

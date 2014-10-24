@@ -21,6 +21,7 @@ enum	page {
 	PAGE_DOADDPLAYERS,
 	PAGE_DOCHANGEMAIL,
 	PAGE_DOCHANGEPASS,
+	PAGE_DOLOADGAMES,
 	PAGE_DOLOGIN,
 	PAGE_DOLOGOUT,
 	PAGE_HOME,
@@ -67,6 +68,7 @@ static const char *const pages[PAGE__MAX] = {
 	"doaddplayers", /* PAGE_DOADDPLAYERS */
 	"dochangemail", /* PAGE_DOCHANGEMAIL */
 	"dochangepass", /* PAGE_DOCHANGEPASS */
+	"doloadgames", /* PAGE_DOLOADGAMES */
 	"dologin", /* PAGE_DOLOGIN */
 	"dologout", /* PAGE_DOLOGOUT */
 	"home", /* PAGE_HOME */
@@ -103,6 +105,50 @@ static const struct kvalid keys[KEY__MAX] = {
 	{ kvalid_int, "sesscookie" }, /* KEY_SESSCOOKIE */
 	{ kvalid_int, "sessid" }, /* KEY_SESSID */
 };
+
+static void
+json_puts(struct kreq *r, const char *cp)
+{
+	int	 c;
+
+	khttp_putc(r, '"');
+
+	while ('\0' != (c = *cp++))
+		switch (c) {
+		case ('"'):
+		case ('\\'):
+			khttp_putc(r, '\\');
+			/* FALLTHROUGH */
+		default:
+			khttp_putc(r, c);
+			break;
+		}
+
+	khttp_putc(r, '"');
+}
+
+static void
+json_putint(struct kreq *r, const char *key, int64_t val)
+{
+	char	buf[22];
+
+	(void)snprintf(buf, sizeof(buf), "%" PRId64, val);
+
+	assert('\0' != *key);
+	json_puts(r, key);
+	khttp_puts(r, " : ");
+	json_puts(r, buf);
+}
+
+static void
+json_putstring(struct kreq *r, const char *key, const char *val)
+{
+
+	assert('\0' != *key);
+	json_puts(r, key);
+	khttp_puts(r, " : ");
+	json_puts(r, val);
+}
 
 static int
 sess_valid(struct kreq *r)
@@ -185,15 +231,16 @@ sendcontent(struct kreq *r, enum cntt cntt)
 {
 	struct ktemplate t;
 	char		 fname[PATH_MAX];
+	const char	*p;
 
 	t.key = templs;
 	t.keysz = TEMPL__MAX;
 	t.arg = r;
 	t.cb = sendtempl;
 
+	p = getenv("DB_DIR");
 	snprintf(fname, sizeof(fname), "%s/%s",
-		NULL != getenv("DB_DIR") ? getenv("DB_DIR") : ".",
-		cntts[cntt]);
+		NULL != p ? p : ".", cntts[cntt]);
 
 	http_open(r, KHTTP_200);
 	khttp_body(r);
@@ -266,6 +313,33 @@ senddoaddplayers(struct kreq *r)
 }
 
 static void
+senddoloadgame(const struct game *game, size_t count, void *arg)
+{
+	struct kreq	*r = arg;
+
+	if (count > 0)
+		khttp_putc(r, ',');
+	khttp_putc(r, '{');
+	json_putint(r, "p1", game->p1);
+	khttp_putc(r, ',');
+	json_putint(r, "p2", game->p2);
+	khttp_putc(r, ',');
+	json_putstring(r, "name", game->name);
+	khttp_putc(r, '}');
+}
+
+static void
+senddoloadgames(struct kreq *r)
+{
+
+	http_open(r, KHTTP_200);
+	khttp_body(r);
+	khttp_putc(r, '[');
+	db_game_load_all(senddoloadgame, r);
+	khttp_puts(r, "]\n");
+}
+
+static void
 senddologin(struct kreq *r)
 {
 	struct sess	*sess;
@@ -330,6 +404,9 @@ main(void)
 		break;
 	case (PAGE_DOCHANGEPASS):
 		senddochangepass(&r);
+		break;
+	case (PAGE_DOLOADGAMES):
+		senddoloadgames(&r);
 		break;
 	case (PAGE_DOLOGIN):
 		senddologin(&r);
