@@ -78,8 +78,8 @@ static const char *const pages[PAGE__MAX] = {
 };
 
 static	const char *const templs[TEMPL__MAX] = {
-	"cgibin",
-	"htdocs"
+	"cgibin", /* TEMPL_CGIBIN */
+	"htdocs" /* TEMPL_HTDOCS */
 };
 
 static const char *const cntts[CNTT__MAX] = {
@@ -177,6 +177,14 @@ json_putmpqs(struct kreq *r, const char *key,
 	khttp_putc(r, ']');
 }
 
+static void
+sess_delete(struct kreq *r)
+{
+
+	assert(NULL != r->cookiemap[KEY_SESSID]);
+	db_sess_delete(r->cookiemap[KEY_SESSID]->parsed.i);
+}
+
 static int
 sess_valid(struct kreq *r)
 {
@@ -185,7 +193,7 @@ sess_valid(struct kreq *r)
 		NULL == r->cookiemap[KEY_SESSCOOKIE]) 
 		return(0);
 
-	return(db_sess_valid(r->cookiemap[KEY_SESSID]->parsed.i,
+	return(db_admin_sess_valid(r->cookiemap[KEY_SESSID]->parsed.i,
 		r->cookiemap[KEY_SESSCOOKIE]->parsed.i));
 }
 
@@ -222,7 +230,8 @@ send303(struct kreq *r, enum page dest, int dostatus)
 {
 	char	*page, *full;
 
-	http_open(r, KHTTP_303);
+	if (dostatus)
+		http_open(r, KHTTP_303);
 	page = kutil_urlpart(r, r->pname, 
 		ksuffixes[r->mime], pages[dest], NULL);
 	full = kutil_urlabs(KSCHEME_HTTP, r->host, r->port, page);
@@ -280,11 +289,25 @@ senddochangemail(struct kreq *r)
 
 	if (kpairbad(r, KEY_EMAIL1) ||
 		kpairbad(r, KEY_EMAIL2) ||
-		kpairbad(r, KEY_EMAIL3))
+		kpairbad(r, KEY_EMAIL3) ||
+		strcmp(r->fieldmap[KEY_EMAIL2]->parsed.s,
+		       r->fieldmap[KEY_EMAIL3]->parsed.s) ||
+		! db_admin_valid
+			(r->fieldmap[KEY_EMAIL1]->parsed.s, NULL)) {
 		http_open(r, KHTTP_400);
-	else 
-		http_open(r, KHTTP_200);
+		khttp_body(r);
+		return;
+	}
 
+	sess_delete(r);
+	db_admin_set_mail(r->fieldmap[KEY_EMAIL2]->parsed.s);
+	http_open(r, KHTTP_200);
+	khttp_head(r, kresps[KRESP_SET_COOKIE],
+		"%s=; path=/; expires=", 
+		keys[KEY_SESSCOOKIE].name);
+	khttp_head(r, kresps[KRESP_SET_COOKIE],
+		"%s=; path=/; expires=", 
+		keys[KEY_SESSID].name);
 	khttp_body(r);
 }
 
@@ -294,11 +317,25 @@ senddochangepass(struct kreq *r)
 
 	if (kpairbad(r, KEY_PASSWORD1) ||
 		kpairbad(r, KEY_PASSWORD2) ||
-		kpairbad(r, KEY_PASSWORD3))
+		kpairbad(r, KEY_PASSWORD3) ||
+		strcmp(r->fieldmap[KEY_PASSWORD2]->parsed.s,
+		       r->fieldmap[KEY_PASSWORD3]->parsed.s) ||
+		! db_admin_valid_pass
+			(r->fieldmap[KEY_PASSWORD1]->parsed.s)) {
 		http_open(r, KHTTP_400);
-	else
-		http_open(r, KHTTP_200);
+		khttp_body(r);
+		return;
+	} 
 
+	sess_delete(r);
+	db_admin_set_pass(r->fieldmap[KEY_PASSWORD2]->parsed.s);
+	http_open(r, KHTTP_200);
+	khttp_head(r, kresps[KRESP_SET_COOKIE],
+		"%s=; path=/; expires=", 
+		keys[KEY_SESSCOOKIE].name);
+	khttp_head(r, kresps[KRESP_SET_COOKIE],
+		"%s=; path=/; expires=", 
+		keys[KEY_SESSID].name);
 	khttp_body(r);
 }
 
@@ -374,7 +411,7 @@ senddologin(struct kreq *r)
 	struct sess	*sess;
 
 	if (admin_valid(r)) {
-		sess = db_sess_alloc();
+		sess = db_admin_sess_alloc();
 		http_open(r, KHTTP_200);
 		khttp_head(r, kresps[KRESP_SET_COOKIE],
 			"%s=%" PRId64 "; path=/; expires=", 
@@ -393,6 +430,7 @@ static void
 senddologout(struct kreq *r)
 {
 
+	sess_delete(r);
 	http_open(r, KHTTP_303);
 	khttp_head(r, kresps[KRESP_SET_COOKIE],
 		"%s=; path=/; expires=", 
@@ -412,15 +450,41 @@ main(void)
 			pages, PAGE__MAX, PAGE_INDEX))
 		return(EXIT_FAILURE);
 
+	/* 
+	 * First handle pages that don't require login.
+	 * This consists only of static (but templated) pages and the
+	 * login page and its POST receiver.
+	 */
+	switch (r.page) {
+	case (PAGE_DOLOGIN):
+		senddologin(&r);
+		khttp_free(&r);
+		return(EXIT_SUCCESS);
+	case (PAGE_STYLE):
+		sendcontent(&r, CNTT_CSS_STYLE);
+		khttp_free(&r);
+		return(EXIT_SUCCESS);
+	case (PAGE_LOGIN):
+		sendcontent(&r, CNTT_HTML_LOGIN);
+		khttp_free(&r);
+		return(EXIT_SUCCESS);
+	default:
+		break;
+	}
+
+	/* Everything now must have a login. */
+	if ( ! sess_valid(&r)) {
+		send303(&r, PAGE_LOGIN, 1);
+		khttp_free(&r);
+		return(EXIT_SUCCESS);
+	}
+
 	switch (r.page) {
 	case (PAGE_INDEX):
-		send303(&r, sess_valid(&r) ? PAGE_HOME : PAGE_LOGIN, 1);
+		send303(&r, PAGE_HOME, 1);
 		break;
 	case (PAGE_HOME):
-		if ( ! sess_valid(&r)) 
-			send303(&r, PAGE_LOGIN, 1);
-		else
-			sendcontent(&r, CNTT_HTML_HOME);
+		sendcontent(&r, CNTT_HTML_HOME);
 		break;
 	case (PAGE_DOADDGAME):
 		senddoaddgame(&r);
@@ -437,22 +501,11 @@ main(void)
 	case (PAGE_DOLOADGAMES):
 		senddoloadgames(&r);
 		break;
-	case (PAGE_DOLOGIN):
-		senddologin(&r);
-		break;
 	case (PAGE_DOLOGOUT):
 		senddologout(&r);
 		break;
-	case (PAGE_LOGIN):
-		sendcontent(&r, CNTT_HTML_LOGIN);
-		break;
-	case (PAGE_STYLE):
-		sendcontent(&r, CNTT_CSS_STYLE);
-		break;
 	default:
-		/* Page not found... */
-		khttp_head(&r, "Status", "%s", khttps[KHTTP_404]);
-		khttp_head(&r, "Content-Type", "%s", kmimetypes[r.mime]);
+		http_open(&r, KHTTP_404);
 		khttp_body(&r);
 		break;
 	}

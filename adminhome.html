@@ -70,9 +70,11 @@
 			}
 			function doChangeMailSuccess(resp) {
 				doSuccess('changeMailSubmit', 'changeMail');
+				location.href = '@@cgibin@@';
 			}
 			function doChangePassSuccess(resp) {
 				doSuccess('changePassSubmit', 'changePass');
+				location.href = '@@cgibin@@';
 			}
 			function doAddGameSuccess(resp) {
 				doSuccess('addGameSubmit', 'addGame');
@@ -87,8 +89,6 @@
 				while (e.firstChild)
 					e.removeChild(e.firstChild);
 
-				e.className = '';
-
 				try  { 
 					results = JSON.parse(resp);
 				} catch (error) {
@@ -97,6 +97,15 @@
 					e.appendChild(li);
 					return;
 				}
+
+				if (0 == results.length) {
+					li = document.createElement('li');
+					li.appendChild(document.createTextNode('No games.'));
+					e.appendChild(li);
+					return;
+				}
+
+				e.className = '';
 
 				for (i = 0; i < results.length; i++) {
 					li = document.createElement('li');
@@ -202,6 +211,10 @@
 					<div class="error"><div id="changeMailErrForm">Invalid new or existing e-mail address.</div></div>
 				</div>
 				<div class="fields">
+					<div>
+						Set your e-mail address here.
+						You will be logged out after doing so.
+					</div>
 					<input required="required" type="email" name="email1" placeholder="Existing E-mail"/>
 					<input required="required" type="email" name="email2" placeholder="New E-mail"/>
 					<input required="required" type="email" name="email3" placeholder="Repeat New E-mail"/>
@@ -217,6 +230,10 @@
 					<div class="error"><div id="changePassErrForm">Invalid new or existing password.</div></div>
 				</div>
 				<div class="fields">
+					<div>
+						Set your password here.
+						You will be logged out after doing so.
+					</div>
 					<input required="required" type="password" name="password1" placeholder="Existing Password"/>
 					<input required="required" type="password" name="password2" placeholder="New Password"/>
 					<input required="required" type="password" name="password3" placeholder="Repeat New Password"/>
@@ -249,11 +266,12 @@
 					<div class="error"><div id="addGameErrForm">Invalid input.</div></div>
 				</div>
 				<div class="fields">
-					<label>Strategies:</label>
+					<label>Strategy rows</label>
 					<input required="required" type="number" min="2" step="1" name="p1" value="2"/>,
+					<label>columns</label>
 					<input required="required" type="number" min="2" step="1" name="p2" value="2"/>
 					<input required="required" type="text" name="name" placeholder="Game Name"/>
-					<input required="required" type="text" name="payoffs" placeholder="Comma-separated values (top-left to bottom-right)"/>
+					<input required="required" type="text" name="payoffs" placeholder="Space-separated values (top-left to bottom-right)"/>
 					<input id="addGameSubmit" type="submit" value="Submit" />
 				</div>
 			</fieldset>

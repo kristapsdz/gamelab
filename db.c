@@ -200,13 +200,28 @@ db_bind_int(sqlite3_stmt *stmt, size_t pos, int64_t val)
 	exit(EXIT_FAILURE);
 }
 
+void
+db_sess_delete(int64_t id)
+{
+	sqlite3_stmt	*stmt;
+
+	stmt = db_stmt
+		("DELETE FROM sess WHERE id=?");
+	db_bind_int(stmt, 1, id);
+	db_step(stmt, 0);
+	db_finalise(stmt);
+}
+
+
 int
-db_sess_valid(int64_t id, int64_t cookie)
+db_admin_sess_valid(int64_t id, int64_t cookie)
 {
 	int	 	 rc;
 	sqlite3_stmt	*stmt;
 
-	stmt = db_stmt("SELECT * FROM sess WHERE id=? AND cookie=?");
+	stmt = db_stmt
+		("SELECT * FROM sess "
+		 "WHERE id=? AND cookie=? AND playerid IS NULL");
 	db_bind_int(stmt, 1, id);
 	db_bind_int(stmt, 2, cookie);
 	rc = db_step(stmt, 0);
@@ -215,7 +230,7 @@ db_sess_valid(int64_t id, int64_t cookie)
 }
 
 struct sess *
-db_sess_alloc(void)
+db_admin_sess_alloc(void)
 {
 	sqlite3_stmt	*stmt;
 	struct sess	*sess;
@@ -240,13 +255,80 @@ db_sess_free(struct sess *sess)
 	free(sess);
 }
 
+static const char *
+db_crypt_hash(const char *pass)
+{
+
+	return(pass);
+}
+
+static int
+db_crypt_check(const unsigned char *hash, const char *pass)
+{
+
+	return(0 == strcmp((char *)hash, pass));
+}
+
+void
+db_admin_set_pass(const char *pass)
+{
+	sqlite3_stmt	*stmt;
+
+	stmt = db_stmt("UPDATE admin SET hash=?");
+	db_bind_text(stmt, 1, db_crypt_hash(pass));
+	db_step(stmt, 0);
+	db_finalise(stmt);
+}
+
+void
+db_admin_set_mail(const char *email)
+{
+	sqlite3_stmt	*stmt;
+
+	stmt = db_stmt("UPDATE admin SET email=?");
+	db_bind_text(stmt, 1, email);
+	db_step(stmt, 0);
+	db_finalise(stmt);
+}
+
+int
+db_admin_valid_pass(const char *pass)
+{
+	sqlite3_stmt	*stmt;
+	int		 rc;
+
+	stmt = db_stmt("SELECT hash FROM admin");
+	rc = db_step(stmt, 0);
+	assert(SQLITE_ROW == rc);
+
+	if ( ! db_crypt_check(sqlite3_column_text(stmt, 0), pass)) {
+		fprintf(stderr, "%s: not admin password\n", pass);
+		db_finalise(stmt);
+		return(0);
+	}
+
+	db_finalise(stmt);
+	return(1);
+}
+
+int
+db_admin_valid_email(const char *email)
+{
+	sqlite3_stmt	*stmt;
+	int		 rc;
+
+	stmt = db_stmt("SELECT * FROM admin WHERE email=?");
+	db_bind_text(stmt, 1, email);
+
+	rc = db_step(stmt, 0);
+	db_finalise(stmt);
+	return(SQLITE_ROW == rc);
+}
+
 int
 db_admin_valid(const char *email, const char *pass)
 {
 	sqlite3_stmt	*stmt;
-#if 0
-	const char	*hash;
-#endif
 
 	stmt = db_stmt("SELECT hash FROM admin WHERE email=?");
 	db_bind_text(stmt, 1, email);
@@ -256,15 +338,13 @@ db_admin_valid(const char *email, const char *pass)
 		db_finalise(stmt);
 		return(0);
 	} 
-#if 0
-	hash = crypt(pass, (char *)sqlite3_column_text(stmt, 0));
-	if (strcmp(hash, (char *)sqlite3_column_text(stmt, 0))) {
-		fprintf(stderr, "hash = %s", hash);
-		fprintf(stderr, "%s: not password\n", pass);
+
+	if ( ! db_crypt_check(sqlite3_column_text(stmt, 0), pass)) {
+		fprintf(stderr, "%s: not admin password\n", pass);
 		db_finalise(stmt);
 		return(0);
 	}
-#endif
+
 	db_finalise(stmt);
 	return(1);
 }
@@ -312,7 +392,7 @@ db_payoff_to_mpq(char *buf, int64_t p1, int64_t p2)
 	return(rops);
 }
 
-void
+size_t
 db_game_load_all(void (*fp)(const struct game *, size_t, void *), void *arg)
 {
 	sqlite3_stmt	*stmt;
@@ -342,6 +422,7 @@ db_game_load_all(void (*fp)(const struct game *, size_t, void *), void *arg)
 	}
 
 	db_finalise(stmt);
+	return(count);
 }
 
 struct game *
@@ -354,17 +435,20 @@ db_game_alloc(const char *poffs,
 	sqlite3_stmt	*stmt;
 	struct game	*game;
 
+	if (p2 && p1 > INT64_MAX / p2) {
+		fprintf(stderr, "%s: integer overflow: %"
+			PRId64 ", %" PRId64 "\n", name, p1, p2);
+		return(NULL);
+	}
+
 	sv = buf = strdup(poffs);
 	assert(NULL != buf);
-
-	/* FIXME: integer overflow. */
 	rops = calloc(p1 * p2, sizeof(mpq_t));
 	assert(NULL != rops);
 
 	for (i = 0; i < (size_t)(p1 * p2); i++)
 		mpq_init(rops[i]);
 
-	/* Verify that these are real numbers. */
 	count = 0;
 	while (NULL != (tok = strsep(&buf, " \t\n\r"))) {
 		if (count > (size_t)(p1 * p2)) {
@@ -408,7 +492,7 @@ db_game_alloc(const char *poffs,
 	db_finalise(stmt);
 	game->id = sqlite3_last_insert_rowid(db);
 
-	fprintf(stderr, "%" PRId64 ": new game: %s", 
-		game->id, game->name);
+	fprintf(stderr, "%" PRId64 
+		": new game: %s", game->id, game->name);
 	return(game);
 }
