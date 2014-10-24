@@ -28,7 +28,7 @@ input 			{ width: 100%;
 				border-radius: 6px;
 				padding: 0;
 				box-sizing: border-box;
-				font-size: 13pt;
+				font-size: 105%;
 				display: block; }
 input[type=text] 	{ padding-left: 1ex;
 				padding-right: 1ex; }
@@ -81,10 +81,36 @@ textarea 		{ display: block;
 				height: 6em; }
 .fields			{ padding: 1ex; }
 .fields > div		{ margin: 1em auto 1em auto; }
+section 		{ border: thin solid #aaa;
+				margin: 1em auto 1em auto; }
+section ol 		{ padding: 0; }
+section li 		{ border: thin solid #ddd; 
+				border-radius: 1ex;
+				margin: 1em;
+				margin-left: 2em;
+				padding: 1ex; }
+section ol.default 	{ list-style-type: none; }
+section ol.default li 	{ font-style: italic;
+				margin-left: 1em;
+				color: #666; }
+nav ul 			{ list-style-type: none; 
+				box-shadow: 2px 2px 4px #ccc;
+				border-bottom: thin solid #aaa;
+				background-color: #ccc; 
+				padding: 0; 
+				margin: 0; }
+nav li 			{ display: inline-block; 
+				font-size: 16pt; 
+				padding: 1ex; }
+nav li:first-child 	{ font-size: 18pt;
+				color: #fff;
+				background-color: #8888aa; }
 
 @media only screen and (max-width: 640px), only screen and (max-device-width: 640px) {
 .legend, .error		{ display: block; }
 h1 			{ margin: 0.5em auto 0 auto; text-align: center; }
 fieldset 		{ box-shadow: none; 
 			  border: 0; }
+.legend			{ border: none; }
+section			{ border: none; }
 }
