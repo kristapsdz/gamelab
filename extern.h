@@ -1,6 +1,18 @@
 #ifndef EXTERN_H
 #define EXTERN_H
 
+enum	estate {
+	ESTATE_NEW = 0,
+	ESTATE_STARTED = 1,
+};
+
+struct	expr {
+	enum estate	 state;
+	char		*name;
+	time_t		 start;
+	time_t		 end;
+};
+
 struct	sess {
 	int64_t	 	 cookie;
 	int64_t	 	 id;
@@ -14,14 +26,14 @@ struct	game {
 	int64_t		 id;
 };
 
-enum	state {
-	STATE_NEW = 0,
-	STATE_MAILED = 1
+enum	pstate {
+	PSTATE_NEW = 0,
+	PSTATE_MAILED = 1
 };
 
 struct	player {
 	char		*mail;
-	enum state	 state;
+	enum pstate	 state;
 	int64_t		 id;
 };
 

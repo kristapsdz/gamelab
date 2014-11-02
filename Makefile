@@ -2,7 +2,7 @@ CFLAGS 	+= -g -W -Wall -Wstrict-prototypes -Wno-unused-parameter -Wwrite-strings
 PAGES 	 = adminhome.html \
 	   adminlogin.html \
 	   style.css
-STATICS	 = mail.png lock.png script.js
+STATICS	 = mail.png lock.png script.js ajax-loader.gif calendar.png
 
 # Mac OSX testing.
 PREFIX	 = /Users/kristaps/Sites

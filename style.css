@@ -32,6 +32,14 @@ input 			{ width: 100%;
 				display: block; }
 input[type=text] 	{ padding-left: 1ex;
 				padding-right: 1ex; }
+input[type=date] 	{ padding-left: 34px;
+				width: 10em;
+				display: inline-block;
+				padding-right: 1ex;
+				margin: 0;
+				background-position: left center;
+				background-repeat: no-repeat;
+				background-image: url('@@htdocs@@/calendar.png'); }
 input[type=number] 	{ width: 4em; 
 				padding-left: 1ex;
 				padding-right: 1ex;
@@ -52,7 +60,7 @@ input[type=submit] 	{ background: #3498db;
 				border-radius: 16px;
 				font-family: Arial;
 				color: #ffffff;
-				font-size: 20px;
+				font-size: 18px;
 				padding: 5px 20px 5px 20px;
 				text-decoration: none; }
 input[type=submit]:hover { background: #3cb0fd;
@@ -64,11 +72,13 @@ input[type=submit]:hover { background: #3cb0fd;
 				text-decoration: none; }
 input[type=password] 	{ padding-left: 34px;
 				padding-right: 1ex;
+				background-position: left center;
 				background-repeat: no-repeat;
 				background-image: url('@@htdocs@@/lock.png'); }
 input[type=email] 	{ padding-left: 34px;
 				padding-right: 1ex;
 				background-repeat: no-repeat;
+				background-position: left center;
 				background-image: url('@@htdocs@@/mail.png'); }
 textarea 		{ display: block;
 				border: thin solid #aaa;
@@ -80,17 +90,27 @@ textarea 		{ display: block;
 				font-size: 13pt;
 				height: 6em; }
 .fields			{ padding: 1ex; }
-.fields > div		{ margin: 1em auto 1em auto; }
+.fields > div		{ margin: 1em 0; }
+.fields > aside		{ display: block;
+			  margin: 1em auto 1em auto; }
 section 		{ border: thin solid #aaa;
 				margin: 1em auto 1em auto; }
-#intro			{ border: none; }
-section ol 		{ padding: 0; }
-section li 		{ border: thin solid #ddd; 
+section.intro		{ border: none; }
+section ol, ul 		{ padding: 0; }
+section ol li 		{ border: thin solid #ddd; 
 				border-radius: 1ex;
 				margin: 1em;
 				margin-left: 2em;
 				padding: 1ex; }
+section ul li 		{ border: thin solid #ddd; 
+				border-radius: 1ex;
+				margin: 1em;
+				padding: 1ex; }
+img.loader		{ margin-bottom: -2px;
+			  margin-right: 1ex; }
+section ul	 	{ list-style-type: none; }
 section ol.default 	{ list-style-type: none; }
+section ul.default li,
 section ol.default li 	{ font-style: italic;
 				margin-left: 1em;
 				color: #666; }

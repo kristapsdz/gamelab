@@ -468,7 +468,11 @@ senddoloadplayer(const struct player *player, size_t count, void *arg)
 
 	if (count > 0)
 		khttp_putc(r, ',');
-	json_puts(r, player->mail);
+	khttp_putc(r, '{');
+	json_putstring(r, "mail", player->mail);
+	khttp_putc(r, ',');
+	json_putint(r, "id", player->id);
+	khttp_putc(r, '}');
 }
 
 static void

@@ -114,11 +114,13 @@
 				}
 
 				e.className = '';
+				li = document.createElement('li');
+				e.appendChild(li);
 
 				for (i = 0; i < results.length; i++) {
-					li = document.createElement('li');
-					li.appendChild(document.createTextNode(results[i]));
-					e.appendChild(li);
+					if (i > 0)
+						li.appendChild(document.createTextNode(', '));
+					li.appendChild(document.createTextNode(results[i].mail));
 				}
 			}
 
@@ -198,6 +200,9 @@
 				loadError(err, 'loadGames');
 			}
 
+			function loadExprError(err) {
+			}
+
 			function loadPlayersError(err) {
 				loadError(err, 'loadPlayers');
 			}
@@ -220,13 +225,19 @@
 			}
 
 			function loadList(url, name, onsuccess, onerror) {
-				var xmlhttp, li, e;
+				var xmlhttp, li, e, gif;
 
 				if (null == (e = doClearNode(document.getElementById(name))))
 					return;
 
 				e.className = 'default';
 				li = document.createElement('li');
+
+				gif = document.createElement('img');
+				gif.setAttribute('src', '@@htdocs@@/ajax-loader.gif');
+				gif.setAttribute('alt', 'Loading...');
+				gif.setAttribute('class', 'loader');
+				li.appendChild(gif);
 				li.appendChild(document.createTextNode('Loading...'));
 				e.appendChild(li);
 
@@ -245,6 +256,10 @@
 				loadList('@@cgibin@@/doloadplayers.json', 'loadPlayers', loadPlayersSuccess, loadPlayersError);
 			}
 
+			function loadExpr() {
+				loadList('@@cgibin@@/doloadexpr.json', 'loadExpr', loadExprSuccess, loadExprError);
+			}
+
 			function loadGames() {
 				loadList('@@cgibin@@/doloadgames.json', 'loadGames', loadGamesSuccess, loadGamesError);
 			}
@@ -257,64 +272,53 @@
 				<li><a href="@@cgibin@@/dologout.html">Logout</a></li>
 			</ul>
 		</nav>
-		<section id="intro">
-			From here you can administator your <span class="name">gamelab</span> experiment.
-			Each experiment consists of multiple bimatrix games and a set of players.
+		<section class="intro">
+			This is your gamelab experiment's administrative console.
+			Each gamelab instance (this site) is tied to a specific experiment, each experiment having one or more games and
+			participants.
+			Your experiment has not yet begun, so you can still add players, games, and tune experiment parameters.
 		</section>
+		<form action="@@cgibin@@/dochangeexpr.html" method="post" id="changeExpr" onsubmit="return(sendForm(this, doChangeExprSetup, doChangeExprError, doChangeExprSuccess));">
+			<fieldset>
+				<div>
+					<div class="legend">Experiment Parameters</div>
+					<div class="error"><div id="changeExprErrSystem">An unexpected error occurred.</div></div>
+					<div class="error"><div id="changeExprErrForm">Invalid experiment parameters.</div></div>
+				</div>
+				<div class="fields">
+					<aside>
+						Commit your experiment parameters and start here.
+						Once you start your experiment, you cannot add or remove games, or change the experiment duration.
+						(You can add or disable players, however.)
+					</aside>
+					<div>
+						<input required="required" type="date" name="start" placeholder="yyyy/mm/dd" />
+						<label>Start date</label> 
+					</div>
+					<div>
+						<input required="required" type="number" name="length" min="1" step="1" value="14" />
+						<label>Days</label> 
+					</div>
+					<input id="changeExprSubmit" type="submit" value="Start" />
+				</div>
+			</fieldset>
+		</form>
 		<section>
 			<div class="legend">
 				Experiment Games
 			</div>
 			<ol id="loadGames" class="default">
-				<li>Loading...</li>
+				<li><img src="@@htdocs@@/ajax-loader.gif" class="loader" alt="Loading..." />Loading...</li>
 			</ol>
 		</section>
 		<section>
 			<div class="legend">
 				Experiment Players
 			</div>
-			<ol id="loadPlayers" class="default">
-				<li>Loading...</li>
-			</ol>
+			<ul id="loadPlayers" class="default">
+				<li><img src="@@htdocs@@/ajax-loader.gif" class="loader" alt="Loading..." />Loading...</li>
+			</ul>
 		</section>
-		<form action="@@cgibin@@/dochangemail.html" method="post" id="changeMail" onsubmit="return(sendForm(this, doChangeMailSetup, doChangeMailError, doChangeMailSuccess));">
-			<fieldset>
-				<div>
-					<div class="legend">Change Administrator E-mail</div>
-					<div class="error"><div id="changeMailErrSystem">An unexpected error occurred.</div></div>
-					<div class="error"><div id="changeMailErrForm">Invalid new or existing e-mail address.</div></div>
-				</div>
-				<div class="fields">
-					<div>
-						Set your e-mail address here.
-						You will be logged out after doing so.
-					</div>
-					<input required="required" type="email" name="email1" placeholder="Existing E-mail"/>
-					<input required="required" type="email" name="email2" placeholder="New E-mail"/>
-					<input required="required" type="email" name="email3" placeholder="Repeat New E-mail"/>
-					<input id="changeMailSubmit" type="submit" value="Submit" />
-				</div>
-			</fieldset>
-		</form>
-		<form action="@@cgibin@@/dochangepass.html" method="post" id="changePass" onsubmit="return(sendForm(this, doChangePassSetup, doChangePassError, doChangePassSuccess));">
-			<fieldset>
-				<div>
-					<div class="legend">Change Administrator Password</div>
-					<div class="error"><div id="changePassErrSystem">An unexpected error occurred.</div></div>
-					<div class="error"><div id="changePassErrForm">Invalid new or existing password.</div></div>
-				</div>
-				<div class="fields">
-					<div>
-						Set your password here.
-						You will be logged out after doing so.
-					</div>
-					<input required="required" type="password" name="password1" placeholder="Existing Password"/>
-					<input required="required" type="password" name="password2" placeholder="New Password"/>
-					<input required="required" type="password" name="password3" placeholder="Repeat New Password"/>
-					<input id="changePassSubmit" type="submit" value="Submit" />
-				</div>
-			</fieldset>
-		</form>
 		<form action="@@cgibin@@/doaddplayers.html" method="post" id="addPlayers" onsubmit="return(sendForm(this, doAddPlayersSetup, doAddPlayersError, doAddPlayersSuccess));">
 			<fieldset>
 				<div>
@@ -322,11 +326,11 @@
 					<div class="error"><div id="addPlayersErrSystem">An unexpected system error occurred.</div></div>
 				</div>
 				<div class="fields">
-					<div>
+					<aside>
 						Add players to the game using this form.
 						Players consist of e-mail addresses separated by white-space (newlines, tabs, spaces, whatever).
-						Once you submit, the players will be e-mailed a temporary password that they may use to log in to the system.
-					</div>
+						Players will not be contacted until you start the game.
+					</aside>
 					<textarea required="required" name="players" placeholder="Space-separated player e-mail addresses..."></textarea>
 					<input id="addPlayersSubmit" type="submit" value="Submit" />
 					<div id="addPlayersResults">
@@ -349,6 +353,47 @@
 					<input required="required" type="text" name="name" placeholder="Game Name"/>
 					<input required="required" type="text" name="payoffs" placeholder="Space-separated values (top-left to bottom-right)"/>
 					<input id="addGameSubmit" type="submit" value="Submit" />
+				</div>
+			</fieldset>
+		</form>
+		<section class="intro">
+			You can configure administrator parameters at any experiment time.
+		</section>
+		<form action="@@cgibin@@/dochangemail.html" method="post" id="changeMail" onsubmit="return(sendForm(this, doChangeMailSetup, doChangeMailError, doChangeMailSuccess));">
+			<fieldset>
+				<div>
+					<div class="legend">Change Administrator E-mail</div>
+					<div class="error"><div id="changeMailErrSystem">An unexpected error occurred.</div></div>
+					<div class="error"><div id="changeMailErrForm">Invalid new or existing e-mail address.</div></div>
+				</div>
+				<div class="fields">
+					<aside>
+						Set your e-mail address here.
+						You will be logged out after doing so.
+					</aside>
+					<input required="required" type="email" name="email1" placeholder="Existing E-mail"/>
+					<input required="required" type="email" name="email2" placeholder="New E-mail"/>
+					<input required="required" type="email" name="email3" placeholder="Repeat New E-mail"/>
+					<input id="changeMailSubmit" type="submit" value="Submit" />
+				</div>
+			</fieldset>
+		</form>
+		<form action="@@cgibin@@/dochangepass.html" method="post" id="changePass" onsubmit="return(sendForm(this, doChangePassSetup, doChangePassError, doChangePassSuccess));">
+			<fieldset>
+				<div>
+					<div class="legend">Change Administrator Password</div>
+					<div class="error"><div id="changePassErrSystem">An unexpected error occurred.</div></div>
+					<div class="error"><div id="changePassErrForm">Invalid new or existing password.</div></div>
+				</div>
+				<div class="fields">
+					<aside>
+						Set your password here.
+						You will be logged out after doing so.
+					</aside>
+					<input required="required" type="password" name="password1" placeholder="Existing Password"/>
+					<input required="required" type="password" name="password2" placeholder="New Password"/>
+					<input required="required" type="password" name="password3" placeholder="Repeat New Password"/>
+					<input id="changePassSubmit" type="submit" value="Submit" />
 				</div>
 			</fieldset>
 		</form>
