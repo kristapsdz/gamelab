@@ -42,6 +42,7 @@ void		 db_game_free(struct game *game);
 size_t		 db_game_load_all(void (*fp)(const struct game *, size_t, void *), void *arg);
 
 void		 db_player_create(const char *email);
+size_t		 db_player_load_all(void (*fp)(const struct player *, size_t, void *), void *arg);
 
 void		 db_sess_delete(int64_t id);
 void		 db_sess_free(struct sess *sess);

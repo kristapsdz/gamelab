@@ -83,6 +83,7 @@ textarea 		{ display: block;
 .fields > div		{ margin: 1em auto 1em auto; }
 section 		{ border: thin solid #aaa;
 				margin: 1em auto 1em auto; }
+#intro			{ border: none; }
 section ol 		{ padding: 0; }
 section li 		{ border: thin solid #ddd; 
 				border-radius: 1ex;

@@ -20,11 +20,13 @@
 					e.removeChild(e.firstChild);
 				return(e);
 			}
+
 			function doHide(name) {
 				var e;
 				if (null != (e = document.getElementById(name)))
 					e.style.display = 'none';
 			}
+
 			function doUnhide(name) {
 				var e;
 				if (null != (e = document.getElementById(name)))
@@ -35,10 +37,12 @@
 				document.getElementById(submitName).value = 'Submit';
 				document.getElementById(formName).reset();
 			}
+
 			function doError(err, submitName, errName) {
 				document.getElementById(submitName).value = 'Submit';
 				doUnhide(errName + (400 == err ? 'Form' : 'System'));
 			}
+
 			function doSetup(submitName, errName) {
 				document.getElementById(submitName).value = 'Submitting...';
 				doHide(errName + 'Form');
@@ -49,8 +53,8 @@
 				var e, results, i;
 
 				doSuccess('addPlayersSubmit', 'addPlayers');
-
-				if (null == (e = doClearNode(document.getElementById('addPlayersResults'))))
+				e = doClearNode(document.getElementById('addPlayersResults'));
+				if (null == e)
 					return;
 
 				try {
@@ -59,34 +63,71 @@
 					return;
 				}
 
-				if (results.length > 0)
+				if (results.length > 0) {
+					loadPlayers();
 					e.appendChild(document.createTextNode('New players: '));
+				}
+
 				for (i = 0; i < results.length; i++) {
 					if (i > 0)
 						e.appendChild(document.createTextNode(', '));
 					e.appendChild(document.createTextNode(results[i]));
 				}
 			}
+
 			function doChangeMailSuccess(resp) {
 				doSuccess('changeMailSubmit', 'changeMail');
 				location.href = '@@cgibin@@';
 			}
+
 			function doChangePassSuccess(resp) {
 				doSuccess('changePassSubmit', 'changePass');
 				location.href = '@@cgibin@@';
 			}
+
 			function doAddGameSuccess(resp) {
 				doSuccess('addGameSubmit', 'addGame');
 				loadGames();
 			}
+
+			function loadPlayersSuccess(resp) {
+				var e, li, i, results;
+
+				e = doClearNode(document.getElementById('loadPlayers'));
+				if (null == e)
+					return;
+
+				try  { 
+					results = JSON.parse(resp);
+				} catch (error) {
+					li = document.createElement('li');
+					li.appendChild(document.createTextNode('Parse error.'));
+					e.appendChild(li);
+					return;
+				}
+
+				if (0 == results.length) {
+					li = document.createElement('li');
+					li.appendChild(document.createTextNode('No players.'));
+					e.appendChild(li);
+					return;
+				}
+
+				e.className = '';
+
+				for (i = 0; i < results.length; i++) {
+					li = document.createElement('li');
+					li.appendChild(document.createTextNode(results[i]));
+					e.appendChild(li);
+				}
+			}
+
 			function loadGamesSuccess(resp) {
 				var i, j, k, results, li, e;
 
-				if (null == (e = document.getElementById('loadGames')))
+				e = doClearNode(document.getElementById('loadGames'));
+				if (null == e)
 					return;
-
-				while (e.firstChild)
-					e.removeChild(e.firstChild);
 
 				try  { 
 					results = JSON.parse(resp);
@@ -129,44 +170,59 @@
 			function doAddPlayersError(err) {
 				doError(err, 'addPlayersSubmit', 'addPlayersErr');
 			}
+
 			function doChangeMailError(err) {
 				doError(err, 'changeMailSubmit', 'changeMailErr');
 			}
+
 			function doChangePassError(err) {
 				doError(err, 'changePassSubmit', 'changePassErr');
 			}
+
 			function doAddGameError(err) {
 				doError(err, 'addGameSubmit', 'addGameErr');
 			}
-			function loadGamesError(err) {
-				var li, e = document.getElementById('loadGames');
+
+			function loadError(err, name) {
+				var li, e;
+
+				e = doClearNode(document.getElementById(name));
 				if (null == e)
 					return;
-				while (e.firstChild)
-					e.removeChild(e.firstChild);
 				li = document.createElement('li');
 				li.appendChild(document.createTextNode('An error occured.'));
 				e.appendChild(li);
+			}
+
+			function loadGamesError(err) {
+				loadError(err, 'loadGames');
+			}
+
+			function loadPlayersError(err) {
+				loadError(err, 'loadPlayers');
 			}
 
 			function doAddPlayersSetup() {
 				doSetup('addPlayersSubmit', 'addPlayersErr');
 				doClearNode(document.getElementById('addPlayersResults'));
 			}
+
 			function doChangeMailSetup() {
 				doSetup('changeMailSubmit', 'changeMailErr');
 			}
+
 			function doChangePassSetup() {
 				doSetup('changePassSubmit', 'changePassErr');
 			}
+
 			function doAddGameSetup() {
 				doSetup('addGameSubmit', 'addGameErr');
 			}
 
-			function loadGames() {
+			function loadList(url, name, onsuccess, onerror) {
 				var xmlhttp, li, e;
 
-				if (null == (e = doClearNode(document.getElementById('loadGames'))))
+				if (null == (e = doClearNode(document.getElementById(name))))
 					return;
 
 				e.className = 'default';
@@ -177,27 +233,47 @@
 				xmlhttp = new XMLHttpRequest();
 				xmlhttp.onreadystatechange=function() {
 					if (xmlhttp.readyState==4 && xmlhttp.status==200)
-						loadGamesSuccess(xmlhttp.responseText);
+						onsuccess(xmlhttp.responseText);
 					else if (xmlhttp.readyState == 4)
-						loadGamesError(xmlhttp.status);
+						onerror(xmlhttp.status);
 				} 
-				xmlhttp.open('GET', '@@cgibin@@/doloadgames.json', true);
+				xmlhttp.open('GET', url, true);
 				xmlhttp.send(null);
+			}
+
+			function loadPlayers() {
+				loadList('@@cgibin@@/doloadplayers.json', 'loadPlayers', loadPlayersSuccess, loadPlayersError);
+			}
+
+			function loadGames() {
+				loadList('@@cgibin@@/doloadgames.json', 'loadGames', loadGamesSuccess, loadGamesError);
 			}
 		</script>
 	</head>
-	<body onload="loadGames();">
+	<body onload="loadGames(); loadPlayers();">
 		<nav>
 			<ul>
 				<li>Administrator</li>
 				<li><a href="@@cgibin@@/dologout.html">Logout</a></li>
 			</ul>
 		</nav>
+		<section id="intro">
+			From here you can administator your <span class="name">gamelab</span> experiment.
+			Each experiment consists of multiple bimatrix games and a set of players.
+		</section>
 		<section>
 			<div class="legend">
-				Current Games
+				Experiment Games
 			</div>
 			<ol id="loadGames" class="default">
+				<li>Loading...</li>
+			</ol>
+		</section>
+		<section>
+			<div class="legend">
+				Experiment Players
+			</div>
+			<ol id="loadPlayers" class="default">
 				<li>Loading...</li>
 			</ol>
 		</section>

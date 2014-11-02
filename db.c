@@ -393,6 +393,29 @@ db_payoff_to_mpq(char *buf, int64_t p1, int64_t p2)
 }
 
 size_t
+db_player_load_all(void (*fp)(const struct player *, size_t, void *), void *arg)
+{
+	sqlite3_stmt	*stmt;
+	struct player	 player;
+	size_t		 count;
+
+	count = 0;
+	stmt = db_stmt("SELECT email,state,id FROM player");
+	while (SQLITE_ROW == db_step(stmt, 0)) {
+		memset(&player, 0, sizeof(struct player));
+		player.mail = kstrdup
+			((char *)sqlite3_column_text(stmt, 0));
+		player.state = sqlite3_column_int(stmt, 1);
+		player.id = sqlite3_column_int(stmt, 2);
+		(*fp)(&player, count++, arg);
+		free(player.mail);
+	}
+
+	db_finalise(stmt);
+	return(count);
+}
+
+size_t
 db_game_load_all(void (*fp)(const struct game *, size_t, void *), void *arg)
 {
 	sqlite3_stmt	*stmt;

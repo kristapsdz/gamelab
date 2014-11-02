@@ -23,6 +23,7 @@ enum	page {
 	PAGE_DOCHANGEMAIL,
 	PAGE_DOCHANGEPASS,
 	PAGE_DOLOADGAMES,
+	PAGE_DOLOADPLAYERS,
 	PAGE_DOLOGIN,
 	PAGE_DOLOGOUT,
 	PAGE_HOME,
@@ -70,6 +71,7 @@ static const char *const pages[PAGE__MAX] = {
 	"dochangemail", /* PAGE_DOCHANGEMAIL */
 	"dochangepass", /* PAGE_DOCHANGEPASS */
 	"doloadgames", /* PAGE_DOLOADGAMES */
+	"doloadplayers", /* PAGE_DOLOADPLAYERS */
 	"dologin", /* PAGE_DOLOGIN */
 	"dologout", /* PAGE_DOLOGOUT */
 	"home", /* PAGE_HOME */
@@ -460,6 +462,16 @@ senddoaddplayers(struct kreq *r)
 }
 
 static void
+senddoloadplayer(const struct player *player, size_t count, void *arg)
+{
+	struct kreq	*r = arg;
+
+	if (count > 0)
+		khttp_putc(r, ',');
+	json_puts(r, player->mail);
+}
+
+static void
 senddoloadgame(const struct game *game, size_t count, void *arg)
 {
 	struct kreq	*r = arg;
@@ -476,6 +488,18 @@ senddoloadgame(const struct game *game, size_t count, void *arg)
 	json_putmpqs(r, "payoffs", game->payoffs, game->p1, game->p2);
 	khttp_putc(r, '}');
 }
+
+static void
+senddoloadplayers(struct kreq *r)
+{
+
+	http_open(r, KHTTP_200);
+	khttp_body(r);
+	khttp_putc(r, '[');
+	db_player_load_all(senddoloadplayer, r);
+	khttp_puts(r, "]\n");
+}
+
 
 static void
 senddoloadgames(struct kreq *r)
@@ -583,6 +607,9 @@ main(void)
 		break;
 	case (PAGE_DOLOADGAMES):
 		senddoloadgames(&r);
+		break;
+	case (PAGE_DOLOADPLAYERS):
+		senddoloadplayers(&r);
 		break;
 	case (PAGE_DOLOGOUT):
 		senddologout(&r);
