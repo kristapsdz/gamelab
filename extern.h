@@ -14,8 +14,14 @@ struct	game {
 	int64_t		 id;
 };
 
+enum	state {
+	STATE_NEW = 0,
+	STATE_MAILED = 1
+};
+
 struct	player {
 	char		*mail;
+	enum state	 state;
 	int64_t		 id;
 };
 
@@ -34,6 +40,8 @@ struct game	*db_game_alloc(const char *payoffs,
 			int64_t p1, int64_t p2);
 void		 db_game_free(struct game *game);
 size_t		 db_game_load_all(void (*fp)(const struct game *, size_t, void *), void *arg);
+
+void		 db_player_create(const char *email);
 
 void		 db_sess_delete(int64_t id);
 void		 db_sess_free(struct sess *sess);

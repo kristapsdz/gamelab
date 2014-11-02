@@ -496,3 +496,24 @@ db_game_alloc(const char *poffs,
 		": new game: %s", game->id, game->name);
 	return(game);
 }
+
+void
+db_player_create(const char *email)
+{
+	sqlite3_stmt	*stmt;
+	int		 rc;
+	int64_t		 id;
+
+	stmt = db_stmt("INSERT INTO player (email) VALUES (?)");
+	db_bind_text(stmt, 1, email);
+	rc = db_step(stmt, DB_STEP_CONSTRAINT);
+	db_finalise(stmt);
+
+	if (SQLITE_DONE == rc) {
+		id = sqlite3_last_insert_rowid(db);
+		fprintf(stderr, "%" PRId64 ": new player: %s\n",
+			sqlite3_last_insert_rowid(db), email);
+		return;
+	} 
+	fprintf(stderr, "%s: player exists\n", email);
+}

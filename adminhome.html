@@ -11,6 +11,15 @@
 		</style>
 		<script src="@@htdocs@@/script.js"></script>
 		<script>
+			"use strict";
+
+			function doClearNode(e) {
+				if (null == e)
+					return(null);
+				while (e.firstChild)
+					e.removeChild(e.firstChild);
+				return(e);
+			}
 			function doHide(name) {
 				var e;
 				if (null != (e = document.getElementById(name)))
@@ -37,7 +46,26 @@
 			}
 
 			function doAddPlayersSuccess(resp) {
+				var e, results, i;
+
 				doSuccess('addPlayersSubmit', 'addPlayers');
+
+				if (null == (e = doClearNode(document.getElementById('addPlayersResults'))))
+					return;
+
+				try {
+					results = JSON.parse(resp);
+				} catch (error) {
+					return;
+				}
+
+				if (results.length > 0)
+					e.appendChild(document.createTextNode('New players: '));
+				for (i = 0; i < results.length; i++) {
+					if (i > 0)
+						e.appendChild(document.createTextNode(', '));
+					e.appendChild(document.createTextNode(results[i]));
+				}
 			}
 			function doChangeMailSuccess(resp) {
 				doSuccess('changeMailSubmit', 'changeMail');
@@ -123,6 +151,7 @@
 
 			function doAddPlayersSetup() {
 				doSetup('addPlayersSubmit', 'addPlayersErr');
+				doClearNode(document.getElementById('addPlayersResults'));
 			}
 			function doChangeMailSetup() {
 				doSetup('changeMailSubmit', 'changeMailErr');
@@ -137,10 +166,8 @@
 			function loadGames() {
 				var xmlhttp, li, e;
 
-				if (null == (e = document.getElementById('loadGames'))) 
+				if (null == (e = doClearNode(document.getElementById('loadGames'))))
 					return;
-				while (e.firstChild)
-					e.removeChild(e.firstChild);
 
 				e.className = 'default';
 				li = document.createElement('li');
@@ -226,6 +253,8 @@
 					</div>
 					<textarea required="required" name="players" placeholder="Space-separated player e-mail addresses..."></textarea>
 					<input id="addPlayersSubmit" type="submit" value="Submit" />
+					<div id="addPlayersResults">
+					</div>
 				</div>
 			</fieldset>
 		</form>

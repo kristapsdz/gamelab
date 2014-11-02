@@ -5,6 +5,7 @@
 #include <sys/param.h>
 
 #include <assert.h>
+#include <ctype.h>
 #include <inttypes.h>
 #include <stdio.h>
 #include <stdint.h>
@@ -152,7 +153,7 @@ json_putstring(struct kreq *r, const char *key, const char *val)
 
 static void
 json_putmpqs(struct kreq *r, const char *key, 
-	const mpq_t *vals, int64_t p1, int64_t p2)
+	mpq_t *vals, int64_t p1, int64_t p2)
 {
 	int64_t		i, j, k;
 	char		buf[128];
@@ -368,12 +369,94 @@ senddoaddgame(struct kreq *r)
 	db_game_free(game);
 }
 
+static char *
+trim(char *val)
+{
+	char		*cp;
+
+	if ('\0' == *val)
+		return(val);
+
+	cp = val + strlen(val) - 1;
+	while (cp > val && isspace((unsigned char)*cp))
+		*cp-- = '\0';
+
+	cp = val;
+	while (isspace((unsigned char)*cp))
+		cp++;
+
+	return(cp);
+}
+
+
+static char *
+valid_email(char *p)
+{
+	char		*domain, *cp, *start;
+	size_t		 i, sz;
+
+	cp = start = trim(p);
+
+	if ((sz = strlen(cp)) < 5 || sz > 254)
+		return(NULL);
+	if (NULL == (domain = strchr(cp, '@')))
+		return(NULL);
+	if ((sz = domain - cp) < 1 || sz > 64)
+		return(NULL);
+
+	for (i = 0; i < sz; i++) {
+		if (isalnum((unsigned char)cp[i]))
+			continue;
+		if (NULL == strchr("!#$%&'*+-/=?^_`{|}~.", cp[i]))
+			return(NULL);
+	}
+
+	assert('@' == cp[i]);
+	cp = &cp[++i];
+	if ((sz = strlen(cp)) < 4 || sz > 254)
+		return(NULL);
+
+	for (i = 0; i < sz; i++) 
+		if ( ! isalnum((unsigned char)cp[i]))
+			if (NULL == strchr("-.", cp[i]))
+				return(NULL);
+
+	for (cp = start; '\0' != *cp; cp++)
+		*cp = tolower((unsigned char)*cp);
+
+	return(start);
+}
+
 static void
 senddoaddplayers(struct kreq *r)
 {
+	char	*tok, *buf, *mail, *sv;
+	int	 first;
 
 	http_open(r, KHTTP_200);
 	khttp_body(r);
+	khttp_putc(r, '[');
+
+	if (NULL == r->fieldmap[KEY_PLAYERS]) {
+		khttp_putc(r, ']');
+		return;
+	}
+
+	buf = sv = kstrdup(r->fieldmap[KEY_PLAYERS]->parsed.s);
+	first = 1;
+	while (NULL != (tok = strsep(&buf, " \t\n\r"))) {
+		if (NULL == (mail = valid_email(tok))) {
+			fprintf(stderr, "%s: invalid e-mail\n", tok);
+			continue;
+		}
+		if ( ! first)
+			khttp_putc(r, ',');
+		json_puts(r, mail);
+		db_player_create(mail);
+		first = 0;
+	}
+	free(sv);
+	khttp_putc(r, ']');
 }
 
 static void
