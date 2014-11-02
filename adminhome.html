@@ -40,13 +40,24 @@
 
 			function doError(err, submitName, errName) {
 				document.getElementById(submitName).value = 'Submit';
-				doUnhide(errName + (400 == err ? 'Form' : 'System'));
+				switch (err) {
+				case 400:
+					doUnhide(errName + 'Form');
+					break;
+				case 409:
+					doUnhide(errName + 'State');
+					break;
+				default:
+					doUnhide(errName + 'System');
+					break;
+				}
 			}
 
 			function doSetup(submitName, errName) {
 				document.getElementById(submitName).value = 'Submitting...';
 				doHide(errName + 'Form');
 				doHide(errName + 'System');
+				doHide(errName + 'State');
 			}
 
 			function doAddPlayersSuccess(resp) {
@@ -88,6 +99,12 @@
 			function doAddGameSuccess(resp) {
 				doSuccess('addGameSubmit', 'addGame');
 				loadGames();
+			}
+
+			function doStartExprSuccess(resp) {
+				document.getElementById('startExprSubmit').value = 'Started!  Reloading...';
+				document.getElementById('startExpr').reset();
+				window.location.reload(true);
 			}
 
 			function loadPlayersSuccess(resp) {
@@ -185,6 +202,11 @@
 				doError(err, 'addGameSubmit', 'addGameErr');
 			}
 
+			function doStartExprError(err) {
+				doError(err, 'startExprSubmit', 'startExprErr');
+				document.getElementById('startExprSubmit').value = 'Start';
+			}
+
 			function loadError(err, name) {
 				var li, e;
 
@@ -198,9 +220,6 @@
 
 			function loadGamesError(err) {
 				loadError(err, 'loadGames');
-			}
-
-			function loadExprError(err) {
 			}
 
 			function loadPlayersError(err) {
@@ -222,6 +241,11 @@
 
 			function doAddGameSetup() {
 				doSetup('addGameSubmit', 'addGameErr');
+			}
+
+			function doStartExprSetup() {
+				doSetup('startExprSubmit', 'startExprErr');
+				document.getElementById('startExprSubmit').value = 'Starting...';
 			}
 
 			function loadList(url, name, onsuccess, onerror) {
@@ -256,10 +280,6 @@
 				loadList('@@cgibin@@/doloadplayers.json', 'loadPlayers', loadPlayersSuccess, loadPlayersError);
 			}
 
-			function loadExpr() {
-				loadList('@@cgibin@@/doloadexpr.json', 'loadExpr', loadExprSuccess, loadExprError);
-			}
-
 			function loadGames() {
 				loadList('@@cgibin@@/doloadgames.json', 'loadGames', loadGamesSuccess, loadGamesError);
 			}
@@ -278,12 +298,13 @@
 			participants.
 			Your experiment has not yet begun, so you can still add players, games, and tune experiment parameters.
 		</section>
-		<form action="@@cgibin@@/dochangeexpr.html" method="post" id="changeExpr" onsubmit="return(sendForm(this, doChangeExprSetup, doChangeExprError, doChangeExprSuccess));">
+		<form action="@@cgibin@@/dostartexpr.html" method="post" id="startExpr" onsubmit="return(sendForm(this, doStartExprSetup, doStartExprError, doStartExprSuccess));">
 			<fieldset>
 				<div>
 					<div class="legend">Experiment Parameters</div>
-					<div class="error"><div id="changeExprErrSystem">An unexpected error occurred.</div></div>
-					<div class="error"><div id="changeExprErrForm">Invalid experiment parameters.</div></div>
+					<div class="error"><div id="startExprErrSystem">An unexpected error occurred.</div></div>
+					<div class="error"><div id="startExprErrForm">Can't start: start date in the past, not enough days, or no participants or games.</div></div>
+					<div class="error"><div id="startExprErrState">Experiment already started!</div></div>
 				</div>
 				<div class="fields">
 					<aside>
@@ -292,14 +313,14 @@
 						(You can add or disable players, however.)
 					</aside>
 					<div>
-						<input required="required" type="date" name="start" placeholder="yyyy/mm/dd" />
+						<input required="required" type="date" name="date" placeholder="yyyy-mm-dd" />
 						<label>Start date</label> 
 					</div>
 					<div>
-						<input required="required" type="number" name="length" min="1" step="1" value="14" />
+						<input required="required" type="number" name="days" min="1" step="1" value="14" />
 						<label>Days</label> 
 					</div>
-					<input id="changeExprSubmit" type="submit" value="Start" />
+					<input id="startExprSubmit" type="submit" value="Start" />
 				</div>
 			</fieldset>
 		</form>
@@ -324,6 +345,7 @@
 				<div>
 					<div class="legend">Add Players</div>
 					<div class="error"><div id="addPlayersErrSystem">An unexpected system error occurred.</div></div>
+					<div class="error"><div id="addPlayersErrState">Experiment already started!</div></div>
 				</div>
 				<div class="fields">
 					<aside>
@@ -344,6 +366,7 @@
 					<div class="legend">Add Game</div>
 					<div class="error"><div id="addGameErrSystem">An unexpected system error occurred.</div></div>
 					<div class="error"><div id="addGameErrForm">Invalid input.</div></div>
+					<div class="error"><div id="addGameErrState">Experiment already started!</div></div>
 				</div>
 				<div class="fields">
 					<label>Strategy rows</label>

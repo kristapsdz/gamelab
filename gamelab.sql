@@ -7,10 +7,9 @@ CREATE TABLE player (
 );
 
 CREATE TABLE experiment (
-	state INTEGER NOT NULL DEFAULT(0),
-	name TEXT NOT NULL,
-	start INTEGER NOT NULL,
-	end INTEGER NOT NULL,
+	state INTEGER NOT NULL,
+	start INTEGER DEFAULT(0),
+	end INTEGER DEFAULT(0),
 	id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL
 );
 
@@ -35,3 +34,4 @@ CREATE TABLE admin (
 );
 
 INSERT INTO admin (email, hash) VALUES ('foo@example.com', 'xyzzy');
+INSERT INTO experiment (state) VALUES (0);

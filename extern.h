@@ -47,12 +47,17 @@ int		 db_admin_valid_pass(const char *pass);
 struct sess	*db_admin_sess_alloc(void);
 int		 db_admin_sess_valid(int64_t id, int64_t cookie);
 
+int		 db_expr_checkstate(enum estate state);
+void		 db_expr_start(int64_t date, int64_t days);
+
 struct game	*db_game_alloc(const char *payoffs,
 			const char *name, 
 			int64_t p1, int64_t p2);
+size_t		 db_game_count_all(void);
 void		 db_game_free(struct game *game);
 size_t		 db_game_load_all(void (*fp)(const struct game *, size_t, void *), void *arg);
 
+size_t		 db_player_count_all(void);
 void		 db_player_create(const char *email);
 size_t		 db_player_load_all(void (*fp)(const struct player *, size_t, void *), void *arg);
 

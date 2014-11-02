@@ -393,6 +393,42 @@ db_payoff_to_mpq(char *buf, int64_t p1, int64_t p2)
 }
 
 size_t
+db_game_count_all(void)
+{
+	sqlite3_stmt	*stmt;
+	size_t		 count;
+
+	count = 0;
+	stmt = db_stmt("SELECT count(*) FROM game");
+	if (SQLITE_ROW != db_step(stmt, 0)) {
+		db_finalise(stmt);
+		return(0);
+	}
+
+	count = (size_t)sqlite3_column_int(stmt, 0);
+	db_finalise(stmt);
+	return(count);
+}
+
+size_t
+db_player_count_all(void)
+{
+	sqlite3_stmt	*stmt;
+	size_t		 count;
+
+	count = 0;
+	stmt = db_stmt("SELECT count(*) FROM player");
+	if (SQLITE_ROW != db_step(stmt, 0)) {
+		db_finalise(stmt);
+		return(0);
+	}
+
+	count = (size_t)sqlite3_column_int(stmt, 0);
+	db_finalise(stmt);
+	return(count);
+}
+
+size_t
 db_player_load_all(void (*fp)(const struct player *, size_t, void *), void *arg)
 {
 	sqlite3_stmt	*stmt;
@@ -539,4 +575,28 @@ db_player_create(const char *email)
 		return;
 	} 
 	fprintf(stderr, "%s: player exists\n", email);
+}
+
+int
+db_expr_checkstate(enum estate state)
+{
+	sqlite3_stmt	*stmt;
+	int		 rc;
+
+	stmt = db_stmt("SELECT * FROM experiment WHERE state=?");
+	db_bind_int(stmt, 1, state);
+	rc = db_step(stmt, 0);
+	db_finalise(stmt);
+
+	return(rc == SQLITE_ROW);
+}
+
+void
+db_expr_start(int64_t date, int64_t days)
+{
+	sqlite3_stmt	*stmt;
+
+	stmt = db_stmt("UPDATE experiment SET state=1");
+	db_step(stmt, 0);
+	db_finalise(stmt);
 }

@@ -11,6 +11,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #include <gmp.h>
 #include <kcgi.h>
@@ -26,6 +27,7 @@ enum	page {
 	PAGE_DOLOADPLAYERS,
 	PAGE_DOLOGIN,
 	PAGE_DOLOGOUT,
+	PAGE_DOSTARTEXPR,
 	PAGE_HOME,
 	PAGE_INDEX,
 	PAGE_LOGIN,
@@ -41,6 +43,8 @@ enum	cntt {
 };
 
 enum	key {
+	KEY_DATE,
+	KEY_DAYS,
 	KEY_EMAIL,
 	KEY_EMAIL1,
 	KEY_EMAIL2,
@@ -74,6 +78,7 @@ static const char *const pages[PAGE__MAX] = {
 	"doloadplayers", /* PAGE_DOLOADPLAYERS */
 	"dologin", /* PAGE_DOLOGIN */
 	"dologout", /* PAGE_DOLOGOUT */
+	"dostartexpr", /* PAGE_DOSTARTEXPR */
 	"home", /* PAGE_HOME */
 	"index", /* PAGE_INDEX */
 	"login", /* PAGE_LOGIN */
@@ -91,7 +96,12 @@ static const char *const cntts[CNTT__MAX] = {
 	"adminlogin.html", /* CNTT_HTML_LOGIN */
 };
 
+static int kvalid_days(struct kpair *);
+static int kvalid_futuredate(struct kpair *);
+
 static const struct kvalid keys[KEY__MAX] = {
+	{ kvalid_futuredate, "date" }, /* KEY_DATE */
+	{ kvalid_days, "days" }, /* KEY_DAYS */
 	{ kvalid_email, "email" }, /* KEY_EMAIL */
 	{ kvalid_email, "email1" }, /* KEY_EMAIL1 */
 	{ kvalid_email, "email2" }, /* KEY_EMAIL2 */
@@ -447,6 +457,8 @@ senddoaddplayers(struct kreq *r)
 	buf = sv = kstrdup(r->fieldmap[KEY_PLAYERS]->parsed.s);
 	first = 1;
 	while (NULL != (tok = strsep(&buf, " \t\n\r"))) {
+		if (*tok == '\0')
+			continue;
 		if (NULL == (mail = valid_email(tok))) {
 			fprintf(stderr, "%s: invalid e-mail\n", tok);
 			continue;
@@ -538,6 +550,25 @@ senddologin(struct kreq *r)
 }
 
 static void
+senddostartexpr(struct kreq *r)
+{
+
+	if (kpairbad(r, KEY_DATE) ||
+		kpairbad(r, KEY_DAYS) ||
+		db_player_count_all() < 2 ||
+		db_game_count_all() < 1) {
+		http_open(r, KHTTP_400);
+	} else {
+		db_expr_start
+			(r->fieldmap[KEY_DATE]->parsed.i,
+			 r->fieldmap[KEY_DAYS]->parsed.i);
+		http_open(r, KHTTP_200);
+	}
+
+	khttp_body(r);
+}
+
+static void
 senddologout(struct kreq *r)
 {
 
@@ -550,6 +581,25 @@ senddologout(struct kreq *r)
 		"%s=; path=/; expires=", 
 		keys[KEY_SESSID].name);
 	send303(r, PAGE_LOGIN, 0);
+}
+
+static int
+kvalid_futuredate(struct kpair *kp)
+{
+
+	if ( ! kvalid_date(kp))
+		return(0);
+	return(kp->parsed.i > time(NULL));
+}
+
+
+static int
+kvalid_days(struct kpair *kp)
+{
+
+	if ( ! kvalid_uint(kp))
+		return(0);
+	return(kp->parsed.i > 0);
 }
 
 int
@@ -591,11 +641,31 @@ main(void)
 	}
 
 	switch (r.page) {
+	case (PAGE_DOADDGAME):
+	case (PAGE_DOADDPLAYERS):
+	case (PAGE_DOSTARTEXPR):
+		if (db_expr_checkstate(ESTATE_NEW))
+			break;
+		fprintf(stderr, "ignoring request: "
+			"experiment already started\n");
+		http_open(&r, KHTTP_409);
+		khttp_body(&r);
+		khttp_free(&r);
+		return(EXIT_SUCCESS);
+	default:
+		break;
+	}
+
+	switch (r.page) {
 	case (PAGE_INDEX):
 		send303(&r, PAGE_HOME, 1);
 		break;
 	case (PAGE_HOME):
-		sendcontent(&r, CNTT_HTML_HOME);
+		if ( ! db_expr_checkstate(ESTATE_NEW)) {
+			http_open(&r, KHTTP_200);
+			khttp_body(&r);
+		} else
+			sendcontent(&r, CNTT_HTML_HOME);
 		break;
 	case (PAGE_DOADDGAME):
 		senddoaddgame(&r);
@@ -617,6 +687,9 @@ main(void)
 		break;
 	case (PAGE_DOLOGOUT):
 		senddologout(&r);
+		break;
+	case (PAGE_DOSTARTEXPR):
+		senddostartexpr(&r);
 		break;
 	default:
 		http_open(&r, KHTTP_404);
