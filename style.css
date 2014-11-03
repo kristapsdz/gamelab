@@ -139,8 +139,10 @@ img.disabling		{ margin-bottom: -2px;
 			  margin-left: 0.5ex; }
 img.loader		{ margin-bottom: -2px;
 			  margin-right: 1ex; }
-img.enable,
-img.disable		{ margin-bottom: -6px; }
+img.enable		{ margin-bottom: -4px; 
+				margin-left: 4px; }
+img.disable		{ margin-bottom: -6px; 
+				margin-left: 2px; }
 img.enable:hover,
 img.disable:hover	{ cursor: pointer; }
 span.disabled		{ color: #aaa; }

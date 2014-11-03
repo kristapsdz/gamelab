@@ -64,29 +64,8 @@
 			}
 
 			function doAddPlayersSuccess(resp) {
-				var e, results, i;
-
 				doSuccess('addPlayersSubmit', 'addPlayers');
-				e = doClearNode(document.getElementById('addPlayersResults'));
-				if (null == e)
-					return;
-
-				try {
-					results = JSON.parse(resp);
-				} catch (error) {
-					return;
-				}
-
-				if (results.length > 0) {
-					loadPlayers();
-					e.appendChild(document.createTextNode('New players: '));
-				}
-
-				for (i = 0; i < results.length; i++) {
-					if (i > 0)
-						e.appendChild(document.createTextNode(', '));
-					e.appendChild(document.createTextNode(results[i]));
-				}
+				loadPlayers();
 			}
 
 			function doChangeMailSuccess(resp) {
@@ -262,7 +241,6 @@
 
 			function doAddPlayersSetup() {
 				doSetup('addPlayersSubmit', 'addPlayersErr');
-				doClearNode(document.getElementById('addPlayersResults'));
 			}
 
 			function doChangeMailSetup() {
@@ -386,9 +364,10 @@
 		</nav>
 		<section class="intro">
 			This is your gamelab experiment's administrative console.
-			Each gamelab instance (this site) is tied to a specific experiment, each experiment having one or more games and
-			participants.
-			Your experiment has not yet begun, so you can still add players, games, and tune experiment parameters.
+			Each gamelab is tied to a specific experiment, each experiment having one or more games and two or more participants.
+			Your experiment has not yet begun, so you can still <a href="#addPlayers">add players</a> and <a href="#addGame">games</a>.
+			At any time, you can change your <a href="#changeMail">e-mail</a>, <a href="#changePass">password</a>, and <a
+				href="#changeSmtp">SMTP properties</a>.
 		</section>
 		<form action="@@cgibin@@/dostartexpr.html" method="post" id="startExpr" onsubmit="return(sendForm(this, doStartExprSetup, doStartExprError, doStartExprSuccess));">
 			<fieldset>
@@ -422,9 +401,37 @@
 				<li><img src="@@htdocs@@/ajax-loader.gif" class="loader" alt="Loading..." />Loading...</li>
 			</ol>
 		</section>
+		<form action="@@cgibin@@/doaddgame.html" method="post" id="addGame" onsubmit="return(sendForm(this, doAddGameSetup, doAddGameError, doAddGameSuccess));">
+			<fieldset>
+				<div>
+					<div class="legend">Add Game</div>
+					<div class="error"><div id="addGameErrSystem">An unexpected system error occurred.</div></div>
+					<div class="error"><div id="addGameErrForm">Invalid game payoffs, name, or strategy count.</div></div>
+					<div class="error"><div id="addGameErrState">Experiment already started!</div></div>
+				</div>
+				<div class="fields">
+					<label>Strategy rows</label>
+					<input required="required" type="number" min="2" step="1" name="p1" value="2"/>,
+					<label>columns</label>
+					<input required="required" type="number" min="2" step="1" name="p2" value="2"/>
+					<input required="required" type="text" name="name" placeholder="Game Name"/>
+					<input required="required" type="text" name="payoffs" placeholder="Space-separated values (top-left to bottom-right)"/>
+					<input id="addGameSubmit" type="submit" value="Submit" />
+				</div>
+			</fieldset>
+		</form>
 		<section>
 			<div class="legend">
 				Experiment Players
+			</div>
+			<div class="fields">
+				<aside>
+					Players in your experiment.
+					If a player is greyed out, he or she is disabled.
+					Disabled players are not e-mailed a password when the experiment starts, nor are they allowed to log in.
+					To disable a player, just click the red symbol alongisde.
+					To enable a player, use the green symbol.
+				</aside>
 			</div>
 			<ul id="loadPlayers" class="default">
 				<li><img src="@@htdocs@@/ajax-loader.gif" class="loader" alt="Loading..." />Loading...</li>
@@ -445,27 +452,6 @@
 					</aside>
 					<textarea required="required" name="players" placeholder="Space-separated player e-mail addresses..."></textarea>
 					<input id="addPlayersSubmit" type="submit" value="Submit" />
-					<div id="addPlayersResults">
-					</div>
-				</div>
-			</fieldset>
-		</form>
-		<form action="@@cgibin@@/doaddgame.html" method="post" id="addGame" onsubmit="return(sendForm(this, doAddGameSetup, doAddGameError, doAddGameSuccess));">
-			<fieldset>
-				<div>
-					<div class="legend">Add Game</div>
-					<div class="error"><div id="addGameErrSystem">An unexpected system error occurred.</div></div>
-					<div class="error"><div id="addGameErrForm">Invalid input.</div></div>
-					<div class="error"><div id="addGameErrState">Experiment already started!</div></div>
-				</div>
-				<div class="fields">
-					<label>Strategy rows</label>
-					<input required="required" type="number" min="2" step="1" name="p1" value="2"/>,
-					<label>columns</label>
-					<input required="required" type="number" min="2" step="1" name="p2" value="2"/>
-					<input required="required" type="text" name="name" placeholder="Game Name"/>
-					<input required="required" type="text" name="payoffs" placeholder="Space-separated values (top-left to bottom-right)"/>
-					<input id="addGameSubmit" type="submit" value="Submit" />
 				</div>
 			</fieldset>
 		</form>
