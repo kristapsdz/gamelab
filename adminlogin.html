@@ -8,8 +8,8 @@
 		<style>
 			body { background-color: #eee; }
 			form { margin: 0; }
-			h1 { max-width: 768px; }
-			fieldset { max-width: 768px; }
+			h1 { max-width: 768px; margin-bottom: -0.9ex; }
+			fieldset { max-width: 768px; margin-top: 0; }
 		</style>
 		<script src="@@htdocs@@/script.js"></script>
 		<script>
@@ -35,10 +35,10 @@
 		<form action="@@cgibin@@/dologin.html" method="post" onsubmit="return(sendForm(this, doSetup, doError, doSuccess));">
 			<h1>gamelab</h1>
 			<fieldset>
-				<div>
-					<div class="legend">Administrator Login</div>
-					<div class="error"><div id="loginError">Incorrect e-mail or password.</div></div>
-					<div class="error"><div id="ajaxError">A technical error has occured.</div></div>
+				<div class="legend">Administrator Login</div>
+				<div class="error">
+					<div id="loginError">Incorrect e-mail or password.</div>
+					<div id="ajaxError">A technical error has occured.</div>
 				</div>
 				<div class="fields">
 					<input type="email" placeholder="Email" required="required" name="email" />

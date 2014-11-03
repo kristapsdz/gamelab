@@ -13,6 +13,9 @@
 		<script>
 			"use strict";
 
+			var xmlLoadPlayers;
+			var xmlLoadGames;
+
 			function doClearNode(e) {
 				if (null == e)
 					return(null);
@@ -96,6 +99,10 @@
 				location.href = '@@cgibin@@';
 			}
 
+			function doChangeSmtpSuccess(resp) {
+				doSuccess('changeSmtpSubmit', 'changeSmtp');
+			}
+
 			function doAddGameSuccess(resp) {
 				doSuccess('addGameSubmit', 'addGame');
 				loadGames();
@@ -108,7 +115,7 @@
 			}
 
 			function loadPlayersSuccess(resp) {
-				var e, li, i, results;
+				var e, li, i, results, icon, link, span;
 
 				e = doClearNode(document.getElementById('loadPlayers'));
 				if (null == e)
@@ -137,7 +144,30 @@
 				for (i = 0; i < results.length; i++) {
 					if (i > 0)
 						li.appendChild(document.createTextNode(', '));
-					li.appendChild(document.createTextNode(results[i].mail));
+					span = document.createElement('span');
+					span.setAttribute('id', 'player' + results[i].id);
+					if (0 == results[i].enabled)
+						span.setAttribute('class', 'disabled');
+					else
+						span.setAttribute('class', 'enabled');
+					span.appendChild(document.createTextNode(results[i].mail));
+					li.appendChild(span);
+
+					icon = document.createElement('img');
+					icon.setAttribute('src', '@@htdocs@@/disable.png');
+					icon.setAttribute('id', 'playerDisable' + results[i].id);
+					icon.setAttribute('onclick', 'doDisablePlayer(' + results[i].id + '); return false;');
+					icon.setAttribute('alt', 'Disable');
+					icon.setAttribute('class', 'disable');
+					span.appendChild(icon);
+
+					icon = document.createElement('img');
+					icon.setAttribute('src', '@@htdocs@@/enable.png');
+					icon.setAttribute('id', 'playerEnable' + results[i].id);
+					icon.setAttribute('onclick', 'doEnablePlayer(' + results[i].id + '); return false;');
+					icon.setAttribute('alt', 'Enable');
+					icon.setAttribute('class', 'enable');
+					span.appendChild(icon);
 				}
 			}
 
@@ -198,6 +228,10 @@
 				doError(err, 'changePassSubmit', 'changePassErr');
 			}
 
+			function doChangeSmtpError(err) {
+				doError(err, 'changeSmtpSubmit', 'changeSmtpErr');
+			}
+
 			function doAddGameError(err) {
 				doError(err, 'addGameSubmit', 'addGameErr');
 			}
@@ -239,6 +273,10 @@
 				doSetup('changePassSubmit', 'changePassErr');
 			}
 
+			function doChangeSmtpSetup() {
+				doSetup('changeSmtpSubmit', 'changeSmtpErr');
+			}
+
 			function doAddGameSetup() {
 				doSetup('addGameSubmit', 'addGameErr');
 			}
@@ -248,8 +286,57 @@
 				document.getElementById('startExprSubmit').value = 'Starting...';
 			}
 
-			function loadList(url, name, onsuccess, onerror) {
-				var xmlhttp, li, e, gif;
+			function doEnablePlayer(id) {
+				var xmlhttp, e;
+
+				if (null == (e = document.getElementById('player' + id)))
+					return;
+				e.className = 'enabling';
+
+				if (null == (e = document.getElementById('playerEnable' + id)))
+					return;
+				e.src = '@@htdocs@@/ajax-loader.gif';
+				e.className = 'enabling';
+				e.alt = 'Enabling';
+
+				xmlhttp = new XMLHttpRequest();
+				xmlhttp.onreadystatechange=function() {
+					if (xmlhttp.readyState==4 && xmlhttp.status==200)
+						loadPlayers();
+				} 
+				xmlhttp.open('GET', '@@cgibin@@/doenableplayer.json?pid=' + id, true);
+				xmlhttp.send(null);
+			}
+
+			function doDisablePlayer(id) {
+				var xmlhttp, e;
+
+				if (null == (e = document.getElementById('player' + id)))
+					return;
+				e.className = 'disabling';
+
+				if (null == (e = document.getElementById('playerDisable' + id)))
+					return;
+				e.src = '@@htdocs@@/ajax-loader.gif';
+				e.className = 'disabling';
+				e.alt = 'Disabling';
+
+				xmlhttp = new XMLHttpRequest();
+				xmlhttp.onreadystatechange=function() {
+					if (xmlhttp.readyState==4 && xmlhttp.status==200)
+						loadPlayers();
+				} 
+				xmlhttp.open('GET', '@@cgibin@@/dodisableplayer.json?pid=' + id, true);
+				xmlhttp.send(null);
+			}
+
+			function loadList(xmlhttp, url, name, onsuccess, onerror) {
+				var li, e, gif;
+
+				if (null != xmlhttp) {
+					console.log('Already loading.');
+					return;
+				}
 
 				if (null == (e = doClearNode(document.getElementById(name))))
 					return;
@@ -267,21 +354,26 @@
 
 				xmlhttp = new XMLHttpRequest();
 				xmlhttp.onreadystatechange=function() {
-					if (xmlhttp.readyState==4 && xmlhttp.status==200)
+					if (xmlhttp.readyState==4 && xmlhttp.status==200) {
 						onsuccess(xmlhttp.responseText);
-					else if (xmlhttp.readyState == 4)
+						xmlhttp = null;
+					} else if (xmlhttp.readyState == 4) {
 						onerror(xmlhttp.status);
+						xmlhttp = null;
+					}
 				} 
 				xmlhttp.open('GET', url, true);
 				xmlhttp.send(null);
 			}
 
 			function loadPlayers() {
-				loadList('@@cgibin@@/doloadplayers.json', 'loadPlayers', loadPlayersSuccess, loadPlayersError);
+				loadList(xmlLoadPlayers, '@@cgibin@@/doloadplayers.json', 
+					'loadPlayers', loadPlayersSuccess, loadPlayersError);
 			}
 
 			function loadGames() {
-				loadList('@@cgibin@@/doloadgames.json', 'loadGames', loadGamesSuccess, loadGamesError);
+				loadList(xmlLoadGames, '@@cgibin@@/doloadgames.json', 
+					'loadGames', loadGamesSuccess, loadGamesError);
 			}
 		</script>
 	</head>
@@ -314,11 +406,9 @@
 					</aside>
 					<div>
 						<input required="required" type="date" name="date" placeholder="yyyy-mm-dd" />
-						<label>Start date</label> 
-					</div>
-					<div>
+						for
 						<input required="required" type="number" name="days" min="1" step="1" value="14" />
-						<label>Days</label> 
+						days
 					</div>
 					<input id="startExprSubmit" type="submit" value="Start" />
 				</div>
@@ -385,7 +475,7 @@
 		<form action="@@cgibin@@/dochangemail.html" method="post" id="changeMail" onsubmit="return(sendForm(this, doChangeMailSetup, doChangeMailError, doChangeMailSuccess));">
 			<fieldset>
 				<div>
-					<div class="legend">Change Administrator E-mail</div>
+					<div class="legend">Change E-mail</div>
 					<div class="error"><div id="changeMailErrSystem">An unexpected error occurred.</div></div>
 					<div class="error"><div id="changeMailErrForm">Invalid new or existing e-mail address.</div></div>
 				</div>
@@ -404,7 +494,7 @@
 		<form action="@@cgibin@@/dochangepass.html" method="post" id="changePass" onsubmit="return(sendForm(this, doChangePassSetup, doChangePassError, doChangePassSuccess));">
 			<fieldset>
 				<div>
-					<div class="legend">Change Administrator Password</div>
+					<div class="legend">Change Password</div>
 					<div class="error"><div id="changePassErrSystem">An unexpected error occurred.</div></div>
 					<div class="error"><div id="changePassErrForm">Invalid new or existing password.</div></div>
 				</div>
@@ -417,6 +507,29 @@
 					<input required="required" type="password" name="password2" placeholder="New Password"/>
 					<input required="required" type="password" name="password3" placeholder="Repeat New Password"/>
 					<input id="changePassSubmit" type="submit" value="Submit" />
+				</div>
+			</fieldset>
+		</form>
+		<form action="@@cgibin@@/dochangesmtp.html" method="post" id="changeSmtp" onsubmit="return(sendForm(this, doChangeSmtpSetup, doChangeSmtpError, doChangeSmtpSuccess));">
+			<fieldset>
+				<div>
+					<div class="legend">Change SMTP Properties</div>
+					<div class="error"><div id="changeSmtpErrSystem">An unexpected error occurred.</div></div>
+					<div class="error"><div id="changeSmtpErrForm">Invalid new or existing parameters.</div></div>
+				</div>
+				<div class="fields">
+					<aside>
+						In order to send e-mails to players, you need to configure a valid e-mail sending service.
+						Fill in the <q>From Address</q> (which appears on all e-mails to players),
+						<q>SMTP Server</q> to a valid SSL-secured SMTP server,
+						<q>SMTP User</q> to the your server account name, and
+						<q>SMTP Password</q> to the your user's password.
+					</aside>
+					<input required="required" type="email" name="email" placeholder="From Address"/>
+					<input required="required" type="text" name="server" placeholder="SMTP Server"/>
+					<input required="required" type="text" name="user" placeholder="SMTP User"/>
+					<input required="required" type="password" name="password" placeholder="SMTP Password"/>
+					<input id="changeSmtpSubmit" type="submit" value="Submit" />
 				</div>
 			</fieldset>
 		</form>

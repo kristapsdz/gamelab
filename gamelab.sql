@@ -1,6 +1,7 @@
 CREATE TABLE player (
 	email TEXT NOT NULL,
 	state INTEGER NOT NULL DEFAULT(0),
+	enabled INTEGER NOT NULL DEFAULT(1),
 	hash TEXT,
 	id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
 	UNIQUE (email)
@@ -33,5 +34,15 @@ CREATE TABLE admin (
 	id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL
 );
 
+CREATE TABLE smtp (
+	user TEXT,
+	email TEXT,
+	pass TEXT,
+	server TEXT,
+	isset INTEGER NOT NULL,
+	id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL
+);
+
 INSERT INTO admin (email, hash) VALUES ('foo@example.com', 'xyzzy');
 INSERT INTO experiment (state) VALUES (0);
+INSERT INTO smtp (isset) VALUES (0);

@@ -12,17 +12,24 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <unistd.h>
 
 #include <gmp.h>
 #include <kcgi.h>
 
 #include "extern.h"
 
+/*
+ * Unique pages under the CGI "directory".
+ */
 enum	page {
 	PAGE_DOADDGAME,
 	PAGE_DOADDPLAYERS,
 	PAGE_DOCHANGEMAIL,
 	PAGE_DOCHANGEPASS,
+	PAGE_DOCHANGESMTP,
+	PAGE_DODISABLEPLAYER,
+	PAGE_DOENABLEPLAYER,
 	PAGE_DOLOADGAMES,
 	PAGE_DOLOADPLAYERS,
 	PAGE_DOLOGIN,
@@ -35,13 +42,21 @@ enum	page {
 	PAGE__MAX
 };
 
+/*
+ * Content that we manage.
+ * By "manage" I mean that we template them.
+ */
 enum	cntt {
 	CNTT_CSS_STYLE,
-	CNTT_HTML_HOME,
+	CNTT_HTML_HOME_NEW,
+	CNTT_HTML_HOME_STARTED,
 	CNTT_HTML_LOGIN,
 	CNTT__MAX
 };
 
+/*
+ * Input form field names.
+ */
 enum	key {
 	KEY_DATE,
 	KEY_DAYS,
@@ -57,12 +72,18 @@ enum	key {
 	KEY_PASSWORD2,
 	KEY_PASSWORD3,
 	KEY_PAYOFFS,
+	KEY_PLAYERID,
 	KEY_PLAYERS,
+	KEY_SERVER,
 	KEY_SESSCOOKIE,
 	KEY_SESSID,
+	KEY_USER,
 	KEY__MAX
 };
 
+/*
+ * Values in our content that we're templating.
+ */
 enum	templ {
 	TEMPL_CGIBIN,
 	TEMPL_HTDOCS,
@@ -74,6 +95,9 @@ static const char *const pages[PAGE__MAX] = {
 	"doaddplayers", /* PAGE_DOADDPLAYERS */
 	"dochangemail", /* PAGE_DOCHANGEMAIL */
 	"dochangepass", /* PAGE_DOCHANGEPASS */
+	"dochangesmtp", /* PAGE_DOCHANGESMTP */
+	"dodisableplayer", /* PAGE_DODISABLEPLAYER */
+	"doenableplayer", /* PAGE_DOENABLEPLAYER */
 	"doloadgames", /* PAGE_DOLOADGAMES */
 	"doloadplayers", /* PAGE_DOLOADPLAYERS */
 	"dologin", /* PAGE_DOLOGIN */
@@ -92,7 +116,8 @@ static	const char *const templs[TEMPL__MAX] = {
 
 static const char *const cntts[CNTT__MAX] = {
 	"style.css", /* CNTT_CSS_STYLE */
-	"adminhome.html", /* CNTT_HTML_HOME */
+	"adminhome-new.html", /* CNTT_HTML_HOME_NEW */
+	"adminhome-started.html", /* CNTT_HTML_HOME_STARTED */
 	"adminlogin.html", /* CNTT_HTML_LOGIN */
 };
 
@@ -114,11 +139,17 @@ static const struct kvalid keys[KEY__MAX] = {
 	{ kvalid_stringne, "password2" }, /* KEY_PASSWORD2 */
 	{ kvalid_stringne, "password3" }, /* KEY_PASSWORD3 */
 	{ kvalid_stringne, "payoffs" }, /* KEY_PAYOFFS */
+	{ kvalid_int, "pid" }, /* KEY_PLAYERID */
 	{ kvalid_stringne, "players" }, /* KEY_PLAYERS */
+	{ kvalid_stringne, "server" }, /* KEY_SERVER */
 	{ kvalid_int, "sesscookie" }, /* KEY_SESSCOOKIE */
 	{ kvalid_int, "sessid" }, /* KEY_SESSID */
+	{ kvalid_stringne, "user" }, /* KEY_USER */
 };
 
+/*
+ * Put a quoted JSON string into the output stream.
+ */
 static void
 json_puts(struct kreq *r, const char *cp)
 {
@@ -140,6 +171,9 @@ json_puts(struct kreq *r, const char *cp)
 	khttp_putc(r, '"');
 }
 
+/*
+ * Put a quoted JSON string key and integral value pair.
+ */
 static void
 json_putint(struct kreq *r, const char *key, int64_t val)
 {
@@ -153,6 +187,9 @@ json_putint(struct kreq *r, const char *key, int64_t val)
 	json_puts(r, buf);
 }
 
+/*
+ * Put a quoted JSON string key and string value pair.
+ */
 static void
 json_putstring(struct kreq *r, const char *key, const char *val)
 {
@@ -163,6 +200,9 @@ json_putstring(struct kreq *r, const char *key, const char *val)
 	json_puts(r, val);
 }
 
+/*
+ * Put a quoted JSON string key and array of rational fractions.
+ */
 static void
 json_putmpqs(struct kreq *r, const char *key, 
 	mpq_t *vals, int64_t p1, int64_t p2)
@@ -188,14 +228,6 @@ json_putmpqs(struct kreq *r, const char *key,
 		khttp_putc(r, ']');
 	}
 	khttp_putc(r, ']');
-}
-
-static void
-sess_delete(struct kreq *r)
-{
-
-	assert(NULL != r->cookiemap[KEY_SESSID]);
-	db_sess_delete(r->cookiemap[KEY_SESSID]->parsed.i);
 }
 
 static int
@@ -297,6 +329,32 @@ sendcontent(struct kreq *r, enum cntt cntt)
 }
 
 static void
+senddoenableplayer(struct kreq *r)
+{
+
+	if ( ! kpairbad(r, KEY_PLAYERID)) {
+		db_player_enable(r->fieldmap[KEY_PLAYERID]->parsed.i);
+		http_open(r, KHTTP_200);
+	} else
+		http_open(r, KHTTP_400);
+
+	khttp_body(r);
+}
+
+static void
+senddodisableplayer(struct kreq *r)
+{
+
+	if ( ! kpairbad(r, KEY_PLAYERID)) {
+		db_player_disable(r->fieldmap[KEY_PLAYERID]->parsed.i);
+		http_open(r, KHTTP_200);
+	} else
+		http_open(r, KHTTP_400);
+
+	khttp_body(r);
+}
+
+static void
 senddochangemail(struct kreq *r)
 {
 
@@ -312,7 +370,7 @@ senddochangemail(struct kreq *r)
 		return;
 	}
 
-	sess_delete(r);
+	db_sess_delete(r->cookiemap[KEY_SESSID]->parsed.i);
 	db_admin_set_mail(r->fieldmap[KEY_EMAIL2]->parsed.s);
 	http_open(r, KHTTP_200);
 	khttp_head(r, kresps[KRESP_SET_COOKIE],
@@ -321,6 +379,28 @@ senddochangemail(struct kreq *r)
 	khttp_head(r, kresps[KRESP_SET_COOKIE],
 		"%s=; path=/; expires=", 
 		keys[KEY_SESSID].name);
+	khttp_body(r);
+}
+
+static void
+senddochangesmtp(struct kreq *r)
+{
+
+	if (kpairbad(r, KEY_PASSWORD) ||
+		kpairbad(r, KEY_USER) ||
+		kpairbad(r, KEY_SERVER) ||
+		kpairbad(r, KEY_EMAIL)) {
+		http_open(r, KHTTP_400);
+		khttp_body(r);
+		return;
+	} 
+
+	db_smtp_set
+		(r->fieldmap[KEY_USER]->parsed.s,
+		 r->fieldmap[KEY_SERVER]->parsed.s,
+		 r->fieldmap[KEY_EMAIL]->parsed.s,
+		 r->fieldmap[KEY_PASSWORD]->parsed.s);
+	http_open(r, KHTTP_200);
 	khttp_body(r);
 }
 
@@ -340,7 +420,7 @@ senddochangepass(struct kreq *r)
 		return;
 	} 
 
-	sess_delete(r);
+	db_sess_delete(r->cookiemap[KEY_SESSID]->parsed.i);
 	db_admin_set_pass(r->fieldmap[KEY_PASSWORD2]->parsed.s);
 	http_open(r, KHTTP_200);
 	khttp_head(r, kresps[KRESP_SET_COOKIE],
@@ -484,6 +564,8 @@ senddoloadplayer(const struct player *player, size_t count, void *arg)
 	json_putstring(r, "mail", player->mail);
 	khttp_putc(r, ',');
 	json_putint(r, "id", player->id);
+	khttp_putc(r, ',');
+	json_putint(r, "enabled", player->enabled);
 	khttp_putc(r, '}');
 }
 
@@ -552,27 +634,43 @@ senddologin(struct kreq *r)
 static void
 senddostartexpr(struct kreq *r)
 {
+	pid_t	 pid;
 
 	if (kpairbad(r, KEY_DATE) ||
 		kpairbad(r, KEY_DAYS) ||
 		db_player_count_all() < 2 ||
 		db_game_count_all() < 1) {
 		http_open(r, KHTTP_400);
-	} else {
-		db_expr_start
-			(r->fieldmap[KEY_DATE]->parsed.i,
-			 r->fieldmap[KEY_DAYS]->parsed.i);
-		http_open(r, KHTTP_200);
-	}
+		khttp_body(r);
+		return;
+	} 
 
+	db_expr_start
+		(r->fieldmap[KEY_DATE]->parsed.i,
+		 r->fieldmap[KEY_DAYS]->parsed.i);
+	http_open(r, KHTTP_200);
 	khttp_body(r);
+
+	db_close();
+	if (-1 == (pid = fork())) {
+		fprintf(stderr, "cannot fork!\n");
+	} else if (0 == pid) {
+		khttp_child_free(r);
+		if (0 == (pid = fork())) {
+			mail_players();
+			db_close();
+		} else if (pid < 0) 
+			fprintf(stderr, "cannot double-fork!\n");
+		_exit(EXIT_SUCCESS);
+	} else 
+		waitpid(pid, NULL, 0);
 }
 
 static void
 senddologout(struct kreq *r)
 {
 
-	sess_delete(r);
+	db_sess_delete(r->cookiemap[KEY_SESSID]->parsed.i);
 	http_open(r, KHTTP_303);
 	khttp_head(r, kresps[KRESP_SET_COOKIE],
 		"%s=; path=/; expires=", 
@@ -643,6 +741,8 @@ main(void)
 	switch (r.page) {
 	case (PAGE_DOADDGAME):
 	case (PAGE_DOADDPLAYERS):
+	case (PAGE_DODISABLEPLAYER):
+	case (PAGE_DOENABLEPLAYER):
 	case (PAGE_DOSTARTEXPR):
 		if (db_expr_checkstate(ESTATE_NEW))
 			break;
@@ -661,11 +761,10 @@ main(void)
 		send303(&r, PAGE_HOME, 1);
 		break;
 	case (PAGE_HOME):
-		if ( ! db_expr_checkstate(ESTATE_NEW)) {
-			http_open(&r, KHTTP_200);
-			khttp_body(&r);
-		} else
-			sendcontent(&r, CNTT_HTML_HOME);
+		if ( ! db_expr_checkstate(ESTATE_NEW))
+			sendcontent(&r, CNTT_HTML_HOME_STARTED);
+		else
+			sendcontent(&r, CNTT_HTML_HOME_NEW);
 		break;
 	case (PAGE_DOADDGAME):
 		senddoaddgame(&r);
@@ -678,6 +777,15 @@ main(void)
 		break;
 	case (PAGE_DOCHANGEPASS):
 		senddochangepass(&r);
+		break;
+	case (PAGE_DOCHANGESMTP):
+		senddochangesmtp(&r);
+		break;
+	case (PAGE_DODISABLEPLAYER):
+		senddodisableplayer(&r);
+		break;
+	case (PAGE_DOENABLEPLAYER):
+		senddoenableplayer(&r);
 		break;
 	case (PAGE_DOLOADGAMES):
 		senddoloadgames(&r);

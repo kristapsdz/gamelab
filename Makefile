@@ -1,8 +1,16 @@
 CFLAGS 	+= -g -W -Wall -Wstrict-prototypes -Wno-unused-parameter -Wwrite-strings -I/usr/local/include
-PAGES 	 = adminhome.html \
+PAGES 	 = adminhome-new.html \
+	   adminhome-started.html \
 	   adminlogin.html \
 	   style.css
-STATICS	 = mail.png lock.png script.js ajax-loader.gif calendar.png
+STATICS	 = ajax-loader.gif \
+	   calendar.png \
+	   disable.png \
+	   enable.png \
+	   mail.png \
+	   lock.png \
+	   script.js \
+	   submit.png
 
 # Mac OSX testing.
 PREFIX	 = /Users/kristaps/Sites
@@ -19,10 +27,10 @@ STATIC	 =
 
 all: admin
 
-admin: admin.o db.o
-	$(CC) $(STATIC) -L/usr/local/lib -o $@ admin.o db.o -lsqlite3 -lkcgi -lz -lgmp
+admin: admin.o db.o mail.o
+	$(CC) $(STATIC) -L/usr/local/lib -o $@ admin.o db.o mail.o -lsqlite3 -lkcgi -lz -lgmp -lcurl -lssl -lcrypto
 
-admin.o db.o: extern.h
+admin.o db.o mail.o: extern.h
 
 installwww: all
 	install -m 0444 $(STATICS) $(HTDOCS)

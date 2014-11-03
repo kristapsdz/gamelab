@@ -1,3 +1,7 @@
+/*	$Id$ */
+/*
+ * Copyright (c) 2014 Kristaps Dzonsons <kristaps@kcons.eu>
+ */
 #include <sys/param.h>
 
 #include <assert.h>
@@ -17,7 +21,7 @@
 /*
  * The database, its location, and its statement (if any).
  * This is opened on-demand (see db_tryopen()) and closed automatically
- * on system exit (see db_atexit()).
+ * on system exit (see the atexit(3) call).
  */
 static sqlite3		*db;
 
@@ -28,20 +32,14 @@ db_finalise(sqlite3_stmt *stmt)
 	sqlite3_finalize(stmt);
 }
 
-/*
- * When the system exits (i.e., exit(3) is called), make sure that the
- * database has been properly closed out.
- */
-static void
-db_atexit(void)
+void
+db_close(void)
 {
 
 	if (NULL == db)
 		return;
-
 	if (SQLITE_OK != sqlite3_close(db))
 		perror(sqlite3_errmsg(db));
-
 	db = NULL;
 }
 
@@ -64,7 +62,7 @@ db_tryopen(void)
 		NULL != getenv("DB_DIR") ? getenv("DB_DIR") : ".");
 
 	/* Register exit hook for the destruction of the database. */
-	if (-1 == atexit(db_atexit)) {
+	if (-1 == atexit(db_close)) {
 		perror(NULL);
 		exit(EXIT_FAILURE);
 	}
@@ -243,8 +241,7 @@ db_admin_sess_alloc(void)
 	db_step(stmt, 0);
 	db_finalise(stmt);
 	sess->id = sqlite3_last_insert_rowid(db);
-	fprintf(stderr, "%" PRId64 ": new session cookie %" 
-		PRId64 "\n", sess->id, sess->cookie);
+	fprintf(stderr, "%" PRId64 ": new admin session\n", sess->id);
 	return(sess);
 }
 
@@ -259,6 +256,19 @@ static const char *
 db_crypt_hash(const char *pass)
 {
 
+	return(pass);
+}
+
+static char *
+db_crypt_mkpass(void)
+{
+	char	*pass;
+	size_t	 i;
+	
+	pass = kmalloc(17);
+	for (i = 0; i < 16; i++)
+		pass[i] = (arc4random() % 26) + 97;
+	pass[i] = '\0';
 	return(pass);
 }
 
@@ -436,13 +446,14 @@ db_player_load_all(void (*fp)(const struct player *, size_t, void *), void *arg)
 	size_t		 count;
 
 	count = 0;
-	stmt = db_stmt("SELECT email,state,id FROM player");
+	stmt = db_stmt("SELECT email,state,id,enabled FROM player");
 	while (SQLITE_ROW == db_step(stmt, 0)) {
 		memset(&player, 0, sizeof(struct player));
 		player.mail = kstrdup
 			((char *)sqlite3_column_text(stmt, 0));
 		player.state = sqlite3_column_int(stmt, 1);
 		player.id = sqlite3_column_int(stmt, 2);
+		player.enabled = sqlite3_column_int(stmt, 3);
 		(*fp)(&player, count++, arg);
 		free(player.mail);
 	}
@@ -551,8 +562,8 @@ db_game_alloc(const char *poffs,
 	db_finalise(stmt);
 	game->id = sqlite3_last_insert_rowid(db);
 
-	fprintf(stderr, "%" PRId64 
-		": new game: %s", game->id, game->name);
+	fprintf(stderr, "%" PRId64 ": new game: %s\n", 
+		game->id, game->name);
 	return(game);
 }
 
@@ -568,13 +579,11 @@ db_player_create(const char *email)
 	rc = db_step(stmt, DB_STEP_CONSTRAINT);
 	db_finalise(stmt);
 
-	if (SQLITE_DONE == rc) {
-		id = sqlite3_last_insert_rowid(db);
-		fprintf(stderr, "%" PRId64 ": new player: %s\n",
-			sqlite3_last_insert_rowid(db), email);
+	if (SQLITE_DONE != rc)
 		return;
-	} 
-	fprintf(stderr, "%s: player exists\n", email);
+	id = sqlite3_last_insert_rowid(db);
+	fprintf(stderr, "%" PRId64 ": new player: %s\n",
+		sqlite3_last_insert_rowid(db), email);
 }
 
 int
@@ -599,4 +608,112 @@ db_expr_start(int64_t date, int64_t days)
 	stmt = db_stmt("UPDATE experiment SET state=1");
 	db_step(stmt, 0);
 	db_finalise(stmt);
+	fprintf(stderr, "experiment starting\n");
 }
+
+void
+db_player_enable(int64_t id)
+{
+	sqlite3_stmt	*stmt;
+
+	stmt = db_stmt("UPDATE player SET enabled=1 WHERE id=?");
+	db_bind_int(stmt, 1, id);
+	db_step(stmt, 0);
+	db_finalise(stmt);
+	fprintf(stderr, "%" PRId64 ": player enabled\n", id);
+}
+
+char *
+db_player_next_new(char **pass)
+{
+	sqlite3_stmt	*stmt;
+	char		*email;
+	int64_t		 id;
+
+	email = *pass = NULL;
+	stmt = db_stmt("SELECT email,id FROM player "
+		"WHERE state=0 AND enabled=1 LIMIT 1");
+
+	if (SQLITE_ROW == db_step(stmt, 0)) {
+		email = kstrdup((char *)sqlite3_column_text(stmt, 0));
+		id = sqlite3_column_int64(stmt, 1);
+		db_finalise(stmt);
+		*pass = db_crypt_mkpass();
+		stmt = db_stmt("UPDATE player SET state=1,hash=? WHERE id=?");
+		db_bind_text(stmt, 1, db_crypt_hash(*pass));
+		db_bind_int(stmt, 2, id);
+		db_step(stmt, 0);
+	} 
+
+	db_finalise(stmt);
+	return(email);
+}
+
+void
+db_player_disable(int64_t id)
+{
+	sqlite3_stmt	*stmt;
+
+	stmt = db_stmt("UPDATE player SET enabled=0 WHERE id=?");
+	db_bind_int(stmt, 1, id);
+	db_step(stmt, 0);
+	db_finalise(stmt);
+	fprintf(stderr, "%" PRId64 ": player disabled\n", id);
+}
+
+struct smtp *
+db_smtp_get(void)
+{
+	struct smtp	*smtp;
+	sqlite3_stmt	*stmt;
+
+	smtp = NULL;
+	stmt = db_stmt("SELECT user,pass,server,email "
+		"FROM smtp WHERE isset=1");
+
+	if (SQLITE_ROW == db_step(stmt, 0)) {
+		smtp = kcalloc(1, sizeof(struct smtp));
+		smtp->user = kstrdup
+			((char *)sqlite3_column_text(stmt, 0));
+		smtp->pass = kstrdup
+			((char *)sqlite3_column_text(stmt, 1));
+		smtp->server = kstrdup
+			((char *)sqlite3_column_text(stmt, 2));
+		smtp->from = kstrdup
+			((char *)sqlite3_column_text(stmt, 3));
+	}
+
+	db_finalise(stmt);
+	return(smtp);
+}
+
+void
+db_smtp_free(struct smtp *smtp)
+{
+
+	if (NULL == smtp)
+		return;
+
+	free(smtp->user);
+	free(smtp->pass);
+	free(smtp->server);
+	free(smtp->from);
+	free(smtp);
+}
+
+void
+db_smtp_set(const char *user, const char *server,
+	const char *from, const char *pass)
+{
+	sqlite3_stmt	*stmt;
+
+	stmt = db_stmt("UPDATE smtp SET user=?,"
+		"pass=?,server=?,isset=1,email=?");
+	db_bind_text(stmt, 1, user);
+	db_bind_text(stmt, 2, pass);
+	db_bind_text(stmt, 3, server);
+	db_bind_text(stmt, 4, from);
+	db_step(stmt, 0);
+	db_finalise(stmt);
+}
+
