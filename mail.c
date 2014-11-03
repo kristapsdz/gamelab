@@ -47,7 +47,7 @@ void
 mail_players(void)
 {
 	CURL		  *curl;
-	CURLcode 	   res = CURLE_OK;
+	CURLcode 	   res;
 	struct curl_slist *recipients = NULL;
 	time_t		   t;
 	struct tm	  *tm;
@@ -64,17 +64,19 @@ mail_players(void)
 		return;
 	}
 
+	fprintf(stderr, "mailing from %s on %s@%s\n",
+		smtp->from, smtp->user, smtp->server);
+
 	curl_easy_setopt(curl, CURLOPT_USERNAME, smtp->user);
 	curl_easy_setopt(curl, CURLOPT_PASSWORD, smtp->pass);
 	curl_easy_setopt(curl, CURLOPT_URL, smtp->server);
 	curl_easy_setopt(curl, CURLOPT_USE_SSL, (long)CURLUSESSL_ALL);
 	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
+	/*curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);*/
 	curl_easy_setopt(curl, CURLOPT_MAIL_FROM, smtp->from);
-	curl_easy_setopt(curl, CURLOPT_READFUNCTION, dobuf);
 	curl_easy_setopt(curl, CURLOPT_UPLOAD, 1L);
-
-	fprintf(stderr, "mailing from %s on %s@%s\n",
-		smtp->from, smtp->user, smtp->server);
+	curl_easy_setopt(curl, CURLOPT_READFUNCTION, dobuf);
+	/*curl_easy_setopt ( curl, CURLOPT_VERBOSE, 1 );*/
 
 	while (NULL != (email = db_player_next_new(&pass))) {
 		assert(NULL != pass);
@@ -99,15 +101,16 @@ mail_players(void)
 		buf.sz = strlen(buf.buf);
 
 		recipients = NULL;
-		recipients = curl_slist_append(recipients, "");
+		recipients = curl_slist_append(recipients, email);
+
 		curl_easy_setopt(curl, CURLOPT_MAIL_RCPT, recipients);
 		curl_easy_setopt(curl, CURLOPT_READDATA, &buf);
+
 		/* Send the message */ 
 		if (CURLE_OK != (res = curl_easy_perform(curl)))
-			fprintf(stderr, "mail: %s\n", 
-				curl_easy_strerror(res));
-
-		fprintf(stderr, "%s: emailed\n", email);
+			fprintf(stderr, "%s\n", curl_easy_strerror(res));
+		else
+			fprintf(stderr, "%s: emailed\n", email);
 
 		curl_slist_free_all(recipients);
 		recipients = NULL;

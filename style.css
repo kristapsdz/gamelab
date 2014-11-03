@@ -30,6 +30,7 @@ input 			{ width: 100%;
 				padding: 0;
 				box-sizing: border-box;
 				font-size: 100%;
+				font-family: inherit;
 				display: block; }
 input[type=text] 	{ padding-left: 1ex;
 				padding-right: 1ex; }
@@ -47,12 +48,6 @@ input[type=number] 	{ width: 6ex;
 				display: inline-block;
 				margin: 0; }
 input[type=submit] 	{ background-color: #d7e5f5;
-				background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #d7e5f5), color-stop(100%, #cbe0f5));
-				background-image: -webkit-linear-gradient(top, #d7e5f5, #cbe0f5);
-				background-image: -moz-linear-gradient(top, #d7e5f5, #cbe0f5);
-				background-image: -ms-linear-gradient(top, #d7e5f5, #cbe0f5);
-				background-image: -o-linear-gradient(top, #d7e5f5, #cbe0f5);
-				background-image: linear-gradient(top, #d7e5f5, #cbe0f5);
 				background-position: 1ex center;
 				background-repeat: no-repeat;
 				background-image: url('@@htdocs@@/submit.png');
@@ -64,6 +59,7 @@ input[type=submit] 	{ background-color: #d7e5f5;
 				border-radius: 16px;
 				-webkit-box-shadow: inset 0 1px 0 0 white;
 				box-shadow: inset 0 1px 0 0 white;
+				height: auto;
 				width: auto;
 				color: #1a3e66;
 				font-family: "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Geneva, Verdana, sans-serif;
@@ -72,15 +68,6 @@ input[type=submit] 	{ background-color: #d7e5f5;
 				text-align: center;
 				text-shadow: 0 1px 1px #fff; }
 input[type=submit]:hover { background-color: #ccd9e8;
-				background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #ccd9e8), color-stop(100%, #c1d4e8));
-				background-image: -webkit-linear-gradient(top, #ccd9e8, #c1d4e8);
-				background-image: -moz-linear-gradient(top, #ccd9e8, #c1d4e8);
-				background-image: -ms-linear-gradient(top, #ccd9e8, #c1d4e8);
-				background-image: -o-linear-gradient(top, #ccd9e8, #c1d4e8);
-				background-image: linear-gradient(top, #ccd9e8, #c1d4e8);
-				background-position: 1ex center;
-				background-repeat: no-repeat;
-				background-image: url('@@htdocs@@/submit.png');
 				border-top: 1px solid #a1afbf;
 				border-left: 1px solid #9caaba;
 				border-bottom: 1px solid #96a3b3;
@@ -109,6 +96,7 @@ textarea 		{ display: block;
 				margin: 1em auto 1em auto;
 				border-radius: 6px;
 				padding: 1ex;
+				font-family: inherit;
 				font-size: 100%;
 				height: 6em; }
 .fields			{ padding: 0 1ex; }
@@ -156,7 +144,7 @@ span.disabling img.disable,
 span.disabling img.enable
 			{ display: none; }
 nav ul 			{ list-style-type: none; 
-				box-shadow: 2px 2px 4px #ccc;
+				box-shadow: 2px 2px 2px #ccc;
 				border-bottom: thin solid #aaa;
 				background-color: #ccc; 
 				padding: 0; 
@@ -167,14 +155,31 @@ nav li 			{ display: inline-block;
 nav li:first-child 	{ font-size: 18pt;
 				color: #fff;
 				background-color: #8888aa; }
+footer			{ text-align: center; 
+				margin-bottom: 1em;
+			 	color: #888;
+				font-size: smaller; }
+footer a		{ color: #666; 
+				padding-right: 0.5ex;
+				border-right: thin solid #888; }
+footer a:last-child	{ border-right: none; 
+				padding-right: 0; }
+footer a:hover		{ color: #222; }
 
 @media only screen and (max-width: 640px), only screen and (max-device-width: 640px) {
 body			{ font-size: 13pt; }
-h1 			{ margin: 0.5em auto 0 auto; text-align: center; }
+h1 			{ margin: 0.5em auto 0 auto; 
+				text-align: center; }
 fieldset 		{ box-shadow: none; 
 			  border: 0; }
 .legend			{ border: none; 
+				padding: 0.5ex;
 				text-align: center; }
+input[type=submit]	{ margin-left: auto;
+				background-position: 3ex center;
+				padding: 0.5ex 3ex;
+				padding-left: 6ex;
+				margin-right: auto; }
 section			{ border: none; }
 section.intro		{ width: 96%; 
 			 	margin-left: auto;

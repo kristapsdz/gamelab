@@ -28,6 +28,7 @@ enum	page {
 	PAGE_DOCHANGEMAIL,
 	PAGE_DOCHANGEPASS,
 	PAGE_DOCHANGESMTP,
+	PAGE_DOCHECKSMTP,
 	PAGE_DODISABLEPLAYER,
 	PAGE_DOENABLEPLAYER,
 	PAGE_DOLOADGAMES,
@@ -96,6 +97,7 @@ static const char *const pages[PAGE__MAX] = {
 	"dochangemail", /* PAGE_DOCHANGEMAIL */
 	"dochangepass", /* PAGE_DOCHANGEPASS */
 	"dochangesmtp", /* PAGE_DOCHANGESMTP */
+	"dochecksmtp", /* PAGE_DOCHECKSMTP */
 	"dodisableplayer", /* PAGE_DODISABLEPLAYER */
 	"doenableplayer", /* PAGE_DOENABLEPLAYER */
 	"doloadgames", /* PAGE_DOLOADGAMES */
@@ -380,6 +382,20 @@ senddochangemail(struct kreq *r)
 		"%s=; path=/; expires=", 
 		keys[KEY_SESSID].name);
 	khttp_body(r);
+}
+
+static void
+senddochecksmtp(struct kreq *r)
+{
+	struct smtp	*smtp;
+
+	if (NULL == (smtp = db_smtp_get()))
+		http_open(r, KHTTP_400);
+	else
+		http_open(r, KHTTP_200);
+
+	khttp_body(r);
+	db_smtp_free(smtp);
 }
 
 static void
@@ -780,6 +796,9 @@ main(void)
 		break;
 	case (PAGE_DOCHANGESMTP):
 		senddochangesmtp(&r);
+		break;
+	case (PAGE_DOCHECKSMTP):
+		senddochecksmtp(&r);
 		break;
 	case (PAGE_DODISABLEPLAYER):
 		senddodisableplayer(&r);

@@ -15,6 +15,7 @@
 
 			var xmlLoadPlayers;
 			var xmlLoadGames;
+			var xmlCheckSmtp;
 
 			function doClearNode(e) {
 				if (null == e)
@@ -80,6 +81,7 @@
 
 			function doChangeSmtpSuccess(resp) {
 				doSuccess('changeSmtpSubmit', 'changeSmtp');
+				checkSmtp();
 			}
 
 			function doAddGameSuccess(resp) {
@@ -308,6 +310,29 @@
 				xmlhttp.send(null);
 			}
 
+			function checkSmtp() {
+				var li, e, gif;
+
+				if (null != xmlCheckSmtp) {
+					console.log('Already checking.');
+					return;
+				}
+
+				doHide('checkSmtpFailure');
+
+				xmlCheckSmtp = new XMLHttpRequest();
+				xmlCheckSmtp.onreadystatechange=function() {
+					if (xmlCheckSmtp.readyState==4 && xmlCheckSmtp.status==200) {
+						xmlCheckSmtp = null;
+					} else if (xmlCheckSmtp.readyState == 4) {
+						doUnhide('checkSmtpFailure');
+						xmlCheckSmtp = null;
+					}
+				} 
+				xmlCheckSmtp.open('GET', '@@cgibin@@/dochecksmtp.json', true);
+				xmlCheckSmtp.send(null);
+			}
+
 			function loadList(xmlhttp, url, name, onsuccess, onerror) {
 				var li, e, gif;
 
@@ -355,7 +380,7 @@
 			}
 		</script>
 	</head>
-	<body onload="loadGames(); loadPlayers();">
+	<body onload="loadGames(); loadPlayers(); checkSmtp();">
 		<nav>
 			<ul>
 				<li>Administrator</li>
@@ -382,6 +407,9 @@
 						Commit your experiment parameters and start here.
 						Once you start your experiment, you cannot add or remove games, or change the experiment duration.
 						(You can add or disable players, however.)
+					</aside>
+					<aside id="checkSmtpFailure" style="display: none;">
+						<em>Warning</em>: you haven't yet entered <a href="#changeSmtp">SMTP information</a> for mailing players!
 					</aside>
 					<div>
 						<input required="required" type="date" name="date" placeholder="yyyy-mm-dd" />
@@ -455,9 +483,6 @@
 				</div>
 			</fieldset>
 		</form>
-		<section class="intro">
-			You can configure administrator parameters at any experiment time.
-		</section>
 		<form action="@@cgibin@@/dochangemail.html" method="post" id="changeMail" onsubmit="return(sendForm(this, doChangeMailSetup, doChangeMailError, doChangeMailSuccess));">
 			<fieldset>
 				<div>
@@ -511,13 +536,18 @@
 						<q>SMTP User</q> to the your server account name, and
 						<q>SMTP Password</q> to the your user's password.
 					</aside>
-					<input required="required" type="email" name="email" placeholder="From Address"/>
-					<input required="required" type="text" name="server" placeholder="SMTP Server"/>
+					<input required="required" type="email" name="email" placeholder="you@example.com"/>
+					<input required="required" type="text" name="server" placeholder="smtp://example.com:587"/>
 					<input required="required" type="text" name="user" placeholder="SMTP User"/>
 					<input required="required" type="password" name="password" placeholder="SMTP Password"/>
 					<input id="changeSmtpSubmit" type="submit" value="Submit" />
 				</div>
 			</fieldset>
 		</form>
+		<footer>
+			&copy; 2014, 
+			<a href="http://www.kcons.eu"><i>k</i>-Consulting</a>
+			<a href="@@htdocs@@/privacy.html">Privacy</a>
+		</footer>
 	</body>
 </html>
