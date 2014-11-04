@@ -7,10 +7,9 @@ enum	estate {
 };
 
 struct	expr {
-	enum estate	 state;
-	char		*name;
 	time_t		 start;
-	time_t		 end;
+	int64_t		 days;
+	char		*loginuri;
 };
 
 struct	sess {
@@ -59,6 +58,8 @@ void		 db_close(void);
 
 int		 db_expr_checkstate(enum estate state);
 void		 db_expr_start(int64_t date, int64_t days, const char *uri);
+void		 db_expr_free(struct expr *expr);
+struct expr	*db_expr_get(void);
 
 struct game	*db_game_alloc(const char *payoffs,
 			const char *name, 

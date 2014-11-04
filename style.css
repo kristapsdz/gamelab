@@ -109,6 +109,7 @@ textarea 		{ display: block;
 			  margin: 1em auto 1em auto; }
 section 		{ border: thin solid #aaa;
 				margin: 1em auto 1em auto; }
+section.status,
 section.intro		{ border: none; }
 section ol, ul 		{ padding: 0; }
 section ol li 		{ border: thin solid #ddd; 
@@ -169,6 +170,9 @@ footer a		{ color: #666;
 footer a:last-child	{ border-right: none; 
 				padding-right: 0; }
 footer a:hover		{ color: #222; }
+progress		{ display: block;
+				margin-bottom: 1ex;
+				width: 100%; }
 
 @media only screen and (max-width: 640px), only screen and (max-device-width: 640px) {
 body			{ font-size: 13pt; }

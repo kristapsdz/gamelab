@@ -365,3 +365,68 @@ function loadGames() {
 	loadList(xmlLoadGames, '@@cgibin@@/doloadgames.json', 
 		'loadGames', loadGamesSuccess, loadGamesError);
 }
+
+function loadExprSuccess(resp) {
+	var results, date, e, prog, div, v, p;
+
+	try  { 
+		results = JSON.parse(resp);
+	} catch (error) {
+		return;
+	}
+
+	if (null == (e = doClearNode(document.getElementById('statusExpr'))))
+		return;
+
+	prog = document.createElement('progress');
+	prog.setAttribute('max', '1.0');
+	prog.setAttribute('value', results.progress);
+	prog.appendChild(document.createTextNode((results.progress * 100.0) + '%'));
+	e.appendChild(prog);
+
+	if ((v = parseInt(results.tilstart)) > 0) {
+		div = document.createElement('div');
+		div.appendChild(document.createTextNode('Time to start: '));
+		if (v > 24 * 60 * 60) {
+			p = Math.floor(v / (24 * 60 * 60));
+			div.appendChild(document.createTextNode(p + ' days, '));
+			v -= Math.floor(p * (24 * 60 * 60));
+		} 
+		if (v > 60 * 60) {
+			p = Math.floor(v / (60 * 60));
+			div.appendChild(document.createTextNode(p + ' hours, '));
+			v -= Math.floor(p * (60 * 60));
+		}
+		if (v > 60) {
+			p = Math.floor(v / 60);
+			div.appendChild(document.createTextNode(p + ' minutes, '));
+			v -= Math.floor(p * (60));
+		}
+
+		div.appendChild(document.createTextNode(v + ' seconds.'));
+		e.appendChild(div);
+	}
+}
+
+function loadExpr() {
+	var e, gif, xmlhttp;
+
+	if (null == (e = doClearNode(document.getElementById('statusExpr'))))
+		return;
+
+	gif = document.createElement('img');
+	gif.setAttribute('src', '@@htdocs@@/ajax-loader.gif');
+	gif.setAttribute('alt', 'Loading...');
+	gif.setAttribute('class', 'loader');
+	e.appendChild(gif);
+	e.appendChild(document.createTextNode('Loading experiment...'));
+
+	xmlhttp = new XMLHttpRequest();
+	xmlhttp.onreadystatechange=function() {
+		if (xmlhttp.readyState==4 && xmlhttp.status==200) {
+			loadExprSuccess(xmlhttp.responseText);
+		}
+	} 
+	xmlhttp.open('GET', '@@cgibin@@/dogetexpr.json', true);
+	xmlhttp.send(null);
+}

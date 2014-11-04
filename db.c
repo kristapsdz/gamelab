@@ -721,3 +721,30 @@ db_smtp_set(const char *user, const char *server,
 	db_finalise(stmt);
 }
 
+struct expr *
+db_expr_get(void)
+{
+	sqlite3_stmt	*stmt;
+	struct expr	*expr;
+	int		 rc;
+
+	expr = kcalloc(1, sizeof(struct expr));
+	stmt = db_stmt("SELECT start,days,loginuri FROM experiment");
+	rc = db_step(stmt, 0);
+	assert(SQLITE_ROW == rc);
+	expr->start = (time_t)sqlite3_column_int(stmt, 0);
+	expr->days = sqlite3_column_int(stmt, 1);
+	expr->loginuri = kstrdup((char *)sqlite3_column_text(stmt, 2));
+	db_finalise(stmt);
+	return(expr);
+}
+
+void
+db_expr_free(struct expr *expr)
+{
+	if (NULL == expr)
+		return;
+
+	free(expr->loginuri);
+	free(expr);
+}

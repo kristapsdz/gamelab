@@ -31,6 +31,7 @@ enum	page {
 	PAGE_DOCHECKSMTP,
 	PAGE_DODISABLEPLAYER,
 	PAGE_DOENABLEPLAYER,
+	PAGE_DOGETEXPR,
 	PAGE_DOLOADGAMES,
 	PAGE_DOLOADPLAYERS,
 	PAGE_DOLOGIN,
@@ -102,6 +103,7 @@ static const char *const pages[PAGE__MAX] = {
 	"dochecksmtp", /* PAGE_DOCHECKSMTP */
 	"dodisableplayer", /* PAGE_DODISABLEPLAYER */
 	"doenableplayer", /* PAGE_DOENABLEPLAYER */
+	"dogetexpr", /* PAGE_DOGETEXPR */
 	"doloadgames", /* PAGE_DOLOADGAMES */
 	"doloadplayers", /* PAGE_DOLOADPLAYERS */
 	"dologin", /* PAGE_DOLOGIN */
@@ -175,6 +177,22 @@ json_puts(struct kreq *r, const char *cp)
 		}
 
 	khttp_putc(r, '"');
+}
+
+/*
+ * Put a quoted JSON string key and integral value pair.
+ */
+static void
+json_putdouble(struct kreq *r, const char *key, double val)
+{
+	char	buf[256];
+
+	(void)snprintf(buf, sizeof(buf), "%g", val);
+
+	assert('\0' != *key);
+	json_puts(r, key);
+	khttp_puts(r, " : ");
+	json_puts(r, buf);
 }
 
 /*
@@ -332,6 +350,47 @@ sendcontent(struct kreq *r, enum cntt cntt)
 	http_open(r, KHTTP_200);
 	khttp_body(r);
 	khttp_template(r, &t, fname);
+}
+
+static void
+senddogetexpr(struct kreq *r)
+{
+	struct expr	*expr;
+	int64_t		 daysec;
+	time_t		 t = time(NULL), tilstart;
+	double		 frac;
+
+	expr = db_expr_get();
+	assert(NULL != expr);
+
+	frac = 0.0;
+	tilstart = 0;
+	if (t > expr->start) {
+		daysec = expr->days * 24 * 60 * 60;
+		t -= expr->start;
+		if (t > daysec)
+			frac = 1.0;
+		else
+			frac = t / (double)daysec;
+	} else
+		tilstart = expr->start - t;
+
+	http_open(r, KHTTP_200);
+	khttp_body(r);
+
+	khttp_putc(r, '{');
+	json_putstring(r, "loginuri", expr->loginuri);
+	khttp_putc(r, ',');
+	json_putint(r, "start", (int64_t)expr->start);
+	khttp_putc(r, ',');
+	json_putint(r, "days", expr->days);
+	khttp_putc(r, ',');
+	json_putdouble(r, "progress", frac);
+	khttp_putc(r, ',');
+	json_putint(r, "tilstart", (int64_t)tilstart);
+	khttp_putc(r, '}');
+
+	db_expr_free(expr);
 }
 
 static void
@@ -715,6 +774,7 @@ kvalid_futuredate(struct kpair *kp)
 
 	if ( ! kvalid_date(kp))
 		return(0);
+	fprintf(stderr, "%" PRId64 " >? %" PRId64 "\n", kp->parsed.i, time(NULL));
 	return(kp->parsed.i > time(NULL));
 }
 
@@ -768,11 +828,21 @@ main(void)
 
 	switch (r.page) {
 	case (PAGE_DOADDGAME):
+	case (PAGE_DOADDPLAYERS):
 	case (PAGE_DOSTARTEXPR):
 		if (db_expr_checkstate(ESTATE_NEW))
 			break;
 		fprintf(stderr, "ignoring request: "
 			"experiment already started\n");
+		http_open(&r, KHTTP_409);
+		khttp_body(&r);
+		khttp_free(&r);
+		return(EXIT_SUCCESS);
+	case (PAGE_DOGETEXPR):
+		if (db_expr_checkstate(ESTATE_STARTED))
+			break;
+		fprintf(stderr, "ignoring request: "
+			"experiment not started\n");
 		http_open(&r, KHTTP_409);
 		khttp_body(&r);
 		khttp_free(&r);
@@ -816,6 +886,9 @@ main(void)
 		break;
 	case (PAGE_DOENABLEPLAYER):
 		senddoenableplayer(&r);
+		break;
+	case (PAGE_DOGETEXPR):
+		senddogetexpr(&r);
 		break;
 	case (PAGE_DOLOADGAMES):
 		senddoloadgames(&r);
