@@ -601,11 +601,15 @@ db_expr_checkstate(enum estate state)
 }
 
 void
-db_expr_start(int64_t date, int64_t days)
+db_expr_start(int64_t date, int64_t days, const char *uri)
 {
 	sqlite3_stmt	*stmt;
 
-	stmt = db_stmt("UPDATE experiment SET state=1");
+	stmt = db_stmt("UPDATE experiment SET "
+		"state=1,start=?,days=?,loginuri=?");
+	db_bind_int(stmt, 1, date);
+	db_bind_int(stmt, 2, days);
+	db_bind_text(stmt, 3, uri);
 	db_step(stmt, 0);
 	db_finalise(stmt);
 	fprintf(stderr, "experiment starting\n");

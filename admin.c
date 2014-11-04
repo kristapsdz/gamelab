@@ -52,6 +52,7 @@ enum	cntt {
 	CNTT_HTML_HOME_NEW,
 	CNTT_HTML_HOME_STARTED,
 	CNTT_HTML_LOGIN,
+	CNTT_JS_HOME,
 	CNTT__MAX
 };
 
@@ -78,6 +79,7 @@ enum	key {
 	KEY_SERVER,
 	KEY_SESSCOOKIE,
 	KEY_SESSID,
+	KEY_URI,
 	KEY_USER,
 	KEY__MAX
 };
@@ -121,6 +123,7 @@ static const char *const cntts[CNTT__MAX] = {
 	"adminhome-new.html", /* CNTT_HTML_HOME_NEW */
 	"adminhome-started.html", /* CNTT_HTML_HOME_STARTED */
 	"adminlogin.html", /* CNTT_HTML_LOGIN */
+	"adminhome.js", /* CNTT_JS_HOME */
 };
 
 static int kvalid_days(struct kpair *);
@@ -146,6 +149,7 @@ static const struct kvalid keys[KEY__MAX] = {
 	{ kvalid_stringne, "server" }, /* KEY_SERVER */
 	{ kvalid_int, "sesscookie" }, /* KEY_SESSCOOKIE */
 	{ kvalid_int, "sessid" }, /* KEY_SESSID */
+	{ kvalid_stringne, "uri" }, /* KEY_URI */
 	{ kvalid_stringne, "user" }, /* KEY_USER */
 };
 
@@ -651,9 +655,11 @@ static void
 senddostartexpr(struct kreq *r)
 {
 	pid_t	 pid;
+	char	*sv;
 
 	if (kpairbad(r, KEY_DATE) ||
 		kpairbad(r, KEY_DAYS) ||
+		kpairbad(r, KEY_URI) ||
 		db_player_count_all() < 2 ||
 		db_game_count_all() < 1) {
 		http_open(r, KHTTP_400);
@@ -661,9 +667,12 @@ senddostartexpr(struct kreq *r)
 		return;
 	} 
 
+	sv = kstrdup(r->fieldmap[KEY_URI]->parsed.s);
+
 	db_expr_start
 		(r->fieldmap[KEY_DATE]->parsed.i,
-		 r->fieldmap[KEY_DAYS]->parsed.i);
+		 r->fieldmap[KEY_DAYS]->parsed.i,
+		 r->fieldmap[KEY_URI]->parsed.s);
 	http_open(r, KHTTP_200);
 	khttp_body(r);
 
@@ -673,13 +682,16 @@ senddostartexpr(struct kreq *r)
 	} else if (0 == pid) {
 		khttp_child_free(r);
 		if (0 == (pid = fork())) {
-			mail_players();
+			mail_players(sv);
 			db_close();
 		} else if (pid < 0) 
 			fprintf(stderr, "cannot double-fork!\n");
+		free(sv);
 		_exit(EXIT_SUCCESS);
 	} else 
 		waitpid(pid, NULL, 0);
+
+	free(sv);
 }
 
 static void
@@ -756,9 +768,6 @@ main(void)
 
 	switch (r.page) {
 	case (PAGE_DOADDGAME):
-	case (PAGE_DOADDPLAYERS):
-	case (PAGE_DODISABLEPLAYER):
-	case (PAGE_DOENABLEPLAYER):
 	case (PAGE_DOSTARTEXPR):
 		if (db_expr_checkstate(ESTATE_NEW))
 			break;
@@ -777,7 +786,9 @@ main(void)
 		send303(&r, PAGE_HOME, 1);
 		break;
 	case (PAGE_HOME):
-		if ( ! db_expr_checkstate(ESTATE_NEW))
+		if (KMIME_APP_JAVASCRIPT == r.mime)
+			sendcontent(&r, CNTT_JS_HOME);
+		else if ( ! db_expr_checkstate(ESTATE_NEW))
 			sendcontent(&r, CNTT_HTML_HOME_STARTED);
 		else
 			sendcontent(&r, CNTT_HTML_HOME_NEW);

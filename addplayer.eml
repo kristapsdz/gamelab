@@ -1,0 +1,25 @@
+Date: @@date@@ GMT
+To: @@to@@
+From: @@from@@
+Content-Type: text/plain
+Subject: Gamelab Password
+
+Hello!
+
+You have been invited to participate in a Gamelab experiment.
+
+To log in, please click on the following link:
+
+ @@login@@
+
+You can also log in manually with your e-mail address and the following
+password:
+
+ E-mail: @@to@@
+ Password: @@pass@@
+
+Thank you,
+
+Gamelab Administrator
+
+.

@@ -1,6 +1,8 @@
 CFLAGS 	+= -g -W -Wall -Wstrict-prototypes -Wno-unused-parameter -Wwrite-strings -I/usr/local/include
-PAGES 	 = adminhome-new.html \
+PAGES 	 = addplayer.eml \
+	   adminhome-new.html \
 	   adminhome-started.html \
+	   adminhome.js \
 	   adminlogin.html \
 	   style.css
 STATICS	 = ajax-loader.gif \

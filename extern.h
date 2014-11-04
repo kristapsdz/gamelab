@@ -58,7 +58,7 @@ int		 db_admin_sess_valid(int64_t id, int64_t cookie);
 void		 db_close(void);
 
 int		 db_expr_checkstate(enum estate state);
-void		 db_expr_start(int64_t date, int64_t days);
+void		 db_expr_start(int64_t date, int64_t days, const char *uri);
 
 struct game	*db_game_alloc(const char *payoffs,
 			const char *name, 
@@ -82,7 +82,7 @@ void		 db_smtp_free(struct smtp *);
 void		 db_smtp_set(const char *user, const char *server, 
 			const char *from, const char *pass);
 
-void		 mail_players(void);
+void		 mail_players(const char *uri);
 
 __END_DECLS
 
