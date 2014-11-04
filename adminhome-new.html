@@ -40,9 +40,11 @@
 						Once you start your experiment, you cannot add or remove games, or change the experiment duration.
 						(You can add or disable players, however.)
 					</aside>
-					<aside id="checkSmtpFailure" style="display: none;">
-						<em>Warning</em>: you haven't yet entered <a href="#changeSmtp">SMTP information</a> for mailing players!
-					</aside>
+					<ol>
+						<li>Entered valid <a href="#changeSmtp">SMTP</a> data? <span id="checkSmtp">Checking...</span></li>
+						<li>Entered two or more <a href="#addPlayers">players</a>? <span id="checkPlayers">Checking...</span></li>
+						<li>Entered one or more <a href="#addGame">game</a>? <span id="checkGames">Checking...</span></li>
+					</ol>
 					<div>
 						<input required="required" type="text" name="uri" placeholder="http://lab/loginpage.html" />
 						<input required="required" type="date" name="date" placeholder="yyyy-mm-dd" />

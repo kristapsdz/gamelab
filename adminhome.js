@@ -1,15 +1,17 @@
 "use strict";
 
-var xmlLoadPlayers;
-var xmlLoadGames;
-var xmlCheckSmtp;
-
 function doClearNode(e) {
 	if (null == e)
 		return(null);
 	while (e.firstChild)
 		e.removeChild(e.firstChild);
 	return(e);
+}
+
+function doClearReplace(name, str) {
+	var e;
+	if (null != (e = doClearNode(document.getElementById(name))))
+		e.appendChild(document.createTextNode(str));
 }
 
 function doHide(name) {
@@ -83,7 +85,7 @@ function doStartExprSuccess(resp) {
 }
 
 function loadPlayersSuccess(resp) {
-	var e, li, i, results, icon, link, span;
+	var e, li, i, results, icon, link, span, count;
 
 	e = doClearNode(document.getElementById('loadPlayers'));
 	if (null == e)
@@ -102,6 +104,7 @@ function loadPlayersSuccess(resp) {
 		li = document.createElement('li');
 		li.appendChild(document.createTextNode('No players.'));
 		e.appendChild(li);
+		doClearReplace('checkPlayers', 'No.');
 		return;
 	}
 
@@ -109,15 +112,17 @@ function loadPlayersSuccess(resp) {
 	li = document.createElement('li');
 	e.appendChild(li);
 
-	for (i = 0; i < results.length; i++) {
+	for (count = i = 0; i < results.length; i++) {
 		if (i > 0)
 			li.appendChild(document.createTextNode(', '));
 		span = document.createElement('span');
 		span.setAttribute('id', 'player' + results[i].id);
 		if (0 == results[i].enabled)
 			span.setAttribute('class', 'disabled');
-		else
+		else {
 			span.setAttribute('class', 'enabled');
+			count++;
+		}
 		span.appendChild(document.createTextNode(results[i].mail));
 		li.appendChild(span);
 
@@ -137,6 +142,8 @@ function loadPlayersSuccess(resp) {
 		icon.setAttribute('class', 'enable');
 		span.appendChild(icon);
 	}
+
+	doClearReplace('checkPlayers', count >= 2 ? 'Yes!' : 'No.');
 }
 
 function loadGamesSuccess(resp) {
@@ -159,9 +166,11 @@ function loadGamesSuccess(resp) {
 		li = document.createElement('li');
 		li.appendChild(document.createTextNode('No games.'));
 		e.appendChild(li);
+		doClearReplace('checkGames', 'No.');
 		return;
 	}
 
+	doClearReplace('checkGames', 'Yes!');
 	e.className = '';
 
 	for (i = 0; i < results.length; i++) {
@@ -298,35 +307,23 @@ function doDisablePlayer(id) {
 }
 
 function checkSmtp() {
-	var li, e, gif;
+	var li, e, gif, xmlhttp;
 
-	if (null != xmlCheckSmtp) {
-		console.log('Already checking.');
-		return;
-	}
+	doClearReplace('checkSmtp', 'Checking...');
 
-	doHide('checkSmtpFailure');
-
-	xmlCheckSmtp = new XMLHttpRequest();
-	xmlCheckSmtp.onreadystatechange=function() {
-		if (xmlCheckSmtp.readyState==4 && xmlCheckSmtp.status==200) {
-			xmlCheckSmtp = null;
-		} else if (xmlCheckSmtp.readyState == 4) {
-			doUnhide('checkSmtpFailure');
-			xmlCheckSmtp = null;
-		}
+	xmlhttp = new XMLHttpRequest();
+	xmlhttp.onreadystatechange=function() {
+		if (xmlhttp.readyState==4 && xmlhttp.status==200)
+			doClearReplace('checkSmtp', 'Yes!');
+		else if (xmlhttp.readyState==4 && xmlhttp.status==400)
+			doClearReplace('checkSmtp', 'No.');
 	} 
-	xmlCheckSmtp.open('GET', '@@cgibin@@/dochecksmtp.json', true);
-	xmlCheckSmtp.send(null);
+	xmlhttp.open('GET', '@@cgibin@@/dochecksmtp.json', true);
+	xmlhttp.send(null);
 }
 
-function loadList(xmlhttp, url, name, onsuccess, onerror) {
-	var li, e, gif;
-
-	if (null != xmlhttp) {
-		console.log('Already loading.');
-		return;
-	}
+function loadList(url, name, onsuccess, onerror) {
+	var li, e, gif, xmlhttp;
 
 	if (null == (e = doClearNode(document.getElementById(name))))
 		return;
@@ -344,12 +341,10 @@ function loadList(xmlhttp, url, name, onsuccess, onerror) {
 
 	xmlhttp = new XMLHttpRequest();
 	xmlhttp.onreadystatechange=function() {
-		if (xmlhttp.readyState==4 && xmlhttp.status==200) {
+		if (xmlhttp.readyState == 4 && xmlhttp.status==200) {
 			onsuccess(xmlhttp.responseText);
-			xmlhttp = null;
 		} else if (xmlhttp.readyState == 4) {
 			onerror(xmlhttp.status);
-			xmlhttp = null;
 		}
 	} 
 	xmlhttp.open('GET', url, true);
@@ -357,12 +352,14 @@ function loadList(xmlhttp, url, name, onsuccess, onerror) {
 }
 
 function loadPlayers() {
-	loadList(xmlLoadPlayers, '@@cgibin@@/doloadplayers.json', 
+	doClearReplace('checkPlayers', 'Checking...');
+	loadList('@@cgibin@@/doloadplayers.json', 
 		'loadPlayers', loadPlayersSuccess, loadPlayersError);
 }
 
 function loadGames() {
-	loadList(xmlLoadGames, '@@cgibin@@/doloadgames.json', 
+	doClearReplace('checkGames', 'Checking...');
+	loadList('@@cgibin@@/doloadgames.json', 
 		'loadGames', loadGamesSuccess, loadGamesError);
 }
 

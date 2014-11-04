@@ -1,3 +1,5 @@
+PRAGMA journal_mode=WAL;
+
 CREATE TABLE player (
 	email TEXT NOT NULL,
 	state INTEGER NOT NULL DEFAULT(0),

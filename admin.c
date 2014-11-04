@@ -774,7 +774,6 @@ kvalid_futuredate(struct kpair *kp)
 
 	if ( ! kvalid_date(kp))
 		return(0);
-	fprintf(stderr, "%" PRId64 " >? %" PRId64 "\n", kp->parsed.i, time(NULL));
 	return(kp->parsed.i > time(NULL));
 }
 
