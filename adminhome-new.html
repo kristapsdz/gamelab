@@ -6,8 +6,8 @@
 		<title>Gamelab Administration</title>
 		<link rel="stylesheet" href="@@cgibin@@/style.css" type="text/css" />
 		<style>
-			section { max-width: 1024px; }
-			fieldset { max-width: 1024px; box-shadow: none; }
+			ol, section, fieldset { max-width: 1024px; }
+			fieldset { box-shadow: none; }
 		</style>
 		<script src="@@htdocs@@/script.js"></script>
 		<script src="@@cgibin@@/home.js"></script>
@@ -20,12 +20,17 @@
 			</ul>
 		</nav>
 		<section class="intro">
-			This is your gamelab experiment's administrative console.
-			Each gamelab is tied to a specific experiment, each experiment having one or more games and two or more participants.
-			Your experiment has not yet begun, so you can still <a href="#addPlayers">add players</a> and <a href="#addGame">games</a>.
-			At any time, you can change your <a href="#changeMail">e-mail</a>, <a href="#changePass">password</a>, and <a
-				href="#changeSmtp">SMTP properties</a>.
+			This is your gamelab experiment's configuration console.
+			You're seeing this page because you haven't finished configuring your experiment.
+			To do so, follow these steps:
 		</section>
+		<ol>
+			<li>Change your <a href="#changePass">password</a> and/or <a href="#changeMail">e-mail address</a>. (If you leave the default e-mail or password, you're inviting trouble!)</li>
+			<li>Add any <a href="#addGame">games</a>.  You need at least one.</li>
+			<li>Add any <a href="#addPlayers">players</a>.  You need at least two.</li>
+			<li>Configure your <a href="#changeSmtp">SMTP</a> settings.</li>
+			<li><a href="#startExpr">Start</a> your experiment.
+		</ol>
 		<form action="@@cgibin@@/dostartexpr.html" method="post" id="startExpr" onsubmit="return(sendForm(this, doStartExprSetup, doStartExprError, doStartExprSuccess));">
 			<fieldset>
 				<div>
@@ -41,9 +46,9 @@
 						(You can add or disable players, however.)
 					</aside>
 					<ol>
-						<li>Entered valid <a href="#changeSmtp">SMTP</a> data? <span id="checkSmtp">Checking...</span></li>
-						<li>Entered two or more <a href="#addPlayers">players</a>? <span id="checkPlayers">Checking...</span></li>
-						<li>Entered one or more <a href="#addGame">game</a>? <span id="checkGames">Checking...</span></li>
+						<li>Entered <a href="#changeSmtp">SMTP</a> data? <span id="checkSmtp">Checking...</span></li>
+						<li>Entered 2+ enabled <a href="#addPlayers">players</a>? <span id="checkPlayers">Checking...</span></li>
+						<li>Entered 1+ <a href="#addGame">games</a>? <span id="checkGames">Checking...</span></li>
 					</ol>
 					<div>
 						<input required="required" type="text" name="uri" placeholder="http://lab/loginpage.html" />

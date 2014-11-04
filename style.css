@@ -107,6 +107,7 @@ textarea 		{ display: block;
 .fields > div		{ margin: 1em auto; }
 .fields > aside		{ display: block;
 			  margin: 1em auto 1em auto; }
+body > ol		{ margin: 1em auto 1em auto; }
 section 		{ border: thin solid #aaa;
 				margin: 1em auto 1em auto; }
 section.status,
