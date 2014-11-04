@@ -15,22 +15,22 @@ STATICS	 = ajax-loader.gif \
 	   submit.png
 
 # Mac OSX testing.
-PREFIX	 = /Users/kristaps/Sites
-HTDOCS	 = $(PREFIX)
-CGIBIN	 = $(PREFIX)
-DATADIR	 = $(PREFIX)
-STATIC	 = 
+# PREFIX	 = /Users/kristaps/Sites
+# HTDOCS	 = $(PREFIX)
+# CGIBIN	 = $(PREFIX)
+# DATADIR	 = $(PREFIX)
+# STATIC	 = 
 # OpenBSD production.
-# PREFIX	 = /var/www
-# HTDOCS	 = $(PREFIX)/htdocs/gamelab
-# CGIBIN	 = $(PREFIX)/cgi-bin/gamelab
-# DATADIR	 = $(PREFIX)/data/gamelab
-# STATIC	 = -static
+PREFIX	 = /var/www
+HTDOCS	 = $(PREFIX)/htdocs/gamelab
+CGIBIN	 = $(PREFIX)/cgi-bin/gamelab
+DATADIR	 = $(PREFIX)/data/gamelab
+STATIC	 = -static
 
 all: admin
 
 admin: admin.o db.o mail.o
-	$(CC) $(STATIC) -L/usr/local/lib -o $@ admin.o db.o mail.o -lsqlite3 -lkcgi -lz -lgmp -lcurl -lssl -lcrypto
+	$(CC) $(STATIC) -L/usr/local/lib -o $@ admin.o db.o mail.o -lsqlite3 -lkcgi -lz -lgmp `curl-config --libs`
 
 admin.o db.o mail.o: extern.h
 
@@ -38,6 +38,7 @@ installwww: all
 	install -m 0444 $(STATICS) $(HTDOCS)
 	install -m 0444 $(PAGES) $(DATADIR)
 	install -m 0755 admin $(CGIBIN)/admin.cgi
+	install -m 0755 admin $(CGIBIN)
 
 install: installwww gamelab.db
 	install -m 0666 gamelab.db $(DATADIR)
