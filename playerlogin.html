@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+		<meta charset="utf-8" /> 
+		<title>Gamelab | Login</title>
+		<link rel="stylesheet" href="@@cgibin@@/style.css" type="text/css" />
+		<style>
+			body { background-color: #eee; }
+			form { margin: 0; }
+			h1 { max-width: 768px; margin-bottom: -0.7ex; }
+			fieldset { max-width: 768px; margin-top: 0; }
+		</style>
+		<script src="@@htdocs@@/script.js"></script>
+		<script>
+			function doError(err) {
+				document.getElementById('loggingIn').value = 'Login';
+				if (400 == err)
+					document.getElementById('loginError').style.display = 'inherit';
+				else
+					document.getElementById('ajaxError').style.display = 'inherit';
+			}
+			function doSuccess() {
+				document.getElementById('loggingIn').value = 'Success!  Redirecting...';
+				location.href = '@@cgibin@@/home.html';
+			}
+			function doSetup() {
+				document.getElementById('loginError').style.display = 'none';
+				document.getElementById('ajaxError').style.display = 'none';
+				document.getElementById('loggingIn').value = 'Logging in...';
+			}
+		</script>
+	</head>
+	<body>
+		<form action="@@cgibin@@/dologin.html" method="post" onsubmit="return(sendForm(this, doSetup, doError, doSuccess));">
+			<h1>gamelab</h1>
+			<fieldset>
+				<div class="legend">Player Login</div>
+				<div class="error">
+					<div id="loginError">Incorrect e-mail or password.</div>
+					<div id="ajaxError">A technical error has occured.</div>
+				</div>
+				<div class="fields">
+					<input type="email" placeholder="Email" required="required" name="email" />
+					<input type="password" placeholder="Password" required="required" name="password" />
+					<input id="loggingIn" type="submit" value="Login" />
+				</div>
+			</fieldset>
+		</form>
+		<footer>
+			&copy; 2014, 
+			<a href="http://www.kcons.eu"><i>k</i>-Consulting</a>
+			<a href="@@htdocs@@/privacy.html">Privacy</a>
+		</footer>
+	</body>
+</html>

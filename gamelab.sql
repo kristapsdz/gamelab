@@ -1,12 +1,20 @@
-PRAGMA journal_mode=WAL;
-
 CREATE TABLE player (
 	email TEXT NOT NULL,
 	state INTEGER NOT NULL DEFAULT(0),
 	enabled INTEGER NOT NULL DEFAULT(1),
+	role INTEGER NOT NULL,
 	hash TEXT,
 	id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
 	UNIQUE (email)
+);
+
+CREATE TABLE play (
+	fraction TEXT NOT NULL,
+	round INTEGER NOT NULL,
+	strategy INTEGER NOT NULL,
+	playerid INTEGER REFERENCES player(id) NOT NULL,
+	id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+	UNIQUE (round,playerid,strategy)
 );
 
 CREATE TABLE experiment (

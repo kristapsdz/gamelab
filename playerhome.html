@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+		<meta charset="utf-8" /> 
+		<title>Gamelab</title>
+		<link rel="stylesheet" href="@@cgibin@@/style.css" type="text/css" />
+		<style>
+			ol, section, fieldset { max-width: 1024px; }
+			fieldset { box-shadow: none; }
+		</style>
+		<script src="@@htdocs@@/script.js"></script>
+		<script src="@@cgibin@@/home.js"></script>
+	</head>
+	<body onload="loadExpr();">
+		<nav>
+			<ul>
+				<li>Participation</li>
+				<li><a href="@@cgibin@@/dologout.html">Logout</a></li>
+			</ul>
+		</nav>
+		<section id="expr" class="intro">
+			<img src="@@htdocs@@/ajax-loader.gif" alt="Loading..." class="loader">Loading experiment
+		</section>
+		<footer>
+			&copy; 2014, 
+			<a href="http://www.kcons.eu"><i>k</i>-Consulting</a>
+			<a href="@@htdocs@@/privacy.html">Privacy</a>
+		</footer>
+	</body>
+</html>

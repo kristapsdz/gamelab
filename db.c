@@ -198,6 +198,62 @@ db_bind_int(sqlite3_stmt *stmt, size_t pos, int64_t val)
 	exit(EXIT_FAILURE);
 }
 
+static void
+db_exec(const char *sql)
+{
+	size_t	attempt = 0;
+	int	rc;
+
+again:
+	if (500 == attempt) {
+		fprintf(stderr, "sqlite3_exec: busy database\n");
+		exit(EXIT_FAILURE);
+	}
+
+	assert(NULL != db);
+	rc = sqlite3_exec(db, sql, NULL, NULL, NULL);
+
+	if (SQLITE_BUSY == rc) {
+		fprintf(stderr, "sqlite3_exec: "
+			"busy database (%zu)\n", attempt);
+		usleep(arc4random_uniform(10000));
+		attempt++;
+		goto again;
+	} else if (SQLITE_LOCKED == rc) {
+		fprintf(stderr, "sqlite3_exec: "
+			"locked database (%zu)\n", attempt);
+		usleep(arc4random_uniform(10000));
+		attempt++;
+		goto again;
+	} else if (SQLITE_OK == rc)
+		return;
+
+	fprintf(stderr, "sqlite3_exec: %s\n", sqlite3_errmsg(db));
+	exit(EXIT_FAILURE);
+}
+
+static void
+db_trans_begin(void)
+{
+
+	db_tryopen();
+	db_exec("BEGIN TRANSACTION");
+}
+
+static void
+db_trans_commit(void)
+{
+
+	db_exec("COMMIT TRANSACTION");
+}
+
+static void
+db_trans_rollback(void)
+{
+
+	db_exec("ROLLBACK TRANSACTION");
+}
+
 void
 db_sess_delete(int64_t id)
 {
@@ -210,6 +266,21 @@ db_sess_delete(int64_t id)
 	db_finalise(stmt);
 }
 
+int
+db_player_sess_valid(int64_t id, int64_t cookie)
+{
+	int	 	 rc;
+	sqlite3_stmt	*stmt;
+
+	stmt = db_stmt
+		("SELECT * FROM sess "
+		 "WHERE id=? AND cookie=? AND playerid IS NOT NULL");
+	db_bind_int(stmt, 1, id);
+	db_bind_int(stmt, 2, cookie);
+	rc = db_step(stmt, 0);
+	db_finalise(stmt);
+	return(SQLITE_ROW == rc);
+}
 
 int
 db_admin_sess_valid(int64_t id, int64_t cookie)
@@ -225,6 +296,26 @@ db_admin_sess_valid(int64_t id, int64_t cookie)
 	rc = db_step(stmt, 0);
 	db_finalise(stmt);
 	return(SQLITE_ROW == rc);
+}
+
+struct sess *
+db_player_sess_alloc(int64_t playerid)
+{
+	sqlite3_stmt	*stmt;
+	struct sess	*sess;
+
+	sess = calloc(1, sizeof(struct sess));
+	assert(NULL != sess);
+	sess->cookie = arc4random();
+	stmt = db_stmt("INSERT INTO sess "
+		"(cookie,playerid) VALUES(?,?)");
+	db_bind_int(stmt, 1, sess->cookie);
+	db_bind_int(stmt, 2, playerid);
+	db_step(stmt, 0);
+	db_finalise(stmt);
+	sess->id = sqlite3_last_insert_rowid(db);
+	fprintf(stderr, "%" PRId64 ": new player session\n", sess->id);
+	return(sess);
 }
 
 struct sess *
@@ -336,6 +427,29 @@ db_admin_valid_email(const char *email)
 }
 
 int
+db_player_valid(int64_t *id, const char *mail, const char *pass)
+{
+	sqlite3_stmt	*stmt;
+
+	stmt = db_stmt("SELECT hash,id FROM player WHERE email=?");
+	db_bind_text(stmt, 1, mail);
+
+	if (SQLITE_ROW != db_step(stmt, 0)) {
+		db_finalise(stmt);
+		return(0);
+	} 
+
+	if ( ! db_crypt_check(sqlite3_column_text(stmt, 0), pass)) {
+		db_finalise(stmt);
+		return(0);
+	}
+
+	*id = sqlite3_column_int(stmt, 1);
+	db_finalise(stmt);
+	return(1);
+}
+
+int
 db_admin_valid(const char *email, const char *pass)
 {
 	sqlite3_stmt	*stmt;
@@ -374,6 +488,10 @@ db_game_free(struct game *game)
 	free(game);
 }
 
+/*
+ * This should only be called on rationals that are in the database,
+ * i.e., those that have been canonicalised and validated.
+ */
 static mpq_t *
 db_payoff_to_mpq(char *buf, int64_t p1, int64_t p2)
 {
@@ -567,6 +685,35 @@ db_game_alloc(const char *poffs,
 	return(game);
 }
 
+int
+db_player_play(mpq_t *fraction, size_t strats,
+	int64_t round, int64_t strategy, int64_t playerid)
+{
+	size_t	 	 i;
+	sqlite3_stmt	*stmt;
+	int		 rc;
+
+	db_trans_begin();
+
+	stmt = db_stmt("INSERT INTO play "
+		"(fraction,strats,round,strategy,playerid) "
+		"VALUES (?,?,?,?,?)");
+
+	for (i = 0; i < strats; i++) {
+		rc = db_step(stmt, DB_STEP_CONSTRAINT);
+		if (SQLITE_CONSTRAINT == rc) {
+			db_finalise(stmt);
+			db_trans_rollback();
+			return(0);
+		}
+		sqlite3_reset(stmt);
+	}
+
+	db_finalise(stmt);
+	db_trans_commit();
+	return(1);
+}
+
 void
 db_player_create(const char *email)
 {
@@ -574,8 +721,10 @@ db_player_create(const char *email)
 	int		 rc;
 	int64_t		 id;
 
-	stmt = db_stmt("INSERT INTO player (email) VALUES (?)");
+	stmt = db_stmt("INSERT INTO player "
+		"(email,role) VALUES (?,?)");
 	db_bind_text(stmt, 1, email);
+	db_bind_int(stmt, 2, arc4random_uniform(2));
 	rc = db_step(stmt, DB_STEP_CONSTRAINT);
 	db_finalise(stmt);
 

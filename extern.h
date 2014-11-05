@@ -74,6 +74,9 @@ void		 db_player_enable(int64_t id);
 void		 db_player_disable(int64_t id);
 size_t		 db_player_load_all(void (*fp)(const struct player *, size_t, void *), void *arg);
 char		*db_player_next_new(char **pass);
+struct sess	*db_player_sess_alloc(int64_t playerid);
+int		 db_player_valid(int64_t *id, const char *mail, const char *pass);
+int		 db_player_sess_valid(int64_t id, int64_t cookie);
 
 void		 db_sess_delete(int64_t id);
 void		 db_sess_free(struct sess *sess);
@@ -84,6 +87,13 @@ void		 db_smtp_set(const char *user, const char *server,
 			const char *from, const char *pass);
 
 void		 mail_players(const char *uri);
+
+void		 json_puts(struct kreq *r, const char *cp);
+void		 json_putdouble(struct kreq *r, const char *key, double val);
+void		 json_putint(struct kreq *r, const char *key, int64_t val);
+void		 json_putstring(struct kreq *r, const char *key, const char *val);
+void		 json_putmpqs(struct kreq *r, const char *key, 
+			mpq_t *vals, int64_t p1, int64_t p2);
 
 __END_DECLS
 

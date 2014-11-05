@@ -1,5 +1,47 @@
 "use strict";
 
+function doClearNode(e) 
+{
+	if (null == e)
+		return(null);
+
+	while (e.firstChild)
+		e.removeChild(e.firstChild);
+
+	return(e);
+}
+
+function doClearReplace(name, str) 
+{
+	var e;
+
+	if (null != (e = doClearNode(document.getElementById(name))))
+		e.appendChild(document.createTextNode(str));
+}
+
+function formatCountdown(v, e)
+{
+	var p;
+
+	if (v > 24 * 60 * 60) {
+		p = Math.floor(v / (24 * 60 * 60));
+		e.appendChild(document.createTextNode(p + ' days, '));
+		v -= p * (24 * 60 * 60);
+	} 
+	if (v > 60 * 60) {
+		p = Math.floor(v / (60 * 60));
+		e.appendChild(document.createTextNode(p + ' hours, '));
+		v -= p * (60 * 60);
+	}
+	if (v > 60) {
+		p = Math.floor(v / 60);
+		e.appendChild(document.createTextNode(p + ' minutes, '));
+		v -= p * (60);
+	}
+
+	e.appendChild(document.createTextNode(Math.round(v) + ' seconds.'));
+}
+
 function sendForm(oFormElement, setup, error, success) 
 {
 	var xmlhttp = new XMLHttpRequest();

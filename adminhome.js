@@ -1,19 +1,5 @@
 "use strict";
 
-function doClearNode(e) {
-	if (null == e)
-		return(null);
-	while (e.firstChild)
-		e.removeChild(e.firstChild);
-	return(e);
-}
-
-function doClearReplace(name, str) {
-	var e;
-	if (null != (e = doClearNode(document.getElementById(name))))
-		e.appendChild(document.createTextNode(str));
-}
-
 function doHide(name) {
 	var e;
 	if (null != (e = document.getElementById(name)))
@@ -384,23 +370,7 @@ function loadExprSuccess(resp) {
 	if ((v = parseInt(results.tilstart)) > 0) {
 		div = document.createElement('div');
 		div.appendChild(document.createTextNode('Time to start: '));
-		if (v > 24 * 60 * 60) {
-			p = Math.floor(v / (24 * 60 * 60));
-			div.appendChild(document.createTextNode(p + ' days, '));
-			v -= Math.floor(p * (24 * 60 * 60));
-		} 
-		if (v > 60 * 60) {
-			p = Math.floor(v / (60 * 60));
-			div.appendChild(document.createTextNode(p + ' hours, '));
-			v -= Math.floor(p * (60 * 60));
-		}
-		if (v > 60) {
-			p = Math.floor(v / 60);
-			div.appendChild(document.createTextNode(p + ' minutes, '));
-			v -= Math.floor(p * (60));
-		}
-
-		div.appendChild(document.createTextNode(v + ' seconds.'));
+		formatCountdown(v, div);
 		e.appendChild(div);
 	}
 }
