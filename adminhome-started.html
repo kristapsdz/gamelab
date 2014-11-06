@@ -19,15 +19,13 @@
 		</header>
 		<article>
 			<section>
-				<h2>Status</h2>
-				<aside>
-					This is your gamelab experiment's administrative console.
-					Your experiment has begun or is scheduled to begin; here you can see game status.
-				<aside>
+				<div id="statusExprTtl"></div>
 				<section id="statusExpr">
 					<h3>Run Status</h3>
 					<div id="statusExprProgress"></div>
-					<div id="statusExprWaiting"></div>
+					<div id="statusExprWaiting">
+						Waiting for experiment to begin.
+					</div>
 					<div id="statusExprLoading">
 						<img src="@@htdocs@@/ajax-loader.gif" alt="Loading" />
 						Loading experiment run status...

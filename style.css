@@ -42,6 +42,8 @@ section section >h3	{ margin: 0;
 				padding: 1em;
 				color: #fff;
 				background-color: #5555aa; }
+article >section > aside	 	
+			{ padding: 1ex; }
 form .error		{ color: red;
 				font-weight: bolder; }
 aside div		{ margin: 0.75em 0; }
@@ -151,6 +153,12 @@ article ul li > div	{ background-color: #eee;
 				margin: 1ex;
 				border: thin solid #aaa;
 				border-radius: 1ex; }
+article ul li > span	{ display: inline-block; 
+				margin: 0.5ex; }
+article ul li > span:first-child
+			{ margin-left: 0; }
+article ul li > span:last-child
+			{ margin-right: 0; }
 span.waiting		{ background-color: #aaa; }
 div.countdown		{ display: table; 
 			  margin-left: auto;
@@ -171,3 +179,25 @@ div.countdown > div:last-child > div
 			{ color: #aaa; }
 div.countdownHead	{ text-align: center;
 				font-size: 16pt; }
+@media only screen and (max-width: 400px), only screen and (max-device-width: 400px) {
+div.countdown 		{ width: 100%; }
+div.countdown > div > div
+			{ width: 25%; }
+div.countdown > div:first-child > div
+ 			{ padding: 0; }
+article ul li > span	{ display: block; 
+				margin: 1ex 0; }
+article ul li > div	{ margin: 1ex 0; }
+article ul li > span:first-child
+			{ margin-left: 0; }
+article ul li > span:last-child
+			{ margin-right: 0; }
+section section >*	{ margin: 1em 0.5em 1em 0.5em; }
+button, 
+input[type=submit] 	{ padding-left: 6ex;
+				padding-right: 6ex; 
+				background-position: 3ex center;
+				margin-left: auto;
+				margin-right: auto; }
+section section >h3	{ text-align: center; }
+}

@@ -500,7 +500,7 @@ function loadExprFinished()
 {
 	var e;
 
-	if (null != (e = doClearNode(document.getElementById('statusExprWaiting'))))
+	if (null != (e = doClearNode(document.getElementById('statusExprTtl'))))
 		e.appendChild(document.createTextNode('Wait finished: reloading.'));
 
 	window.location.reload(true);
@@ -517,7 +517,8 @@ function loadExprSuccess(resp)
 	}
 
 	if ((v = parseInt(results.tilstart)) > 0) {
-		if (null == (e = doClearNode(doUnhide('statusExprWaiting'))))
+		doUnhide('statusExprWaiting');
+		if (null == (e = doClearNode(doUnhide('statusExprTtl'))))
 			return;
 		doHide('statusExprLoading');
 		chld = document.createElement('div');
@@ -542,6 +543,7 @@ function loadExpr()
 	var xhr;
 
 	doUnhide('statusExprLoading');
+	doHide('statusExprTtl');
 	doHide('statusExprWaiting');
 	doHide('statusExprProgress');
 
