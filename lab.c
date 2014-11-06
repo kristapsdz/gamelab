@@ -247,6 +247,10 @@ senddoloadexpr(struct kreq *r)
 		khttp_putc(r, '{');
 		json_putint(r, "tilstart", (int64_t)(expr->start - t));
 		khttp_putc(r, '}');
+	} else {
+		khttp_putc(r, '{');
+		json_putstring(r, "tilstart", "0");
+		khttp_putc(r, '}');
 	}
 
 	db_expr_free(expr);

@@ -1,30 +1,55 @@
+/*
+ * Lay out the general page structure here.
+ */
 html, body		{ margin: 0; }
-h1 			{ text-align: right;
-				font-family: cursive;
-				color: #222;
-				margin: 1em auto 0 auto; }
-a 			{ text-decoration: none; }
+h1 			{ font-weight: normal;
+				color: #222; }
+a 			{ text-decoration: none; 
+				color: blue; }
 body			{ font-size: 14pt; }
-.legend 		{ color: #fff;
-			  	margin-bottom: 1em;
-				font-size: 18pt;
-				padding: 1.5ex;
+nav ul 			{ list-style-type: none; 
+				box-shadow: 0px 2px 2px #ccc;
+				background-color: #ccc;
+				padding: 0; 
+				margin: 0 0 1em 0; }
+nav li 			{ display: inline-block; 
+				background-color: #ccc;
+				padding: 1ex; }
+nav li:first-child 	{ background-color: #8888aa; 
+				box-shadow: 0px 2px 2px #8888aa; }
+article, footer		{ max-width: 1024px;
+				margin-left: auto;
+				margin-right: auto; }
+footer			{ text-align: center; 
+				margin-bottom: 1em;
+			 	color: #888;
+				font-size: smaller; }
+footer a		{ color: #666; 
+				padding-right: 0.5ex;
+				border-right: thin solid #888; }
+footer a:last-child	{ border-right: none; 
+				padding-right: 0; }
+footer a:hover		{ color: #222; }
+fieldset		{ border: 0; 
+				padding: 0; }
+fieldset div		{ margin: 1ex 0; }
+section section		{ border: thin solid #ddd;
+				margin: 1em 0; }
+section section >*	{ margin: 1em; }
+section section >h3	{ margin: 0;
+				font-weight: normal;
+				padding: 1em;
+				color: #fff;
 				background-color: #5555aa; }
-.error 			{ color: red; }
-.error > *		{ margin: 1em 1.5ex 1em 1.5ex;
-			 	display: none; }
-fieldset 		{ border: thin solid #aaa;
-				box-shadow: 2px 2px 4px #ccc;
-				background-color: #fff;
-				margin: 1em auto 1em auto; 
-				padding: 0;
-				padding-bottom: 1em;
-				width: 100%; }
+form .error		{ color: red;
+				font-weight: bolder; }
+/*
+ * Now layout the specific components. 
+ */
 input 			{ width: 100%;
 				height: 40px;
-				margin: 1em auto 1em auto;
 				-webkit-appearance: none;
-				border: 2px solid #ccc;
+				border: thin solid #ccc;
 				background-color: #eee;
 				border-radius: 6px;
 				padding: 0;
@@ -32,27 +57,26 @@ input 			{ width: 100%;
 				font-size: 100%;
 				font-family: inherit;
 				display: block; }
+button,
+input[type=submit],
+input[type=date],
+input[type=number]	{ width: auto; }
 input[type=text] 	{ padding-left: 1ex;
 				padding-right: 1ex; }
 input[type=date] 	{ padding-left: 36px;
-				width: 18ex;
 				display: inline-block;
 				padding-right: 1ex;
-				margin: 0;
 				background-position: 4px center;
 				background-repeat: no-repeat;
 				background-image: url('@@htdocs@@/calendar.png'); }
-input[type=number] 	{ width: 6ex; 
-				padding-left: 1ex;
+input[type=number] 	{ padding-left: 1ex;
 				padding-right: 1ex;
-				display: inline-block;
-				margin: 0; }
+				display: inline-block; }
 button, 
 input[type=submit] 	{ background-color: #d7e5f5;
 				background-position: 1ex center;
 				background-repeat: no-repeat;
 				background-image: url('@@htdocs@@/submit.png');
-				margin: 0;
 				border-top: 1px solid #abbbcc;
 				border-left: 1px solid #a7b6c7;
 				border-bottom: 1px solid #a1afbf;
@@ -97,100 +121,21 @@ textarea 		{ display: block;
 				border: thin solid #aaa;
 				box-sizing: border-box;
 				width: 100%;
-				margin: 1em auto 1em auto;
 				border-radius: 6px;
 				padding: 1ex;
 				font-family: inherit;
 				font-size: 100%;
 				height: 6em; }
-.fields			{ padding: 0 1ex; }
-.fields > div		{ margin: 1em auto; }
-.fields > aside		{ display: block;
-			  margin: 1em auto 1em auto; }
-body > ol		{ margin: 1em auto 1em auto; }
-section 		{ border: thin solid #aaa;
-				margin: 1em auto 1em auto; }
-section.status,
-section.intro		{ border: none; }
-section ol, ul 		{ padding: 0; }
-section ol li 		{ border: thin solid #ddd; 
-				border-radius: 1ex;
-				margin: 1em;
-				margin-left: 2em;
-				padding: 1ex; }
-section ul li 		{ border: thin solid #ddd; 
-				border-radius: 1ex;
-				margin: 1ex;
-				padding: 1ex; }
-section ul	 	{ list-style-type: none; }
-section ol.default 	{ list-style-type: none; }
-section ul.default li,
-section ol.default li 	{ font-style: italic;
-				margin-left: 1ex;
-				margin-right: 1ex;
-				color: #666; }
 img.disabling		{ margin-bottom: -2px; 
-			  margin-left: 0.5ex; }
+				  margin-left: 0.5ex; }
 img.loader		{ margin-bottom: -2px;
-			  margin-right: 1ex; }
+				  margin-right: 1ex; }
 img.enable		{ margin-bottom: -4px; 
 				margin-left: 4px; }
 img.disable		{ margin-bottom: -6px; 
 				margin-left: 2px; }
 img.enable:hover,
 img.disable:hover	{ cursor: pointer; }
-span.disabled		{ color: #aaa; }
-span.enabling,
-span.disabling		{ color: #666; }
-span.enabled img.enable,
-span.enabling img.enable,
-span.enabling img.disable,
-span.disabled img.disable,
-span.disabling img.disable,
-span.disabling img.enable
-			{ display: none; }
-nav ul 			{ list-style-type: none; 
-				box-shadow: 2px 2px 2px #ccc;
-				border-bottom: thin solid #aaa;
-				background-color: #ccc; 
-				padding: 0; 
-				margin: 0; }
-nav li 			{ display: inline-block; 
-				font-size: 16pt; 
-				padding: 1ex; }
-nav li:first-child 	{ font-size: 18pt;
-				color: #fff;
-				background-color: #8888aa; }
-footer			{ text-align: center; 
-				margin-bottom: 1em;
-			 	color: #888;
-				font-size: smaller; }
-footer a		{ color: #666; 
-				padding-right: 0.5ex;
-				border-right: thin solid #888; }
-footer a:last-child	{ border-right: none; 
-				padding-right: 0; }
-footer a:hover		{ color: #222; }
 progress		{ display: block;
 				margin-bottom: 1ex;
 				width: 100%; }
-
-@media only screen and (max-width: 640px), only screen and (max-device-width: 640px) {
-body			{ font-size: 13pt; }
-h1 			{ margin: 0.5em auto 0 auto; 
-				text-align: center; }
-fieldset 		{ box-shadow: none; 
-			  border: 0; }
-.legend			{ border: none; 
-				padding: 0.5ex;
-				text-align: center; }
-input[type=submit]	{ margin-left: auto;
-				background-position: 3ex center;
-				padding: 0.5ex 3ex;
-				padding-left: 6ex;
-				margin-right: auto; }
-section			{ border: none; }
-section.intro		{ width: 96%; 
-			 	margin-left: auto;
-			 	margin-right: auto; }
-}

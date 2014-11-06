@@ -709,6 +709,8 @@ main(void)
 		khttp_free(&r);
 		return(EXIT_SUCCESS);
 	case (PAGE_STYLE):
+		if (KMIME_TEXT_CSS != r.mime)
+			break;
 		sendcontent(&r, CNTT_CSS_STYLE);
 		khttp_free(&r);
 		return(EXIT_SUCCESS);

@@ -1,5 +1,21 @@
 "use strict";
 
+function doHide(name)
+{
+	var e;
+	if (null != (e = document.getElementById(name)))
+		e.style.display = 'none';
+	return(e);
+}
+
+function doUnhide(name) 
+{
+	var e;
+	if (null != (e = document.getElementById(name)))
+		e.style.display = 'inherit';
+	return(e);
+}
+
 function doClearNode(e) 
 {
 	if (null == e)

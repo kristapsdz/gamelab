@@ -1,17 +1,5 @@
 "use strict";
 
-function doHide(name) {
-	var e;
-	if (null != (e = document.getElementById(name)))
-		e.style.display = 'none';
-}
-
-function doUnhide(name) {
-	var e;
-	if (null != (e = document.getElementById(name)))
-		e.style.display = 'inherit';
-}
-
 function doSuccess(submitName, formName) {
 	document.getElementById(submitName).value = 'Submit';
 	document.getElementById(formName).reset();
@@ -350,7 +338,7 @@ function loadGames() {
 }
 
 function loadExprSuccess(resp) {
-	var results, date, e, prog, div, v, p;
+	var results, v, e, chld;
 
 	try  { 
 		results = JSON.parse(resp);
@@ -358,42 +346,38 @@ function loadExprSuccess(resp) {
 		return;
 	}
 
-	if (null == (e = doClearNode(document.getElementById('statusExpr'))))
-		return;
-
-	prog = document.createElement('progress');
-	prog.setAttribute('max', '1.0');
-	prog.setAttribute('value', results.progress);
-	prog.appendChild(document.createTextNode((results.progress * 100.0) + '%'));
-	e.appendChild(prog);
-
 	if ((v = parseInt(results.tilstart)) > 0) {
-		div = document.createElement('div');
-		div.appendChild(document.createTextNode('Time to start: '));
-		formatCountdown(v, div);
-		e.appendChild(div);
+		if (null == (e = doClearNode(doUnhide('statusExprWaiting'))))
+			return;
+		doHide('statusExprLoading');
+		chld = document.createElement('div');
+		chld.appendChild(document.createTextNode('Time to start: '));
+		formatCountdown(v, chld);
+		e.appendChild(chld);
+	} else {
+		if (null == (e = doClearNode(doUnhide('statusExprProgress'))))
+			return;
+		doHide('statusExprLoading');
+		chld = document.createElement('progress');
+		chld.setAttribute('max', '1.0');
+		chld.setAttribute('value', results.progress);
+		chld.appendChild(document.createTextNode((results.progress * 100.0) + '%'));
+		e.appendChild(chld);
 	}
 }
 
 function loadExpr() {
-	var e, gif, xmlhttp;
+	var xhr;
 
-	if (null == (e = doClearNode(document.getElementById('statusExpr'))))
-		return;
+	doUnhide('statusExprLoading');
+	doHide('statusExprWaiting');
+	doHide('statusExprProgress');
 
-	gif = document.createElement('img');
-	gif.setAttribute('src', '@@htdocs@@/ajax-loader.gif');
-	gif.setAttribute('alt', 'Loading...');
-	gif.setAttribute('class', 'loader');
-	e.appendChild(gif);
-	e.appendChild(document.createTextNode('Loading experiment...'));
-
-	xmlhttp = new XMLHttpRequest();
-	xmlhttp.onreadystatechange=function() {
-		if (xmlhttp.readyState==4 && xmlhttp.status==200) {
-			loadExprSuccess(xmlhttp.responseText);
-		}
+	xhr = new XMLHttpRequest();
+	xhr.onreadystatechange = function() {
+		if (xhr.readyState == 4 && xhr.status == 200)
+			loadExprSuccess(xhr.responseText);
 	} 
-	xmlhttp.open('GET', '@@cgibin@@/dogetexpr.json', true);
-	xmlhttp.send(null);
+	xhr.open('GET', '@@cgibin@@/dogetexpr.json', true);
+	xhr.send(null);
 }

@@ -5,114 +5,122 @@
 		<meta charset="utf-8" /> 
 		<title>Gamelab Administration</title>
 		<link rel="stylesheet" href="@@cgibin@@/style.css" type="text/css" />
-		<style>
-			section { max-width: 1024px; }
-			fieldset { max-width: 1024px; box-shadow: none; }
-		</style>
 		<script src="@@htdocs@@/script.js"></script>
 		<script src="@@cgibin@@/home.js"></script>
 	</head>
 	<body onload="loadGames(); loadPlayers(); loadExpr();">
-		<nav>
-			<ul>
-				<li>Administrator</li>
-				<li><a href="@@cgibin@@/dologout.html">Logout</a></li>
-			</ul>
-		</nav>
-		<section class="intro">
-			This is your gamelab experiment's administrative console.
-			Your experiment has begun or is scheduled to begin; here you can see game status.
-		</section>
-		<section class="status" id="statusExpr">
-			<img src="@@htdocs@@/ajax-loader.gif" alt="Loading" />
-			Loading experiment...
-		</section>
-		<section>
-			<div class="legend">
-				Experiment Games
-			</div>
-			<ol id="loadGames" class="default">
-				<li><img src="@@htdocs@@/ajax-loader.gif" class="loader" alt="Loading..." />Loading...</li>
-			</ol>
-		</section>
-		<section>
-			<div class="legend">
-				Experiment Players
-			</div>
-			<div class="fields">
+		<header>
+			<nav>
+				<ul>
+					<li><h1>Administrator</h1></li>
+					<li><a href="@@cgibin@@/dologout.html">Logout</a></li>
+				</ul>
+			</nav>
+		</header>
+		<article>
+			<section>
+				<h2>Status</h2>
 				<aside>
-					Players in your experiment.
-					If a player is greyed out, he or she is disabled.
-					Disabled players are not e-mailed a password when the experiment starts, nor are they allowed to log in.
-					To disable a player, just click the red symbol alongisde.
-					To enable a player, use the green symbol.
+					This is your gamelab experiment's administrative console.
+					Your experiment has begun or is scheduled to begin; here you can see game status.
+				<aside>
+				<section id="statusExpr">
+					<h3>Run Status</h3>
+					<div id="statusExprProgress"></div>
+					<div id="statusExprWaiting"></div>
+					<div id="statusExprLoading">
+						<img src="@@htdocs@@/ajax-loader.gif" alt="Loading" />
+						Loading experiment run status...
+					</div>
+				</section>
+				<section>
+					<h3>Experiment Games</h3>
+					<ul id="loadGames">
+						<li><img src="@@htdocs@@/ajax-loader.gif" class="loader" alt="Loading..." />Loading...</li>
+					</ul>
+				</section>
+				<section>
+					<h3>Experiment Players</h3>
+					<aside>
+						Players in your experiment.
+						If a player is greyed out, he or she is disabled.
+						Disabled players are not e-mailed a password when the experiment starts, nor are they allowed to log in.
+						To disable a player, just click the red symbol alongisde.
+						To enable a player, use the green symbol.
+					</aside>
+					<ul id="loadPlayers">
+						<li><img src="@@htdocs@@/ajax-loader.gif" class="loader" alt="Loading..." />Loading...</li>
+					</ul>
+				</section>
+			</section>
+			<section>
+				<h2>Parameters</h2>
+				<aside>
+					Here you do something something.
 				</aside>
-			</div>
-			<ul id="loadPlayers" class="default">
-				<li><img src="@@htdocs@@/ajax-loader.gif" class="loader" alt="Loading..." />Loading...</li>
-			</ul>
-		</section>
-		<form action="@@cgibin@@/dochangemail.html" method="post" id="changeMail" onsubmit="return(sendForm(this, doChangeMailSetup, doChangeMailError, doChangeMailSuccess));">
-			<fieldset>
-				<div>
-					<div class="legend">Change E-mail</div>
-					<div class="error"><div id="changeMailErrSystem">An unexpected error occurred.</div></div>
-					<div class="error"><div id="changeMailErrForm">Invalid new or existing e-mail address.</div></div>
-				</div>
-				<div class="fields">
-					<aside>
-						Set your e-mail address here.
-						You will be logged out after doing so.
-					</aside>
-					<input required="required" type="email" name="email1" placeholder="Existing E-mail"/>
-					<input required="required" type="email" name="email2" placeholder="New E-mail"/>
-					<input required="required" type="email" name="email3" placeholder="Repeat New E-mail"/>
-					<input id="changeMailSubmit" type="submit" value="Submit" />
-				</div>
-			</fieldset>
-		</form>
-		<form action="@@cgibin@@/dochangepass.html" method="post" id="changePass" onsubmit="return(sendForm(this, doChangePassSetup, doChangePassError, doChangePassSuccess));">
-			<fieldset>
-				<div>
-					<div class="legend">Change Password</div>
-					<div class="error"><div id="changePassErrSystem">An unexpected error occurred.</div></div>
-					<div class="error"><div id="changePassErrForm">Invalid new or existing password.</div></div>
-				</div>
-				<div class="fields">
-					<aside>
-						Set your password here.
-						You will be logged out after doing so.
-					</aside>
-					<input required="required" type="password" name="password1" placeholder="Existing Password"/>
-					<input required="required" type="password" name="password2" placeholder="New Password"/>
-					<input required="required" type="password" name="password3" placeholder="Repeat New Password"/>
-					<input id="changePassSubmit" type="submit" value="Submit" />
-				</div>
-			</fieldset>
-		</form>
-		<form action="@@cgibin@@/dochangesmtp.html" method="post" id="changeSmtp" onsubmit="return(sendForm(this, doChangeSmtpSetup, doChangeSmtpError, doChangeSmtpSuccess));">
-			<fieldset>
-				<div>
-					<div class="legend">Change SMTP Properties</div>
-					<div class="error"><div id="changeSmtpErrSystem">An unexpected error occurred.</div></div>
-					<div class="error"><div id="changeSmtpErrForm">Invalid new or existing parameters.</div></div>
-				</div>
-				<div class="fields">
-					<aside>
-						In order to send e-mails to players, you need to configure a valid e-mail sending service.
-						Fill in the <q>From Address</q> (which appears on all e-mails to players),
-						<q>SMTP Server</q> to a valid SSL-secured SMTP server,
-						<q>SMTP User</q> to the your server account name, and
-						<q>SMTP Password</q> to the your user's password.
-					</aside>
-					<input required="required" type="email" name="email" placeholder="you@example.com"/>
-					<input required="required" type="text" name="server" placeholder="smtp://example.com:587"/>
-					<input required="required" type="text" name="user" placeholder="SMTP User"/>
-					<input required="required" type="password" name="password" placeholder="SMTP Password"/>
-					<input id="changeSmtpSubmit" type="submit" value="Submit" />
-				</div>
-			</fieldset>
-		</form>
+				<form action="@@cgibin@@/dochangemail.html" method="post" id="changeMail" onsubmit="return(sendForm(this, doChangeMailSetup, doChangeMailError, doChangeMailSuccess));">
+					<section>
+						<h3>Change E-mail</h3>
+						<aside>
+							Set your e-mail address here.
+							You will be logged out after doing so.
+						</aside>
+						<div class="error">
+							<div style="display: none;" id="changeMailErrSystem">An unexpected system error occurred.</div>
+							<div style="display: none;" id="changeMailErrForm">Invalid new or existing e-mail address.</div>
+						</div>
+						<fieldset>
+							<div><input required="required" type="email" name="email1" placeholder="Existing E-mail"/></div>
+							<div><input required="required" type="email" name="email2" placeholder="New E-mail"/></div>
+							<div><input required="required" type="email" name="email3" placeholder="Repeat New E-mail"/></div>
+							<div><input id="changeMailSubmit" type="submit" value="Submit" /></div>
+						</fieldset>
+					</section>
+				</form>
+				<form action="@@cgibin@@/dochangepass.html" method="post" id="changePass" onsubmit="return(sendForm(this, doChangePassSetup, doChangePassError, doChangePassSuccess));">
+					<section>
+						<h3>Change Password</h3>
+						<div class="error">
+							<div style="display: none;" id="changePassErrSystem">An unexpected system error occurred.</div>
+							<div style="display: none;" id="changePassErrForm">Invalid new or existing password.</div>
+						</div>
+						<aside>
+							Set your password here.
+							You will be logged out after doing so.
+						</aside>
+						<fieldset>
+							<div><input required="required" type="password" name="password1" placeholder="Existing Password"/></div>
+							<div><input required="required" type="password" name="password2" placeholder="New Password"/></div>
+							<div><input required="required" type="password" name="password3" placeholder="Repeat New Password"/></div>
+							<div><input id="changePassSubmit" type="submit" value="Submit" /></div>
+						</fieldset>
+					</section>
+				</form>
+				<form action="@@cgibin@@/dochangesmtp.html" method="post" id="changeSmtp" onsubmit="return(sendForm(this, doChangeSmtpSetup, doChangeSmtpError, doChangeSmtpSuccess));">
+					<section>
+						<h3>Change SMTP Properties</h3>
+						<div class="error">
+							<div style="display: none;" id="changeSmtpErrSystem">An unexpected system error occurred.</div>
+							<div style="display: none;" id="changeSmtpErrForm">Invalid new or existing parameters.</div>
+						</div>
+						<aside>
+							In order to send e-mails to players, you need to configure a valid e-mail sending service.
+							Fill in the <q>From Address</q> (which appears on all e-mails to players),
+							<q>SMTP Server</q> to a valid SSL-secured SMTP server,
+							<q>SMTP User</q> to the your server account name, and
+							<q>SMTP Password</q> to the your user's password.
+						</aside>
+						<fieldset>
+							<div><input required="required" type="email" name="email" placeholder="you@example.com"/></div>
+							<div><input required="required" type="text" name="server" placeholder="smtp://example.com:587"/></div>
+							<div><input required="required" type="text" name="user" placeholder="SMTP User"/></div>
+							<div><input required="required" type="password" name="password" placeholder="SMTP Password"/></div>
+							<div><input id="changeSmtpSubmit" type="submit" value="Submit" /></div>
+						</fieldset>
+					</section>
+				</form>
+			</section>
+		</article>
 		<footer>
 			&copy; 2014, 
 			<a href="http://www.kcons.eu"><i>k</i>-Consulting</a>
