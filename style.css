@@ -160,6 +160,9 @@ article ul li > span:first-child
 article ul li > span:last-child
 			{ margin-right: 0; }
 span.waiting		{ background-color: #aaa; }
+div.payoffs		{ display: table; }
+div.payoffs > div	{ display: table-row; }
+div.payoffs > div > div	{ display: table-cell; }
 div.countdown		{ display: table; 
 			  margin-left: auto;
 			  margin-right: auto;

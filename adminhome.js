@@ -209,6 +209,8 @@ function loadGamesSuccess(resp)
 	if (null == e)
 		return;
 
+	console.log(resp);
+
 	try  { 
 		results = JSON.parse(resp);
 	} catch (error) {
@@ -244,7 +246,11 @@ function loadGamesSuccess(resp)
 			for (k = 0; k < results[i].payoffs[j].length; k++) {
 				if (k > 0)
 					div.appendChild(document.createTextNode(', '));
-				div.appendChild(document.createTextNode(results[i].payoffs[j][k]));
+				div.appendChild(document.createTextNode('('));
+				div.appendChild(document.createTextNode(results[i].payoffs[j][k][0]));
+				div.appendChild(document.createTextNode(', '));
+				div.appendChild(document.createTextNode(results[i].payoffs[j][k][1]));
+				div.appendChild(document.createTextNode(')'));
 			}
 			div.appendChild(document.createTextNode('}'));
 		}

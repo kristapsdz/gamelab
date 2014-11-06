@@ -11,7 +11,7 @@ function loadExprFinished()
 
 function loadExprSuccess(resp)
 {
-	var results, e, span, v, head;
+	var results, e, span, v, head, game, i, j, div, table, row, cell;
 
 	try  { 
 		results = JSON.parse(resp);
@@ -27,8 +27,21 @@ function loadExprSuccess(resp)
 		formatCountdown(head, v, e);
 		setTimeout(timerCountdown, 1000, head, loadExprFinished, e, v, new Date().getTime());
 	} else {
-		if (null != (e = doClearNode(document.getElementById('expr'))))
-			e.appendChild(document.createTextNode('Ok!'));
+		if (null == (e = doClearNode(document.getElementById('expr'))))
+			return;
+		game = results.games[Math.floor(Math.random() * results.games.length)];
+		table = document.createElement('div');
+		table.setAttribute('class', 'payoffs');
+		for (i = 0; i < game.payoffs.length; i++) {
+			row = document.createElement('div');
+			table.appendChild(row);
+			for (j = 0; j < game.payoffs[i].length; j++) {
+				cell = document.createElement('div');
+				row.appendChild(cell);
+				cell.appendChild(document.createTextNode(game.payoffs[i][j]));
+			}
+		}
+		e.appendChild(table);
 	}
 }
 

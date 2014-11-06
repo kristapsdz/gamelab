@@ -200,8 +200,6 @@ senddologin(struct kreq *r)
 	struct sess	*sess;
 	int64_t	 	 playerid;
 
-	fprintf(stderr, "here\n");
-
 	if (player_valid(r, &playerid)) {
 		sess = db_player_sess_alloc(playerid);
 		if (KMIME_TEXT_HTML == r->mime) 
@@ -233,6 +231,24 @@ senddologin(struct kreq *r)
 }
 
 static void
+senddoloadgame(const struct game *game, size_t count, void *arg)
+{
+	struct kreq	*r = arg;
+
+	if (count > 0)
+		khttp_putc(r, ',');
+	khttp_putc(r, '{');
+	json_putint(r, "p1", game->p1);
+	khttp_putc(r, ',');
+	json_putint(r, "p2", game->p2);
+	khttp_putc(r, ',');
+	json_putstring(r, "name", game->name);
+	khttp_putc(r, ',');
+	json_putmpqs(r, "payoffs", game->payoffs, game->p1, game->p2);
+	khttp_putc(r, '}');
+}
+
+static void
 senddoloadexpr(struct kreq *r)
 {
 	struct expr	*expr;
@@ -250,6 +266,12 @@ senddoloadexpr(struct kreq *r)
 	} else {
 		khttp_putc(r, '{');
 		json_putstring(r, "tilstart", "0");
+		khttp_putc(r, ',');
+		json_puts(r, "games");
+		khttp_putc(r, ':');
+		khttp_putc(r, '[');
+		db_game_load_all(senddoloadgame, r);
+		khttp_putc(r, ']');
 		khttp_putc(r, '}');
 	}
 

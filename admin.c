@@ -522,34 +522,23 @@ static void
 senddoaddplayers(struct kreq *r)
 {
 	char	*tok, *buf, *mail, *sv;
-	int	 first;
 
 	http_open(r, KHTTP_200);
 	khttp_body(r);
-	khttp_putc(r, '[');
 
-	if (NULL == r->fieldmap[KEY_PLAYERS]) {
-		khttp_putc(r, ']');
+	if (NULL == r->fieldmap[KEY_PLAYERS])
 		return;
-	}
 
 	buf = sv = kstrdup(r->fieldmap[KEY_PLAYERS]->parsed.s);
-	first = 1;
 	while (NULL != (tok = strsep(&buf, " \t\n\r"))) {
 		if (*tok == '\0')
 			continue;
-		if (NULL == (mail = valid_email(tok))) {
-			fprintf(stderr, "%s: invalid e-mail\n", tok);
+		if (NULL == (mail = valid_email(tok)))
 			continue;
-		}
-		if ( ! first)
-			khttp_putc(r, ',');
-		json_puts(r, mail);
-		db_player_create(mail);
-		first = 0;
+		if ( ! db_player_create(mail))
+			break;
 	}
 	free(sv);
-	khttp_putc(r, ']');
 }
 
 static void
@@ -644,16 +633,19 @@ senddostartexpr(struct kreq *r)
 		http_open(r, KHTTP_400);
 		khttp_body(r);
 		return;
-	} 
-
-	sv = kstrdup(r->fieldmap[KEY_URI]->parsed.s);
-
-	db_expr_start
+	} else if ( ! db_expr_start
 		(r->fieldmap[KEY_DATE]->parsed.i,
 		 r->fieldmap[KEY_DAYS]->parsed.i,
-		 r->fieldmap[KEY_URI]->parsed.s);
+		 r->fieldmap[KEY_URI]->parsed.s)) {
+		http_open(r, KHTTP_409);
+		khttp_body(r);
+		return;
+	}
+
 	http_open(r, KHTTP_200);
 	khttp_body(r);
+
+	sv = kstrdup(r->fieldmap[KEY_URI]->parsed.s);
 
 	db_close();
 	if (-1 == (pid = fork())) {

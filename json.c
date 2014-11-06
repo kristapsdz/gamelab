@@ -90,7 +90,7 @@ void
 json_putmpqs(struct kreq *r, const char *key, 
 	mpq_t *vals, int64_t p1, int64_t p2)
 {
-	int64_t		i, j, k;
+	int64_t		i, j;
 	char		buf[128];
 
 	assert('\0' != *key);
@@ -98,15 +98,20 @@ json_putmpqs(struct kreq *r, const char *key,
 	khttp_puts(r, " : ");
 	khttp_putc(r, '[');
 
-	for (k = i = 0; i < p1; i++) {
+	for (i = 0; i < p1; i++) {
 		if (i > 0)
 			khttp_putc(r, ',');
 		khttp_putc(r, '[');
-		for (j = 0; j < p2; j++, k++) {
+		for (j = 0; j < p2; j++) {
 			if (j > 0)
 				khttp_putc(r, ',');
-			gmp_snprintf(buf, sizeof(buf), "%Qd", vals[k]);
+			khttp_putc(r, '[');
+			gmp_snprintf(buf, sizeof(buf), "%Qd", vals[i * (p2 * 2) + (j * 2)]);
 			json_puts(r, buf);
+			khttp_putc(r, ',');
+			gmp_snprintf(buf, sizeof(buf), "%Qd", vals[i * (p2 * 2) + (j * 2) + 1]);
+			json_puts(r, buf);
+			khttp_putc(r, ']');
 		}
 		khttp_putc(r, ']');
 	}

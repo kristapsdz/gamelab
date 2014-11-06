@@ -481,7 +481,7 @@ db_game_free(struct game *game)
 	if (NULL == game)
 		return;
 
-	for (i = 0; i < (size_t)(game->p1 * game->p2); i++)
+	for (i = 0; i < (size_t)(game->p1 * game->p2 * 2); i++)
 		mpq_clear(game->payoffs[i]);
 	free(game->payoffs);
 	free(game->name);
@@ -500,15 +500,15 @@ db_payoff_to_mpq(char *buf, int64_t p1, int64_t p2)
 	int	 rc;
 	char	*tok;
 
-	rops = calloc(p1 * p2, sizeof(mpq_t));
+	rops = calloc(p1 * p2 * 2, sizeof(mpq_t));
 	assert(NULL != rops);
 
-	for (i = 0; i < (size_t)(p1 * p2); i++)
+	for (i = 0; i < (size_t)(p1 * p2 * 2); i++)
 		mpq_init(rops[i]);
 
 	count = 0;
 	while (NULL != (tok = strsep(&buf, " \t\n\r"))) {
-		assert(count < (size_t)(p1 * p2));
+		assert(count < (size_t)(p1 * p2 * 2));
 		rc = mpq_set_str(rops[count], tok, 10);
 		assert(0 == rc);
 		mpq_canonicalize(rops[count]);
@@ -516,7 +516,7 @@ db_payoff_to_mpq(char *buf, int64_t p1, int64_t p2)
 		count++;
 	}
 
-	assert(count == (size_t)(p1 * p2));
+	assert(count == (size_t)(p1 * p2 * 2));
 	return(rops);
 }
 
@@ -602,7 +602,7 @@ db_game_load_all(void (*fp)(const struct game *, size_t, void *), void *arg)
 		assert(NULL != game.name);
 		game.id = sqlite3_column_int(stmt, 4);
 		(*fp)(&game, count++, arg);
-		for (i = 0; i < (size_t)(game.p1 * game.p2); i++)
+		for (i = 0; i < (size_t)(2 * game.p1 * game.p2); i++)
 			mpq_clear(game.payoffs[i]);
 		free(game.payoffs);
 		free(game.name);
@@ -631,15 +631,15 @@ db_game_alloc(const char *poffs,
 
 	sv = buf = strdup(poffs);
 	assert(NULL != buf);
-	rops = calloc(p1 * p2, sizeof(mpq_t));
+	rops = calloc(p1 * p2 * 2, sizeof(mpq_t));
 	assert(NULL != rops);
 
-	for (i = 0; i < (size_t)(p1 * p2); i++)
+	for (i = 0; i < (size_t)(p1 * p2 * 2); i++)
 		mpq_init(rops[i]);
 
 	count = 0;
 	while (NULL != (tok = strsep(&buf, " \t\n\r"))) {
-		if (count > (size_t)(p1 * p2)) {
+		if (count > (size_t)(p1 * p2 * 2)) {
 			fprintf(stderr, "%s: matrix too big", name);
 			free(sv);
 			free(rops);
@@ -655,10 +655,16 @@ db_game_alloc(const char *poffs,
 	}
 	free(sv);
 
-	if (count != (size_t)(p1 * p2)) {
+	if (count != (size_t)(p1 * p2 * 2)) {
 		fprintf(stderr, "%s: matrix size: %zu != %" 
-			PRId64 "\n", name, count, p1 * p2);
+			PRId64 "\n", name, count, 2 * p1 * p2);
 		free(rops);
+		return(NULL);
+	}
+
+	db_trans_begin();
+	if ( ! db_expr_checkstate(ESTATE_NEW)) {
+		db_trans_rollback();
 		return(NULL);
 	}
 
@@ -679,12 +685,14 @@ db_game_alloc(const char *poffs,
 	db_step(stmt, 0);
 	db_finalise(stmt);
 	game->id = sqlite3_last_insert_rowid(db);
+	db_trans_commit();
 
 	fprintf(stderr, "%" PRId64 ": new game: %s\n", 
 		game->id, game->name);
 	return(game);
 }
 
+#if 0
 int
 db_player_play(mpq_t *fraction, size_t strats,
 	int64_t round, int64_t strategy, int64_t playerid)
@@ -713,13 +721,20 @@ db_player_play(mpq_t *fraction, size_t strats,
 	db_trans_commit();
 	return(1);
 }
+#endif
 
-void
+int
 db_player_create(const char *email)
 {
 	sqlite3_stmt	*stmt;
 	int		 rc;
 	int64_t		 id;
+
+	db_trans_begin();
+	if ( ! db_expr_checkstate(ESTATE_NEW)) {
+		db_trans_rollback();
+		return(0);
+	}
 
 	stmt = db_stmt("INSERT INTO player "
 		"(email,role) VALUES (?,?)");
@@ -728,11 +743,14 @@ db_player_create(const char *email)
 	rc = db_step(stmt, DB_STEP_CONSTRAINT);
 	db_finalise(stmt);
 
-	if (SQLITE_DONE != rc)
-		return;
-	id = sqlite3_last_insert_rowid(db);
-	fprintf(stderr, "%" PRId64 ": new player: %s\n",
-		sqlite3_last_insert_rowid(db), email);
+	if (SQLITE_DONE == rc) {
+		id = sqlite3_last_insert_rowid(db);
+		fprintf(stderr, "%" PRId64 ": new player: %s\n",
+			sqlite3_last_insert_rowid(db), email);
+	}
+
+	db_trans_commit();
+	return(1);
 }
 
 int
@@ -749,10 +767,16 @@ db_expr_checkstate(enum estate state)
 	return(rc == SQLITE_ROW);
 }
 
-void
+int
 db_expr_start(int64_t date, int64_t days, const char *uri)
 {
 	sqlite3_stmt	*stmt;
+
+	db_trans_begin();
+	if ( ! db_expr_checkstate(ESTATE_NEW)) {
+		db_trans_rollback();
+		return(0);
+	}
 
 	stmt = db_stmt("UPDATE experiment SET "
 		"state=1,start=?,days=?,loginuri=?");
@@ -761,7 +785,9 @@ db_expr_start(int64_t date, int64_t days, const char *uri)
 	db_bind_text(stmt, 3, uri);
 	db_step(stmt, 0);
 	db_finalise(stmt);
+	db_trans_commit();
 	fprintf(stderr, "experiment starting\n");
+	return(1);
 }
 
 void
