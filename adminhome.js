@@ -1,11 +1,15 @@
 "use strict";
 
-function doSuccess(submitName, formName) {
+function doSuccess(submitName, formName) 
+{
+
 	document.getElementById(submitName).value = 'Submit';
 	document.getElementById(formName).reset();
 }
 
-function doError(err, submitName, errName) {
+function doError(err, submitName, errName) 
+{
+
 	document.getElementById(submitName).value = 'Submit';
 	switch (err) {
 	case 400:
@@ -20,45 +24,60 @@ function doError(err, submitName, errName) {
 	}
 }
 
-function doSetup(submitName, errName) {
+function doSetup(submitName, errName) 
+{
+
 	document.getElementById(submitName).value = 'Submitting...';
 	doHide(errName + 'Form');
 	doHide(errName + 'System');
 	doHide(errName + 'State');
 }
 
-function doAddPlayersSuccess(resp) {
+function doAddPlayersSuccess(resp) 
+{
+
 	doSuccess('addPlayersSubmit', 'addPlayers');
 	loadPlayers();
 }
 
-function doChangeMailSuccess(resp) {
+function doChangeMailSuccess(resp) 
+{
+
 	doSuccess('changeMailSubmit', 'changeMail');
 	location.href = '@@cgibin@@';
 }
 
-function doChangePassSuccess(resp) {
+function doChangePassSuccess(resp) 
+{
+
 	doSuccess('changePassSubmit', 'changePass');
 	location.href = '@@cgibin@@';
 }
 
-function doChangeSmtpSuccess(resp) {
+function doChangeSmtpSuccess(resp) 
+{
+
 	doSuccess('changeSmtpSubmit', 'changeSmtp');
 	checkSmtp();
 }
 
-function doAddGameSuccess(resp) {
+function doAddGameSuccess(resp) 
+{
+
 	doSuccess('addGameSubmit', 'addGame');
 	loadGames();
 }
 
-function doStartExprSuccess(resp) {
+function doStartExprSuccess(resp) 
+{
+
 	document.getElementById('startExprSubmit').value = 'Started!  Reloading...';
 	document.getElementById('startExpr').reset();
 	window.location.reload(true);
 }
 
-function loadPlayersSuccess(resp) {
+function loadPlayersSuccess(resp) 
+{
 	var e, li, i, results, icon, link, span, count;
 
 	e = doClearNode(document.getElementById('loadPlayers'));
@@ -76,7 +95,9 @@ function loadPlayersSuccess(resp) {
 
 	if (0 == results.length) {
 		li = document.createElement('li');
-		li.appendChild(document.createTextNode('No players.'));
+		span = document.createElement('span');
+		span.appendChild(document.createTextNode('No players.'));
+		li.appendChild(span);
 		e.appendChild(li);
 		doHide('checkPlayersLoad');
 		doUnhide('checkPlayersNo');
@@ -88,16 +109,11 @@ function loadPlayersSuccess(resp) {
 	e.appendChild(li);
 
 	for (count = i = 0; i < results.length; i++) {
-		if (i > 0)
-			li.appendChild(document.createTextNode(', '));
+		if (results[i].enabled)
+			count++;
+
 		span = document.createElement('span');
 		span.setAttribute('id', 'player' + results[i].id);
-		if (0 == results[i].enabled)
-			span.setAttribute('class', 'disabled');
-		else {
-			span.setAttribute('class', 'enabled');
-			count++;
-		}
 		span.appendChild(document.createTextNode(results[i].mail));
 		li.appendChild(span);
 
@@ -105,25 +121,35 @@ function loadPlayersSuccess(resp) {
 		icon.setAttribute('src', '@@htdocs@@/disable.png');
 		icon.setAttribute('id', 'playerDisable' + results[i].id);
 		icon.setAttribute('onclick', 'doDisablePlayer(' + results[i].id + '); return false;');
-		icon.setAttribute('alt', 'Disable');
 		icon.setAttribute('class', 'disable');
+		icon.setAttribute('alt', 'Disable');
 		span.appendChild(icon);
 
 		icon = document.createElement('img');
 		icon.setAttribute('src', '@@htdocs@@/enable.png');
 		icon.setAttribute('id', 'playerEnable' + results[i].id);
 		icon.setAttribute('onclick', 'doEnablePlayer(' + results[i].id + '); return false;');
-		icon.setAttribute('alt', 'Enable');
 		icon.setAttribute('class', 'enable');
+		icon.setAttribute('alt', 'Enable');
 		span.appendChild(icon);
+
+		icon = document.createElement('img');
+		icon.setAttribute('src', '@@htdocs@@/ajax-loader.gif');
+		icon.setAttribute('id', 'playerWaiting' + results[i].id);
+		icon.setAttribute('alt', 'Loading...');
+		span.appendChild(icon);
+
+		doHide('playerWaiting' + results[i].id);
+		doHide((0 == results[i].enabled ? 'playerDisable' : 'playerEnable') + results[i].id);
 	}
 
 	doHide('checkPlayersLoad');
 	doUnhide(count >= 2 ? 'checkPlayersYes' : 'checkPlayersNo');
 }
 
-function loadGamesSuccess(resp) {
-	var i, j, k, results, li, e;
+function loadGamesSuccess(resp) 
+{
+	var i, j, k, results, li, e, div;
 
 	e = doClearNode(document.getElementById('loadGames'));
 	if (null == e)
@@ -140,8 +166,10 @@ function loadGamesSuccess(resp) {
 
 	if (0 == results.length) {
 		li = document.createElement('li');
-		li.appendChild(document.createTextNode('No games.'));
 		e.appendChild(li);
+		div = document.createElement('div');
+		div.appendChild(document.createTextNode('No games.'));
+		li.appendChild(div);
 		doHide('checkGameLoad');
 		doUnhide('checkGameNo');
 		return;
@@ -152,138 +180,167 @@ function loadGamesSuccess(resp) {
 
 	for (i = 0; i < results.length; i++) {
 		li = document.createElement('li');
-		li.appendChild(document.createTextNode(results[i].name));
-		li.appendChild(document.createTextNode(': {'));
+		div = document.createElement('div');
+		div.appendChild(document.createTextNode(results[i].name));
+		div.appendChild(document.createTextNode(': {'));
 		for (j = 0; j < results[i].payoffs.length; j++) {
 			if (j > 0)
-				li.appendChild(document.createTextNode(', '));
-			li.appendChild(document.createTextNode('{'));
+				div.appendChild(document.createTextNode(', '));
+			div.appendChild(document.createTextNode('{'));
 			for (k = 0; k < results[i].payoffs[j].length; k++) {
 				if (k > 0)
-					li.appendChild(document.createTextNode(', '));
-				li.appendChild(document.createTextNode(results[i].payoffs[j][k]));
+					div.appendChild(document.createTextNode(', '));
+				div.appendChild(document.createTextNode(results[i].payoffs[j][k]));
 			}
-			li.appendChild(document.createTextNode('}'));
+			div.appendChild(document.createTextNode('}'));
 		}
-		li.appendChild(document.createTextNode('}'));
+		div.appendChild(document.createTextNode('}'));
+		li.appendChild(div);
 		e.appendChild(li);
 	}
 }
 
-function doAddPlayersError(err) {
+function doAddPlayersError(err) 
+{
+
 	doError(err, 'addPlayersSubmit', 'addPlayersErr');
 }
 
-function doChangeMailError(err) {
+function doChangeMailError(err) 
+{
+
 	doError(err, 'changeMailSubmit', 'changeMailErr');
 }
 
-function doChangePassError(err) {
+function doChangePassError(err) 
+{
+
 	doError(err, 'changePassSubmit', 'changePassErr');
 }
 
-function doChangeSmtpError(err) {
+function doChangeSmtpError(err) 
+{
+
 	doError(err, 'changeSmtpSubmit', 'changeSmtpErr');
 }
 
-function doAddGameError(err) {
+function doAddGameError(err) 
+{
+
 	doError(err, 'addGameSubmit', 'addGameErr');
 }
 
-function doStartExprError(err) {
+function doStartExprError(err) 
+{
+
 	doError(err, 'startExprSubmit', 'startExprErr');
 	document.getElementById('startExprSubmit').value = 'Start';
 }
 
-function loadError(err, name) {
-	var li, e;
+function loadError(err, name) 
+{
+	var li, e, div;
 
 	e = doClearNode(document.getElementById(name));
 	if (null == e)
 		return;
 	li = document.createElement('li');
-	li.appendChild(document.createTextNode('An error occured.'));
+	div = document.createElement('div');
+	div.appendChild(document.createTextNode('An error occured.'));
+	li.appendChild(div);
 	e.appendChild(li);
 }
 
-function loadGamesError(err) {
+function loadGamesError(err) 
+{
+
 	loadError(err, 'loadGames');
 }
 
-function loadPlayersError(err) {
+function loadPlayersError(err) 
+{
+
 	loadError(err, 'loadPlayers');
 }
 
-function doAddPlayersSetup() {
+function doAddPlayersSetup() 
+{
+
 	doSetup('addPlayersSubmit', 'addPlayersErr');
 }
 
-function doChangeMailSetup() {
+function doChangeMailSetup() 
+{
+
 	doSetup('changeMailSubmit', 'changeMailErr');
 }
 
-function doChangePassSetup() {
+function doChangePassSetup() 
+{
+
 	doSetup('changePassSubmit', 'changePassErr');
 }
 
-function doChangeSmtpSetup() {
+function doChangeSmtpSetup() 
+{
+
 	doSetup('changeSmtpSubmit', 'changeSmtpErr');
 }
 
-function doAddGameSetup() {
+function doAddGameSetup() 
+{
+
 	doSetup('addGameSubmit', 'addGameErr');
 }
 
-function doStartExprSetup() {
+function doStartExprSetup() 
+{
+
 	doSetup('startExprSubmit', 'startExprErr');
 	document.getElementById('startExprSubmit').value = 'Starting...';
 }
 
-function doEnablePlayer(id) {
-	var xmlhttp, e;
+function doDisableEnablePlayer(id, url)
+{
+	var xrh, e;
 
-	if (null == (e = document.getElementById('player' + id)))
-		return;
-	e.className = 'enabling';
+	if (null != (e = document.getElementById('player' + id)))
+		e.className = 'waiting';
 
-	if (null == (e = document.getElementById('playerEnable' + id)))
-		return;
-	e.src = '@@htdocs@@/ajax-loader.gif';
-	e.className = 'enabling';
-	e.alt = 'Enabling';
+	doHide('playerDisable' + id);
+	doHide('playerEnable' + id);
+	doUnhide('playerWaiting' + id);
 
-	xmlhttp = new XMLHttpRequest();
-	xmlhttp.onreadystatechange=function() {
-		if (xmlhttp.readyState==4 && xmlhttp.status==200)
-			loadPlayers();
+	xrh = new XMLHttpRequest();
+	xrh.onreadystatechange=function() {
+		if (xrh.readyState==4 && xrh.status==200) {
+			if (null != (e = document.getElementById('player' + id)))
+				e.className = '';
+			doHide('playerWaiting' + id);
+			if (url == 'doenableplayer')
+				doUnhide('playerDisable' + id);
+			else
+				doUnhide('playerEnable' + id);
+		}
 	} 
-	xmlhttp.open('GET', '@@cgibin@@/doenableplayer.json?pid=' + id, true);
-	xmlhttp.send(null);
+	xrh.open('GET', '@@cgibin@@/' + url + '.json?pid=' + id, true);
+	xrh.send(null);
 }
 
-function doDisablePlayer(id) {
-	var xmlhttp, e;
+function doEnablePlayer(id) 
+{
 
-	if (null == (e = document.getElementById('player' + id)))
-		return;
-	e.className = 'disabling';
-
-	if (null == (e = document.getElementById('playerDisable' + id)))
-		return;
-	e.src = '@@htdocs@@/ajax-loader.gif';
-	e.className = 'disabling';
-	e.alt = 'Disabling';
-
-	xmlhttp = new XMLHttpRequest();
-	xmlhttp.onreadystatechange=function() {
-		if (xmlhttp.readyState==4 && xmlhttp.status==200)
-			loadPlayers();
-	} 
-	xmlhttp.open('GET', '@@cgibin@@/dodisableplayer.json?pid=' + id, true);
-	xmlhttp.send(null);
+	doDisableEnablePlayer(id, 'doenableplayer');
 }
 
-function checkSmtp() {
+function doDisablePlayer(id) 
+{
+
+	doDisableEnablePlayer(id, 'dodisableplayer');
+}
+
+function checkSmtp() 
+{
 	var xrh;
 
 	doHide('checkSmtpYes');

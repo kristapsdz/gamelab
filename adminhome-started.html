@@ -54,15 +54,12 @@
 				</section>
 			</section>
 			<section>
-				<h2>Parameters</h2>
-				<aside>
-					Here you do something something.
-				</aside>
 				<form action="@@cgibin@@/dochangemail.html" method="post" id="changeMail" onsubmit="return(sendForm(this, doChangeMailSetup, doChangeMailError, doChangeMailSuccess));">
 					<section>
 						<h3>Change E-mail</h3>
 						<aside>
-							Set your e-mail address here.
+							You should set the e-mail address to your address, as the system (or system administrator) will
+							mail you if it has issues.
 							You will be logged out after doing so.
 						</aside>
 						<div class="error">
@@ -85,7 +82,9 @@
 							<div style="display: none;" id="changePassErrForm">Invalid new or existing password.</div>
 						</div>
 						<aside>
-							Set your password here.
+							Set your password (at least one character) here.
+							You should do this when you first use the system, as the default is too easy.
+							It's up to you to make sure your password is secure.
 							You will be logged out after doing so.
 						</aside>
 						<fieldset>
