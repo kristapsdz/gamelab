@@ -78,7 +78,8 @@ function loadPlayersSuccess(resp) {
 		li = document.createElement('li');
 		li.appendChild(document.createTextNode('No players.'));
 		e.appendChild(li);
-		doClearReplace('checkPlayers', 'No.');
+		doHide('checkPlayersLoad');
+		doUnhide('checkPlayersNo');
 		return;
 	}
 
@@ -117,7 +118,8 @@ function loadPlayersSuccess(resp) {
 		span.appendChild(icon);
 	}
 
-	doClearReplace('checkPlayers', count >= 2 ? 'Yes!' : 'No.');
+	doHide('checkPlayersLoad');
+	doUnhide(count >= 2 ? 'checkPlayersYes' : 'checkPlayersNo');
 }
 
 function loadGamesSuccess(resp) {
@@ -140,12 +142,13 @@ function loadGamesSuccess(resp) {
 		li = document.createElement('li');
 		li.appendChild(document.createTextNode('No games.'));
 		e.appendChild(li);
-		doClearReplace('checkGames', 'No.');
+		doHide('checkGameLoad');
+		doUnhide('checkGameNo');
 		return;
 	}
 
-	doClearReplace('checkGames', 'Yes!');
-	e.className = '';
+	doHide('checkGameLoad');
+	doUnhide('checkGameYes');
 
 	for (i = 0; i < results.length; i++) {
 		li = document.createElement('li');
@@ -281,30 +284,34 @@ function doDisablePlayer(id) {
 }
 
 function checkSmtp() {
-	var li, e, gif, xmlhttp;
+	var xrh;
 
-	doClearReplace('checkSmtp', 'Checking...');
+	doHide('checkSmtpYes');
+	doHide('checkSmtpNo');
+	doUnhide('checkSmtpLoad');
 
-	xmlhttp = new XMLHttpRequest();
-	xmlhttp.onreadystatechange=function() {
-		if (xmlhttp.readyState==4 && xmlhttp.status==200)
-			doClearReplace('checkSmtp', 'Yes!');
-		else if (xmlhttp.readyState==4 && xmlhttp.status==400)
-			doClearReplace('checkSmtp', 'No.');
+	xrh = new XMLHttpRequest();
+	xrh.onreadystatechange=function() {
+		if (xrh.readyState==4 && xrh.status==200) {
+			doHide('checkSmtpLoad');
+			doUnhide('checkSmtpYes');
+		} else if (xrh.readyState==4 && xrh.status==400) {
+			doHide('checkSmtpLoad');
+			doUnhide('checkSmtpNo');
+		}
 	} 
-	xmlhttp.open('GET', '@@cgibin@@/dochecksmtp.json', true);
-	xmlhttp.send(null);
+	xrh.open('GET', '@@cgibin@@/dochecksmtp.json', true);
+	xrh.send(null);
 }
 
-function loadList(url, name, onsuccess, onerror) {
-	var li, e, gif, xmlhttp;
+function loadList(url, name, onsuccess, onerror) 
+{
+	var li, e, gif, xrh;
 
 	if (null == (e = doClearNode(document.getElementById(name))))
 		return;
 
-	e.className = 'default';
 	li = document.createElement('li');
-
 	gif = document.createElement('img');
 	gif.setAttribute('src', '@@htdocs@@/ajax-loader.gif');
 	gif.setAttribute('alt', 'Loading...');
@@ -313,31 +320,37 @@ function loadList(url, name, onsuccess, onerror) {
 	li.appendChild(document.createTextNode('Loading...'));
 	e.appendChild(li);
 
-	xmlhttp = new XMLHttpRequest();
-	xmlhttp.onreadystatechange=function() {
-		if (xmlhttp.readyState == 4 && xmlhttp.status==200) {
-			onsuccess(xmlhttp.responseText);
-		} else if (xmlhttp.readyState == 4) {
-			onerror(xmlhttp.status);
-		}
+	xrh = new XMLHttpRequest();
+	xrh.onreadystatechange=function() {
+		if (xrh.readyState == 4 && xrh.status == 200)
+			onsuccess(xrh.responseText);
+		else if (xrh.readyState == 4)
+			onerror(xrh.status);
 	} 
-	xmlhttp.open('GET', url, true);
-	xmlhttp.send(null);
+	xrh.open('GET', url, true);
+	xrh.send(null);
 }
 
-function loadPlayers() {
-	doClearReplace('checkPlayers', 'Checking...');
-	loadList('@@cgibin@@/doloadplayers.json', 
-		'loadPlayers', loadPlayersSuccess, loadPlayersError);
+function loadPlayers() 
+{
+
+	doHide('checkPlayersYes');
+	doHide('checkPlayersNo');
+	doUnhide('checkPlayersLoad');
+	loadList('@@cgibin@@/doloadplayers.json', 'loadPlayers', loadPlayersSuccess, loadPlayersError);
 }
 
-function loadGames() {
-	doClearReplace('checkGames', 'Checking...');
-	loadList('@@cgibin@@/doloadgames.json', 
-		'loadGames', loadGamesSuccess, loadGamesError);
+function loadGames() 
+{
+
+	doHide('checkGameYes');
+	doHide('checkGameNo');
+	doUnhide('checkGameLoad');
+	loadList('@@cgibin@@/doloadgames.json', 'loadGames', loadGamesSuccess, loadGamesError);
 }
 
-function loadExprSuccess(resp) {
+function loadExprSuccess(resp) 
+{
 	var results, v, e, chld;
 
 	try  { 
@@ -366,7 +379,8 @@ function loadExprSuccess(resp) {
 	}
 }
 
-function loadExpr() {
+function loadExpr() 
+{
 	var xhr;
 
 	doUnhide('statusExprLoading');

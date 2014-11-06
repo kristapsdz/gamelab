@@ -8,7 +8,9 @@ PAGES 	 = addplayer.eml \
 	   playerhome.js \
 	   playerlogin.html \
 	   style.css
-STATICS	 = ajax-loader.gif \
+STATICS	 = accept.png \
+	   ajax-loader.gif \
+	   block.png \
 	   calendar.png \
 	   disable.png \
 	   enable.png \

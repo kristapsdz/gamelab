@@ -19,24 +19,28 @@
 		</header>
 		<article>
 			<section>
-				<h2>Deploy</h2>
 				<aside>
-					This is your gamelab experiment's configuration console.
-					You're seeing this page because you haven't finished configuring your experiment.
-					To do so, follow these steps:
+					To deploy a <span class="name">gamelab</span> experiment, follow these steps.
 					<ol>
 						<li>
-							Change your <a href="#changePass">password</a> and <a href="#changeMail">e-mail</a>.
-							(If you leave the default e-mail or password, you're inviting trouble!)
+							Change your <a href="#changePassSection">password</a> and <a href="#changeMailSection">e-mail</a>.
 						</li>
-						<li>Add any <a href="#addGame">games</a>.  You need at least one.</li>
-						<li>Add any <a href="#addPlayers">players</a>.  You need at least two.</li>
-						<li>Configure your <a href="#changeSmtp">SMTP</a> settings.</li>
-						<li><a href="#startExpr">Start</a> your experiment.
+						<li>
+							Add your experiment <a href="#addGameSection">games</a>.
+						</li>
+						<li>
+							Add any experiment <a href="#addPlayersSection">participants</a>.
+						</li>
+						<li>
+							Configure your <a href="#changeSmtpSection">SMTP</a> settings.
+						</li>
+						<li>
+							<a href="#startExprSection">Deploy</a> your experiment.
+						</li>
 					</ol>
 				</aside>
 				<form action="@@cgibin@@/dostartexpr.html" method="post" id="startExpr" onsubmit="return(sendForm(this, doStartExprSetup, doStartExprError, doStartExprSuccess));">
-					<section>
+					<section id="startExprSection">
 						<h3>Experiment Parameters</h3>
 						<div class="error">
 							<div style="display: none;" id="startExprErrSystem">An unexpected error occurred.</div>
@@ -44,16 +48,36 @@
 							<div style="display: none;" id="startExprErrState">Experiment already started!</div>
 						</div>
 						<aside>
-							Commit your experiment parameters and start here.
-							Once you start your experiment, you cannot add or remove games, or change the experiment duration.
-							(You can add or disable players, however.)
+							<div>
+								Commit your experiment parameters and start here.
+								Once you start your experiment, you cannot add or remove games, or change the experiment duration.
+								(You can add or disable players, however.)
+							</div>
+							<div>
+								Checklist:
+							</div>
+							<ol>
+								<li>
+									Entered <a href="#changeSmtp">SMTP</a> data? 
+									<span><img src="@@htdocs@@/ajax-loader.gif" id="checkSmtpLoad" class="loader" alt="Checking..." /></span>
+									<span><img style="display: none;" id="checkSmtpYes" src="@@htdocs@@/accept.png" class="status" alt="Yes" /></span>
+									<span><img style="display: none;" id="checkSmtpNo" src="@@htdocs@@/block.png" class="status" alt="No" /></span>
+								</li>
+								<li>
+									Entered 2+ enabled <a href="#addPlayers">players</a>? 
+									<span><img src="@@htdocs@@/ajax-loader.gif" id="checkPlayersLoad" class="loader" alt="Checking..." /></span>
+									<span><img style="display: none;" id="checkPlayersYes" src="@@htdocs@@/accept.png" class="status" alt="Yes" /></span>
+									<span><img style="display: none;" id="checkPlayersNo" src="@@htdocs@@/block.png" class="status" alt="No" /></span>
+								</li>
+								<li>
+									Entered 1+ <a href="#addGame">games</a>? 
+									<span><img src="@@htdocs@@/ajax-loader.gif" id="checkGameLoad" class="loader" alt="Checking..." /></span>
+									<span><img style="display: none;" id="checkGameYes" src="@@htdocs@@/accept.png" class="status" alt="Yes" /></span>
+									<span><img style="display: none;" id="checkGameNo" src="@@htdocs@@/block.png" class="status" alt="No" /></span>
+								</li>
+							</ol>
 						</aside>
 						<fieldset>
-							<ol>
-								<li>Entered <a href="#changeSmtp">SMTP</a> data? <span id="checkSmtp">Checking...</span></li>
-								<li>Entered 2+ enabled <a href="#addPlayers">players</a>? <span id="checkPlayers">Checking...</span></li>
-								<li>Entered 1+ <a href="#addGame">games</a>? <span id="checkGames">Checking...</span></li>
-							</ol>
 							<div><input required="required" type="text" name="uri" placeholder="http://lab/loginpage.html" /></div>
 							<div>
 								<input required="required" type="date" name="date" placeholder="yyyy-mm-dd" />
@@ -68,7 +92,7 @@
 			</section>
 			<section>
 				<h2>Configure</h2>
-				<section>
+				<section id="addGameSection">
 					<h3>Games</h3>
 					<aside>
 						The games themselves.
@@ -96,7 +120,7 @@
 						</fieldset>
 					</form>
 				</section>
-				<section>
+				<section id="addPlayersSection">
 					<h3>Players</h3>
 					<aside>
 						Players in your experiment.
@@ -131,7 +155,7 @@
 				<aside>
 					Here you do something osemthing.
 				</aside>
-				<section>
+				<section id="changeMailSection">
 					<h3>Change E-mail</h3>
 					<aside>
 						Why you should do this.
@@ -151,7 +175,7 @@
 						</fieldset>
 					</form>
 				</section>
-				<section>
+				<section id="changePassSection">
 					<h3>Change Password</h3>
 					<aside>
 						Set your password here.

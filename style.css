@@ -43,6 +43,7 @@ section section >h3	{ margin: 0;
 				background-color: #5555aa; }
 form .error		{ color: red;
 				font-weight: bolder; }
+aside div		{ margin: 1em 0; }
 /*
  * Now layout the specific components. 
  */
@@ -136,6 +137,8 @@ img.disable		{ margin-bottom: -6px;
 				margin-left: 2px; }
 img.enable:hover,
 img.disable:hover	{ cursor: pointer; }
+img.status		{ margin-bottom: -6px; }
 progress		{ display: block;
 				margin-bottom: 1ex;
 				width: 100%; }
+article li		{ margin: 0.5em 0; }
