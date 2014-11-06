@@ -8,7 +8,7 @@
 		<script src="@@htdocs@@/script.js"></script>
 		<script src="@@cgibin@@/home.js"></script>
 	</head>
-	<body onload="loadGames(); loadPlayers(); checkSmtp();">
+	<body onload="loadGames(); loadNewPlayers(); checkSmtp();">
 		<header>
 			<nav>
 				<ul>
@@ -50,8 +50,7 @@
 						<aside>
 							<div>
 								Commit your experiment parameters and start here.
-								Once you start your experiment, you cannot add or remove games, or change the experiment duration.
-								(You can add or disable players, however.)
+								Once you start your experiment, you cannot add or remove games or players.
 							</div>
 							<div>
 								Checklist:
@@ -123,12 +122,9 @@
 					<h3>Players</h3>
 					<aside>
 						Players in your experiment.
-						If a player is greyed out, he or she is disabled.
-						Disabled players are not e-mailed a password when the experiment starts, nor are they allowed to log in.
-						To disable a player, just click the red symbol alongisde.
-						To enable a player, use the green symbol.
+						To delete a player, just click the red symbol alongisde.
 					</aside>
-					<ul id="loadPlayers">
+					<ul id="loadNewPlayers">
 						<li><img src="@@htdocs@@/ajax-loader.gif" class="loader" alt="Loading..." />Loading...</li>
 					</ul>
 					<form action="@@cgibin@@/doaddplayers.html" method="post" id="addPlayers" 

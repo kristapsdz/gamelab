@@ -1,28 +1,17 @@
-function loadExprTimer(v, start)
+
+function loadExprFinished()
 {
-	var elapsed, div, e;
+	var e;
 
-	if (null == (e = doClearNode(document.getElementById('expr'))))
-		return;
-
-	elapsed = new Date().getTime() - start;
-	v -= elapsed / 1000;
-	if (v < 0) {
+	if (null != (e = doClearNode(document.getElementById('expr'))))
 		e.appendChild(document.createTextNode('Wait finished: reloading.'));
-		window.location.reload(true);
-		return;
-	}
 
-	div = document.createElement('div');
-	div.appendChild(document.createTextNode('Time to start: '));
-	formatCountdown(v, div);
-	e.appendChild(div);
-	setTimeout(loadExprTimer, 1000, v, new Date().getTime());
+	window.location.reload(true);
 }
 
 function loadExprSuccess(resp)
 {
-	var results, e, div, v;
+	var results, e, span, v, head;
 
 	try  { 
 		results = JSON.parse(resp);
@@ -32,7 +21,11 @@ function loadExprSuccess(resp)
 	}
 
 	if ((v = parseInt(results.tilstart)) > 0) {
-		setTimeout(loadExprTimer, 1000, v, new Date().getTime());
+		if (null == (e = doClearNode(document.getElementById('expr'))))
+			return;
+		head = 'Time Until Next Game';
+		formatCountdown(head, v, e);
+		setTimeout(timerCountdown, 1000, head, loadExprFinished, e, v, new Date().getTime());
 	} else {
 		if (null != (e = doClearNode(document.getElementById('expr'))))
 			e.appendChild(document.createTextNode('Ok!'));

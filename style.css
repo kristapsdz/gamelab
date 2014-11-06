@@ -21,6 +21,7 @@ article, footer		{ max-width: 1024px;
 				margin-left: auto;
 				margin-right: auto; }
 footer			{ text-align: center; 
+				margin-top: 1em;
 				margin-bottom: 1em;
 			 	color: #888;
 				font-size: smaller; }
@@ -151,3 +152,22 @@ article ul li > div	{ background-color: #eee;
 				border: thin solid #aaa;
 				border-radius: 1ex; }
 span.waiting		{ background-color: #aaa; }
+div.countdown		{ display: table; 
+			  margin-left: auto;
+			  margin-right: auto;
+			  background-color: #666; 
+			  border-spacing: 2px;
+			  color: #eee; }
+div.countdown > div	{ display: table-row; }
+div.countdown > div > div	
+			{ display: table-cell; 
+			  text-align: center; }
+div.countdown > div:first-child > div
+			{ background-color: #000; 
+			  font-family: monospace;
+			  font-size: 24pt;
+			  padding: 1ex 2ex; }
+div.countdown > div:last-child > div
+			{ color: #aaa; }
+div.countdownHead	{ text-align: center;
+				font-size: 16pt; }

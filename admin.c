@@ -30,6 +30,7 @@ enum	page {
 	PAGE_DOCHANGEPASS,
 	PAGE_DOCHANGESMTP,
 	PAGE_DOCHECKSMTP,
+	PAGE_DODELETEPLAYER,
 	PAGE_DODISABLEPLAYER,
 	PAGE_DOENABLEPLAYER,
 	PAGE_DOGETEXPR,
@@ -102,6 +103,7 @@ static const char *const pages[PAGE__MAX] = {
 	"dochangepass", /* PAGE_DOCHANGEPASS */
 	"dochangesmtp", /* PAGE_DOCHANGESMTP */
 	"dochecksmtp", /* PAGE_DOCHECKSMTP */
+	"dodeleteplayer", /* PAGE_DODELETEPLAYER */
 	"dodisableplayer", /* PAGE_DODISABLEPLAYER */
 	"doenableplayer", /* PAGE_DOENABLEPLAYER */
 	"dogetexpr", /* PAGE_DOGETEXPR */
@@ -301,6 +303,22 @@ senddoenableplayer(struct kreq *r)
 
 	if ( ! kpairbad(r, KEY_PLAYERID)) {
 		db_player_enable(r->fieldmap[KEY_PLAYERID]->parsed.i);
+		http_open(r, KHTTP_200);
+	} else
+		http_open(r, KHTTP_400);
+
+	khttp_body(r);
+}
+
+static void
+senddodeleteplayer(struct kreq *r)
+{
+
+	if ( ! kpairbad(r, KEY_PLAYERID)) {
+		if ( ! db_player_delete(r->fieldmap[KEY_PLAYERID]->parsed.i))
+			http_open(r, KHTTP_409);
+		else
+			http_open(r, KHTTP_200);
 		http_open(r, KHTTP_200);
 	} else
 		http_open(r, KHTTP_400);
@@ -732,11 +750,10 @@ main(void)
 	switch (r.page) {
 	case (PAGE_DOADDGAME):
 	case (PAGE_DOADDPLAYERS):
+	case (PAGE_DODELETEPLAYER):
 	case (PAGE_DOSTARTEXPR):
 		if (db_expr_checkstate(ESTATE_NEW))
 			break;
-		fprintf(stderr, "ignoring request: "
-			"experiment already started\n");
 		http_open(&r, KHTTP_409);
 		khttp_body(&r);
 		khttp_free(&r);
@@ -744,8 +761,6 @@ main(void)
 	case (PAGE_DOGETEXPR):
 		if (db_expr_checkstate(ESTATE_STARTED))
 			break;
-		fprintf(stderr, "ignoring request: "
-			"experiment not started\n");
 		http_open(&r, KHTTP_409);
 		khttp_body(&r);
 		khttp_free(&r);
@@ -783,6 +798,9 @@ main(void)
 		break;
 	case (PAGE_DOCHECKSMTP):
 		senddochecksmtp(&r);
+		break;
+	case (PAGE_DODELETEPLAYER):
+		senddodeleteplayer(&r);
 		break;
 	case (PAGE_DODISABLEPLAYER):
 		senddodisableplayer(&r);

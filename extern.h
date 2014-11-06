@@ -71,6 +71,7 @@ size_t		 db_game_load_all(void (*fp)(const struct game *, size_t, void *), void 
 size_t		 db_player_count_all(void);
 void		 db_player_create(const char *email);
 void		 db_player_enable(int64_t id);
+int		 db_player_delete(int64_t id);
 void		 db_player_disable(int64_t id);
 size_t		 db_player_load_all(void (*fp)(const struct player *, size_t, void *), void *arg);
 char		*db_player_next_new(char **pass);

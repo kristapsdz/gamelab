@@ -37,7 +37,7 @@ function doAddPlayersSuccess(resp)
 {
 
 	doSuccess('addPlayersSubmit', 'addPlayers');
-	loadPlayers();
+	loadNewPlayers();
 }
 
 function doChangeMailSuccess(resp) 
@@ -76,11 +76,11 @@ function doStartExprSuccess(resp)
 	window.location.reload(true);
 }
 
-function loadPlayersSuccess(resp) 
+function loadNewPlayersSuccess(resp) 
 {
 	var e, li, i, results, icon, link, span, count;
 
-	e = doClearNode(document.getElementById('loadPlayers'));
+	e = doClearNode(document.getElementById('loadNewPlayers'));
 	if (null == e)
 		return;
 
@@ -119,6 +119,63 @@ function loadPlayersSuccess(resp)
 
 		icon = document.createElement('img');
 		icon.setAttribute('src', '@@htdocs@@/disable.png');
+		icon.setAttribute('id', 'playerDelete' + results[i].id);
+		icon.setAttribute('onclick', 'doDeletePlayer(' + results[i].id + '); return false;');
+		icon.setAttribute('class', 'disable');
+		icon.setAttribute('alt', 'Delete');
+		span.appendChild(icon);
+
+		icon = document.createElement('img');
+		icon.setAttribute('src', '@@htdocs@@/ajax-loader.gif');
+		icon.setAttribute('id', 'playerWaiting' + results[i].id);
+		icon.setAttribute('alt', 'Loading...');
+		span.appendChild(icon);
+
+		doHide('playerWaiting' + results[i].id);
+	}
+
+	doHide('checkPlayersLoad');
+	doUnhide(count >= 2 ? 'checkPlayersYes' : 'checkPlayersNo');
+}
+
+function loadPlayersSuccess(resp) 
+{
+	var e, li, i, results, icon, link, span;
+
+	e = doClearNode(document.getElementById('loadPlayers'));
+	if (null == e)
+		return;
+
+	try  { 
+		results = JSON.parse(resp);
+	} catch (error) {
+		li = document.createElement('li');
+		li.appendChild(document.createTextNode('Parse error.'));
+		e.appendChild(li);
+		return;
+	}
+
+	if (0 == results.length) {
+		li = document.createElement('li');
+		span = document.createElement('span');
+		span.appendChild(document.createTextNode('No players.'));
+		li.appendChild(span);
+		e.appendChild(li);
+		return;
+	}
+
+	e.className = '';
+	li = document.createElement('li');
+	e.appendChild(li);
+
+	for (i = 0; i < results.length; i++) {
+		span = document.createElement('span');
+		span.setAttribute('id', 'player' + results[i].id);
+		span.appendChild(document.createTextNode(results[i].mail));
+		li.appendChild(span);
+
+		icon = document.createElement('img');
+		icon.setAttribute('src', '@@htdocs@@/disable.png');
 		icon.setAttribute('id', 'playerDisable' + results[i].id);
 		icon.setAttribute('onclick', 'doDisablePlayer(' + results[i].id + '); return false;');
 		icon.setAttribute('class', 'disable');
@@ -142,9 +199,6 @@ function loadPlayersSuccess(resp)
 		doHide('playerWaiting' + results[i].id);
 		doHide((0 == results[i].enabled ? 'playerDisable' : 'playerEnable') + results[i].id);
 	}
-
-	doHide('checkPlayersLoad');
-	doUnhide(count >= 2 ? 'checkPlayersYes' : 'checkPlayersNo');
 }
 
 function loadGamesSuccess(resp) 
@@ -257,6 +311,13 @@ function loadGamesError(err)
 	loadError(err, 'loadGames');
 }
 
+function loadNewPlayersError(err) 
+{
+
+	loadError(err, 'loadNewPlayers');
+}
+
+
 function loadPlayersError(err) 
 {
 
@@ -327,6 +388,28 @@ function doDisableEnablePlayer(id, url)
 	xrh.send(null);
 }
 
+function doDeletePlayer(id)
+{
+	var xrh, e;
+
+	if (null != (e = document.getElementById('player' + id)))
+		e.className = 'waiting';
+
+	doHide('playerDelete' + id);
+	doUnhide('playerWaiting' + id);
+
+	xrh = new XMLHttpRequest();
+	xrh.onreadystatechange=function() {
+		if (xrh.readyState==4 && xrh.status==200) {
+			if (null != (e = document.getElementById('player' + id)))
+				e.parentNode.removeChild(e);
+			loadNewPlayers();
+		}
+	} 
+	xrh.open('GET', '@@cgibin@@/dodeleteplayer.json?pid=' + id, true);
+	xrh.send(null);
+}
+
 function doEnablePlayer(id) 
 {
 
@@ -388,12 +471,19 @@ function loadList(url, name, onsuccess, onerror)
 	xrh.send(null);
 }
 
-function loadPlayers() 
+function loadNewPlayers() 
 {
 
 	doHide('checkPlayersYes');
 	doHide('checkPlayersNo');
 	doUnhide('checkPlayersLoad');
+	loadList('@@cgibin@@/doloadplayers.json', 'loadNewPlayers', loadNewPlayersSuccess, loadNewPlayersError);
+}
+
+
+function loadPlayers() 
+{
+
 	loadList('@@cgibin@@/doloadplayers.json', 'loadPlayers', loadPlayersSuccess, loadPlayersError);
 }
 
@@ -406,9 +496,19 @@ function loadGames()
 	loadList('@@cgibin@@/doloadgames.json', 'loadGames', loadGamesSuccess, loadGamesError);
 }
 
+function loadExprFinished()
+{
+	var e;
+
+	if (null != (e = doClearNode(document.getElementById('statusExprWaiting'))))
+		e.appendChild(document.createTextNode('Wait finished: reloading.'));
+
+	window.location.reload(true);
+}
+
 function loadExprSuccess(resp) 
 {
-	var results, v, e, chld;
+	var results, v, e, chld, head;
 
 	try  { 
 		results = JSON.parse(resp);
@@ -421,9 +521,10 @@ function loadExprSuccess(resp)
 			return;
 		doHide('statusExprLoading');
 		chld = document.createElement('div');
-		chld.appendChild(document.createTextNode('Time to start: '));
-		formatCountdown(v, chld);
+		head = 'Time Until Experiment';
+		formatCountdown(head, v, chld);
 		e.appendChild(chld);
+		setTimeout(timerCountdown, 1000, head, loadExprFinished, chld, v, new Date().getTime());
 	} else {
 		if (null == (e = doClearNode(doUnhide('statusExprProgress'))))
 			return;

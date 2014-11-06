@@ -802,6 +802,26 @@ db_player_next_new(char **pass)
 	return(email);
 }
 
+int
+db_player_delete(int64_t id)
+{
+	sqlite3_stmt	*stmt;
+
+	db_trans_begin();
+	if ( ! db_expr_checkstate(ESTATE_NEW)) {
+		db_trans_rollback();
+		return(0);
+	}
+
+	stmt = db_stmt("DELETE FROM player WHERE id=?");
+	db_bind_int(stmt, 1, id);
+	db_step(stmt, 0);
+	db_finalise(stmt);
+	db_trans_commit();
+	fprintf(stderr, "%" PRId64 ": player deleted\n", id);
+	return(1);
+}
+
 void
 db_player_disable(int64_t id)
 {

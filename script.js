@@ -1,5 +1,21 @@
 "use strict";
 
+function timerCountdown(head, donefunc, e, value, start)
+{
+	var elapsed;
+
+	elapsed = new Date().getTime() - start;
+	value -= elapsed / 1000;
+	if (value < 0) {
+		donefunc();
+		return;
+	}
+
+	doClearNode(e);
+	formatCountdown(head, value, e);
+	setTimeout(timerCountdown, 1000, head, donefunc, e, value, new Date().getTime());
+}
+
 function doHide(name)
 {
 	var e;
@@ -35,27 +51,76 @@ function doClearReplace(name, str)
 		e.appendChild(document.createTextNode(str));
 }
 
-function formatCountdown(v, e)
+function formatCountdown(head, v, e)
 {
-	var p;
+	var p, div, table, row, cell;
 
+	if (null != head) {
+		div = document.createElement('div');
+		div.setAttribute('class', 'countdownHead');
+		div.appendChild(document.createTextNode(head));
+		e.appendChild(div);
+	}
+
+	table = document.createElement('div');
+	table.setAttribute('class', 'countdown');
+	e.appendChild(table);
+
+	row = document.createElement('div');
+	table.appendChild(row);
+
+	cell = document.createElement('div');
 	if (v > 24 * 60 * 60) {
 		p = Math.floor(v / (24 * 60 * 60));
-		e.appendChild(document.createTextNode(p + ' days, '));
+		cell.appendChild(document.createTextNode(p));
 		v -= p * (24 * 60 * 60);
-	} 
+	} else
+		cell.appendChild(document.createTextNode("00"));
+
+	row.appendChild(cell);
+	cell = document.createElement('div');
 	if (v > 60 * 60) {
 		p = Math.floor(v / (60 * 60));
-		e.appendChild(document.createTextNode(p + ' hours, '));
+		if (p < 10)
+			cell.appendChild(document.createTextNode("0"));
+		cell.appendChild(document.createTextNode(p));
 		v -= p * (60 * 60);
-	}
+	} else
+		cell.appendChild(document.createTextNode("00"));
+
+	row.appendChild(cell);
+	cell = document.createElement('div');
 	if (v > 60) {
 		p = Math.floor(v / 60);
-		e.appendChild(document.createTextNode(p + ' minutes, '));
+		if (p < 10)
+			cell.appendChild(document.createTextNode("0"));
+		cell.appendChild(document.createTextNode(p));
 		v -= p * (60);
-	}
+	} else
+		cell.appendChild(document.createTextNode("00"));
 
-	e.appendChild(document.createTextNode(Math.round(v) + ' seconds.'));
+	row.appendChild(cell);
+	cell = document.createElement('div');
+	p = Math.round(v);
+	if (p < 10)
+		cell.appendChild(document.createTextNode("0"));
+	cell.appendChild(document.createTextNode(p));
+	row.appendChild(cell);
+
+	row = document.createElement('div');
+	table.appendChild(row);
+	cell = document.createElement('div');
+	cell.appendChild(document.createTextNode('days'));
+	row.appendChild(cell);
+	cell = document.createElement('div');
+	cell.appendChild(document.createTextNode('hours'));
+	row.appendChild(cell);
+	cell = document.createElement('div');
+	cell.appendChild(document.createTextNode('minutes'));
+	row.appendChild(cell);
+	cell = document.createElement('div');
+	cell.appendChild(document.createTextNode('seconds'));
+	row.appendChild(cell);
 }
 
 function sendForm(oFormElement, setup, error, success) 
