@@ -49,6 +49,13 @@
 					<ul id="loadPlayers">
 						<li><img src="@@htdocs@@/ajax-loader.gif" class="loader" alt="Loading..." />Loading...</li>
 					</ul>
+					<div style="display: none;" id="playerInfo" class="canclose">
+						<h4>Player Status</h4>
+						<img class="close" src="@@htdocs@@/disable.png" alt="Close" onclick="doHideNode(this.parentNode)" />
+						<span id="playerInfoEmail"></span>: 
+						<span id="playerInfoStatus"></span>, 
+						<span id="playerInfoEnabled"></span>
+					</div>
 				</section>
 			</section>
 			<section>

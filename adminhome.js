@@ -138,9 +138,54 @@ function loadNewPlayersSuccess(resp)
 	doUnhide(count >= 2 ? 'checkPlayersYes' : 'checkPlayersNo');
 }
 
+function doShowPlayer(name)
+{
+	var e, status;
+
+	if (null == (e = document.getElementById(name)))
+		return;
+	if ( ! e.hasAttribute('data-gamelab-status'))
+		return;
+	if ( ! e.hasAttribute('data-gamelab-mail'))
+		return;
+	if ( ! e.hasAttribute('data-gamelab-enabled'))
+		return;
+
+	doClearReplace('playerInfoEmail', e.getAttribute('data-gamelab-mail'));
+
+	switch (parseInt(e.getAttribute('data-gamelab-status'))) {
+	case (0):
+		doClearReplace('playerInfoStatus', 'not e-mailed');
+		break;
+	case (1):
+		doClearReplace('playerInfoStatus', 'e-mailed');
+		break;
+	case (2):
+		doClearReplace('playerInfoStatus', 'logged in');
+		break;
+	default:
+		doClearReplace('playerInfoStatus', 'unknown');
+		break;
+	}
+
+	switch (parseInt(e.getAttribute('data-gamelab-enabled'))) {
+	case (0):
+		doClearReplace('playerInfoEnabled', 'disabled');
+		break;
+	case (1):
+		doClearReplace('playerInfoEnabled', 'enabled');
+		break;
+	case (2):
+		doClearReplace('playerInfoEnabled', 'unknown');
+		break;
+	}
+
+	doUnhide('playerInfo');
+}
+
 function loadPlayersSuccess(resp) 
 {
-	var e, li, i, results, icon, link, span;
+	var e, li, i, results, icon, link, span, link, sup;
 
 	e = doClearNode(document.getElementById('loadPlayers'));
 	if (null == e)
@@ -171,13 +216,28 @@ function loadPlayersSuccess(resp)
 	for (i = 0; i < results.length; i++) {
 		span = document.createElement('span');
 		span.setAttribute('id', 'player' + results[i].id);
-		span.appendChild(document.createTextNode(results[i].mail));
+		span.setAttribute('data-gamelab-status', results[i].status);
+		span.setAttribute('data-gamelab-mail', results[i].mail);
+		span.setAttribute('data-gamelab-enabled', results[i].enabled);
 		li.appendChild(span);
+
+		link = document.createElement('a');
+		link.setAttribute('href', '#');
+		link.setAttribute('onclick', 'doShowPlayer("player' + results[i].id + '"); return false;');
+		link.appendChild(document.createTextNode(results[i].mail));
+		span.appendChild(link);
+
+		sup = document.createElement('sup');
+		if (0 == parseInt(results[i].role))
+			sup.appendChild(document.createTextNode('row'));
+		else
+			sup.appendChild(document.createTextNode('col'));
+		span.appendChild(sup);
 
 		icon = document.createElement('img');
 		icon.setAttribute('src', '@@htdocs@@/disable.png');
 		icon.setAttribute('id', 'playerDisable' + results[i].id);
-		icon.setAttribute('onclick', 'doDisablePlayer(' + results[i].id + '); return false;');
+		icon.setAttribute('onclick', 'doDisablePlayer(' + results[i].id + ');');
 		icon.setAttribute('class', 'disable');
 		icon.setAttribute('alt', 'Disable');
 		span.appendChild(icon);
@@ -185,7 +245,7 @@ function loadPlayersSuccess(resp)
 		icon = document.createElement('img');
 		icon.setAttribute('src', '@@htdocs@@/enable.png');
 		icon.setAttribute('id', 'playerEnable' + results[i].id);
-		icon.setAttribute('onclick', 'doEnablePlayer(' + results[i].id + '); return false;');
+		icon.setAttribute('onclick', 'doEnablePlayer(' + results[i].id + ');');
 		icon.setAttribute('class', 'enable');
 		icon.setAttribute('alt', 'Enable');
 		span.appendChild(icon);
@@ -208,8 +268,6 @@ function loadGamesSuccess(resp)
 	e = doClearNode(document.getElementById('loadGames'));
 	if (null == e)
 		return;
-
-	console.log(resp);
 
 	try  { 
 		results = JSON.parse(resp);
@@ -374,6 +432,7 @@ function doDisableEnablePlayer(id, url)
 	if (null != (e = document.getElementById('player' + id)))
 		e.className = 'waiting';
 
+	doHide('playerInfo');
 	doHide('playerDisable' + id);
 	doHide('playerEnable' + id);
 	doUnhide('playerWaiting' + id);
@@ -418,14 +477,21 @@ function doDeletePlayer(id)
 
 function doEnablePlayer(id) 
 {
+	var e;
 
 	doDisableEnablePlayer(id, 'doenableplayer');
+	if (null != (e = document.getElementById('player' + id)))
+		e.setAttribute('data-gamelab-enabled', '1');
+
 }
 
 function doDisablePlayer(id) 
 {
+	var e;
 
 	doDisableEnablePlayer(id, 'dodisableplayer');
+	if (null != (e = document.getElementById('player' + id)))
+		e.setAttribute('data-gamelab-enabled', '0');
 }
 
 function checkSmtp() 
@@ -544,15 +610,21 @@ function loadExprSuccess(resp)
 	}
 }
 
+/*
+ * For started experiments, get the state of the experiment itself.
+ */
 function loadExpr() 
 {
 	var xhr;
 
+	/* Note that we're loading... */
 	doUnhide('statusExprLoading');
+	/* ...and hide the result fields. */
 	doHide('statusExprTtl');
 	doHide('statusExprWaiting');
 	doHide('statusExprProgress');
 
+	/* Don't do anything on failure. */
 	xhr = new XMLHttpRequest();
 	xhr.onreadystatechange = function() {
 		if (xhr.readyState == 4 && xhr.status == 200)

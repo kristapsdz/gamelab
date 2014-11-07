@@ -11,7 +11,7 @@ function loadExprFinished()
 
 function loadExprSuccess(resp)
 {
-	var results, e, span, v, head, game, i, j, div, table, row, cell;
+	var results, e, v, head, game, i, j, table, row, cell;
 
 	try  { 
 		results = JSON.parse(resp);
@@ -19,6 +19,8 @@ function loadExprSuccess(resp)
 		loadExprFailure();
 		return;
 	}
+
+	console.log(resp);
 
 	if ((v = parseInt(results.tilstart)) > 0) {
 		if (null == (e = doClearNode(document.getElementById('expr'))))
@@ -38,7 +40,7 @@ function loadExprSuccess(resp)
 			for (j = 0; j < game.payoffs[i].length; j++) {
 				cell = document.createElement('div');
 				row.appendChild(cell);
-				cell.appendChild(document.createTextNode(game.payoffs[i][j]));
+				cell.appendChild(document.createTextNode(game.payoffs[i][j][results.role]));
 			}
 		}
 		e.appendChild(table);

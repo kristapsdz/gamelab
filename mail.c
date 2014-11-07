@@ -225,6 +225,7 @@ mail_players(const char *uri)
 	struct buf	   buf;
 	struct smtp	  *smtp;
 	struct mail	   mail;
+	int64_t		   id;
 	char		  *mbuf, *encto, *encpass;
 	size_t		   mbufsz;
 	int		   mbuffd;
@@ -270,7 +271,7 @@ mail_players(const char *uri)
 	mail.date[strlen(mail.date) - 1] = '\0';
 	mail.from = smtp->from;
 
-	while (NULL != (mail.to = db_player_next_new(&mail.pass))) {
+	while (NULL != (mail.to = db_player_next_new(&id, &mail.pass))) {
 		assert(NULL != mail.pass);
 
 		encto = kutil_urlencode(mail.to);
@@ -290,14 +291,17 @@ mail_players(const char *uri)
 		curl_easy_setopt(curl, CURLOPT_READDATA, &buf);
 
 		/* Send the message */ 
-		if (CURLE_OK != (res = curl_easy_perform(curl)))
-			fprintf(stderr, "%s\n", curl_easy_strerror(res));
-		else
-			fprintf(stderr, "%s: emailed\n", mail.to);
+		if (CURLE_OK == (res = curl_easy_perform(curl))) {
+			db_player_set_mailed(id, mail.pass);
+			fprintf(stderr, "%s: new player\n", mail.to);
+		} else
+			fprintf(stderr, "%s: %s\n", 
+				mail.to, curl_easy_strerror(res));
 
 		curl_slist_free_all(recipients);
 		recipients = NULL;
 		/*
+		 * TODO.
 		 * explicit_bzero(buf.buf, buf.sz);
 		 * explicit_bzero(pass, strlen(pass));
 		 */

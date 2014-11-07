@@ -94,7 +94,7 @@ static const struct kvalid keys[KEY__MAX] = {
 };
 
 static int
-sess_valid(struct kreq *r)
+sess_valid(struct kreq *r, int64_t *id)
 {
 
 	if (NULL == r->cookiemap[KEY_SESSID] ||
@@ -102,7 +102,8 @@ sess_valid(struct kreq *r)
 		return(0);
 
 	return(db_player_sess_valid
-		(r->cookiemap[KEY_SESSID]->parsed.i,
+		(id,
+		 r->cookiemap[KEY_SESSID]->parsed.i,
 		 r->cookiemap[KEY_SESSCOOKIE]->parsed.i));
 }
 
@@ -249,10 +250,13 @@ senddoloadgame(const struct game *game, size_t count, void *arg)
 }
 
 static void
-senddoloadexpr(struct kreq *r)
+senddoloadexpr(struct kreq *r, int64_t playerid)
 {
 	struct expr	*expr;
+	struct player	*player;
 	time_t		 t;
+
+	player = db_player_load(playerid);
 	
 	expr = db_expr_get();
 	assert(NULL != expr);
@@ -267,6 +271,8 @@ senddoloadexpr(struct kreq *r)
 		khttp_putc(r, '{');
 		json_putstring(r, "tilstart", "0");
 		khttp_putc(r, ',');
+		json_putint(r, "role", player->role);
+		khttp_putc(r, ',');
 		json_puts(r, "games");
 		khttp_putc(r, ':');
 		khttp_putc(r, '[');
@@ -276,6 +282,7 @@ senddoloadexpr(struct kreq *r)
 	}
 
 	db_expr_free(expr);
+	db_player_free(player);
 }
 
 static void
@@ -297,6 +304,7 @@ int
 main(void)
 {
 	struct kreq	 r;
+	int64_t		 id;
 	
 	if ( ! khttp_parse(&r, keys, KEY__MAX, 
 			pages, PAGE__MAX, PAGE_INDEX))
@@ -325,7 +333,7 @@ main(void)
 	}
 
 	/* Everything now must have a login. */
-	if ( ! sess_valid(&r)) {
+	if ( ! sess_valid(&r, &id)) {
 		send303(&r, PAGE_LOGIN, 1);
 		khttp_free(&r);
 		return(EXIT_SUCCESS);
@@ -342,7 +350,7 @@ main(void)
 			sendcontent(&r, CNTT_HTML_HOME);
 		break;
 	case (PAGE_DOLOADEXPR):
-		senddoloadexpr(&r);
+		senddoloadexpr(&r, id);
 		break;
 	case (PAGE_DOLOGOUT):
 		senddologout(&r);

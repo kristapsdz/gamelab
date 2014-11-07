@@ -16,12 +16,19 @@ function timerCountdown(head, donefunc, e, value, start)
 	setTimeout(timerCountdown, 1000, head, donefunc, e, value, new Date().getTime());
 }
 
-function doHide(name)
+function doHideNode(e)
 {
-	var e;
-	if (null != (e = document.getElementById(name)))
+
+	if (null != e)
 		e.style.display = 'none';
 	return(e);
+}
+
+
+function doHide(name)
+{
+
+	return(doHideNode(document.getElementById(name)));
 }
 
 function doUnhide(name) 

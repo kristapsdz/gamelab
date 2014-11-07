@@ -554,6 +554,10 @@ senddoloadplayer(const struct player *player, size_t count, void *arg)
 	json_putint(r, "id", player->id);
 	khttp_putc(r, ',');
 	json_putint(r, "enabled", player->enabled);
+	khttp_putc(r, ',');
+	json_putint(r, "status", player->state);
+	khttp_putc(r, ',');
+	json_putint(r, "role", player->role);
 	khttp_putc(r, '}');
 }
 

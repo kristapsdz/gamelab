@@ -27,13 +27,15 @@ struct	game {
 
 enum	pstate {
 	PSTATE_NEW = 0,
-	PSTATE_MAILED = 1
+	PSTATE_MAILED = 1,
+	PSTATE_LOGGEDIN = 2
 };
 
 struct	player {
 	char		*mail;
 	enum pstate	 state;
 	int		 enabled;
+	int64_t		 role;
 	int64_t		 id;
 };
 
@@ -68,16 +70,19 @@ size_t		 db_game_count_all(void);
 void		 db_game_free(struct game *game);
 size_t		 db_game_load_all(void (*fp)(const struct game *, size_t, void *), void *arg);
 
+void		 db_player_set_mailed(int64_t id, const char *pass);
 size_t		 db_player_count_all(void);
 int		 db_player_create(const char *email);
 void		 db_player_enable(int64_t id);
 int		 db_player_delete(int64_t id);
 void		 db_player_disable(int64_t id);
+struct player	*db_player_load(int64_t id);
 size_t		 db_player_load_all(void (*fp)(const struct player *, size_t, void *), void *arg);
-char		*db_player_next_new(char **pass);
+char		*db_player_next_new(int64_t *id, char **pass);
 struct sess	*db_player_sess_alloc(int64_t playerid);
 int		 db_player_valid(int64_t *id, const char *mail, const char *pass);
-int		 db_player_sess_valid(int64_t id, int64_t cookie);
+int		 db_player_sess_valid(int64_t *playerid, int64_t id, int64_t cookie);
+void		 db_player_free(struct player *player);
 
 void		 db_sess_delete(int64_t id);
 void		 db_sess_free(struct sess *sess);

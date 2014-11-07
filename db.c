@@ -267,17 +267,19 @@ db_sess_delete(int64_t id)
 }
 
 int
-db_player_sess_valid(int64_t id, int64_t cookie)
+db_player_sess_valid(int64_t *playerid, int64_t id, int64_t cookie)
 {
 	int	 	 rc;
 	sqlite3_stmt	*stmt;
 
 	stmt = db_stmt
-		("SELECT * FROM sess "
+		("SELECT playerid FROM sess "
 		 "WHERE id=? AND cookie=? AND playerid IS NOT NULL");
 	db_bind_int(stmt, 1, id);
 	db_bind_int(stmt, 2, cookie);
-	rc = db_step(stmt, 0);
+	if (SQLITE_ROW == (rc = db_step(stmt, 0))) 
+		*playerid = sqlite3_column_int(stmt, 0);
+	fprintf(stderr, "playerid = %" PRId64 "\n", *playerid);
 	db_finalise(stmt);
 	return(SQLITE_ROW == rc);
 }
@@ -556,6 +558,41 @@ db_player_count_all(void)
 	return(count);
 }
 
+void
+db_player_free(struct player *player)
+{
+
+	if (NULL == player)
+		return;
+	free(player->mail);
+	free(player);
+}
+
+struct player *
+db_player_load(int64_t id)
+{
+	sqlite3_stmt	*stmt;
+	struct player	*player;
+
+	stmt = db_stmt("SELECT email,state,id,enabled,role "
+		"FROM player WHERE id=?");
+	db_bind_int(stmt, 1, id);
+	player = NULL;
+
+	if (SQLITE_ROW == db_step(stmt, 0)) {
+		player = kcalloc(1, sizeof(struct player));
+		player->mail = kstrdup
+			((char *)sqlite3_column_text(stmt, 0));
+		player->state = sqlite3_column_int(stmt, 1);
+		player->id = sqlite3_column_int(stmt, 2);
+		player->enabled = sqlite3_column_int(stmt, 3);
+		player->role = sqlite3_column_int(stmt, 4);
+	} 
+
+	db_finalise(stmt);
+	return(player);
+}
+
 size_t
 db_player_load_all(void (*fp)(const struct player *, size_t, void *), void *arg)
 {
@@ -564,7 +601,7 @@ db_player_load_all(void (*fp)(const struct player *, size_t, void *), void *arg)
 	size_t		 count;
 
 	count = 0;
-	stmt = db_stmt("SELECT email,state,id,enabled FROM player");
+	stmt = db_stmt("SELECT email,state,id,enabled,role FROM player");
 	while (SQLITE_ROW == db_step(stmt, 0)) {
 		memset(&player, 0, sizeof(struct player));
 		player.mail = kstrdup
@@ -572,6 +609,7 @@ db_player_load_all(void (*fp)(const struct player *, size_t, void *), void *arg)
 		player.state = sqlite3_column_int(stmt, 1);
 		player.id = sqlite3_column_int(stmt, 2);
 		player.enabled = sqlite3_column_int(stmt, 3);
+		player.role = sqlite3_column_int(stmt, 4);
 		(*fp)(&player, count++, arg);
 		free(player.mail);
 	}
@@ -802,12 +840,23 @@ db_player_enable(int64_t id)
 	fprintf(stderr, "%" PRId64 ": player enabled\n", id);
 }
 
+void
+db_player_set_mailed(int64_t id, const char *pass)
+{
+	sqlite3_stmt	*stmt;
+
+	stmt = db_stmt("UPDATE player SET state=1,hash=? WHERE id=?");
+	db_bind_text(stmt, 1, db_crypt_hash(pass));
+	db_bind_int(stmt, 2, id);
+	db_step(stmt, 0);
+	db_finalise(stmt);
+}
+
 char *
-db_player_next_new(char **pass)
+db_player_next_new(int64_t *id, char **pass)
 {
 	sqlite3_stmt	*stmt;
 	char		*email;
-	int64_t		 id;
 
 	email = *pass = NULL;
 	stmt = db_stmt("SELECT email,id FROM player "
@@ -815,13 +864,8 @@ db_player_next_new(char **pass)
 
 	if (SQLITE_ROW == db_step(stmt, 0)) {
 		email = kstrdup((char *)sqlite3_column_text(stmt, 0));
-		id = sqlite3_column_int64(stmt, 1);
-		db_finalise(stmt);
+		*id = sqlite3_column_int64(stmt, 1);
 		*pass = db_crypt_mkpass();
-		stmt = db_stmt("UPDATE player SET state=1,hash=? WHERE id=?");
-		db_bind_text(stmt, 1, db_crypt_hash(*pass));
-		db_bind_int(stmt, 2, id);
-		db_step(stmt, 0);
 	} 
 
 	db_finalise(stmt);

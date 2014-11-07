@@ -153,6 +153,8 @@ article ul li > div	{ background-color: #eee;
 				margin: 1ex;
 				border: thin solid #aaa;
 				border-radius: 1ex; }
+article ul li a		{ color: #333; }
+article ul li a:hover	{ color: #000; }
 article ul li > span	{ display: inline-block; 
 				margin: 0.5ex; }
 article ul li > span:first-child
@@ -182,6 +184,26 @@ div.countdown > div:last-child > div
 			{ color: #aaa; }
 div.countdownHead	{ text-align: center;
 				font-size: 16pt; }
+div.canclose		{ position: relative; 
+				border: thin solid #ccc;
+				border-radius: 1ex;
+				padding: 2em 1em 0.5em 1em; 
+				background-color: #eee; }
+div.canclose img.close	{ position: absolute;
+				top: -8px;
+				cursor: pointer;
+				right: -8px; }
+div.canclose h4		{ position: absolute;
+				margin: 0;
+				background-color: #5555aa;
+				font-weight: normal;
+				padding: 0.5ex 2ex;
+				border-radius: 1ex;
+				color: #eee;
+				top: -8px;
+				left: 1em; }
+sup			{ font-size: 8pt; 
+				font-style: italic; }
 @media only screen and (max-width: 400px), only screen and (max-device-width: 400px) {
 div.countdown 		{ width: 100%; }
 div.countdown > div > div
