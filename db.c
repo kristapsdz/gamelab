@@ -386,6 +386,21 @@ db_admin_set_pass(const char *pass)
 	db_finalise(stmt);
 }
 
+char *
+db_admin_get_mail(void)
+{
+	sqlite3_stmt	*stmt;
+	int		 rc;
+	char		*mail;
+
+	stmt = db_stmt("SELECT email FROM admin");
+	rc = db_step(stmt, 0);
+	assert(SQLITE_ROW == rc);
+	mail = kstrdup((char *)sqlite3_column_text(stmt, 0));
+	db_finalise(stmt);
+	return(mail);
+}
+
 void
 db_admin_set_mail(const char *email)
 {

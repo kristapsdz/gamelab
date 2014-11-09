@@ -496,7 +496,7 @@ function doDisablePlayer(id)
 
 function loadSmtp() 
 {
-	var xrh, results, e, link;
+	var xrh, results, e, link, button;
 
 	doHide('checkSmtpYes');
 	doHide('checkSmtpNo');
@@ -527,6 +527,12 @@ function loadSmtp()
 			e.appendChild(document.createTextNode(results.user));
 			e.appendChild(document.createTextNode('@'));
 			e.appendChild(document.createTextNode(results.server));
+
+			button = document.createElement('button');
+			button.setAttribute('onclick', 'testSmtp();');
+			button.appendChild(document.createTextNode('Test'));
+			e.appendChild(button);
+
 		} else if (xrh.readyState==4 && xrh.status==400) {
 			doHide('checkSmtpLoad');
 			doUnhide('checkSmtpNo');
@@ -655,5 +661,14 @@ function loadExpr()
 			loadExprSuccess(xhr.responseText);
 	} 
 	xhr.open('GET', '@@cgibin@@/dogetexpr.json', true);
+	xhr.send(null);
+}
+
+function testSmtp() 
+{
+	var xhr;
+
+	xhr = new XMLHttpRequest();
+	xhr.open('GET', '@@cgibin@@/dotestsmtp.json', true);
 	xhr.send(null);
 }

@@ -39,6 +39,7 @@ enum	page {
 	PAGE_DOLOGIN,
 	PAGE_DOLOGOUT,
 	PAGE_DOSTARTEXPR,
+	PAGE_DOTESTSMTP,
 	PAGE_HOME,
 	PAGE_INDEX,
 	PAGE_LOGIN,
@@ -118,6 +119,7 @@ static	unsigned int perms[PAGE__MAX] = {
 	PERM_JSON, /* PAGE_DOLOGIN */
 	PERM_HTML | PERM_LOGIN, /* PAGE_DOLOGOUT */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOSTARTEXPR */
+	PERM_JSON | PERM_LOGIN, /* PAGE_DOTESTSMTP */
 	PERM_JS | PERM_HTML | PERM_LOGIN, /* PAGE_HOME */
 	PERM_JS | PERM_HTML | PERM_LOGIN, /* PAGE_INDEX */
 	PERM_HTML, /* PAGE_LOGIN */
@@ -140,6 +142,7 @@ static const char *const pages[PAGE__MAX] = {
 	"dologin", /* PAGE_DOLOGIN */
 	"dologout", /* PAGE_DOLOGOUT */
 	"dostartexpr", /* PAGE_DOSTARTEXPR */
+	"dotestsmtp", /* PAGE_DOTESTSMTP */
 	"home", /* PAGE_HOME */
 	"index", /* PAGE_INDEX */
 	"login", /* PAGE_LOGIN */
@@ -392,14 +395,16 @@ senddochangemail(struct kreq *r)
 		kpairbad(r, KEY_EMAIL3) ||
 		strcmp(r->fieldmap[KEY_EMAIL2]->parsed.s,
 		       r->fieldmap[KEY_EMAIL3]->parsed.s) ||
-		! db_admin_valid
-			(r->fieldmap[KEY_EMAIL1]->parsed.s, NULL)) {
+		! db_admin_valid_email
+		(r->fieldmap[KEY_EMAIL1]->parsed.s)) {
 		http_open(r, KHTTP_400);
 		khttp_body(r);
 		return;
 	}
 
+	assert(NULL != r->cookiemap[KEY_SESSID]);
 	db_sess_delete(r->cookiemap[KEY_SESSID]->parsed.i);
+
 	db_admin_set_mail(r->fieldmap[KEY_EMAIL2]->parsed.s);
 	http_open(r, KHTTP_200);
 	khttp_head(r, kresps[KRESP_SET_COOKIE],
@@ -412,15 +417,40 @@ senddochangemail(struct kreq *r)
 }
 
 static void
+senddotestsmtp(struct kreq *r)
+{
+	pid_t		 pid;
+
+	http_open(r, KHTTP_200);
+	khttp_body(r);
+
+	db_close();
+	if (-1 == (pid = fork())) {
+		fprintf(stderr, "cannot fork!\n");
+	} else if (0 == pid) {
+		khttp_child_free(r);
+		if (0 == (pid = fork())) {
+			mail_test();
+			db_close();
+		} else if (pid < 0) 
+			fprintf(stderr, "cannot double-fork!\n");
+		_exit(EXIT_SUCCESS);
+	} else 
+		waitpid(pid, NULL, 0);
+}
+
+static void
 senddochecksmtp(struct kreq *r)
 {
 	struct smtp	*smtp;
 
-	if (NULL == (smtp = db_smtp_get()))
+	if (NULL == (smtp = db_smtp_get())) {
 		http_open(r, KHTTP_400);
-	else
-		http_open(r, KHTTP_200);
+		khttp_body(r);
+		return;
+	} 
 
+	http_open(r, KHTTP_200);
 	khttp_body(r);
 	khttp_putc(r, '{');
 	json_putstring(r, "server", smtp->server);
@@ -766,9 +796,13 @@ main(void)
 	struct kreq	 r;
 	unsigned int	 bit;
 	
+	fprintf(stderr, "%u: Request: %s\n", getpid(), getenv("PATH_INFO"));
+
 	if ( ! khttp_parse(&r, keys, KEY__MAX, 
 			pages, PAGE__MAX, PAGE_INDEX))
 		return(EXIT_FAILURE);
+
+	fprintf(stderr, "%u: parse ok\n", getpid());
 
 	/* 
 	 * First, make sure that the page accepts the content type we've
@@ -789,6 +823,7 @@ main(void)
 		bit = PERM_JS;
 		break;
 	default:
+		fprintf(stderr, "%u: unknown MIME\n", getpid());
 		send404(&r);
 		goto out;
 	}
@@ -854,6 +889,9 @@ main(void)
 	case (PAGE_DOSTARTEXPR):
 		senddostartexpr(&r);
 		break;
+	case (PAGE_DOTESTSMTP):
+		senddotestsmtp(&r);
+		break;
 	case (PAGE_HOME):
 		if (KMIME_APP_JAVASCRIPT == r.mime)
 			sendcontent(&r, CNTT_JS_HOME);
@@ -877,6 +915,7 @@ main(void)
 	}
 
 out:
+	fprintf(stderr, "%u: finishing\n", getpid());
 	khttp_free(&r);
 	return(EXIT_SUCCESS);
 }

@@ -7,7 +7,8 @@ PAGES 	 = addplayer.eml \
 	   playerhome.html \
 	   playerhome.js \
 	   playerlogin.html \
-	   style.css
+	   style.css \
+	   test.eml
 STATICS	 = accept.png \
 	   ajax-loader.gif \
 	   block.png \

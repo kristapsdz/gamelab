@@ -48,6 +48,7 @@ struct	smtp {
 
 __BEGIN_DECLS
 
+char		*db_admin_get_mail(void);
 void		 db_admin_set_pass(const char *pass);
 void		 db_admin_set_mail(const char *email);
 int		 db_admin_valid(const char *email, const char *pass);
@@ -98,6 +99,7 @@ void		 db_smtp_set(const char *user, const char *server,
 			const char *from, const char *pass);
 
 void		 mail_players(const char *uri);
+void		 mail_test(void);
 
 void		 json_puts(struct kreq *r, const char *cp);
 void		 json_putdouble(struct kreq *r, const char *key, double val);
