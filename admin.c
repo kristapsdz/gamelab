@@ -96,6 +96,34 @@ enum	templ {
 	TEMPL__MAX
 };
 
+#define	PERM_LOGIN	0x01
+#define	PERM_HTML	0x08
+#define	PERM_JSON	0x10
+#define	PERM_CSS	0x20
+#define	PERM_JS		0x40
+
+static	unsigned int perms[PAGE__MAX] = {
+	PERM_JSON | PERM_LOGIN, /* PAGE_DOADDGAME */
+	PERM_JSON | PERM_LOGIN, /* PAGE_DOADDPLAYERS */
+	PERM_JSON | PERM_LOGIN, /* PAGE_DOCHANGEMAIL */
+	PERM_JSON | PERM_LOGIN, /* PAGE_DOCHANGEPASS */
+	PERM_JSON | PERM_LOGIN, /* PAGE_DOCHANGESMTP */
+	PERM_JSON | PERM_LOGIN, /* PAGE_DOCHECKSMTP */
+	PERM_JSON | PERM_LOGIN, /* PAGE_DODELETEPLAYER */
+	PERM_JSON | PERM_LOGIN, /* PAGE_DODISABLEPLAYER */
+	PERM_JSON | PERM_LOGIN, /* PAGE_DOENABLEPLAYER */
+	PERM_JSON | PERM_LOGIN, /* PAGE_DOGETEXPR */
+	PERM_JSON | PERM_LOGIN, /* PAGE_DOLOADGAMES */
+	PERM_JSON | PERM_LOGIN, /* PAGE_DOLOADPLAYERS */
+	PERM_JSON, /* PAGE_DOLOGIN */
+	PERM_HTML | PERM_LOGIN, /* PAGE_DOLOGOUT */
+	PERM_JSON | PERM_LOGIN, /* PAGE_DOSTARTEXPR */
+	PERM_JS | PERM_HTML | PERM_LOGIN, /* PAGE_HOME */
+	PERM_JS | PERM_HTML | PERM_LOGIN, /* PAGE_INDEX */
+	PERM_HTML, /* PAGE_LOGIN */
+	PERM_CSS, /* PAGE_STYLE */
+};
+
 static const char *const pages[PAGE__MAX] = {
 	"doaddgame", /* PAGE_DOADDGAME */
 	"doaddplayers", /* PAGE_DOADDPLAYERS */
@@ -199,6 +227,14 @@ http_open(struct kreq *r, enum khttp http)
 }
 
 static void
+send404(struct kreq *r)
+{
+
+	http_open(r, KHTTP_404);
+	khttp_body(r);
+}
+
+static void
 send303(struct kreq *r, enum page dest, int dostatus)
 {
 	char	*page, *full;
@@ -260,24 +296,30 @@ static void
 senddogetexpr(struct kreq *r)
 {
 	struct expr	*expr;
-	int64_t		 daysec;
+	int64_t		 daysec, round;
 	time_t		 t = time(NULL), tilstart;
 	double		 frac;
 
-	expr = db_expr_get();
-	assert(NULL != expr);
+	if (NULL == (expr = db_expr_get())) {
+		http_open(r, KHTTP_409);
+		khttp_body(r);
+		return;
+	}
 
 	frac = 0.0;
 	tilstart = 0;
 	if (t > expr->start) {
 		daysec = expr->days * 24 * 60 * 60;
+		round = (t - expr->start) / (60 * 60 * 24);
 		t -= expr->start;
 		if (t > daysec)
 			frac = 1.0;
 		else
 			frac = t / (double)daysec;
-	} else
+	} else {
+		round = -1;
 		tilstart = expr->start - t;
+	}
 
 	http_open(r, KHTTP_200);
 	khttp_body(r);
@@ -292,6 +334,8 @@ senddogetexpr(struct kreq *r)
 	json_putdouble(r, "progress", frac);
 	khttp_putc(r, ',');
 	json_putint(r, "tilstart", (int64_t)tilstart);
+	khttp_putc(r, ',');
+	json_putint(r, "round", round);
 	khttp_putc(r, '}');
 
 	db_expr_free(expr);
@@ -378,6 +422,13 @@ senddochecksmtp(struct kreq *r)
 		http_open(r, KHTTP_200);
 
 	khttp_body(r);
+	khttp_putc(r, '{');
+	json_putstring(r, "server", smtp->server);
+	khttp_putc(r, ',');
+	json_putstring(r, "mail", smtp->from);
+	khttp_putc(r, ',');
+	json_putstring(r, "user", smtp->user);
+	khttp_putc(r, '}');
 	db_smtp_free(smtp);
 }
 
@@ -451,6 +502,7 @@ senddoaddgame(struct kreq *r)
 		 r->fieldmap[KEY_P1]->parsed.i,
 		 r->fieldmap[KEY_P2]->parsed.i);
 
+	/* FIXME: this can also be KHTTP_409. */
 	if (NULL == game) 
 		http_open(r, KHTTP_400);
 	else
@@ -523,6 +575,11 @@ senddoaddplayers(struct kreq *r)
 {
 	char	*tok, *buf, *mail, *sv;
 
+	/* 
+	 * FIXME: send the KHTTP_200 (or whatever) after the
+	 * db_player_create series, as we may be invoked in the midst of
+	 * the game starting, which causes db_player_create() to fail.
+	 */
 	http_open(r, KHTTP_200);
 	khttp_body(r);
 
@@ -707,76 +764,51 @@ int
 main(void)
 {
 	struct kreq	 r;
+	unsigned int	 bit;
 	
 	if ( ! khttp_parse(&r, keys, KEY__MAX, 
 			pages, PAGE__MAX, PAGE_INDEX))
 		return(EXIT_FAILURE);
 
 	/* 
-	 * First handle pages that don't require login.
-	 * This consists only of static (but templated) pages and the
-	 * login page and its POST receiver.
+	 * First, make sure that the page accepts the content type we've
+	 * assigned to it.
+	 * If it doesn't, then run an HTTP 404.
 	 */
-	switch (r.page) {
-	case (PAGE_DOLOGIN):
-		senddologin(&r);
-		khttp_free(&r);
-		return(EXIT_SUCCESS);
-	case (PAGE_STYLE):
-		if (KMIME_TEXT_CSS != r.mime)
-			break;
-		sendcontent(&r, CNTT_CSS_STYLE);
-		khttp_free(&r);
-		return(EXIT_SUCCESS);
-	case (PAGE_LOGIN):
-		sendcontent(&r, CNTT_HTML_LOGIN);
-		khttp_free(&r);
-		return(EXIT_SUCCESS);
-	default:
+	switch (r.mime) {
+	case (KMIME_TEXT_CSS):
+		bit = PERM_CSS;
 		break;
+	case (KMIME_TEXT_HTML):
+		bit = PERM_HTML;
+		break;
+	case (KMIME_APP_JSON):
+		bit = PERM_JSON;
+		break;
+	case (KMIME_APP_JAVASCRIPT):
+		bit = PERM_JS;
+		break;
+	default:
+		send404(&r);
+		goto out;
 	}
 
-	/* Everything now must have a login. */
-	if ( ! sess_valid(&r)) {
+	if ( ! (perms[r.page] & bit)) {
+		fprintf(stderr, "%s: permissions violated\n", pages[r.page]);
+		send404(&r);
+		goto out;
+	}
+
+	/*
+	 * Next, make sure that all pages that require a login are
+	 * attached to a valid administrative session.
+	 */
+	if ((perms[r.page] & PERM_LOGIN) && ! sess_valid(&r)) {
 		send303(&r, PAGE_LOGIN, 1);
-		khttp_free(&r);
-		return(EXIT_SUCCESS);
+		goto out;
 	}
 
 	switch (r.page) {
-	case (PAGE_DOADDGAME):
-	case (PAGE_DOADDPLAYERS):
-	case (PAGE_DODELETEPLAYER):
-	case (PAGE_DOSTARTEXPR):
-		if (db_expr_checkstate(ESTATE_NEW))
-			break;
-		http_open(&r, KHTTP_409);
-		khttp_body(&r);
-		khttp_free(&r);
-		return(EXIT_SUCCESS);
-	case (PAGE_DOGETEXPR):
-		if (db_expr_checkstate(ESTATE_STARTED))
-			break;
-		http_open(&r, KHTTP_409);
-		khttp_body(&r);
-		khttp_free(&r);
-		return(EXIT_SUCCESS);
-	default:
-		break;
-	}
-
-	switch (r.page) {
-	case (PAGE_INDEX):
-		send303(&r, PAGE_HOME, 1);
-		break;
-	case (PAGE_HOME):
-		if (KMIME_APP_JAVASCRIPT == r.mime)
-			sendcontent(&r, CNTT_JS_HOME);
-		else if ( ! db_expr_checkstate(ESTATE_NEW))
-			sendcontent(&r, CNTT_HTML_HOME_STARTED);
-		else
-			sendcontent(&r, CNTT_HTML_HOME_NEW);
-		break;
 	case (PAGE_DOADDGAME):
 		senddoaddgame(&r);
 		break;
@@ -813,18 +845,38 @@ main(void)
 	case (PAGE_DOLOADPLAYERS):
 		senddoloadplayers(&r);
 		break;
+	case (PAGE_DOLOGIN):
+		senddologin(&r);
+		break;
 	case (PAGE_DOLOGOUT):
 		senddologout(&r);
 		break;
 	case (PAGE_DOSTARTEXPR):
 		senddostartexpr(&r);
 		break;
+	case (PAGE_HOME):
+		if (KMIME_APP_JAVASCRIPT == r.mime)
+			sendcontent(&r, CNTT_JS_HOME);
+		else if ( ! db_expr_checkstate(ESTATE_NEW))
+			sendcontent(&r, CNTT_HTML_HOME_STARTED);
+		else
+			sendcontent(&r, CNTT_HTML_HOME_NEW);
+		break;
+	case (PAGE_INDEX):
+		send303(&r, PAGE_HOME, 1);
+		break;
+	case (PAGE_LOGIN):
+		sendcontent(&r, CNTT_HTML_LOGIN);
+		break;
+	case (PAGE_STYLE):
+		sendcontent(&r, CNTT_CSS_STYLE);
+		break;
 	default:
-		http_open(&r, KHTTP_404);
-		khttp_body(&r);
+		send404(&r);
 		break;
 	}
 
+out:
 	khttp_free(&r);
 	return(EXIT_SUCCESS);
 }

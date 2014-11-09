@@ -8,7 +8,7 @@
 		<script src="@@htdocs@@/script.js"></script>
 		<script src="@@cgibin@@/home.js"></script>
 	</head>
-	<body onload="loadGames(); loadPlayers(); loadExpr();">
+	<body onload="loadGames(); loadPlayers(); loadExpr(); loadSmtp();">
 		<header>
 			<nav>
 				<ul>
@@ -59,7 +59,7 @@
 				</section>
 			</section>
 			<section>
-				<form action="@@cgibin@@/dochangemail.html" method="post" id="changeMail" onsubmit="return(sendForm(this, doChangeMailSetup, doChangeMailError, doChangeMailSuccess));">
+				<form action="@@cgibin@@/dochangemail.json" method="post" id="changeMail" onsubmit="return(sendForm(this, doChangeMailSetup, doChangeMailError, doChangeMailSuccess));">
 					<section>
 						<h3>Change E-mail</h3>
 						<aside>
@@ -79,7 +79,7 @@
 						</fieldset>
 					</section>
 				</form>
-				<form action="@@cgibin@@/dochangepass.html" method="post" id="changePass" onsubmit="return(sendForm(this, doChangePassSetup, doChangePassError, doChangePassSuccess));">
+				<form action="@@cgibin@@/dochangepass.json" method="post" id="changePass" onsubmit="return(sendForm(this, doChangePassSetup, doChangePassError, doChangePassSuccess));">
 					<section>
 						<h3>Change Password</h3>
 						<div class="error">
@@ -100,7 +100,7 @@
 						</fieldset>
 					</section>
 				</form>
-				<form action="@@cgibin@@/dochangesmtp.html" method="post" id="changeSmtp" onsubmit="return(sendForm(this, doChangeSmtpSetup, doChangeSmtpError, doChangeSmtpSuccess));">
+				<form action="@@cgibin@@/dochangesmtp.json" method="post" id="changeSmtp" onsubmit="return(sendForm(this, doChangeSmtpSetup, doChangeSmtpError, doChangeSmtpSuccess));">
 					<section>
 						<h3>Change SMTP Properties</h3>
 						<div class="error">
@@ -113,6 +113,12 @@
 							<q>SMTP Server</q> to a valid SSL-secured SMTP server,
 							<q>SMTP User</q> to the your server account name, and
 							<q>SMTP Password</q> to the your user's password.
+							<div id="checkSmtpResultsLoad">
+								<img src="@@htdocs@@/ajax-loader.gif" class="loader" alt="Loading..." />
+								Loading...
+							</div>
+							<div id="checkSmtpResults" style="display: none;">
+							</div>
 						</aside>
 						<fieldset>
 							<div><input required="required" type="email" name="email" placeholder="you@example.com"/></div>

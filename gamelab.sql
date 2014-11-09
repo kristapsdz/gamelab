@@ -13,6 +13,7 @@ CREATE TABLE play (
 	round INTEGER NOT NULL,
 	strategy INTEGER NOT NULL,
 	playerid INTEGER REFERENCES player(id) NOT NULL,
+	gameid INTEGER REFERENCES game(id) NOT NULL,
 	id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
 	UNIQUE (round,playerid,strategy)
 );

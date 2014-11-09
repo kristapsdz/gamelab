@@ -277,10 +277,13 @@ db_player_sess_valid(int64_t *playerid, int64_t id, int64_t cookie)
 		 "WHERE id=? AND cookie=? AND playerid IS NOT NULL");
 	db_bind_int(stmt, 1, id);
 	db_bind_int(stmt, 2, cookie);
-	if (SQLITE_ROW == (rc = db_step(stmt, 0))) 
+	if (SQLITE_ROW == (rc = db_step(stmt, 0))) {
 		*playerid = sqlite3_column_int(stmt, 0);
-	fprintf(stderr, "playerid = %" PRId64 "\n", *playerid);
-	db_finalise(stmt);
+		db_finalise(stmt);
+		db_player_set_loggedin(*playerid);
+	} else
+		db_finalise(stmt);
+
 	return(SQLITE_ROW == rc);
 }
 
@@ -618,6 +621,63 @@ db_player_load_all(void (*fp)(const struct player *, size_t, void *), void *arg)
 	return(count);
 }
 
+int
+db_game_check_player(int64_t playerid, int64_t round, int64_t game)
+{
+	sqlite3_stmt	*stmt;
+	int64_t		 res;
+	int		 rc;
+
+	stmt = db_stmt("SELECT EXISTS(SELECT 1 FROM play "
+		"WHERE playerid=? AND round=? AND gameid=?)");
+	db_bind_int(stmt, 1, playerid);
+	db_bind_int(stmt, 2, round);
+	db_bind_int(stmt, 3, game);
+	rc = db_step(stmt, 0);
+	assert(SQLITE_ROW == rc);
+	res = sqlite3_column_int(stmt, 0);
+	db_finalise(stmt);
+	return(res > 0);
+}
+
+size_t
+db_game_load_player(int64_t playerid, int64_t round, 
+	void (*fp)(const struct game *, size_t, void *), void *arg)
+{
+	sqlite3_stmt	*stmt;
+	struct game	 game;
+	int64_t		 id;
+	size_t		 i, count;
+	char		*sv;
+
+	count = 0;
+	stmt = db_stmt("SELECT payoffs,p1,p2,name,id FROM game");
+	while (SQLITE_ROW == db_step(stmt, 0)) {
+		id = sqlite3_column_int(stmt, 4);
+		if (db_game_check_player(playerid, round, id))
+			continue;
+		memset(&game, 0, sizeof(struct game));
+		sv = strdup((char *)sqlite3_column_text(stmt, 0));
+		assert(NULL != sv);
+		game.p1 = sqlite3_column_int(stmt, 1);
+		game.p2 = sqlite3_column_int(stmt, 2);
+		game.payoffs = db_payoff_to_mpq(sv, game.p1, game.p2);
+		assert(NULL != game.payoffs);
+		game.name = strdup((char *)sqlite3_column_text(stmt, 3));
+		assert(NULL != game.name);
+		game.id = sqlite3_column_int(stmt, 4);
+		(*fp)(&game, count++, arg);
+		for (i = 0; i < (size_t)(2 * game.p1 * game.p2); i++)
+			mpq_clear(game.payoffs[i]);
+		free(game.payoffs);
+		free(game.name);
+		free(sv);
+	}
+
+	db_finalise(stmt);
+	return(count);
+}
+
 size_t
 db_game_load_all(void (*fp)(const struct game *, size_t, void *), void *arg)
 {
@@ -730,37 +790,6 @@ db_game_alloc(const char *poffs,
 	return(game);
 }
 
-#if 0
-int
-db_player_play(mpq_t *fraction, size_t strats,
-	int64_t round, int64_t strategy, int64_t playerid)
-{
-	size_t	 	 i;
-	sqlite3_stmt	*stmt;
-	int		 rc;
-
-	db_trans_begin();
-
-	stmt = db_stmt("INSERT INTO play "
-		"(fraction,strats,round,strategy,playerid) "
-		"VALUES (?,?,?,?,?)");
-
-	for (i = 0; i < strats; i++) {
-		rc = db_step(stmt, DB_STEP_CONSTRAINT);
-		if (SQLITE_CONSTRAINT == rc) {
-			db_finalise(stmt);
-			db_trans_rollback();
-			return(0);
-		}
-		sqlite3_reset(stmt);
-	}
-
-	db_finalise(stmt);
-	db_trans_commit();
-	return(1);
-}
-#endif
-
 int
 db_player_create(const char *email)
 {
@@ -838,6 +867,17 @@ db_player_enable(int64_t id)
 	db_step(stmt, 0);
 	db_finalise(stmt);
 	fprintf(stderr, "%" PRId64 ": player enabled\n", id);
+}
+
+void
+db_player_set_loggedin(int64_t id)
+{
+	sqlite3_stmt	*stmt;
+
+	stmt = db_stmt("UPDATE player SET state=2 WHERE id=?");
+	db_bind_int(stmt, 1, id);
+	db_step(stmt, 0);
+	db_finalise(stmt);
 }
 
 void
@@ -967,6 +1007,7 @@ db_expr_get(void)
 	struct expr	*expr;
 	int		 rc;
 
+	/* FIXME: check that game has started. */
 	expr = kcalloc(1, sizeof(struct expr));
 	stmt = db_stmt("SELECT start,days,loginuri FROM experiment");
 	rc = db_step(stmt, 0);

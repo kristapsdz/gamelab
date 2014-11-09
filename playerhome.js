@@ -11,7 +11,7 @@ function loadExprFinished()
 
 function loadExprSuccess(resp)
 {
-	var results, e, v, head, game, i, j, table, row, cell;
+	var results, e, v, head, game, i, j, table, row, cell, matrix, div;
 
 	try  { 
 		results = JSON.parse(resp);
@@ -28,9 +28,17 @@ function loadExprSuccess(resp)
 		head = 'Time Until Next Game';
 		formatCountdown(head, v, e);
 		setTimeout(timerCountdown, 1000, head, loadExprFinished, e, v, new Date().getTime());
+	} else if (v < 0) {
+		if (null == (e = doClearNode(document.getElementById('expr'))))
+			return;
+		e.appendChild(document.createTextNode('Experiment finished.'));
 	} else {
 		if (null == (e = doClearNode(document.getElementById('expr'))))
 			return;
+		div = document.createElement('div');
+		div.appendChild(document.createTextNode('Round: ' + results.round));
+		e.appendChild(div);
+
 		game = results.games[Math.floor(Math.random() * results.games.length)];
 		table = document.createElement('div');
 		table.setAttribute('class', 'payoffs');

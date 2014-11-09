@@ -58,7 +58,7 @@ function doChangeSmtpSuccess(resp)
 {
 
 	doSuccess('changeSmtpSubmit', 'changeSmtp');
-	checkSmtp();
+	loadSmtp();
 }
 
 function doAddGameSuccess(resp) 
@@ -494,22 +494,47 @@ function doDisablePlayer(id)
 		e.setAttribute('data-gamelab-enabled', '0');
 }
 
-function checkSmtp() 
+function loadSmtp() 
 {
-	var xrh;
+	var xrh, results, e, link;
 
 	doHide('checkSmtpYes');
 	doHide('checkSmtpNo');
+	doHide('checkSmtpResults');
 	doUnhide('checkSmtpLoad');
+	doUnhide('checkSmtpResultsLoad');
 
 	xrh = new XMLHttpRequest();
 	xrh.onreadystatechange=function() {
 		if (xrh.readyState==4 && xrh.status==200) {
 			doHide('checkSmtpLoad');
 			doUnhide('checkSmtpYes');
+			try {
+				results = JSON.parse(xrh.responseText);
+			} catch (error) {
+				return;
+			}
+			if (null == (e = doClear('checkSmtpResults')))
+				return;
+			doHide('checkSmtpResultsLoad');
+			doUnhide('checkSmtpResults');
+			e.appendChild(document.createTextNode('Current values: '));
+			link = document.createElement('a');
+			link.setAttribute('href', 'mailto:' + results.mail);
+			link.appendChild(document.createTextNode(results.mail));
+			e.appendChild(link);
+			e.appendChild(document.createTextNode(', '));
+			e.appendChild(document.createTextNode(results.user));
+			e.appendChild(document.createTextNode('@'));
+			e.appendChild(document.createTextNode(results.server));
 		} else if (xrh.readyState==4 && xrh.status==400) {
 			doHide('checkSmtpLoad');
 			doUnhide('checkSmtpNo');
+			if (null == (e = doClear('checkSmtpResults')))
+				return;
+			doHide('checkSmtpResultsLoad');
+			doUnhide('checkSmtpResults');
+			e.appendChild(document.createTextNode('No settings yet.'));
 		}
 	} 
 	xrh.open('GET', '@@cgibin@@/dochecksmtp.json', true);
@@ -602,6 +627,9 @@ function loadExprSuccess(resp)
 		if (null == (e = doClearNode(doUnhide('statusExprProgress'))))
 			return;
 		doHide('statusExprLoading');
+		chld = document.createElement('div');
+		chld.appendChild(document.createTextNode('Round: ' + results.round));
+		e.appendChild(chld);
 		chld = document.createElement('progress');
 		chld.setAttribute('max', '1.0');
 		chld.setAttribute('value', results.progress);
@@ -610,21 +638,17 @@ function loadExprSuccess(resp)
 	}
 }
 
-/*
- * For started experiments, get the state of the experiment itself.
- */
 function loadExpr() 
 {
 	var xhr;
 
-	/* Note that we're loading... */
 	doUnhide('statusExprLoading');
-	/* ...and hide the result fields. */
 	doHide('statusExprTtl');
 	doHide('statusExprWaiting');
 	doHide('statusExprProgress');
 
 	/* Don't do anything on failure. */
+	/* FIXME: handle 409. */
 	xhr = new XMLHttpRequest();
 	xhr.onreadystatechange = function() {
 		if (xhr.readyState == 4 && xhr.status == 200)

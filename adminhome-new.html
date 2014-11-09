@@ -8,7 +8,7 @@
 		<script src="@@htdocs@@/script.js"></script>
 		<script src="@@cgibin@@/home.js"></script>
 	</head>
-	<body onload="loadGames(); loadNewPlayers(); checkSmtp();">
+	<body onload="loadGames(); loadNewPlayers(); loadSmtp();">
 		<header>
 			<nav>
 				<ul>
@@ -39,7 +39,7 @@
 						</li>
 					</ol>
 				</aside>
-				<form action="@@cgibin@@/dostartexpr.html" method="post" id="startExpr" onsubmit="return(sendForm(this, doStartExprSetup, doStartExprError, doStartExprSuccess));">
+				<form action="@@cgibin@@/dostartexpr.json" method="post" id="startExpr" onsubmit="return(sendForm(this, doStartExprSetup, doStartExprError, doStartExprSuccess));">
 					<section id="startExprSection">
 						<h3>Experiment Parameters</h3>
 						<div class="error">
@@ -98,7 +98,7 @@
 					<ul id="loadGames">
 						<li><img src="@@htdocs@@/ajax-loader.gif" class="loader" alt="Loading..." />Loading...</li>
 					</ul>
-					<form action="@@cgibin@@/doaddgame.html" method="post" id="addGame" 
+					<form action="@@cgibin@@/doaddgame.json" method="post" id="addGame" 
 						onsubmit="return(sendForm(this, doAddGameSetup, doAddGameError, doAddGameSuccess));">
 						<div class="error">
 							<div style="display: none;" id="addGameErrSystem">An unexpected system error occurred.</div>
@@ -127,7 +127,7 @@
 					<ul id="loadNewPlayers">
 						<li><img src="@@htdocs@@/ajax-loader.gif" class="loader" alt="Loading..." />Loading...</li>
 					</ul>
-					<form action="@@cgibin@@/doaddplayers.html" method="post" id="addPlayers" 
+					<form action="@@cgibin@@/doaddplayers.json" method="post" id="addPlayers" 
 						onsubmit="return(sendForm(this, doAddPlayersSetup, doAddPlayersError, doAddPlayersSuccess));">
 						<div class="error">
 							<div style="display: none;" id="addPlayersErrSystem">An unexpected system error occurred.</div>
@@ -153,7 +153,7 @@
 						mail you if it has issues.
 						You will be logged out after doing so.
 					</aside>
-					<form action="@@cgibin@@/dochangemail.html" method="post" id="changeMail" 
+					<form action="@@cgibin@@/dochangemail.json" method="post" id="changeMail" 
 						onsubmit="return(sendForm(this, doChangeMailSetup, doChangeMailError, doChangeMailSuccess));">
 						<div class="error">
 							<div style="display: none;" id="changeMailErrSystem">An unexpected error occurred.</div>
@@ -175,7 +175,7 @@
 						It's up to you to make sure your password is secure.
 						You will be logged out after doing so.
 					</aside>
-					<form action="@@cgibin@@/dochangepass.html" method="post" id="changePass" 
+					<form action="@@cgibin@@/dochangepass.json" method="post" id="changePass" 
 						onsubmit="return(sendForm(this, doChangePassSetup, doChangePassError, doChangePassSuccess));">
 						<div class="error">
 							<div style="display: none;" id="changePassErrSystem">An unexpected error occurred.</div>
@@ -197,8 +197,14 @@
 						<q>SMTP Server</q> to a valid SSL-secured SMTP server,
 						<q>SMTP User</q> to the your server account name, and
 						<q>SMTP Password</q> to the your user's password.
+						<div id="checkSmtpResultsLoad">
+							<img src="@@htdocs@@/ajax-loader.gif" class="loader" alt="Loading..." />
+							Loading...
+						</div>
+						<div id="checkSmtpResults" style="display: none;">
+						</div>
 					</aside>
-					<form action="@@cgibin@@/dochangesmtp.html" method="post" id="changeSmtp" 
+					<form action="@@cgibin@@/dochangesmtp.json" method="post" id="changeSmtp" 
 						onsubmit="return(sendForm(this, doChangeSmtpSetup, doChangeSmtpError, doChangeSmtpSuccess));">
 						<div class="error">
 							<div style="display: none;" id="changeSmtpErrSystem">An unexpected error occurred.</div>

@@ -50,6 +50,12 @@ function doClearNode(e)
 	return(e);
 }
 
+function doClear(name) 
+{
+
+	return(doClearNode(document.getElementById(name)));
+}
+
 function doClearReplace(name, str) 
 {
 	var e;

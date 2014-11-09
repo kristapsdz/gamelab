@@ -69,8 +69,12 @@ struct game	*db_game_alloc(const char *payoffs,
 size_t		 db_game_count_all(void);
 void		 db_game_free(struct game *game);
 size_t		 db_game_load_all(void (*fp)(const struct game *, size_t, void *), void *arg);
+size_t		 db_game_load_player(int64_t playerid, int64_t round, 
+			void (*fp)(const struct game *, size_t, void *), void *arg);
+int		 db_game_check_player(int64_t playerid, int64_t round, int64_t gameid);
 
 void		 db_player_set_mailed(int64_t id, const char *pass);
+void		 db_player_set_loggedin(int64_t id);
 size_t		 db_player_count_all(void);
 int		 db_player_create(const char *email);
 void		 db_player_enable(int64_t id);
@@ -78,6 +82,7 @@ int		 db_player_delete(int64_t id);
 void		 db_player_disable(int64_t id);
 struct player	*db_player_load(int64_t id);
 size_t		 db_player_load_all(void (*fp)(const struct player *, size_t, void *), void *arg);
+size_t		 db_player_load_player(int64_t playerid, void (*fp)(const struct player *, size_t, void *), void *arg);
 char		*db_player_next_new(int64_t *id, char **pass);
 struct sess	*db_player_sess_alloc(int64_t playerid);
 int		 db_player_valid(int64_t *id, const char *mail, const char *pass);
