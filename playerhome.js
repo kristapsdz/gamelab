@@ -40,15 +40,35 @@ function loadExprSuccess(resp)
 		e.appendChild(div);
 
 		game = results.games[Math.floor(Math.random() * results.games.length)];
+
+		if (0 == results.role) {
+			matrix = new Array(game.payoffs.length);
+			for (i = 0; i < game.payoffs.length; i++) {
+				matrix[i] = new Array(game.payoffs[0].length);
+				for (j = 0; j < game.payoffs[0].length; j++)
+					matrix[i][j] = game.payoffs[i][j][0];
+			}
+		} else {
+			matrix = new Array(game.payoffs[0].length);
+			for (i = 0; i < game.payoffs[0].length; i++) {
+				matrix[i] = new Array(game.payoffs.length);
+				for (j = 0; j < game.payoffs.length; j++)
+					matrix[i][j] = game.payoffs[j][i][1];
+			}
+		}
+
 		table = document.createElement('div');
 		table.setAttribute('class', 'payoffs');
-		for (i = 0; i < game.payoffs.length; i++) {
+		table.setAttribute('style', 'width: ' + (matrix.length * 5) + 'em;');
+		for (i = 0; i < matrix.length; i++) {
 			row = document.createElement('div');
 			table.appendChild(row);
-			for (j = 0; j < game.payoffs[i].length; j++) {
+			for (j = 0; j < matrix[i].length; j++) {
 				cell = document.createElement('div');
+				cell.setAttribute('style', 'width: ' + (100.0 * 1 / matrix[i].length) + '%;');
+				console.log('cell width = ' + cell.getAttribute('style'));
 				row.appendChild(cell);
-				cell.appendChild(document.createTextNode(game.payoffs[i][j][results.role]));
+				cell.appendChild(document.createTextNode(matrix[i][j]));
 			}
 		}
 		e.appendChild(table);
