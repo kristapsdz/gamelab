@@ -136,6 +136,26 @@ function formatCountdown(head, v, e)
 	row.appendChild(cell);
 }
 
+function sendQuery(url, setup, success, error) 
+{
+	var xmlhttp = new XMLHttpRequest();
+
+	if (null != setup)
+		setup();
+
+	console.log('here: ' + url);
+
+	xmlhttp.onreadystatechange=function() {
+		if (xmlhttp.readyState == 4 && xmlhttp.status == 200 && null != success)
+			success(xmlhttp.responseText);
+		else if (xmlhttp.readyState == 4 && null != error)
+			error(xmlhttp.status);
+	} 
+
+	xmlhttp.open('GET', url, true);
+	xmlhttp.send(null);
+}
+
 function sendForm(oFormElement, setup, error, success) 
 {
 	var xmlhttp = new XMLHttpRequest();

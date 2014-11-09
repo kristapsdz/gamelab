@@ -494,84 +494,86 @@ function doDisablePlayer(id)
 		e.setAttribute('data-gamelab-enabled', '0');
 }
 
-function loadSmtp() 
+function loadSmtpSetup()
 {
-	var xrh, results, e, link, button;
 
 	doHide('checkSmtpYes');
 	doHide('checkSmtpNo');
 	doHide('checkSmtpResults');
 	doUnhide('checkSmtpLoad');
 	doUnhide('checkSmtpResultsLoad');
+}
 
-	xrh = new XMLHttpRequest();
-	xrh.onreadystatechange=function() {
-		if (xrh.readyState==4 && xrh.status==200) {
-			doHide('checkSmtpLoad');
-			doUnhide('checkSmtpYes');
-			try {
-				results = JSON.parse(xrh.responseText);
-			} catch (error) {
-				return;
-			}
-			if (null == (e = doClear('checkSmtpResults')))
-				return;
-			doHide('checkSmtpResultsLoad');
-			doUnhide('checkSmtpResults');
-			e.appendChild(document.createTextNode('Current values: '));
-			link = document.createElement('a');
-			link.setAttribute('href', 'mailto:' + results.mail);
-			link.appendChild(document.createTextNode(results.mail));
-			e.appendChild(link);
-			e.appendChild(document.createTextNode(', '));
-			e.appendChild(document.createTextNode(results.user));
-			e.appendChild(document.createTextNode('@'));
-			e.appendChild(document.createTextNode(results.server));
+function loadSmtpSuccess(resp)
+{
+	var results, e, link, button;
 
-			button = document.createElement('button');
-			button.setAttribute('onclick', 'testSmtp();');
-			button.appendChild(document.createTextNode('Test'));
-			e.appendChild(button);
+	doHide('checkSmtpLoad');
+	doUnhide('checkSmtpYes');
 
-		} else if (xrh.readyState==4 && xrh.status==400) {
-			doHide('checkSmtpLoad');
-			doUnhide('checkSmtpNo');
-			if (null == (e = doClear('checkSmtpResults')))
-				return;
-			doHide('checkSmtpResultsLoad');
-			doUnhide('checkSmtpResults');
-			e.appendChild(document.createTextNode('No settings yet.'));
-		}
-	} 
-	xrh.open('GET', '@@cgibin@@/dochecksmtp.json', true);
-	xrh.send(null);
+	try {
+		results = JSON.parse(resp);
+	} catch (error) {
+		return;
+	}
+
+	if (null == (e = doClear('checkSmtpResults')))
+		return;
+
+	doHide('checkSmtpResultsLoad');
+	doUnhide('checkSmtpResults');
+	e.appendChild(document.createTextNode('Current values: '));
+	link = document.createElement('a');
+	link.setAttribute('href', 'mailto:' + results.mail);
+	link.appendChild(document.createTextNode(results.mail));
+	e.appendChild(link);
+	e.appendChild(document.createTextNode(', '));
+	e.appendChild(document.createTextNode(results.user));
+	e.appendChild(document.createTextNode('@'));
+	e.appendChild(document.createTextNode(results.server));
+
+	button = document.createElement('button');
+	button.setAttribute('onclick', 'testSmtp();');
+	button.appendChild(document.createTextNode('Test'));
+	e.appendChild(button);
+}
+
+function loadSmtpError(err)
+{
+
+	if (400 != err)
+		return;
+	doHide('checkSmtpLoad');
+	doUnhide('checkSmtpNo');
+	if (null == (e = doClear('checkSmtpResults')))
+		return;
+	doHide('checkSmtpResultsLoad');
+	doUnhide('checkSmtpResults');
+	e.appendChild(document.createTextNode('No settings yet.'));
+}
+
+function loadSmtp() 
+{
+
+	sendQuery('@@cgibin@@/dochecksmtp.json', 
+		loadSmtpSetup, loadSmtpSuccess, loadSmtpError);
 }
 
 function loadList(url, name, onsuccess, onerror) 
 {
-	var li, e, gif, xrh;
+	var e, li, span;
 
 	if (null == (e = doClearNode(document.getElementById(name))))
 		return;
 
 	li = document.createElement('li');
-	gif = document.createElement('img');
-	gif.setAttribute('src', '@@htdocs@@/ajax-loader.gif');
-	gif.setAttribute('alt', 'Loading...');
-	gif.setAttribute('class', 'loader');
-	li.appendChild(gif);
-	li.appendChild(document.createTextNode('Loading...'));
+	span = document.createElement('span');
+	span.setAttribute('class', 'loading');
+	span.appendChild(document.createTextNode('Loading...'));
+	li.appendChild(span);
 	e.appendChild(li);
 
-	xrh = new XMLHttpRequest();
-	xrh.onreadystatechange=function() {
-		if (xrh.readyState == 4 && xrh.status == 200)
-			onsuccess(xrh.responseText);
-		else if (xrh.readyState == 4)
-			onerror(xrh.status);
-	} 
-	xrh.open('GET', url, true);
-	xrh.send(null);
+	sendQuery(url, null, onsuccess, onerror);
 }
 
 function loadNewPlayers() 
@@ -580,14 +582,16 @@ function loadNewPlayers()
 	doHide('checkPlayersYes');
 	doHide('checkPlayersNo');
 	doUnhide('checkPlayersLoad');
-	loadList('@@cgibin@@/doloadplayers.json', 'loadNewPlayers', loadNewPlayersSuccess, loadNewPlayersError);
+	loadList('@@cgibin@@/doloadplayers.json', 'loadNewPlayers', 
+		loadNewPlayersSuccess, loadNewPlayersError);
 }
 
 
 function loadPlayers() 
 {
 
-	loadList('@@cgibin@@/doloadplayers.json', 'loadPlayers', loadPlayersSuccess, loadPlayersError);
+	loadList('@@cgibin@@/doloadplayers.json', 'loadPlayers', 
+		loadPlayersSuccess, loadPlayersError);
 }
 
 function loadGames() 
@@ -596,15 +600,17 @@ function loadGames()
 	doHide('checkGameYes');
 	doHide('checkGameNo');
 	doUnhide('checkGameLoad');
-	loadList('@@cgibin@@/doloadgames.json', 'loadGames', loadGamesSuccess, loadGamesError);
+	loadList('@@cgibin@@/doloadgames.json', 'loadGames', 
+		loadGamesSuccess, loadGamesError);
 }
 
 function loadExprFinished()
 {
 	var e;
 
-	if (null != (e = doClearNode(document.getElementById('statusExprTtl'))))
-		e.appendChild(document.createTextNode('Wait finished: reloading.'));
+	if (null != (e = doClear('statusExprTtl')))
+		e.appendChild(document.createTextNode
+			('Wait finished: reloading.'));
 
 	window.location.reload(true);
 }
@@ -621,54 +627,53 @@ function loadExprSuccess(resp)
 
 	if ((v = parseInt(results.tilstart)) > 0) {
 		doUnhide('statusExprWaiting');
-		if (null == (e = doClearNode(doUnhide('statusExprTtl'))))
+		e = doClearNode(doUnhide('statusExprTtl'));
+		if (null == e)
 			return;
 		doHide('statusExprLoading');
 		chld = document.createElement('div');
 		head = 'Time Until Experiment';
 		formatCountdown(head, v, chld);
 		e.appendChild(chld);
-		setTimeout(timerCountdown, 1000, head, loadExprFinished, chld, v, new Date().getTime());
+		setTimeout(timerCountdown, 1000, 
+			head, loadExprFinished, chld, 
+			v, new Date().getTime());
 	} else {
-		if (null == (e = doClearNode(doUnhide('statusExprProgress'))))
+		e = doClearNode(doUnhide('statusExprProgress'));
+		if (null == e)
 			return;
 		doHide('statusExprLoading');
 		chld = document.createElement('div');
-		chld.appendChild(document.createTextNode('Round: ' + results.round));
+		chld.appendChild(document.createTextNode
+			('Round: ' + results.round));
 		e.appendChild(chld);
 		chld = document.createElement('progress');
 		chld.setAttribute('max', '1.0');
 		chld.setAttribute('value', results.progress);
-		chld.appendChild(document.createTextNode((results.progress * 100.0) + '%'));
+		chld.appendChild(document.createTextNode
+			((results.progress * 100.0) + '%'));
 		e.appendChild(chld);
 	}
 }
 
-function loadExpr() 
+function loadExprSetup()
 {
-	var xhr;
 
 	doUnhide('statusExprLoading');
 	doHide('statusExprTtl');
 	doHide('statusExprWaiting');
 	doHide('statusExprProgress');
+}
 
-	/* Don't do anything on failure. */
-	/* FIXME: handle 409. */
-	xhr = new XMLHttpRequest();
-	xhr.onreadystatechange = function() {
-		if (xhr.readyState == 4 && xhr.status == 200)
-			loadExprSuccess(xhr.responseText);
-	} 
-	xhr.open('GET', '@@cgibin@@/dogetexpr.json', true);
-	xhr.send(null);
+function loadExpr() 
+{
+
+	sendQuery('@@cgibin@@/dogetexpr.json', 
+		loadExprSetup, loadExprSuccess, null);
 }
 
 function testSmtp() 
 {
-	var xhr;
 
-	xhr = new XMLHttpRequest();
-	xhr.open('GET', '@@cgibin@@/dotestsmtp.json', true);
-	xhr.send(null);
+	sendQuery('@@cgibin@@/dotestxmtp.json', null, null, null);
 }

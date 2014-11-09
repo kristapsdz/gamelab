@@ -58,13 +58,13 @@
 							<ol>
 								<li>
 									Entered <a href="#changeSmtp">SMTP</a> data? 
-									<span><img src="@@htdocs@@/ajax-loader.gif" id="checkSmtpLoad" class="loader" alt="Checking..." /></span>
+									<span><span class="loading" id="checkSmtpLoad">Loading...</span></span>
 									<span><img style="display: none;" id="checkSmtpYes" src="@@htdocs@@/accept.png" class="status" alt="Yes" /></span>
 									<span><img style="display: none;" id="checkSmtpNo" src="@@htdocs@@/block.png" class="status" alt="No" /></span>
 								</li>
 								<li>
 									Entered 2+ enabled <a href="#addPlayers">players</a>? 
-									<span><img src="@@htdocs@@/ajax-loader.gif" id="checkPlayersLoad" class="loader" alt="Checking..." /></span>
+									<span><span class="loading" id="checkPlayersLoad">Loading...</span></span>
 									<span><img style="display: none;" id="checkPlayersYes" src="@@htdocs@@/accept.png" class="status" alt="Yes" /></span>
 									<span><img style="display: none;" id="checkPlayersNo" src="@@htdocs@@/block.png" class="status" alt="No" /></span>
 								</li>
@@ -198,8 +198,7 @@
 						<q>SMTP User</q> to the your server account name, and
 						<q>SMTP Password</q> to the your user's password.
 						<div id="checkSmtpResultsLoad">
-							<img src="@@htdocs@@/ajax-loader.gif" class="loader" alt="Loading..." />
-							Loading...
+							<span class="loading">Loading...</span>
 						</div>
 						<div id="checkSmtpResults" style="display: none;">
 						</div>
