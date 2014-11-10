@@ -254,47 +254,30 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 {
 	struct expr	*expr;
 	struct player	*player;
-	size_t		 count;
-	int64_t		 round;
 	time_t		 t;
 
 	player = db_player_load(playerid);
-	
 	expr = db_expr_get();
-	assert(NULL != expr);
+
 	http_open(r, KHTTP_200);
 	khttp_body(r);
 
-	t = time(NULL);
-
-	if (expr->start > t) {
-		khttp_putc(r, '{');
-		json_putint(r, "tilstart", (int64_t)(expr->start - t));
-		khttp_putc(r, '}');
-	} else if (t >= expr->start + expr->days * 60 * 60 * 24) {
-		khttp_putc(r, '{');
-		json_putint(r, "tilstart", -1);
-		khttp_putc(r, '}');
-	} else {
-		round = (t - expr->start) / (60 * 60 * 24);
-		khttp_putc(r, '{');
+	khttp_putc(r, '{');
+	if ((t = time(NULL)) < expr->end && t > expr->start) {
 		json_putint(r, "role", player->role);
-		khttp_putc(r, ',');
-		json_putint(r, "round", round);
 		khttp_putc(r, ',');
 		json_puts(r, "games");
 		khttp_putc(r, ':');
 		khttp_putc(r, '[');
-		count = db_game_load_player(playerid, round, senddoloadgame, r);
+		db_game_load_player(playerid, 
+			(t - expr->start) / (expr->minutes * 60), 
+			senddoloadgame, r);
 		khttp_putc(r, ']');
 		khttp_putc(r, ',');
-		if (0 == count)
-			json_putint(r, "tilstart", (expr->start + (round + 1) * 60 * 60 * 24) - t);
-		else
-			json_putstring(r, "tilstart", "0");
-		khttp_putc(r, '}');
 	}
 
+	json_putexpr(r, expr);
+	khttp_putc(r, '}');
 	db_expr_free(expr);
 	db_player_free(player);
 }

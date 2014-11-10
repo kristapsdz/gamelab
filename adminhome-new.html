@@ -13,7 +13,7 @@
 			<nav>
 				<ul>
 					<li><h1>Administrator</h1></li>
-					<li><a href="@@cgibin@@/dologout.html">Logout</a></li>
+					<li><a href="@@cgibin@@/dologout.html"><img src="@@htdocs@@/logout.png" alt="Logout" class="logout" /></a></li>
 				</ul>
 			</nav>
 		</header>
@@ -80,9 +80,13 @@
 							<div><input required="required" type="text" name="uri" placeholder="http://lab/loginpage.html" /></div>
 							<div>
 								<input required="required" type="date" name="date" placeholder="yyyy-mm-dd" />
-								for
-								<input required="required" type="number" name="days" min="1" step="1" value="14" />
-								days
+								<input required="required" type="time" name="time" placeholder="hh:mm" /> GMT
+							</div>
+							<div>
+								<input required="required" type="number" name="rounds" min="1" step="1" value="14" />
+								rounds of
+								<input required="required" type="number" name="minutes" max="1440" min="1" step="1" value="1440" />
+								minutes
 							</div>
 							<div><input id="startExprSubmit" type="submit" value="Start" /></div>
 						</fieldset>

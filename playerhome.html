@@ -8,6 +8,7 @@
 		<style>
 			ol, section, fieldset { max-width: 1024px; }
 			fieldset { box-shadow: none; }
+			#exprCountdown { margin-bottom: 1em; }
 		</style>
 		<script src="@@htdocs@@/script.js"></script>
 		<script src="@@cgibin@@/home.js"></script>
@@ -17,13 +18,26 @@
 			<nav>
 				<ul>
 					<li><h1>Participation</h1></li>
-					<li><a href="@@cgibin@@/dologout.html">Logout</a></li>
+					<li><a href="@@cgibin@@/dologout.html"><img src="@@htdocs@@/logout.png" alt="Logout" class="logout" /></a></li>
 				</ul>
 			</nav>
 		</header>
 		<article>
-			<section id="expr">
-				<img src="@@htdocs@@/ajax-loader.gif" alt="Loading..." class="loader">Loading experiment
+			<section id="exprCountdown" style="display: none;"></section>
+			<section id="exprLoading"><span class="loading">Loading...</span></section>
+			<section id="exprPlay" style="display: none;">
+				<div id="exprMatrix"></div>
+				<aside>
+					Enter your matrix payoffs below.
+					These must be fractions or decimal numbers with no greater than four digits following the decimal.
+				</aside>
+				<form method="post" action="@@cgibin@@/doplay.json">
+					<fieldset>
+						<ol id="exprPlayList">
+						</ol>
+						<input type="submit" value="Submit" />
+					</fieldset>
+				</form>
 			</section>
 		</article>
 		<footer>

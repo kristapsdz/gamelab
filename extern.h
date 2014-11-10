@@ -8,7 +8,9 @@ enum	estate {
 
 struct	expr {
 	time_t		 start;
-	int64_t		 days;
+	time_t		 end;
+	int64_t		 rounds;
+	int64_t		 minutes;
 	char		*loginuri;
 };
 
@@ -60,7 +62,8 @@ int		 db_admin_sess_valid(int64_t id, int64_t cookie);
 void		 db_close(void);
 
 int		 db_expr_checkstate(enum estate state);
-int		 db_expr_start(int64_t date, int64_t days, const char *uri);
+int		 db_expr_start(int64_t date, int64_t rounds, 
+			int64_t minutes, const char *uri);
 void		 db_expr_free(struct expr *expr);
 struct expr	*db_expr_get(void);
 
@@ -107,6 +110,7 @@ void		 json_putint(struct kreq *r, const char *key, int64_t val);
 void		 json_putstring(struct kreq *r, const char *key, const char *val);
 void		 json_putmpqs(struct kreq *r, const char *key, 
 			mpq_t *vals, int64_t p1, int64_t p2);
+void		 json_putexpr(struct kreq *r, const struct expr *expr);
 
 __END_DECLS
 

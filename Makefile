@@ -15,6 +15,7 @@ STATICS	 = accept.png \
 	   calendar.png \
 	   disable.png \
 	   enable.png \
+	   logout.png \
 	   mail.png \
 	   lock.png \
 	   script.js \

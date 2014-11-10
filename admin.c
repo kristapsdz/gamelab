@@ -65,7 +65,9 @@ enum	cntt {
  */
 enum	key {
 	KEY_DATE,
-	KEY_DAYS,
+	KEY_TIME,
+	KEY_ROUNDS,
+	KEY_MINUTES,
 	KEY_EMAIL,
 	KEY_EMAIL1,
 	KEY_EMAIL2,
@@ -162,12 +164,15 @@ static const char *const cntts[CNTT__MAX] = {
 	"adminhome.js", /* CNTT_JS_HOME */
 };
 
-static int kvalid_days(struct kpair *);
-static int kvalid_futuredate(struct kpair *);
+static int kvalid_rounds(struct kpair *);
+static int kvalid_minutes(struct kpair *);
+static int kvalid_time(struct kpair *);
 
 static const struct kvalid keys[KEY__MAX] = {
-	{ kvalid_futuredate, "date" }, /* KEY_DATE */
-	{ kvalid_days, "days" }, /* KEY_DAYS */
+	{ kvalid_date, "date" }, /* KEY_DATE */
+	{ kvalid_time, "time" }, /* KEY_TIME */
+	{ kvalid_rounds, "rounds" }, /* KEY_ROUNDS */
+	{ kvalid_minutes, "minutes" }, /* KEY_MINUTES */
 	{ kvalid_email, "email" }, /* KEY_EMAIL */
 	{ kvalid_email, "email1" }, /* KEY_EMAIL1 */
 	{ kvalid_email, "email2" }, /* KEY_EMAIL2 */
@@ -299,9 +304,6 @@ static void
 senddogetexpr(struct kreq *r)
 {
 	struct expr	*expr;
-	int64_t		 daysec, round;
-	time_t		 t = time(NULL), tilstart;
-	double		 frac;
 
 	if (NULL == (expr = db_expr_get())) {
 		http_open(r, KHTTP_409);
@@ -309,38 +311,11 @@ senddogetexpr(struct kreq *r)
 		return;
 	}
 
-	frac = 0.0;
-	tilstart = 0;
-	if (t > expr->start) {
-		daysec = expr->days * 24 * 60 * 60;
-		round = (t - expr->start) / (60 * 60 * 24);
-		t -= expr->start;
-		if (t > daysec)
-			frac = 1.0;
-		else
-			frac = t / (double)daysec;
-	} else {
-		round = -1;
-		tilstart = expr->start - t;
-	}
-
 	http_open(r, KHTTP_200);
 	khttp_body(r);
-
 	khttp_putc(r, '{');
-	json_putstring(r, "loginuri", expr->loginuri);
-	khttp_putc(r, ',');
-	json_putint(r, "start", (int64_t)expr->start);
-	khttp_putc(r, ',');
-	json_putint(r, "days", expr->days);
-	khttp_putc(r, ',');
-	json_putdouble(r, "progress", frac);
-	khttp_putc(r, ',');
-	json_putint(r, "tilstart", (int64_t)tilstart);
-	khttp_putc(r, ',');
-	json_putint(r, "round", round);
+	json_putexpr(r, expr);
 	khttp_putc(r, '}');
-
 	db_expr_free(expr);
 }
 
@@ -716,17 +691,42 @@ senddostartexpr(struct kreq *r)
 	pid_t	 pid;
 	char	*sv;
 
+	if (NULL != r->fieldmap[KEY_DATE] && NULL != r->fieldmap[KEY_TIME]) {
+		warnx("%" PRId64 " + %" PRId64 " = %" PRId64 " <? %llu, %" PRId64 "", 
+				r->fieldmap[KEY_DATE]->parsed.i,
+				r->fieldmap[KEY_TIME]->parsed.i,
+				r->fieldmap[KEY_DATE]->parsed.i +
+				r->fieldmap[KEY_TIME]->parsed.i,
+				time(NULL),
+				(r->fieldmap[KEY_DATE]->parsed.i +
+				r->fieldmap[KEY_TIME]->parsed.i) -
+				time(NULL));
+	}
+
+	warnx("1: %p", r->fieldmap[KEY_DATE]);
+	warnx("1: %p", r->fieldmap[KEY_TIME]);
+	warnx("1: %p", r->fieldmap[KEY_ROUNDS]);
+	warnx("1: %p", r->fieldmap[KEY_MINUTES]);
+	warnx("1: %p", r->fieldmap[KEY_URI]);
+
 	if (kpairbad(r, KEY_DATE) ||
-		kpairbad(r, KEY_DAYS) ||
+		kpairbad(r, KEY_TIME) ||
+		kpairbad(r, KEY_ROUNDS) ||
+		kpairbad(r, KEY_MINUTES) ||
 		kpairbad(r, KEY_URI) ||
+		r->fieldmap[KEY_DATE]->parsed.i +
+		r->fieldmap[KEY_TIME]->parsed.i <= (int64_t)time(NULL) ||
 		db_player_count_all() < 2 ||
 		db_game_count_all() < 1) {
+		warnx("mooo");
 		http_open(r, KHTTP_400);
 		khttp_body(r);
 		return;
 	} else if ( ! db_expr_start
-		(r->fieldmap[KEY_DATE]->parsed.i,
-		 r->fieldmap[KEY_DAYS]->parsed.i,
+		(r->fieldmap[KEY_DATE]->parsed.i +
+		 r->fieldmap[KEY_TIME]->parsed.i,
+		 r->fieldmap[KEY_ROUNDS]->parsed.i,
+		 r->fieldmap[KEY_MINUTES]->parsed.i,
 		 r->fieldmap[KEY_URI]->parsed.s)) {
 		http_open(r, KHTTP_409);
 		khttp_body(r);
@@ -772,22 +772,58 @@ senddologout(struct kreq *r)
 }
 
 static int
-kvalid_futuredate(struct kpair *kp)
-{
-
-	if ( ! kvalid_date(kp))
-		return(0);
-	return(kp->parsed.i > time(NULL));
-}
-
-
-static int
-kvalid_days(struct kpair *kp)
+kvalid_rounds(struct kpair *kp)
 {
 
 	if ( ! kvalid_uint(kp))
 		return(0);
 	return(kp->parsed.i > 0);
+}
+
+static int
+kvalid_time(struct kpair *kp)
+{
+
+	int		 hr, min;
+
+	if ( ! kvalid_stringne(kp))
+		return(0);
+	else if (kp->valsz != 5 && kp->valsz != 4)
+		return(0);
+	else if (':' != kp->val[1] && ':' != kp->val[2])
+		return(0);
+	else if (':' == kp->val[1] &&
+		( ! isdigit(kp->val[0]) ||
+	  	  ! isdigit(kp->val[2]) ||
+	  	  ! isdigit(kp->val[3]))) 
+		return(0);
+	else if (':' == kp->val[2] &&
+		( ! isdigit(kp->val[0]) ||
+	  	  ! isdigit(kp->val[1]) ||
+	  	  ! isdigit(kp->val[3]) ||
+	  	  ! isdigit(kp->val[4])))
+		return(0);
+
+	if (':' == kp->val[1]) {
+		hr = atoi(&kp->val[0]);
+		min = atoi(&kp->val[2]);
+	} else {
+		hr = atoi(&kp->val[0]);
+		min = atoi(&kp->val[3]);
+	}
+
+	kp->parsed.i = hr * 60 * 60 + min * 60;
+	kp->type = KPAIR_INTEGER;
+	return(1);
+}
+
+static int
+kvalid_minutes(struct kpair *kp)
+{
+
+	if ( ! kvalid_uint(kp))
+		return(0);
+	return(kp->parsed.i > 0 && kp->parsed.i <= 1440);
 }
 
 int

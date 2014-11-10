@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <time.h>
 #include <unistd.h>
 
 #include <gmp.h>
@@ -81,6 +82,55 @@ json_putstring(struct kreq *r, const char *key, const char *val)
 	json_puts(r, key);
 	khttp_puts(r, " : ");
 	json_puts(r, val);
+}
+
+void
+json_putexpr(struct kreq *r, const struct expr *expr)
+{
+	double	 frac;
+	time_t	 t, tilstart, tilnext;
+	int64_t	 round;
+
+	frac = 0.0;
+	tilstart = tilnext = 0;
+
+	/* 
+	 * First compute the fraction of completion, the current round,
+	 * time til start (if applicable), and time til next play (if
+	 * applicable).
+	 */
+	if ((t = time(NULL)) > expr->start) {
+		round = (t - expr->start) / (expr->minutes * 60);
+		if (t >= expr->end) {
+			round = expr->rounds - 1;
+			frac = 1.0;
+			tilstart = tilnext = -1;
+		} else {
+			frac = (t - expr->start) / (double)(expr->end - expr->start);
+			tilnext = ((round + 1) * (expr->minutes * 60)) - t;
+		}
+	} else {
+		round = -1;
+		tilnext = tilstart = expr->start - t;
+	}
+
+	json_puts(r, "expr");
+	khttp_putc(r, ':');
+	khttp_putc(r, '{');
+	json_putint(r, "start", (int64_t)expr->start);
+	khttp_putc(r, ',');
+	json_putint(r, "end", (int64_t)expr->end);
+	khttp_putc(r, ',');
+	json_putint(r, "rounds", expr->rounds);
+	khttp_putc(r, ',');
+	json_putdouble(r, "progress", frac);
+	khttp_putc(r, ',');
+	json_putint(r, "tilstart", (int64_t)tilstart);
+	khttp_putc(r, ',');
+	json_putint(r, "tilnext", (int64_t)tilnext);
+	khttp_putc(r, ',');
+	json_putint(r, "round", round);
+	khttp_putc(r, '}');
 }
 
 /*

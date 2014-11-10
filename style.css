@@ -67,6 +67,7 @@ input 			{ width: 100%;
 				display: block; }
 button,
 input[type=submit],
+input[type=time],
 input[type=date],
 input[type=number]	{ width: auto; }
 input[type=text] 	{ padding-left: 1ex;
@@ -77,6 +78,7 @@ input[type=date] 	{ padding-left: 36px;
 				background-position: 4px center;
 				background-repeat: no-repeat;
 				background-image: url('@@htdocs@@/calendar.png'); }
+input[type=time],
 input[type=number] 	{ padding-left: 1ex;
 				padding-right: 1ex;
 				display: inline-block; }
@@ -141,6 +143,7 @@ img.disable		{ margin-bottom: -6px;
 img.enable:hover,
 img.disable:hover	{ cursor: pointer; }
 img.status		{ margin-bottom: -6px; }
+img.logout		{ margin-bottom: -6px; }
 progress		{ display: block;
 				margin-bottom: 1ex;
 				width: 100%; }
@@ -168,30 +171,44 @@ div.payoffs		{ display: table;
 				max-width: 100%; 
 				margin-left: auto;
 				margin-right: auto;
-				border-spacing: 1px;
+				border-spacing: 2px;
 				background-color: #ccc; }
 div.payoffs > div	{ display: table-row; }
 div.payoffs > div > div	{ display: table-cell; 
 				text-align: center; 
-				color: #eee;
-				padding-top: 1ex;
-				padding-bottom: 1ex;
 				background-color: #333; }
+div.payoffs > div > div	> div 
+			{ display: inline-block; 
+				padding: 1ex 0.5ex; }
+div.payoffs > div > div	> div:first-child
+			{ display: inline-block; 
+				text-align: right;
+				border-right: thin solid #666;
+				color: #fff; }
+div.payoffs > div > div	> div:last-child
+			{ display: inline-block; 
+				text-align: left;
+				color: #666; }
+div.payoffs > div > div.payoffhead		
+			{ background-color: inherit;
+				text-align: right;
+				padding-right: 1ex;
+				color: #666; }
 div.countdown		{ display: table; 
-			  margin-left: auto;
-			  margin-right: auto;
-			  background-color: #666; 
-			  border-spacing: 2px;
-			  color: #eee; }
+				  margin-left: auto;
+				  margin-right: auto;
+				  background-color: #666; 
+				  border-spacing: 2px;
+				  color: #eee; }
 div.countdown > div	{ display: table-row; }
 div.countdown > div > div	
 			{ display: table-cell; 
-			  text-align: center; }
+				  text-align: center; }
 div.countdown > div:first-child > div
 			{ background-color: #000; 
-			  font-family: monospace;
-			  font-size: 24pt;
-			  padding: 1ex 2ex; }
+				  font-family: monospace;
+				  font-size: 24pt;
+				  padding: 1ex 2ex; }
 div.countdown > div:last-child > div
 			{ color: #aaa; }
 div.countdownHead	{ text-align: center;

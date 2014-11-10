@@ -545,11 +545,10 @@ function loadSmtpError(err)
 		return;
 	doHide('checkSmtpLoad');
 	doUnhide('checkSmtpNo');
-	if (null == (e = doClear('checkSmtpResults')))
-		return;
 	doHide('checkSmtpResultsLoad');
 	doUnhide('checkSmtpResults');
-	e.appendChild(document.createTextNode('No settings yet.'));
+	doClear('checkSmtpResults').appendChild
+		(document.createTextNode('No settings yet.'));
 }
 
 function loadSmtp() 
@@ -561,18 +560,11 @@ function loadSmtp()
 
 function loadList(url, name, onsuccess, onerror) 
 {
-	var e, li, span;
-
-	if (null == (e = doClearNode(document.getElementById(name))))
-		return;
+	var e, li;
 
 	li = document.createElement('li');
-	span = document.createElement('span');
-	span.setAttribute('class', 'loading');
-	span.appendChild(document.createTextNode('Loading...'));
-	li.appendChild(span);
-	e.appendChild(li);
-
+	appendLoading(li);
+	doClear(name).appendChild(li);
 	sendQuery(url, null, onsuccess, onerror);
 }
 
@@ -604,55 +596,53 @@ function loadGames()
 		loadGamesSuccess, loadGamesError);
 }
 
-function loadExprFinished()
-{
-	var e;
-
-	if (null != (e = doClear('statusExprTtl')))
-		e.appendChild(document.createTextNode
-			('Wait finished: reloading.'));
-
-	window.location.reload(true);
-}
-
 function loadExprSuccess(resp) 
 {
-	var results, v, e, chld, head;
+	var results, v, e, chld, head, expr;
 
+	console.log(resp);
 	try  { 
 		results = JSON.parse(resp);
 	} catch (error) {
 		return;
 	}
 
-	if ((v = parseInt(results.tilstart)) > 0) {
+	expr = results.expr;
+
+	if ((v = parseInt(expr.tilstart)) > 0) {
 		doUnhide('statusExprWaiting');
 		e = doClearNode(doUnhide('statusExprTtl'));
-		if (null == e)
-			return;
 		doHide('statusExprLoading');
 		chld = document.createElement('div');
 		head = 'Time Until Experiment';
 		formatCountdown(head, v, chld);
 		e.appendChild(chld);
 		setTimeout(timerCountdown, 1000, 
-			head, loadExprFinished, chld, 
+			head, loadExpr, chld, 
 			v, new Date().getTime());
 	} else {
+		if (0 == v) {
+			v = parseInt(expr.tilnext);
+			e = doClearNode(doUnhide('statusExprTtl'));
+			doHide('statusExprLoading');
+			chld = document.createElement('div');
+			head = 'Time Until Round Expires';
+			formatCountdown(head, v, chld);
+			e.appendChild(chld);
+			setTimeout(timerCountdown, 1000, 
+				head, loadExpr, chld, 
+				v, new Date().getTime());
+		}
 		e = doClearNode(doUnhide('statusExprProgress'));
-		if (null == e)
-			return;
 		doHide('statusExprLoading');
 		chld = document.createElement('div');
 		chld.appendChild(document.createTextNode
-			('Round: ' + results.round));
+			('Round: ' + (parseInt(expr.round) + 1) + '/' + 
+			 expr.rounds + ' (' + 
+			 Math.round(parseFloat(expr.progress) * 100.0) + 
+			 '%)'));
 		e.appendChild(chld);
-		chld = document.createElement('progress');
-		chld.setAttribute('max', '1.0');
-		chld.setAttribute('value', results.progress);
-		chld.appendChild(document.createTextNode
-			((results.progress * 100.0) + '%'));
-		e.appendChild(chld);
+		appendProgress(e, expr.progress);
 	}
 }
 

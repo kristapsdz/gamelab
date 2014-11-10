@@ -850,7 +850,8 @@ db_expr_checkstate(enum estate state)
 }
 
 int
-db_expr_start(int64_t date, int64_t days, const char *uri)
+db_expr_start(int64_t date, int64_t rounds, 
+	int64_t minutes, const char *uri)
 {
 	sqlite3_stmt	*stmt;
 
@@ -861,10 +862,11 @@ db_expr_start(int64_t date, int64_t days, const char *uri)
 	}
 
 	stmt = db_stmt("UPDATE experiment SET "
-		"state=1,start=?,days=?,loginuri=?");
+		"state=1,start=?,rounds=?,minutes=?,loginuri=?");
 	db_bind_int(stmt, 1, date);
-	db_bind_int(stmt, 2, days);
-	db_bind_text(stmt, 3, uri);
+	db_bind_int(stmt, 2, rounds);
+	db_bind_int(stmt, 3, minutes);
+	db_bind_text(stmt, 4, uri);
 	db_step(stmt, 0);
 	db_finalise(stmt);
 	db_trans_commit();
@@ -1024,12 +1026,16 @@ db_expr_get(void)
 
 	/* FIXME: check that game has started. */
 	expr = kcalloc(1, sizeof(struct expr));
-	stmt = db_stmt("SELECT start,days,loginuri FROM experiment");
+	stmt = db_stmt("SELECT start,rounds,minutes,loginuri "
+		"FROM experiment");
 	rc = db_step(stmt, 0);
 	assert(SQLITE_ROW == rc);
 	expr->start = (time_t)sqlite3_column_int(stmt, 0);
-	expr->days = sqlite3_column_int(stmt, 1);
-	expr->loginuri = kstrdup((char *)sqlite3_column_text(stmt, 2));
+	expr->rounds = sqlite3_column_int(stmt, 1);
+	expr->minutes = sqlite3_column_int(stmt, 2);
+	expr->loginuri = kstrdup((char *)sqlite3_column_text(stmt, 3));
+	expr->end = expr->start + (expr->rounds * expr->minutes * 60);
+
 	db_finalise(stmt);
 	return(expr);
 }

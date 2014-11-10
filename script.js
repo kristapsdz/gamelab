@@ -136,14 +136,34 @@ function formatCountdown(head, v, e)
 	row.appendChild(cell);
 }
 
+function appendLoading(e)
+{
+	var span;
+
+	span = document.createElement('span');
+	span.setAttribute('class', 'loading');
+	span.appendChild(document.createTextNode('Loading...'));
+	e.appendChild(span);
+}
+
+function appendProgress(e, fraction)
+{
+	var prog;
+
+	prog = document.createElement('progress');
+	prog.setAttribute('max', '1.0');
+	prog.setAttribute('value', fraction);
+	prog.appendChild(document.createTextNode
+		(Math.round(fraction * 100.0) + '%'));
+	e.appendChild(prog);
+}
+
 function sendQuery(url, setup, success, error) 
 {
 	var xmlhttp = new XMLHttpRequest();
 
 	if (null != setup)
 		setup();
-
-	console.log('here: ' + url);
 
 	xmlhttp.onreadystatechange=function() {
 		if (xmlhttp.readyState == 4 && xmlhttp.status == 200 && null != success)
