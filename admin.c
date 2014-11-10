@@ -691,24 +691,6 @@ senddostartexpr(struct kreq *r)
 	pid_t	 pid;
 	char	*sv;
 
-	if (NULL != r->fieldmap[KEY_DATE] && NULL != r->fieldmap[KEY_TIME]) {
-		warnx("%" PRId64 " + %" PRId64 " = %" PRId64 " <? %llu, %" PRId64 "", 
-				r->fieldmap[KEY_DATE]->parsed.i,
-				r->fieldmap[KEY_TIME]->parsed.i,
-				r->fieldmap[KEY_DATE]->parsed.i +
-				r->fieldmap[KEY_TIME]->parsed.i,
-				time(NULL),
-				(r->fieldmap[KEY_DATE]->parsed.i +
-				r->fieldmap[KEY_TIME]->parsed.i) -
-				time(NULL));
-	}
-
-	warnx("1: %p", r->fieldmap[KEY_DATE]);
-	warnx("1: %p", r->fieldmap[KEY_TIME]);
-	warnx("1: %p", r->fieldmap[KEY_ROUNDS]);
-	warnx("1: %p", r->fieldmap[KEY_MINUTES]);
-	warnx("1: %p", r->fieldmap[KEY_URI]);
-
 	if (kpairbad(r, KEY_DATE) ||
 		kpairbad(r, KEY_TIME) ||
 		kpairbad(r, KEY_ROUNDS) ||
@@ -718,7 +700,6 @@ senddostartexpr(struct kreq *r)
 		r->fieldmap[KEY_TIME]->parsed.i <= (int64_t)time(NULL) ||
 		db_player_count_all() < 2 ||
 		db_game_count_all() < 1) {
-		warnx("mooo");
 		http_open(r, KHTTP_400);
 		khttp_body(r);
 		return;
