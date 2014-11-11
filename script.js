@@ -19,8 +19,9 @@ function timerCountdown(head, donefunc, e, value, start)
 function doHideNode(e)
 {
 
-	if (null != e)
-		e.style.display = 'none';
+	if (null != e && ! e.classList.contains('noshow'))
+		e.classList.add('noshow');
+
 	return(e);
 }
 
@@ -31,12 +32,19 @@ function doHide(name)
 	return(doHideNode(document.getElementById(name)));
 }
 
+function doUnhideNode(e)
+{
+
+	if (null != e)
+		e.classList.remove('noshow');
+
+	return(e);
+}
+
 function doUnhide(name) 
 {
-	var e;
-	if (null != (e = document.getElementById(name)))
-		e.style.display = 'inherit';
-	return(e);
+
+	return(doUnhideNode(document.getElementById(name)));
 }
 
 function doClearNode(e) 
@@ -144,6 +152,7 @@ function appendLoading(e)
 	span.setAttribute('class', 'loading');
 	span.appendChild(document.createTextNode('Loading...'));
 	e.appendChild(span);
+	return(span);
 }
 
 function appendProgress(e, fraction)

@@ -27,10 +27,14 @@ struct	game {
 	int64_t		 id;
 };
 
+/*
+ * The state of a user's e-mail and password.
+ */
 enum	pstate {
-	PSTATE_NEW = 0,
-	PSTATE_MAILED = 1,
-	PSTATE_LOGGEDIN = 2
+	PSTATE_NEW = 0, /* new user, no pass */
+	PSTATE_MAILED = 1, /* mailed password */
+	PSTATE_LOGGEDIN = 2, /* logged in w/password */
+	PSTATE_ERROR /* error in mailing */
 };
 
 struct	player {
@@ -71,6 +75,7 @@ struct game	*db_game_alloc(const char *payoffs,
 			const char *name, 
 			int64_t p1, int64_t p2);
 size_t		 db_game_count_all(void);
+int		 db_game_delete(int64_t id);
 void		 db_game_free(struct game *game);
 size_t		 db_game_load_all(void (*fp)(const struct game *, size_t, void *), void *arg);
 size_t		 db_game_load_player(int64_t playerid, int64_t round, 
@@ -78,7 +83,7 @@ size_t		 db_game_load_player(int64_t playerid, int64_t round,
 int		 db_game_check_player(int64_t playerid, int64_t round, int64_t gameid);
 
 void		 db_player_set_mailed(int64_t id, const char *pass);
-void		 db_player_set_loggedin(int64_t id);
+void		 db_player_set_state(int64_t id, enum pstate state);
 size_t		 db_player_count_all(void);
 int		 db_player_create(const char *email);
 void		 db_player_enable(int64_t id);

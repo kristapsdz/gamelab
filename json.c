@@ -107,7 +107,7 @@ json_putexpr(struct kreq *r, const struct expr *expr)
 			tilstart = tilnext = -1;
 		} else {
 			frac = (t - expr->start) / (double)(expr->end - expr->start);
-			tilnext = ((round + 1) * (expr->minutes * 60)) - t;
+			tilnext = ((round + 1) * (expr->minutes * 60)) - (t - expr->start);
 		}
 	} else {
 		round = -1;

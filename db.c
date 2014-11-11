@@ -280,7 +280,7 @@ db_player_sess_valid(int64_t *playerid, int64_t id, int64_t cookie)
 	if (SQLITE_ROW == (rc = db_step(stmt, 0))) {
 		*playerid = sqlite3_column_int(stmt, 0);
 		db_finalise(stmt);
-		db_player_set_loggedin(*playerid);
+		db_player_set_state(*playerid, PSTATE_LOGGEDIN);
 	} else
 		db_finalise(stmt);
 
@@ -887,12 +887,13 @@ db_player_enable(int64_t id)
 }
 
 void
-db_player_set_loggedin(int64_t id)
+db_player_set_state(int64_t id, enum pstate state)
 {
 	sqlite3_stmt	*stmt;
 
-	stmt = db_stmt("UPDATE player SET state=2 WHERE id=?");
-	db_bind_int(stmt, 1, id);
+	stmt = db_stmt("UPDATE player SET state=? WHERE id=?");
+	db_bind_int(stmt, 1, state);
+	db_bind_int(stmt, 2, id);
 	db_step(stmt, 0);
 	db_finalise(stmt);
 }
@@ -902,9 +903,10 @@ db_player_set_mailed(int64_t id, const char *pass)
 {
 	sqlite3_stmt	*stmt;
 
-	stmt = db_stmt("UPDATE player SET state=1,hash=? WHERE id=?");
-	db_bind_text(stmt, 1, db_crypt_hash(pass));
-	db_bind_int(stmt, 2, id);
+	stmt = db_stmt("UPDATE player SET state=?,hash=? WHERE id=?");
+	db_bind_int(stmt, 1, PSTATE_MAILED);
+	db_bind_text(stmt, 2, db_crypt_hash(pass));
+	db_bind_int(stmt, 3, id);
 	db_step(stmt, 0);
 	db_finalise(stmt);
 }
@@ -927,6 +929,26 @@ db_player_next_new(int64_t *id, char **pass)
 
 	db_finalise(stmt);
 	return(email);
+}
+
+int
+db_game_delete(int64_t id)
+{
+	sqlite3_stmt	*stmt;
+
+	db_trans_begin();
+	if ( ! db_expr_checkstate(ESTATE_NEW)) {
+		db_trans_rollback();
+		return(0);
+	}
+
+	stmt = db_stmt("DELETE FROM game WHERE id=?");
+	db_bind_int(stmt, 1, id);
+	db_step(stmt, 0);
+	db_finalise(stmt);
+	db_trans_commit();
+	fprintf(stderr, "%" PRId64 ": game deleted\n", id);
+	return(1);
 }
 
 int

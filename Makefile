@@ -19,6 +19,7 @@ STATICS	 = accept.png \
 	   mail.png \
 	   lock.png \
 	   script.js \
+	   send.png \
 	   submit.png
 
 # Mac OSX testing.

@@ -46,11 +46,11 @@ struct 	buf {
 };
 
 enum	mailkey {
-	MAILKEY_FROM,
-	MAILKEY_TO,
-	MAILKEY_DATE,
-	MAILKEY_PASS,
-	MAILKEY_LOGIN,
+	MAILKEY_FROM, /* "from" address */
+	MAILKEY_TO, /* "to" address */
+	MAILKEY_DATE, /* date (GMT) */
+	MAILKEY_PASS, /* password (or NULL) */
+	MAILKEY_LOGIN, /* login URL (or NULL) */
 	MAILKEY__MAX
 };
 
@@ -263,6 +263,12 @@ mail_template_close(char *buf, size_t sz, int fd)
 	close(fd);
 }
 
+/*
+ * Initialise the CURL handle and all of the entries in the "mail"
+ * structure that are set from the SMTP data in the database.
+ * This can return NULL on failure, e.g., we haven't set any information
+ * in our database yet.
+ */
 static CURL *
 mail_init(struct mail *mail)
 {
@@ -302,6 +308,13 @@ mail_init(struct mail *mail)
 	return(curl);
 }
 
+/*
+ * Mail new players a welcome message.
+ * This will loop through all players with PSTATE_NEW and mail them
+ * what's found in "addplayers.eml".
+ * The state of these users is either PSTATE_MAILED or PSTATE_ERROR,
+ * depending on the conditions.
+ */
 void 
 mail_players(const char *uri)
 {
@@ -336,6 +349,8 @@ mail_players(const char *uri)
 	/*
 	 * Hit the database for a new recipient until there are none
 	 * remaining, re-use the same CURL connection as much as we can.
+	 * Each access results in a database update: to set the user as
+	 * having been mailed, or that an error occured.
 	 */
 	memset(&buf, 0, sizeof(struct buf));
 	while (NULL != (mail.to = db_player_next_new(&id, &mail.pass))) {
@@ -345,8 +360,7 @@ mail_players(const char *uri)
 
 		encto = kutil_urlencode(mail.to);
 		encpass = kutil_urlencode(mail.pass);
-		kasprintf(&mail.login, 
-			"%s?email=%s&password=%s",
+		kasprintf(&mail.login, "%s?email=%s&password=%s",
 			uri, encto, encpass);
 		free(encto);
 		free(encpass);
@@ -356,13 +370,15 @@ mail_players(const char *uri)
 		curl_easy_setopt(curl, CURLOPT_MAIL_RCPT, recipients);
 		curl_easy_setopt(curl, CURLOPT_READDATA, &buf);
 
+		/* Set the pstate or loop forever on PSTATE_NEW!! */
 		if (CURLE_OK == (res = curl_easy_perform(curl))) {
 			db_player_set_mailed(id, mail.pass);
-			fprintf(stderr, "%s: mailed new player\n", 
-				mail.to);
-		} else
-			fprintf(stderr, "%s: %s\n", 
+			fprintf(stderr, "%s: mail new\n", mail.to);
+		} else {
+			db_player_set_state(id, PSTATE_ERROR);
+			fprintf(stderr, "%s: mail error: %s\n", 
 				mail.to, curl_easy_strerror(res));
+		}
 
 		curl_slist_free_all(recipients);
 		mail_clear(&mail);
@@ -375,6 +391,10 @@ mail_players(const char *uri)
 	mail_free(&mail);
 }
 
+/*
+ * Send a test e-mail to the administrative e-mail address.
+ * This does not set any error conditions or anything.
+ */
 void 
 mail_test(void)
 {
@@ -412,10 +432,11 @@ mail_test(void)
 	curl_easy_setopt(curl, CURLOPT_MAIL_RCPT, recipients);
 	curl_easy_setopt(curl, CURLOPT_READDATA, &buf);
 
+	/* TODO: record error somewhere? */
 	if (CURLE_OK == (res = curl_easy_perform(curl)))
-		fprintf(stderr, "%s: ok test\n", mail.to);
+		fprintf(stderr, "%s: mail test\n", mail.to);
 	else
-		fprintf(stderr, "%s: failed test: %s\n", 
+		fprintf(stderr, "%s: mail error: %s\n", 
 			mail.to, curl_easy_strerror(res));
 
 	curl_slist_free_all(recipients);

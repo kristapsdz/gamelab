@@ -33,49 +33,6 @@ function doSetup(submitName, errName)
 	doHide(errName + 'State');
 }
 
-function doAddPlayersSuccess(resp) 
-{
-
-	doSuccess('addPlayersSubmit', 'addPlayers');
-	loadNewPlayers();
-}
-
-function doChangeMailSuccess(resp) 
-{
-
-	doSuccess('changeMailSubmit', 'changeMail');
-	location.href = '@@cgibin@@';
-}
-
-function doChangePassSuccess(resp) 
-{
-
-	doSuccess('changePassSubmit', 'changePass');
-	location.href = '@@cgibin@@';
-}
-
-function doChangeSmtpSuccess(resp) 
-{
-
-	doSuccess('changeSmtpSubmit', 'changeSmtp');
-	loadSmtp();
-}
-
-function doAddGameSuccess(resp) 
-{
-
-	doSuccess('addGameSubmit', 'addGame');
-	loadGames();
-}
-
-function doStartExprSuccess(resp) 
-{
-
-	document.getElementById('startExprSubmit').value = 'Started!  Reloading...';
-	document.getElementById('startExpr').reset();
-	window.location.reload(true);
-}
-
 function loadNewPlayersSuccess(resp) 
 {
 	var e, li, i, results, icon, link, span, count;
@@ -125,11 +82,8 @@ function loadNewPlayersSuccess(resp)
 		icon.setAttribute('alt', 'Delete');
 		span.appendChild(icon);
 
-		icon = document.createElement('img');
-		icon.setAttribute('src', '@@htdocs@@/ajax-loader.gif');
-		icon.setAttribute('id', 'playerWaiting' + results[i].id);
-		icon.setAttribute('alt', 'Loading...');
-		span.appendChild(icon);
+		appendLoading(span).setAttribute
+			('id', 'playerWaiting' + results[i].id);
 
 		doHide('playerWaiting' + results[i].id);
 	}
@@ -250,11 +204,8 @@ function loadPlayersSuccess(resp)
 		icon.setAttribute('alt', 'Enable');
 		span.appendChild(icon);
 
-		icon = document.createElement('img');
-		icon.setAttribute('src', '@@htdocs@@/ajax-loader.gif');
-		icon.setAttribute('id', 'playerWaiting' + results[i].id);
-		icon.setAttribute('alt', 'Loading...');
-		span.appendChild(icon);
+		appendLoading(span).setAttribute
+			('id', 'playerWaiting' + results[i].id);
 
 		doHide('playerWaiting' + results[i].id);
 		doHide((0 == results[i].enabled ? 'playerDisable' : 'playerEnable') + results[i].id);
@@ -263,7 +214,7 @@ function loadPlayersSuccess(resp)
 
 function loadGamesSuccess(resp) 
 {
-	var i, j, k, results, li, e, div;
+	var i, j, k, results, li, e, div, icon;
 
 	e = doClearNode(document.getElementById('loadGames'));
 	if (null == e)
@@ -281,7 +232,7 @@ function loadGamesSuccess(resp)
 	if (0 == results.length) {
 		li = document.createElement('li');
 		e.appendChild(li);
-		div = document.createElement('div');
+		div = document.createElement('span');
 		div.appendChild(document.createTextNode('No games.'));
 		li.appendChild(div);
 		doHide('checkGameLoad');
@@ -294,7 +245,8 @@ function loadGamesSuccess(resp)
 
 	for (i = 0; i < results.length; i++) {
 		li = document.createElement('li');
-		div = document.createElement('div');
+		div = document.createElement('span');
+		div.setAttribute('id', 'game' + results[i].id);
 		div.appendChild(document.createTextNode(results[i].name));
 		div.appendChild(document.createTextNode(': {'));
 		for (j = 0; j < results[i].payoffs.length; j++) {
@@ -313,46 +265,23 @@ function loadGamesSuccess(resp)
 			div.appendChild(document.createTextNode('}'));
 		}
 		div.appendChild(document.createTextNode('}'));
+
+		icon = document.createElement('img');
+		icon.setAttribute('src', '@@htdocs@@/disable.png');
+		icon.setAttribute('id', 'gameDelete' + results[i].id);
+		icon.setAttribute('onclick', 'doDeleteGame(' + results[i].id + '); return false;');
+		icon.setAttribute('class', 'disable');
+		icon.setAttribute('alt', 'Delete');
+		div.appendChild(icon);
+
+		appendLoading(div).setAttribute
+			('id', 'gameWaiting' + results[i].id);
+
 		li.appendChild(div);
 		e.appendChild(li);
+
+		doHide('gameWaiting' + results[i].id);
 	}
-}
-
-function doAddPlayersError(err) 
-{
-
-	doError(err, 'addPlayersSubmit', 'addPlayersErr');
-}
-
-function doChangeMailError(err) 
-{
-
-	doError(err, 'changeMailSubmit', 'changeMailErr');
-}
-
-function doChangePassError(err) 
-{
-
-	doError(err, 'changePassSubmit', 'changePassErr');
-}
-
-function doChangeSmtpError(err) 
-{
-
-	doError(err, 'changeSmtpSubmit', 'changeSmtpErr');
-}
-
-function doAddGameError(err) 
-{
-
-	doError(err, 'addGameSubmit', 'addGameErr');
-}
-
-function doStartExprError(err) 
-{
-
-	doError(err, 'startExprSubmit', 'startExprErr');
-	document.getElementById('startExprSubmit').value = 'Start';
 }
 
 function loadError(err, name) 
@@ -388,43 +317,6 @@ function loadPlayersError(err)
 	loadError(err, 'loadPlayers');
 }
 
-function doAddPlayersSetup() 
-{
-
-	doSetup('addPlayersSubmit', 'addPlayersErr');
-}
-
-function doChangeMailSetup() 
-{
-
-	doSetup('changeMailSubmit', 'changeMailErr');
-}
-
-function doChangePassSetup() 
-{
-
-	doSetup('changePassSubmit', 'changePassErr');
-}
-
-function doChangeSmtpSetup() 
-{
-
-	doSetup('changeSmtpSubmit', 'changeSmtpErr');
-}
-
-function doAddGameSetup() 
-{
-
-	doSetup('addGameSubmit', 'addGameErr');
-}
-
-function doStartExprSetup() 
-{
-
-	doSetup('startExprSubmit', 'startExprErr');
-	document.getElementById('startExprSubmit').value = 'Starting...';
-}
-
 function doDisableEnablePlayer(id, url)
 {
 	var xrh, e;
@@ -450,6 +342,28 @@ function doDisableEnablePlayer(id, url)
 		}
 	} 
 	xrh.open('GET', '@@cgibin@@/' + url + '.json?pid=' + id, true);
+	xrh.send(null);
+}
+
+function doDeleteGame(id)
+{
+	var xrh, e;
+
+	if (null != (e = document.getElementById('game' + id)))
+		e.className = 'waiting';
+
+	doHide('gameDelete' + id);
+	doUnhide('gameWaiting' + id);
+
+	xrh = new XMLHttpRequest();
+	xrh.onreadystatechange=function() {
+		if (xrh.readyState==4 && xrh.status==200) {
+			if (null != (e = document.getElementById('game' + id)))
+				e.parentNode.removeChild(e);
+			loadNewPlayers();
+		}
+	} 
+	xrh.open('GET', '@@cgibin@@/dodeletegame.json?gid=' + id, true);
 	xrh.send(null);
 }
 
@@ -500,6 +414,7 @@ function loadSmtpSetup()
 	doHide('checkSmtpYes');
 	doHide('checkSmtpNo');
 	doHide('checkSmtpResults');
+	doHide('checkSmtpResultsNone');
 	doUnhide('checkSmtpLoad');
 	doUnhide('checkSmtpResultsLoad');
 }
@@ -517,12 +432,14 @@ function loadSmtpSuccess(resp)
 		return;
 	}
 
-	if (null == (e = doClear('checkSmtpResults')))
-		return;
-
 	doHide('checkSmtpResultsLoad');
 	doUnhide('checkSmtpResults');
-	e.appendChild(document.createTextNode('Current values: '));
+
+	doClearReplace('checkSmtpResultsServer', results.server);
+	doClearReplace('checkSmtpResultsUser', results.user);
+	doClearReplace('checkSmtpResultsFrom', results.mail);
+
+	/*e.appendChild(document.createTextNode('Current values: '));
 	link = document.createElement('a');
 	link.setAttribute('href', 'mailto:' + results.mail);
 	link.appendChild(document.createTextNode(results.mail));
@@ -535,7 +452,7 @@ function loadSmtpSuccess(resp)
 	button = document.createElement('button');
 	button.setAttribute('onclick', 'testSmtp();');
 	button.appendChild(document.createTextNode('Test'));
-	e.appendChild(button);
+	e.appendChild(button);*/
 }
 
 function loadSmtpError(err)
@@ -546,9 +463,7 @@ function loadSmtpError(err)
 	doHide('checkSmtpLoad');
 	doUnhide('checkSmtpNo');
 	doHide('checkSmtpResultsLoad');
-	doUnhide('checkSmtpResults');
-	doClear('checkSmtpResults').appendChild
-		(document.createTextNode('No settings yet.'));
+	doUnhide('checkSmtpResultsNone');
 }
 
 function loadSmtp() 
@@ -662,8 +577,189 @@ function loadExpr()
 		loadExprSetup, loadExprSuccess, null);
 }
 
+function doStartExprSetup() 
+{
+
+	doSetup('startExprSubmit', 'startExprErr');
+	document.getElementById('startExprSubmit').value = 'Starting...';
+}
+
+function doStartExprError(err) 
+{
+
+	doError(err, 'startExprSubmit', 'startExprErr');
+	document.getElementById('startExprSubmit').value = 'Start';
+}
+
+function doStartExprSuccess(resp) 
+{
+
+	document.getElementById('startExprSubmit').value = 'Started!  Reloading...';
+	document.getElementById('startExpr').reset();
+	window.location.reload(true);
+}
+
+function startExpr(form)
+{
+
+	return(sendForm(form, doStartExprSetup, 
+		doStartExprError, doStartExprSuccess));
+}
+
+function doAddGameSetup() 
+{
+
+	doSetup('addGameSubmit', 'addGameErr');
+}
+
+function doAddGameError(err) 
+{
+
+	doError(err, 'addGameSubmit', 'addGameErr');
+}
+
+function doAddGameSuccess(resp) 
+{
+
+	doSuccess('addGameSubmit', 'addGame');
+	loadGames();
+}
+
+function addGame(form)
+{
+
+	return(sendForm(form, doAddGameSetup, 
+		doAddGameError, doAddGameSuccess));
+}
+
+function doAddPlayersSetup() 
+{
+
+	doSetup('addPlayersSubmit', 'addPlayersErr');
+}
+
+function doAddPlayersError(err) 
+{
+
+	doError(err, 'addPlayersSubmit', 'addPlayersErr');
+}
+
+function doAddPlayersSuccess(resp) 
+{
+
+	doSuccess('addPlayersSubmit', 'addPlayers');
+	loadNewPlayers();
+}
+
+function addPlayers(form)
+{
+
+	return(sendForm(form, doAddPlayersSetup, 
+		doAddPlayersError, doAddPlayersSuccess));
+}
+
+function doTestSmtpSetup()
+{
+
+	doHide('testSmtpResults');
+	doClearReplace('checkSmtpButton', 'Mailing test...');
+}
+
+function doTestSmtpSuccess(resp)
+{
+	var results, mail;
+
+	try  { 
+		results = JSON.parse(resp);
+		mail = results.mail;
+	} catch (error) {
+		mail = 'unknown';
+	}
+
+	doClearReplace('checkSmtpButton', 'Send Test');
+	doClearReplace('testSmtpResultsMail', mail);
+	doUnhide('testSmtpResults');
+}
+
 function testSmtp() 
 {
 
-	sendQuery('@@cgibin@@/dotestxmtp.json', null, null, null);
+	sendQuery('@@cgibin@@/dotestsmtp.json', 
+		doTestSmtpSetup, doTestSmtpSuccess, null);
+}
+
+function doChangeMailSetup() 
+{
+
+	doSetup('changeMailSubmit', 'changeMailErr');
+}
+
+function doChangeMailError(err) 
+{
+
+	doError(err, 'changeMailSubmit', 'changeMailErr');
+}
+
+function doChangeMailSuccess(resp) 
+{
+
+	doSuccess('changeMailSubmit', 'changeMail');
+	location.href = '@@cgibin@@';
+}
+
+function changeMail(form)
+{
+	return(sendForm(form, doChangeMailSetup, 
+		doChangeMailError, doChangeMailSuccess));
+}
+
+function doChangePassSetup() 
+{
+
+	doSetup('changePassSubmit', 'changePassErr');
+}
+
+function doChangePassError(err) 
+{
+
+	doError(err, 'changePassSubmit', 'changePassErr');
+}
+
+function doChangePassSuccess(resp) 
+{
+
+	doSuccess('changePassSubmit', 'changePass');
+	location.href = '@@cgibin@@';
+}
+
+function changePass(form)
+{
+	return(sendForm(form, doChangePassSetup, 
+		doChangePassError, doChangePassSuccess));
+}
+
+function doChangeSmtpSetup() 
+{
+
+	doSetup('changeSmtpSubmit', 'changeSmtpErr');
+}
+
+function doChangeSmtpError(err) 
+{
+
+	doError(err, 'changeSmtpSubmit', 'changeSmtpErr');
+}
+
+function doChangeSmtpSuccess(resp) 
+{
+
+	doSuccess('changeSmtpSubmit', 'changeSmtp');
+	loadSmtp();
+}
+
+function changeSmtp(form)
+{
+
+	return(sendForm(form, doChangeSmtpSetup, 
+		doChangeSmtpError, doChangeSmtpSuccess));
 }

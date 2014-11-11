@@ -23,7 +23,7 @@
 					To deploy a <span class="name">gamelab</span> experiment, follow these steps.
 					<ol>
 						<li>
-							Change your <a href="#changePassSection">password</a> and <a href="#changeMailSection">e-mail</a>.
+							Change your <a href="#changePassSection">password</a> and <a href="#changeMailSection">mail</a>.
 						</li>
 						<li>
 							Add your experiment <a href="#addGameSection">games</a>.
@@ -39,47 +39,53 @@
 						</li>
 					</ol>
 				</aside>
-				<form action="@@cgibin@@/dostartexpr.json" method="post" id="startExpr" onsubmit="return(sendForm(this, doStartExprSetup, doStartExprError, doStartExprSuccess));">
-					<section id="startExprSection">
-						<h3>Experiment Parameters</h3>
-						<div class="error">
-							<div style="display: none;" id="startExprErrSystem">An unexpected error occurred.</div>
-							<div style="display: none;" id="startExprErrForm">Can't start: start date in the past, not enough days, or no participants or games.</div>
-							<div style="display: none;" id="startExprErrState">Experiment already started!</div>
+				<section id="startExprSection">
+					<h3>Experiment Parameters</h3>
+					<aside>
+						<div>
+							Commit your experiment parameters and start here.
+							Once you start your experiment, you cannot change these.
+							Checklist:
 						</div>
-						<aside>
-							<div>
-								Commit your experiment parameters and start here.
-								Once you start your experiment, you cannot add or remove games or players.
+						<ol>
+							<li>
+								Entered <a href="#changeSmtpSection">SMTP</a> data? 
+								<span><span class="loading" id="checkSmtpLoad">Loading...</span></span>
+								<span><img id="checkSmtpYes" src="@@htdocs@@/accept.png" class="status noshow" alt="Yes" /></span>
+								<span><img id="checkSmtpNo" src="@@htdocs@@/block.png" class="status noshow" alt="No" /></span>
+							</li>
+							<li>
+								Entered 2+ enabled <a href="#addPlayersSection">players</a>? 
+								<span><span class="loading" id="checkPlayersLoad">Loading...</span></span>
+								<span><img id="checkPlayersYes" src="@@htdocs@@/accept.png" class="status noshow" alt="Yes" /></span>
+								<span><img id="checkPlayersNo" src="@@htdocs@@/block.png" class="status noshow" alt="No" /></span>
+							</li>
+							<li>
+								Entered 1+ <a href="#addGameSection">games</a>? 
+								<span><span class="loading" id="checkGameLoad">Loading...</span></span>
+								<span><img id="checkGameYes" src="@@htdocs@@/accept.png" class="status noshow" alt="Yes" /></span>
+								<span><img id="checkGameNo" src="@@htdocs@@/block.png" class="status noshow" alt="No" /></span>
+							</li>
+						</ol>
+					</aside>
+					<form action="@@cgibin@@/dostartexpr.json" method="post" id="startExpr" onsubmit="return(startExpr(this));">
+						<div class="error">
+							<div class="noshow" id="startExprErrSystem">
+								An unexpected error occurred.
 							</div>
-							<div>
-								Checklist:
+							<div class="noshow" id="startExprErrForm">
+								Can't start: start date in the past, not enough days, or no participants or games.
 							</div>
-							<ol>
-								<li>
-									Entered <a href="#changeSmtp">SMTP</a> data? 
-									<span><span class="loading" id="checkSmtpLoad">Loading...</span></span>
-									<span><img style="display: none;" id="checkSmtpYes" src="@@htdocs@@/accept.png" class="status" alt="Yes" /></span>
-									<span><img style="display: none;" id="checkSmtpNo" src="@@htdocs@@/block.png" class="status" alt="No" /></span>
-								</li>
-								<li>
-									Entered 2+ enabled <a href="#addPlayers">players</a>? 
-									<span><span class="loading" id="checkPlayersLoad">Loading...</span></span>
-									<span><img style="display: none;" id="checkPlayersYes" src="@@htdocs@@/accept.png" class="status" alt="Yes" /></span>
-									<span><img style="display: none;" id="checkPlayersNo" src="@@htdocs@@/block.png" class="status" alt="No" /></span>
-								</li>
-								<li>
-									Entered 1+ <a href="#addGame">games</a>? 
-									<span><img src="@@htdocs@@/ajax-loader.gif" id="checkGameLoad" class="loader" alt="Checking..." /></span>
-									<span><img style="display: none;" id="checkGameYes" src="@@htdocs@@/accept.png" class="status" alt="Yes" /></span>
-									<span><img style="display: none;" id="checkGameNo" src="@@htdocs@@/block.png" class="status" alt="No" /></span>
-								</li>
-							</ol>
-						</aside>
+							<div class="noshow" id="startExprErrState">
+								Experiment already started!
+							</div>
+						</div>
 						<fieldset>
-							<div><input required="required" type="text" name="uri" placeholder="http://lab/loginpage.html" /></div>
-							<div><input required="required" type="date" name="date" placeholder="yyyy-mm-dd" /></div>
-							<div><input required="required" type="time" name="time" placeholder="hh:mm" /> GMT</div>
+							<div><input required="required" type="url" name="uri" placeholder="http://lab/loginpage.html" /></div>
+							<div>
+								<input required="required" type="date" name="date" placeholder="yyyy-mm-dd" />,
+								<input required="required" type="time" name="time" placeholder="hh:mm" /> GMT
+							</div>
 							<div>
 								<input required="required" type="number" name="rounds" min="1" step="1" value="14" />
 								rounds of
@@ -88,31 +94,41 @@
 							</div>
 							<div><input id="startExprSubmit" type="submit" value="Start" /></div>
 						</fieldset>
-					</section>
-				</form>
+					</form>
+				</section>
 			</section>
 			<section>
 				<section id="addGameSection">
 					<h3>Games</h3>
 					<aside>
-						The games themselves.
+						The following are your games.
+						To delete a game, click the red symbol alongside.
 					</aside>
 					<ul id="loadGames">
-						<li><img src="@@htdocs@@/ajax-loader.gif" class="loader" alt="Loading..." />Loading...</li>
+						<li><span class="loading">Loading...</span></li>
 					</ul>
-					<form action="@@cgibin@@/doaddgame.json" method="post" id="addGame" 
-						onsubmit="return(sendForm(this, doAddGameSetup, doAddGameError, doAddGameSuccess));">
+					<aside>
+						You may add games by specifying a name and payoffs.
+						Payoffs must follow the usual top-left to bottom-right order, one payoff per player (row player first).
+					</aside>
+					<form action="@@cgibin@@/doaddgame.json" method="post" id="addGame" onsubmit="return(addGame(this));">
 						<div class="error">
-							<div style="display: none;" id="addGameErrSystem">An unexpected system error occurred.</div>
-							<div style="display: none;" id="addGameErrForm">Invalid game payoffs, name, or strategy count.</div>
-							<div style="display: none;" id="addGameErrState">Experiment already started!</div>
+							<div class="noshow" id="addGameErrSystem">
+								An unexpected system error occurred.
+							</div>
+							<div class="noshow" id="addGameErrForm">
+								Invalid game payoffs, name, or strategy count.
+							</div>
+							<div class="noshow" id="addGameErrState">
+								Experiment already started!
+							</div>
 						</div>
 						<fieldset>
 							<div>
-								<label>Strategy rows</label>
 								<input required="required" type="number" min="2" step="1" name="p1" value="2"/>,
-								<label>columns</label>
+								<label>rows</label>,
 								<input required="required" type="number" min="2" step="1" name="p2" value="2"/>
+								<label>column</label>
 							</div>
 							<div><input required="required" type="text" name="name" placeholder="Game Name"/></div>
 							<div><input required="required" type="text" name="payoffs" placeholder="Space-separated values (top-left to bottom-right)"/></div>
@@ -127,19 +143,22 @@
 						To delete a player, just click the red symbol alongisde.
 					</aside>
 					<ul id="loadNewPlayers">
-						<li><img src="@@htdocs@@/ajax-loader.gif" class="loader" alt="Loading..." />Loading...</li>
+						<li><span class="loading">Loading...</span></li>
 					</ul>
-					<form action="@@cgibin@@/doaddplayers.json" method="post" id="addPlayers" 
-						onsubmit="return(sendForm(this, doAddPlayersSetup, doAddPlayersError, doAddPlayersSuccess));">
+					<aside>
+						Add players to the game using this form.
+						Players consist of e-mail addresses separated by white-space (newlines, tabs, spaces, whatever).
+						Players will not be contacted until you start the game.
+					</aside>
+					<form action="@@cgibin@@/doaddplayers.json" method="post" id="addPlayers" onsubmit="return(addPlayers(this));">
 						<div class="error">
-							<div style="display: none;" id="addPlayersErrSystem">An unexpected system error occurred.</div>
-							<div style="display: none;" id="addPlayersErrState">Experiment already started!</div>
+							<div class="noshow" id="addPlayersErrSystem">
+								An unexpected system error occurred.
+							</div>
+							<div class="noshow" id="addPlayersErrState">
+								Experiment already started!
+							</div>
 						</div>
-						<aside>
-							Add players to the game using this form.
-							Players consist of e-mail addresses separated by white-space (newlines, tabs, spaces, whatever).
-							Players will not be contacted until you start the game.
-						</aside>
 						<fieldset>
 							<div><textarea required="required" name="players" placeholder="Space-separated player e-mail addresses..."></textarea></div>
 							<div><input id="addPlayersSubmit" type="submit" value="Submit" /></div>
@@ -155,11 +174,14 @@
 						mail you if it has issues.
 						You will be logged out after doing so.
 					</aside>
-					<form action="@@cgibin@@/dochangemail.json" method="post" id="changeMail" 
-						onsubmit="return(sendForm(this, doChangeMailSetup, doChangeMailError, doChangeMailSuccess));">
+					<form action="@@cgibin@@/dochangemail.json" method="post" id="changeMail" onsubmit="return(changeMail(this));">
 						<div class="error">
-							<div style="display: none;" id="changeMailErrSystem">An unexpected error occurred.</div>
-							<div style="display: none;" id="changeMailErrForm">Invalid new or existing e-mail address.</div>
+							<div class="noshow" id="changeMailErrSystem">
+								An unexpected error occurred.
+							</div>
+							<div class="noshow" id="changeMailErrForm">
+								Invalid new or existing e-mail address.
+							</div>
 						</div>
 						<fieldset>
 							<div><input required="required" type="email" name="email1" placeholder="Existing E-mail"/></div>
@@ -177,11 +199,14 @@
 						It's up to you to make sure your password is secure.
 						You will be logged out after doing so.
 					</aside>
-					<form action="@@cgibin@@/dochangepass.json" method="post" id="changePass" 
-						onsubmit="return(sendForm(this, doChangePassSetup, doChangePassError, doChangePassSuccess));">
+					<form action="@@cgibin@@/dochangepass.json" method="post" id="changePass" onsubmit="return(changePass(this));">
 						<div class="error">
-							<div style="display: none;" id="changePassErrSystem">An unexpected error occurred.</div>
-							<div style="display: none;" id="changePassErrForm">Invalid new or existing password.</div>
+							<div class="noshow" id="changePassErrSystem">
+								An unexpected error occurred.
+							</div>
+							<div class="noshow" id="changePassErrForm">
+								Invalid new or existing password.
+							</div>
 						</div>
 						<fieldset>
 							<div><input required="required" type="password" name="password1" placeholder="Existing Password"/></div>
@@ -194,22 +219,47 @@
 				<section id="changeSmtpSection">
 					<h3>Change SMTP</h3>
 					<aside>
-						In order to send e-mails to players, you need to configure a valid e-mail sending service.
-						Fill in the <q>From Address</q> (which appears on all e-mails to players),
-						<q>SMTP Server</q> to a valid SSL-secured SMTP server,
-						<q>SMTP User</q> to the your server account name, and
-						<q>SMTP Password</q> to the your user's password.
-						<div id="checkSmtpResultsLoad">
-							<span class="loading">Loading...</span>
-						</div>
-						<div id="checkSmtpResults" style="display: none;">
-						</div>
+						In order to send e-mails to players, you need to configure a valid e-mail sending
+						service.
+						Click <q>Send Test</q> to send a test message to the administrator account.
 					</aside>
-					<form action="@@cgibin@@/dochangesmtp.json" method="post" id="changeSmtp" 
-						onsubmit="return(sendForm(this, doChangeSmtpSetup, doChangeSmtpError, doChangeSmtpSuccess));">
+					<div id="checkSmtpResults" class="noshow">
+						<ul>
+							<li><span>SMTP server: <span id="checkSmtpResultsServer"></span></span></li>
+							<li><span>SMTP user: <span id="checkSmtpResultsUser"></span></span></li>
+							<li><span>From address: <span id="checkSmtpResultsFrom"></span></span></li>
+						</ul>
+						<div><button class="send" id="checkSmtpButton" onclick="testSmtp();">Send Test</button></div>
+					</div>
+					<div id="testSmtpResults" class="noshow canclose">
+						<h4>Results</h4>
+						<img class="close" src="@@htdocs@@/disable.png" alt="Close" onclick="doHideNode(this.parentNode)" />
+						A test e-mail has been sent to <span id="testSmtpResultsMail"></span>.
+						If you do not receive it in a little while, please fix your mail settings.
+					</div>
+					<div id="checkSmtpResultsNone" class="noshow">
+						<ul>
+							<li><span>You have not yet configured your e-mail server.</span></li>
+						</ul>
+					</div>
+					<div id="checkSmtpResultsLoad">
+						<ul>
+							<li><span><span class="loading">Loading...</span></span></li>
+						</ul>
+					</div>
+					<aside>
+						Fill in the <q>From Address</q> (which appears on all e-mails to players), <q>SMTP
+							Server</q> to a valid SSL-secured SMTP server, <q>SMTP User</q> to the your
+						server account name, and <q>SMTP Password</q> to the your user's password.
+					</aside>
+					<form action="@@cgibin@@/dochangesmtp.json" method="post" id="changeSmtp" onsubmit="return(changeSmtp(this));">
 						<div class="error">
-							<div style="display: none;" id="changeSmtpErrSystem">An unexpected error occurred.</div>
-							<div style="display: none;" id="changeSmtpErrForm">Invalid new or existing parameters.</div>
+							<div class="noshow" id="changeSmtpErrSystem">
+								An unexpected error occurred.
+							</div>
+							<div class="noshow" id="changeSmtpErrForm">
+								Invalid new or existing parameters.
+							</div>
 						</div>
 						<fieldset>
 							<div><input required="required" type="email" name="email" placeholder="you@example.com"/></div>

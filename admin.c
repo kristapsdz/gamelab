@@ -30,6 +30,7 @@ enum	page {
 	PAGE_DOCHANGEPASS,
 	PAGE_DOCHANGESMTP,
 	PAGE_DOCHECKSMTP,
+	PAGE_DODELETEGAME,
 	PAGE_DODELETEPLAYER,
 	PAGE_DODISABLEPLAYER,
 	PAGE_DOENABLEPLAYER,
@@ -72,6 +73,7 @@ enum	key {
 	KEY_EMAIL1,
 	KEY_EMAIL2,
 	KEY_EMAIL3,
+	KEY_GAMEID,
 	KEY_NAME,
 	KEY_P1,
 	KEY_P2,
@@ -112,6 +114,7 @@ static	unsigned int perms[PAGE__MAX] = {
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOCHANGEPASS */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOCHANGESMTP */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOCHECKSMTP */
+	PERM_JSON | PERM_LOGIN, /* PAGE_DODELETEGAME */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DODELETEPLAYER */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DODISABLEPLAYER */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOENABLEPLAYER */
@@ -135,6 +138,7 @@ static const char *const pages[PAGE__MAX] = {
 	"dochangepass", /* PAGE_DOCHANGEPASS */
 	"dochangesmtp", /* PAGE_DOCHANGESMTP */
 	"dochecksmtp", /* PAGE_DOCHECKSMTP */
+	"dodeletegame", /* PAGE_DODELETEGAME */
 	"dodeleteplayer", /* PAGE_DODELETEPLAYER */
 	"dodisableplayer", /* PAGE_DODISABLEPLAYER */
 	"doenableplayer", /* PAGE_DOENABLEPLAYER */
@@ -177,6 +181,7 @@ static const struct kvalid keys[KEY__MAX] = {
 	{ kvalid_email, "email1" }, /* KEY_EMAIL1 */
 	{ kvalid_email, "email2" }, /* KEY_EMAIL2 */
 	{ kvalid_email, "email3" }, /* KEY_EMAIL3 */
+	{ kvalid_int, "gid" }, /* KEY_GAMEID */
 	{ kvalid_stringne, "name" }, /* KEY_NAME */
 	{ kvalid_int, "p1" }, /* KEY_P1 */
 	{ kvalid_int, "p2" }, /* KEY_P2 */
@@ -333,6 +338,22 @@ senddoenableplayer(struct kreq *r)
 }
 
 static void
+senddodeletegame(struct kreq *r)
+{
+
+	if ( ! kpairbad(r, KEY_GAMEID)) {
+		if ( ! db_game_delete(r->fieldmap[KEY_GAMEID]->parsed.i))
+			http_open(r, KHTTP_409);
+		else
+			http_open(r, KHTTP_200);
+		http_open(r, KHTTP_200);
+	} else
+		http_open(r, KHTTP_400);
+
+	khttp_body(r);
+}
+
+static void
 senddodeleteplayer(struct kreq *r)
 {
 
@@ -395,9 +416,18 @@ static void
 senddotestsmtp(struct kreq *r)
 {
 	pid_t		 pid;
+	char		*mail;
+
+	mail = db_admin_get_mail();
+	fprintf(stderr, "mailing: %s\n", mail);
 
 	http_open(r, KHTTP_200);
 	khttp_body(r);
+	khttp_putc(r, '{');
+	json_putstring(r, "mail", mail);
+	khttp_putc(r, '}');
+
+	free(mail);
 
 	db_close();
 	if (-1 == (pid = fork())) {
@@ -631,6 +661,8 @@ senddoloadgame(const struct game *game, size_t count, void *arg)
 	if (count > 0)
 		khttp_putc(r, ',');
 	khttp_putc(r, '{');
+	json_putint(r, "id", game->id);
+	khttp_putc(r, ',');
 	json_putint(r, "p1", game->p1);
 	khttp_putc(r, ',');
 	json_putint(r, "p2", game->p2);
@@ -813,13 +845,9 @@ main(void)
 	struct kreq	 r;
 	unsigned int	 bit;
 	
-	fprintf(stderr, "%u: Request: %s\n", getpid(), getenv("PATH_INFO"));
-
 	if ( ! khttp_parse(&r, keys, KEY__MAX, 
 			pages, PAGE__MAX, PAGE_INDEX))
 		return(EXIT_FAILURE);
-
-	fprintf(stderr, "%u: parse ok\n", getpid());
 
 	/* 
 	 * First, make sure that the page accepts the content type we've
@@ -840,13 +868,11 @@ main(void)
 		bit = PERM_JS;
 		break;
 	default:
-		fprintf(stderr, "%u: unknown MIME\n", getpid());
 		send404(&r);
 		goto out;
 	}
 
 	if ( ! (perms[r.page] & bit)) {
-		fprintf(stderr, "%s: permissions violated\n", pages[r.page]);
 		send404(&r);
 		goto out;
 	}
@@ -878,6 +904,9 @@ main(void)
 		break;
 	case (PAGE_DOCHECKSMTP):
 		senddochecksmtp(&r);
+		break;
+	case (PAGE_DODELETEGAME):
+		senddodeletegame(&r);
 		break;
 	case (PAGE_DODELETEPLAYER):
 		senddodeleteplayer(&r);
@@ -932,7 +961,6 @@ main(void)
 	}
 
 out:
-	fprintf(stderr, "%u: finishing\n", getpid());
 	khttp_free(&r);
 	return(EXIT_SUCCESS);
 }

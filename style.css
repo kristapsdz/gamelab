@@ -8,15 +8,13 @@ a 			{ text-decoration: none;
 				color: blue; }
 body			{ font-size: 14pt; }
 nav ul 			{ list-style-type: none; 
-				box-shadow: 0px 2px 2px #ccc;
 				background-color: #ccc;
 				padding: 0; 
 				margin: 0 0 1em 0; }
 nav li 			{ display: inline-block; 
 				background-color: #ccc;
 				padding: 1ex; }
-nav li:first-child 	{ background-color: #8888aa; 
-				box-shadow: 0px 2px 2px #8888aa; }
+nav li:first-child 	{ background-color: #8888aa; }
 article, footer		{ max-width: 1024px;
 				margin-left: auto;
 				margin-right: auto; }
@@ -70,17 +68,25 @@ input[type=submit],
 input[type=time],
 input[type=date],
 input[type=number]	{ width: auto; }
+input[type=url],
 input[type=text] 	{ padding-left: 1ex;
 				padding-right: 1ex; }
 input[type=date] 	{ padding-left: 36px;
 				display: inline-block;
+				width: 18ex;
+				-webkit-appearance: none;
 				padding-right: 1ex;
 				background-position: 4px center;
 				background-repeat: no-repeat;
 				background-image: url('@@htdocs@@/calendar.png'); }
-input[type=time],
+input[type=time]	{ display: inline-block;
+				-webkit-appearance: none;
+				padding-left: 1ex;
+				padding-right: 1ex;
+				width: 9ex; }
 input[type=number] 	{ padding-left: 1ex;
 				padding-right: 1ex;
+				width: 8ex;
 				display: inline-block; }
 button, 
 input[type=submit] 	{ background-color: #d7e5f5;
@@ -102,6 +108,10 @@ input[type=submit] 	{ background-color: #d7e5f5;
 input[type=submit]	{ background-position: 1ex center;
 				background-repeat: no-repeat;
 				background-image: url('@@htdocs@@/submit.png'); 
+				padding-left: 4ex; }
+button.send		{ background-position: 1ex center;
+				background-repeat: no-repeat;
+				background-image: url('@@htdocs@@/send.png'); 
 				padding-left: 4ex; }
 button:hover, 
 input[type=submit]:hover { background-color: #ccd9e8;
@@ -216,7 +226,7 @@ div.countdownHead	{ text-align: center;
 div.canclose		{ position: relative; 
 				border: thin solid #ccc;
 				border-radius: 1ex;
-				padding: 2em 1em 0.5em 1em; 
+				padding: 1.5em 1ex 0.5em 1ex; 
 				background-color: #eee; }
 div.canclose img.close	{ position: absolute;
 				top: -8px;
@@ -233,6 +243,7 @@ div.canclose h4		{ position: absolute;
 				left: 1em; }
 sup			{ font-size: 8pt; 
 				font-style: italic; }
+.noshow			{ display: none; }
 @media only screen and (max-width: 400px), only screen and (max-device-width: 400px) {
 div.countdown 		{ width: 100%; }
 div.countdown > div > div

@@ -47,7 +47,7 @@
 					<ul id="loadPlayers">
 						<li><span class="loading">Loading...</span></li>
 					</ul>
-					<div style="display: none;" id="playerInfo" class="canclose">
+					<div class="noshow" id="playerInfo" class="canclose">
 						<h4>Player Status</h4>
 						<img class="close" src="@@htdocs@@/disable.png" alt="Close" onclick="doHideNode(this.parentNode)" />
 						<span id="playerInfoEmail"></span>: 
@@ -64,11 +64,14 @@
 						mail you if it has issues.
 						You will be logged out after doing so.
 					</aside>
-					<form action="@@cgibin@@/dochangemail.json" method="post" id="changeMail" 
-						onsubmit="return(sendForm(this, doChangeMailSetup, doChangeMailError, doChangeMailSuccess));">
+					<form action="@@cgibin@@/dochangemail.json" method="post" id="changeMail" onsubmit="return(changeMail(this));">
 						<div class="error">
-							<div style="display: none;" id="changeMailErrSystem">An unexpected system error occurred.</div>
-							<div style="display: none;" id="changeMailErrForm">Invalid new or existing e-mail address.</div>
+							<div class="noshow" id="changeMailErrSystem">
+								An unexpected error occurred.
+							</div>
+							<div class="noshow" id="changeMailErrForm">
+								Invalid new or existing e-mail address.
+							</div>
 						</div>
 						<fieldset>
 							<div><input required="required" type="email" name="email1" placeholder="Existing E-mail"/></div>
@@ -86,11 +89,14 @@
 						It's up to you to make sure your password is secure.
 						You will be logged out after doing so.
 					</aside>
-					<form action="@@cgibin@@/dochangepass.json" method="post" id="changePass" 
-						onsubmit="return(sendForm(this, doChangePassSetup, doChangePassError, doChangePassSuccess));">
+					<form action="@@cgibin@@/dochangepass.json" method="post" id="changePass" onsubmit="return(changePass(this));">
 						<div class="error">
-							<div style="display: none;" id="changePassErrSystem">An unexpected system error occurred.</div>
-							<div style="display: none;" id="changePassErrForm">Invalid new or existing password.</div>
+							<div class="noshow" id="changePassErrSystem">
+								An unexpected error occurred.
+							</div>
+							<div class="noshow" id="changePassErrForm">
+								Invalid new or existing password.
+							</div>
 						</div>
 						<fieldset>
 							<div><input required="required" type="password" name="password1" placeholder="Existing Password"/></div>
@@ -103,22 +109,47 @@
 				<section id="changeSmtpSection">
 					<h3>Change SMTP</h3>
 					<aside>
-						In order to send e-mails to players, you need to configure a valid e-mail sending service.
-						Fill in the <q>From Address</q> (which appears on all e-mails to players),
-						<q>SMTP Server</q> to a valid SSL-secured SMTP server,
-						<q>SMTP User</q> to the your server account name, and
-						<q>SMTP Password</q> to the your user's password.
-						<div id="checkSmtpResultsLoad">
-							<span class="loading">Loading...</span>
-						</div>
-						<div id="checkSmtpResults" style="display: none;">
-						</div>
+						In order to send e-mails to players, you need to configure a valid e-mail sending
+						service.
+						Click <q>Send Test</q> to send a test message to the administrator account.
 					</aside>
-					<form action="@@cgibin@@/dochangesmtp.json" method="post" id="changeSmtp" 
-						onsubmit="return(sendForm(this, doChangeSmtpSetup, doChangeSmtpError, doChangeSmtpSuccess));">
+					<div id="checkSmtpResults" class="noshow">
+						<ul>
+							<li><span>SMTP server: <span id="checkSmtpResultsServer"></span></span></li>
+							<li><span>SMTP user: <span id="checkSmtpResultsUser"></span></span></li>
+							<li><span>From address: <span id="checkSmtpResultsFrom"></span></span></li>
+						</ul>
+						<div><button class="send" id="checkSmtpButton" onclick="testSmtp();">Send Test</button></div>
+					</div>
+					<div id="testSmtpResults" class="noshow canclose">
+						<h4>Results</h4>
+						<img class="close" src="@@htdocs@@/disable.png" alt="Close" onclick="doHideNode(this.parentNode)" />
+						A test e-mail has been sent to <span id="testSmtpResultsMail"></span>.
+						If you do not receive it in a little while, please fix your mail settings.
+					</div>
+					<div id="checkSmtpResultsNone" class="noshow">
+						<ul>
+							<li><span>You have not yet configured your e-mail server.</span></li>
+						</ul>
+					</div>
+					<div id="checkSmtpResultsLoad">
+						<ul>
+							<li><span><span class="loading">Loading...</span></span></li>
+						</ul>
+					</div>
+					<aside>
+						Fill in the <q>From Address</q> (which appears on all e-mails to players), <q>SMTP
+							Server</q> to a valid SSL-secured SMTP server, <q>SMTP User</q> to the your
+						server account name, and <q>SMTP Password</q> to the your user's password.
+					</aside>
+					<form action="@@cgibin@@/dochangesmtp.json" method="post" id="changeSmtp" onsubmit="return(changeSmtp(this));">
 						<div class="error">
-							<div style="display: none;" id="changeSmtpErrSystem">An unexpected system error occurred.</div>
-							<div style="display: none;" id="changeSmtpErrForm">Invalid new or existing parameters.</div>
+							<div class="noshow" id="changeSmtpErrSystem">
+								An unexpected error occurred.
+							</div>
+							<div class="noshow" id="changeSmtpErrForm">
+								Invalid new or existing parameters.
+							</div>
 						</div>
 						<fieldset>
 							<div><input required="required" type="email" name="email" placeholder="you@example.com"/></div>
