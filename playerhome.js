@@ -133,6 +133,9 @@ function loadExprSuccess(resp)
 			matrix = matrixCreateTranspose(game);
 		appendMatrix(doClear('exprMatrix'), matrix);
 
+		document.getElementById('exprPlayGid').value = game.id;
+		document.getElementById('exprPlayRound').value = expr.round;
+
 		e = doClear('exprPlayList');
 		for (i = 0; i < matrix.length; i++) {
 			div = document.createElement('li');

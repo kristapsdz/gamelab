@@ -97,6 +97,8 @@ struct sess	*db_player_sess_alloc(int64_t playerid);
 int		 db_player_valid(int64_t *id, const char *mail, const char *pass);
 int		 db_player_sess_valid(int64_t *playerid, int64_t id, int64_t cookie);
 void		 db_player_free(struct player *player);
+int		 db_player_play(int64_t playerid, int64_t round, 
+			int64_t gameid, const mpq_t *plays, size_t sz);
 
 void		 db_sess_delete(int64_t id);
 void		 db_sess_free(struct sess *sess);

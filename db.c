@@ -637,6 +637,13 @@ db_player_load_all(void (*fp)(const struct player *, size_t, void *), void *arg)
 }
 
 int
+db_player_play(int64_t playerid, int64_t round, 
+	int64_t gameid, const mpq_t *plays, size_t sz)
+{
+
+}
+
+int
 db_game_check_player(int64_t playerid, int64_t round, int64_t game)
 {
 	sqlite3_stmt	*stmt;

@@ -5,6 +5,10 @@
 		<meta charset="utf-8" /> 
 		<title>Gamelab Administration</title>
 		<link rel="stylesheet" href="@@cgibin@@/style.css" type="text/css" />
+		<style>
+			nav li:first-child { background-color: red; }
+			h1 { color: #fff; }
+		</style>
 		<script src="@@htdocs@@/script.js"></script>
 		<script src="@@cgibin@@/home.js"></script>
 	</head>
@@ -47,7 +51,7 @@
 					<ul id="loadPlayers">
 						<li><span class="loading">Loading...</span></li>
 					</ul>
-					<div class="noshow" id="playerInfo" class="canclose">
+					<div id="playerInfo" class="canclose noshow">
 						<h4>Player Status</h4>
 						<img class="close" src="@@htdocs@@/disable.png" alt="Close" onclick="doHideNode(this.parentNode)" />
 						<span id="playerInfoEmail"></span>: 
