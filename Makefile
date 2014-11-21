@@ -10,15 +10,7 @@ PAGES 	 = addplayer.eml \
 	   style.css \
 	   test.eml
 STATICS	 = ajax-loader.gif \
-	   block.png \
-	   disable.png \
-	   enable.png \
-	   logout.png \
-	   mail.png \
-	   lock.png \
-	   script.js \
-	   send.png \
-	   submit.png
+	   script.js
 
 # Mac OSX testing.
 PREFIX	 = /Users/kristaps/Sites
