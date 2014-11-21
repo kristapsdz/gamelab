@@ -9,10 +9,8 @@ PAGES 	 = addplayer.eml \
 	   playerlogin.html \
 	   style.css \
 	   test.eml
-STATICS	 = accept.png \
-	   ajax-loader.gif \
+STATICS	 = ajax-loader.gif \
 	   block.png \
-	   calendar.png \
 	   disable.png \
 	   enable.png \
 	   logout.png \
