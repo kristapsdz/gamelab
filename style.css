@@ -1,53 +1,53 @@
 /*
  * Lay out the general page structure here.
  */
-html, body		{ margin: 0; }
-h1 			{ font-weight: normal;
-				color: #222; }
-a 			{ text-decoration: none; 
-				color: blue; }
-body			{ font-size: 14pt; }
-header a		{ color: #000; }
-nav ul 			{ list-style-type: none; 
-				background-color: #ccc;
-				padding: 0; 
-				margin: 0 0 1em 0; }
-nav li 			{ display: inline-block; 
-				background-color: #ccc;
-				padding: 1ex; }
-nav li:first-child 	{ background-color: #8888aa; }
-article, footer		{ max-width: 1024px;
-				margin-left: auto;
-				margin-right: auto; }
-footer			{ text-align: center; 
-				margin-top: 1em;
-				margin-bottom: 1em;
-			 	color: #888;
-				font-size: smaller; }
-footer a		{ color: #666; 
-				padding-right: 0.5ex;
-				border-right: thin solid #888; }
-footer a:last-child	{ border-right: none; 
-				padding-right: 0; }
-footer a:hover		{ color: #222; }
-section section		{ border: thin solid #ddd;
-				margin: 1em 0; }
-section section >*	{ margin: 1em; }
-section section >h3	{ margin: 0;
-				font-weight: normal;
-				padding: 1em;
-				color: #fff;
-				background-color: #5555aa; }
-section section h4	{ margin: 0; }
-.loading		{ background-position: 4px center;
-				background-repeat: no-repeat;
-				padding-left: 32px;
-				background-image: url('@@htdocs@@/ajax-loader.gif'); }
-article >section > aside	 	
-			{ padding: 1ex; }
-form .error		{ color: red;
-				font-weight: bolder; }
-aside div		{ margin: 0.75em 0; }
+html, body			{ margin: 0; }
+h1				{ font-weight: normal;
+				  color: #222; }
+a				{ text-decoration: none; 
+				  color: blue; }
+body				{ font-size: 14pt; }
+header a			{ color: #000; }
+nav ul				{ list-style-type: none; 
+				  background-color: #ccc;
+				  padding: 0; 
+				  margin: 0 0 1em 0; }
+nav li				{ display: inline-block; 
+				  background-color: #ccc;
+				  padding: 1ex; }
+nav li:first-child		{ background-color: #8888aa; }
+article, footer			{ max-width: 1024px;
+				  margin-left: auto;
+				  margin-right: auto; }
+footer				{ text-align: center; 
+				  margin-top: 1em;
+				  margin-bottom: 1em;
+				  color: #888;
+				  font-size: smaller; }
+footer a			{ color: #666; 
+				  padding-right: 0.5ex;
+				  border-right: thin solid #888; }
+footer a:last-child		{ border-right: none; 
+				  padding-right: 0; }
+footer a:hover			{ color: #222; }
+section section			{ border: thin solid #ddd;
+				  margin: 1em 0; }
+section section >*		{ margin: 1em; }
+section section >h3		{ margin: 0;
+				  font-weight: normal;
+				  padding: 1em;
+				  color: #fff;
+				  background-color: #5555aa; }
+section section h4		{ margin: 0; }
+.loading			{ background-position: 4px center;
+				  background-repeat: no-repeat;
+				  padding-left: 32px;
+				  background-image: url('@@htdocs@@/ajax-loader.gif'); }
+article >section > aside			
+				{ padding: 1ex; }
+form .error			{ color: red;
+				  font-weight: bolder; }
+aside div			{ margin: 0.75em 0; }
 /*
  * Now layout the specific components. 
  */
@@ -102,214 +102,119 @@ div.input input[type=date],
 div.input input[type=submit]	{ width: auto; }
 div.input input[type=number]	{ width: 20ex; }
 div.input input[type=time]	{ width: 20ex; }
-
-/* input 			{ width: 100%;
-				height: 40px;
-				-webkit-appearance: none;
-				border: thin solid #ccc;
-				background-color: #eee;
-				border-radius: 6px;
-				box-sizing: border-box;
-				font-size: 100%;
-				font-family: inherit;
-				display: block; }
-button,
-input[type=submit],
-input[type=time],
-input[type=date],
-input[type=number]	{ width: auto; }
-input[type=url],
-input[type=text] 	{ padding-left: 1ex;
-				padding-right: 1ex; }
-input[type=date] 	{ padding-left: 36px;
-				display: inline-block;
-				width: 18ex;
-				-webkit-appearance: none;
-				padding-right: 1ex;
-				background-position: 4px center;
-				background-repeat: no-repeat;
-				background-image: url('@@htdocs@@/calendar.png'); }
-input[type=time]	{ display: inline-block;
-				-webkit-appearance: none;
-				padding-left: 1ex;
-				padding-right: 1ex;
-				width: 9ex; }
-input[type=number] 	{ padding-left: 1ex;
-				padding-right: 1ex;
-				width: 8ex;
-				display: inline-block; }
-button, 
-input[type=submit] 	{ background-color: #d7e5f5;
-				border-top: 1px solid #abbbcc;
-				border-left: 1px solid #a7b6c7;
-				border-bottom: 1px solid #a1afbf;
-				border-right: 1px solid #a7b6c7;
-				border-radius: 16px;
-				-webkit-box-shadow: inset 0 1px 0 0 white;
-				box-shadow: inset 0 1px 0 0 white;
-				height: auto;
-				width: auto;
-				color: #1a3e66;
-				font-family: "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Geneva, Verdana, sans-serif;
-				font-size: inherit;
-				padding: 0.5ex 1ex;
-				text-align: center;
-				text-shadow: 0 1px 1px #fff; }
-input[type=submit]	{ background-position: 1ex center;
-				background-repeat: no-repeat;
-				background-image: url('@@htdocs@@/submit.png'); 
-				padding-left: 4ex; }
-button.send		{ background-position: 1ex center;
-				background-repeat: no-repeat;
-				background-image: url('@@htdocs@@/send.png'); 
-				padding-left: 4ex; }
-button:hover, 
-input[type=submit]:hover { background-color: #ccd9e8;
-				border-top: 1px solid #a1afbf;
-				border-left: 1px solid #9caaba;
-				border-bottom: 1px solid #96a3b3;
-				border-right: 1px solid #9caaba;
-				-webkit-box-shadow: inset 0 1px 0 0 #f2f2f2;
-				box-shadow: inset 0 1px 0 0 #f2f2f2;
-				color: #163659;
-				cursor: pointer; }
-button:active,
-input[type=submit]:active { border: 1px solid #8c98a7;
-				-webkit-box-shadow: inset 0 0 4px 2px #abbccf, 0 0 1px 0 #eeeeee;
-				box-shadow: inset 0 0 4px 2px #abbccf, 0 0 1px 0 #eeeeee; }
-input[type=password] 	{ padding-left: 34px;
-				padding-right: 1ex;
-				background-position: left center;
-				background-repeat: no-repeat;
-				background-image: url('@@htdocs@@/lock.png'); }
-textarea 		{ display: block;
-				border: thin solid #aaa;
-				box-sizing: border-box;
-				width: 100%;
-				border-radius: 6px;
-				padding: 1ex;
-				font-family: inherit;
-				font-size: 100%;
-				height: 6em; } */
-img.enable		{ margin-bottom: -4px; 
-				margin-left: 4px; }
-img.disable		{ margin-bottom: -6px; 
-				margin-left: 2px; }
+img.enable			{ margin-bottom: -4px; 
+			   	  margin-left: 4px; }
+img.disable			{ margin-bottom: -6px; 
+			   	  margin-left: 2px; }
 img.enable:hover,
-img.disable:hover	{ cursor: pointer; }
-img.status		{ margin-bottom: -6px; }
-img.logout		{ margin-bottom: -6px; }
-progress		{ display: block;
-				margin-bottom: 1ex;
-				width: 100%; }
-article ol		{ padding: 0 3ex; 
-				margin: 0; }
-article ol li		{ margin: 0.25em 0; }
-article ul		{ list-style-type: none; 
-				padding: 0; }
+img.disable:hover		{ cursor: pointer; }
+img.status			{ margin-bottom: -6px; }
+img.logout			{ margin-bottom: -6px; }
+progress			{ display: block;
+			   	  margin-bottom: 1ex;
+			   	  width: 100%; }
+article ol			{ padding: 0 3ex; 
+			   	  margin: 0; }
+article ol li			{ margin: 0.25em 0; }
+article ul			{ list-style-type: none; 
+			   	  padding: 0; }
 article ul li > span,
-article ul li > div	{ background-color: #eee; 
-				padding: 1ex;
-				margin: 1ex;
-				border: thin solid #aaa;
-				border-radius: 1ex; }
-article ul li a		{ color: #333; }
-article ul li a:hover	{ color: #000; }
-article ul li > span	{ display: inline-block; 
-				margin: 0.5ex; }
+article ul li > div		{ background-color: #eee; 
+			   	  padding: 1ex;
+			   	  margin: 1ex;
+			   	  border: thin solid #aaa;
+			   	  border-radius: 1ex; }
+article ul li a			{ color: #333; }
+article ul li a:hover		{ color: #000; }
+article ul li > span		{ display: inline-block; 
+			   	  margin: 0.5ex; }
 article ul li > span:first-child
-			{ margin-left: 0; }
-article ul li > span:last-child
-			{ margin-right: 0; }
-span.waiting		{ background-color: #aaa; }
-div.payoffs		{ display: table; 
-				max-width: 100%; 
-				margin-left: auto;
-				margin-right: auto;
-				border-spacing: 2px;
-				background-color: #ccc; }
-div.payoffs > div	{ display: table-row; }
-div.payoffs > div > div	{ display: table-cell; 
-				text-align: center; 
-				background-color: #333; }
+				{ margin-left: 0; }
+article ul li > span:last-child { margin-right: 0; }
+span.waiting			{ background-color: #aaa; }
+div.payoffs			{ display: table; 
+				  max-width: 100%; 
+				  margin-left: auto;
+				  margin-right: auto;
+				  border-spacing: 2px;
+				  background-color: #ccc; }
+div.payoffs > div		{ display: table-row; }
+div.payoffs > div > div		{ display: table-cell; 
+				  text-align: center; 
+				  background-color: #333; }
 div.payoffs > div > div	> div 
-			{ display: inline-block; 
-				padding: 1ex 0.5ex; }
+				{ display: inline-block; 
+				  padding: 1ex 0.5ex; }
 div.payoffs > div > div	> div:first-child
-			{ display: inline-block; 
-				text-align: right;
-				border-right: thin solid #666;
-				color: #fff; }
+				{ display: inline-block; 
+				  text-align: right;
+				  border-right: thin solid #666;
+				  color: #fff; }
 div.payoffs > div > div	> div:last-child
-			{ display: inline-block; 
-				text-align: left;
-				color: #666; }
+				{ display: inline-block; 
+				  text-align: left;
+				  color: #666; }
 div.payoffs > div > div.payoffhead		
-			{ background-color: inherit;
-				text-align: right;
-				padding-right: 1ex;
-				color: #666; }
-div.countdown		{ display: table; 
+				{ background-color: inherit;
+				  text-align: right;
+				  padding-right: 1ex;
+				  color: #666; }
+div.countdown			{ display: table; 
 				  margin-left: auto;
 				  margin-right: auto;
 				  background-color: #666; 
 				  border-spacing: 2px;
 				  color: #eee; }
-div.countdown > div	{ display: table-row; }
+div.countdown > div		{ display: table-row; }
 div.countdown > div > div	
-			{ display: table-cell; 
+				{ display: table-cell; 
 				  text-align: center; }
 div.countdown > div:first-child > div
-			{ background-color: #000; 
+				{ background-color: #000; 
 				  font-family: monospace;
 				  font-size: 24pt;
 				  padding: 1ex 2ex; }
 div.countdown > div:last-child > div
-			{ color: #aaa; }
-div.countdownHead	{ text-align: center;
-				font-size: 16pt; }
-div.canclose		{ position: relative; 
-				border: thin solid #ccc;
-				border-radius: 1ex;
-				padding: 1.5em 1ex 0.5em 1ex; 
-				background-color: #eee; }
-div.canclose a.close	{ position: absolute;
-				color: #000;
-				top: -8px;
-				cursor: pointer;
-				right: -8px; }
-div.canclose h4		{ position: absolute;
-				margin: 0;
-				background-color: #5555aa;
-				font-weight: normal;
-				padding: 0.5ex 2ex;
-				border-radius: 1ex;
-				color: #eee;
-				top: -8px;
-				left: 1em; }
-sup			{ font-size: 8pt; 
-				font-style: italic; }
-.noshow			{ display: none; }
+				{ color: #aaa; }
+div.countdownHead		{ text-align: center;
+				  font-size: 16pt; }
+div.canclose			{ position: relative; 
+				  border: thin solid #ccc;
+				  border-radius: 1ex;
+				  padding: 1.5em 1ex 0.5em 1ex; 
+				  background-color: #eee; }
+div.canclose a.close		{ position: absolute;
+				  color: #000;
+				  top: -8px;
+				  cursor: pointer;
+				  right: -8px; }
+div.canclose h4			{ position: absolute;
+				  margin: 0;
+				  background-color: #5555aa;
+				  font-weight: normal;
+				  padding: 0.5ex 2ex;
+				  border-radius: 1ex;
+				  color: #eee;
+				  top: -8px;
+				  left: 1em; }
+sup				{ font-size: 8pt; 
+				  font-style: italic; }
+.noshow				{ display: none; }
+
 @media only screen and (max-width: 400px), only screen and (max-device-width: 400px) {
-div.countdown 		{ width: 100%; }
-div.countdown > div > div
-			{ width: 25%; }
-div.countdown > div:first-child > div
- 			{ padding: 0; }
-article ul li > span	{ display: block; 
-				margin: 1ex 0; }
-article ul li > div	{ margin: 1ex 0; }
-article ul li > span:first-child
-			{ margin-left: 0; }
-article ul li > span:last-child
-			{ margin-right: 0; }
-section section >*	{ margin: 1em 0.5em 1em 0.5em; }
-/*button, 
-input[type=submit] 	{ padding-left: 6ex;
-				padding-right: 6ex; 
-				background-position: 3ex center;
-				margin-left: auto;
-				margin-right: auto; }*/
-section section >h3	{ text-align: center; }
-div.payoffs		{ width: 100% !important; }
+	div.countdown 		{ width: 100%; }
+	div.countdown > div > div
+				{ width: 25%; }
+	div.countdown > div:first-child > div
+				{ padding: 0; }
+	article ul li > span	{ display: block; 
+				  margin: 1ex 0; }
+	article ul li > div	{ margin: 1ex 0; }
+	article ul li > span:first-child
+				{ margin-left: 0; }
+	article ul li > span:last-child
+				{ margin-right: 0; }
+	section section >*	{ margin: 1em 0.5em 1em 0.5em; }
+	section section >h3	{ text-align: center; }
+	div.payoffs		{ width: 100% !important; }
 }
