@@ -138,11 +138,12 @@ function loadExprSuccess(resp)
 
 		e = doClear('exprPlayList');
 		for (i = 0; i < matrix.length; i++) {
-			div = document.createElement('li');
+			div = document.createElement('div');
 			e.appendChild(div);
 			input = document.createElement('input');
 			input.setAttribute('type', 'text');
 			input.setAttribute('required', 'required');
+			input.setAttribute('placeholder', 'Strategy ' + (i + 1));
 			input.setAttribute('name', 
 				'index' + matrix[i].index);
 			div.appendChild(input);

@@ -5,6 +5,7 @@
 		<meta charset="utf-8" /> 
 		<title>Gamelab</title>
 		<link rel="stylesheet" href="@@cgibin@@/style.css" type="text/css" />
+		<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet" />
 		<style>
 			ol, section, fieldset { max-width: 1024px; }
 			fieldset { box-shadow: none; }
@@ -18,7 +19,9 @@
 			<nav>
 				<ul>
 					<li><h1>Participation</h1></li>
-					<li><a href="@@cgibin@@/dologout.html"><img src="@@htdocs@@/logout.png" alt="Logout" class="logout" /></a></li>
+					<li>
+						<a href="@@cgibin@@/dologout.html"><i class="fa fa-sign-out"></i>Logout</a>
+					</li>
 				</ul>
 			</nav>
 		</header>
@@ -35,8 +38,8 @@
 					<input type="hidden" id="exprPlayGid" name="gid" />
 					<input type="hidden" id="exprPlayRound" name="round" />
 					<fieldset>
-						<ol id="exprPlayList">
-						</ol>
+						<div id="exprPlayList">
+						</div>
 						<input type="submit" value="Submit" />
 					</fieldset>
 				</form>

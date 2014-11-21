@@ -7,6 +7,7 @@ h1 			{ font-weight: normal;
 a 			{ text-decoration: none; 
 				color: blue; }
 body			{ font-size: 14pt; }
+header a		{ color: #000; }
 nav ul 			{ list-style-type: none; 
 				background-color: #ccc;
 				padding: 0; 
@@ -29,9 +30,6 @@ footer a		{ color: #666;
 footer a:last-child	{ border-right: none; 
 				padding-right: 0; }
 footer a:hover		{ color: #222; }
-fieldset		{ border: 0; 
-				padding: 0; }
-fieldset div		{ margin: 1ex 0; }
 section section		{ border: thin solid #ddd;
 				margin: 1em 0; }
 section section >*	{ margin: 1em; }
@@ -40,6 +38,7 @@ section section >h3	{ margin: 0;
 				padding: 1em;
 				color: #fff;
 				background-color: #5555aa; }
+section section h4	{ margin: 0; }
 .loading		{ background-position: 4px center;
 				background-repeat: no-repeat;
 				padding-left: 32px;
@@ -52,13 +51,64 @@ aside div		{ margin: 0.75em 0; }
 /*
  * Now layout the specific components. 
  */
-input 			{ width: 100%;
+fieldset			{ display: table; 
+				  width: auto;
+				  margin: 0;
+				  padding: 0;
+				  border: 0;
+				  border-spacing: 0 1ex; }
+div.input			{ display: table-row; }
+div.input >*			{ display: table-cell; 
+				  background-color: #ddd;
+				  padding: 1ex 1ex;
+				  border: none;
+				  font-size: 11pt;
+				  border-left: thin solid #ccc;
+				  border-top: thin solid #ccc;
+				  border-bottom: thin solid #ccc;
+				  vertical-align: middle; }
+div.input >*:last-child		{ border-right: thin solid #ccc; 
+				  border-bottom-right-radius: 0.5ex;
+				  border-top-right-radius: 0.5ex; }
+div.input >*:first-child	{ border-bottom-left-radius: 0.5ex;
+				  border-top-left-radius: 0.5ex; }
+div.input i			{ text-align: center; 
+				  width: 1%; }
+div.input button,
+div.input textarea,
+div.input input			{ -webkit-appearance: none;
+				  margin: 0;
+				  width: 99%;
+				  background-color: #fff;
+				  font-size: 13pt;
+				  font-family: inherit;
+				  box-sizing: border-box; }
+div.input textarea		{ height: 10ex; }
+div.input-submit >*		{ background-color: #666; 
+				  color: #fff; 
+				  border-left: thin solid #000;
+				  border-top: thin solid #000;
+				  border-bottom: thin solid #000; }
+div.input-submit button,
+div.input-submit input		{ background-color: #333; 
+				  text-align: left; }
+div.input-submit >*:last-child	{ border-right: thin solid #000; }
+div.input-submit button:active,
+div.input-submit input:active	{ background-color: #444; }
+div.input-submit button:hover,
+div.input-submit input:hover	{ color: #ddd; }
+div.input button,
+div.input input[type=date],
+div.input input[type=submit]	{ width: auto; }
+div.input input[type=number]	{ width: 20ex; }
+div.input input[type=time]	{ width: 20ex; }
+
+/* input 			{ width: 100%;
 				height: 40px;
 				-webkit-appearance: none;
 				border: thin solid #ccc;
 				background-color: #eee;
 				border-radius: 6px;
-				padding: 0;
 				box-sizing: border-box;
 				font-size: 100%;
 				font-family: inherit;
@@ -132,11 +182,6 @@ input[type=password] 	{ padding-left: 34px;
 				background-position: left center;
 				background-repeat: no-repeat;
 				background-image: url('@@htdocs@@/lock.png'); }
-input[type=email] 	{ padding-left: 34px;
-				padding-right: 1ex;
-				background-repeat: no-repeat;
-				background-position: left center;
-				background-image: url('@@htdocs@@/mail.png'); }
 textarea 		{ display: block;
 				border: thin solid #aaa;
 				box-sizing: border-box;
@@ -145,7 +190,7 @@ textarea 		{ display: block;
 				padding: 1ex;
 				font-family: inherit;
 				font-size: 100%;
-				height: 6em; }
+				height: 6em; } */
 img.enable		{ margin-bottom: -4px; 
 				margin-left: 4px; }
 img.disable		{ margin-bottom: -6px; 
@@ -228,7 +273,8 @@ div.canclose		{ position: relative;
 				border-radius: 1ex;
 				padding: 1.5em 1ex 0.5em 1ex; 
 				background-color: #eee; }
-div.canclose img.close	{ position: absolute;
+div.canclose a.close	{ position: absolute;
+				color: #000;
 				top: -8px;
 				cursor: pointer;
 				right: -8px; }
@@ -258,12 +304,12 @@ article ul li > span:first-child
 article ul li > span:last-child
 			{ margin-right: 0; }
 section section >*	{ margin: 1em 0.5em 1em 0.5em; }
-button, 
+/*button, 
 input[type=submit] 	{ padding-left: 6ex;
 				padding-right: 6ex; 
 				background-position: 3ex center;
 				margin-left: auto;
-				margin-right: auto; }
+				margin-right: auto; }*/
 section section >h3	{ text-align: center; }
 div.payoffs		{ width: 100% !important; }
 }

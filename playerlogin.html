@@ -5,6 +5,7 @@
 		<meta charset="utf-8" /> 
 		<title>Gamelab | Participant Login</title>
 		<link rel="stylesheet" href="@@cgibin@@/style.css" type="text/css" />
+		<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet" />
 		<style>
 			body	{ background-color: #eee; }
 			h1 	{ font-family: cursive; 
@@ -51,9 +52,18 @@
 							<div class="noshow" id="ajaxError">A technical error has occured.</div>
 						</div>
 						<fieldset>
-							<div><input type="email" placeholder="Email" required="required" name="email" /></div>
-							<div><input type="password" placeholder="Password" required="required" name="password" /></div>
-							<div><input id="loggingIn" type="submit" value="Login" /></div>
+							<div class="input input-email">
+								<i class="fa fa-fw fa-envelope"></i>
+								<input type="email" placeholder="E-mail Address" required="required" name="email" />
+							</div>
+							<div class="input input-password">
+								<i class="fa fa-fw fa-lock"></i>
+								<input type="password" placeholder="Password" required="required" name="password" />
+							</div>
+							<div class="input input-submit">
+								<i class="fa fa-fw fa-check"></i>
+								<input id="loggingIn" type="submit" value="Login" />
+							</div>
 						</fieldset>
 					</section>
 				</form>

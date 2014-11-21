@@ -1,5 +1,29 @@
 "use strict";
 
+function doClassOk(name)
+{
+	var e;
+	if (null == (e = document.getElementById(name)))
+		return;
+	e.className = 'fa fa-check';
+}
+
+function doClassLoading(name)
+{
+	var e;
+	if (null == (e = document.getElementById(name)))
+		return;
+	e.className = 'fa fa-spinner fa-spin';
+}
+
+function doClassFail(name)
+{
+	var e;
+	if (null == (e = document.getElementById(name)))
+		return;
+	e.className = 'fa fa-warning';
+}
+
 function doSuccess(submitName, formName) 
 {
 
@@ -35,7 +59,7 @@ function doSetup(submitName, errName)
 
 function loadNewPlayersSuccess(resp) 
 {
-	var e, li, i, results, icon, link, span, count;
+	var e, li, i, results, icon, link, span, count, pspan, fa;
 
 	e = doClearNode(document.getElementById('loadNewPlayers'));
 	if (null == e)
@@ -56,8 +80,7 @@ function loadNewPlayersSuccess(resp)
 		span.appendChild(document.createTextNode('No players.'));
 		li.appendChild(span);
 		e.appendChild(li);
-		doHide('checkPlayersLoad');
-		doUnhide('checkPlayersNo');
+		doClassFail('checkPlayersLoad');
 		return;
 	}
 
@@ -74,22 +97,18 @@ function loadNewPlayersSuccess(resp)
 		span.appendChild(document.createTextNode(results[i].mail));
 		li.appendChild(span);
 
-		icon = document.createElement('img');
-		icon.setAttribute('src', '@@htdocs@@/disable.png');
+		icon = document.createElement('a');
+		icon.setAttribute('class', 'fa fa-remove');
+		icon.setAttribute('href', '#;');
 		icon.setAttribute('id', 'playerDelete' + results[i].id);
 		icon.setAttribute('onclick', 'doDeletePlayer(' + results[i].id + '); return false;');
-		icon.setAttribute('class', 'disable');
-		icon.setAttribute('alt', 'Delete');
 		span.appendChild(icon);
-
-		appendLoading(span).setAttribute
-			('id', 'playerWaiting' + results[i].id);
-
-		doHide('playerWaiting' + results[i].id);
 	}
 
-	doHide('checkPlayersLoad');
-	doUnhide(count >= 2 ? 'checkPlayersYes' : 'checkPlayersNo');
+	if (count >= 2)
+		doClassOk('checkPlayersLoad');
+	else
+		doClassFail('checkPlayersLoad');
 }
 
 function doShowPlayer(name)
@@ -169,6 +188,14 @@ function loadPlayersSuccess(resp)
 
 	for (i = 0; i < results.length; i++) {
 		span = document.createElement('span');
+
+		sup = document.createElement('i');
+		if (0 == parseInt(results[i].role))
+			sup.setAttribute('class', 'fa fa-bars');
+		else
+			sup.setAttribute('class', 'fa fa-columns');
+		span.appendChild(sup);
+
 		span.setAttribute('id', 'player' + results[i].id);
 		span.setAttribute('data-gamelab-status', results[i].status);
 		span.setAttribute('data-gamelab-mail', results[i].mail);
@@ -181,38 +208,31 @@ function loadPlayersSuccess(resp)
 		link.appendChild(document.createTextNode(results[i].mail));
 		span.appendChild(link);
 
-		sup = document.createElement('sup');
-		if (0 == parseInt(results[i].role))
-			sup.appendChild(document.createTextNode('row'));
-		else
-			sup.appendChild(document.createTextNode('col'));
-		span.appendChild(sup);
-
-		icon = document.createElement('img');
-		icon.setAttribute('src', '@@htdocs@@/disable.png');
-		icon.setAttribute('id', 'playerDisable' + results[i].id);
-		icon.setAttribute('onclick', 'doDisablePlayer(' + results[i].id + ');');
-		icon.setAttribute('class', 'disable');
-		icon.setAttribute('alt', 'Disable');
+		icon = document.createElement('a');
+		icon.setAttribute('href', '#');
+		icon.setAttribute('id', 'playerLoad' + results[i].id);
+		if (0 == results[i].enabled) {
+			icon.setAttribute('class', 'fa fa-plus');
+			icon.setAttribute('onclick', 'doEnablePlayer(' + results[i].id + '); return false;');
+		} else {
+			icon.setAttribute('class', 'fa fa-remove');
+			icon.setAttribute('onclick', 'doDisablePlayer(' + results[i].id + '); return false;');
+		}
 		span.appendChild(icon);
-
-		icon = document.createElement('img');
-		icon.setAttribute('src', '@@htdocs@@/enable.png');
-		icon.setAttribute('id', 'playerEnable' + results[i].id);
-		icon.setAttribute('onclick', 'doEnablePlayer(' + results[i].id + ');');
-		icon.setAttribute('class', 'enable');
-		icon.setAttribute('alt', 'Enable');
-		span.appendChild(icon);
-
-		appendLoading(span).setAttribute
-			('id', 'playerWaiting' + results[i].id);
-
-		doHide('playerWaiting' + results[i].id);
-		doHide((0 == results[i].enabled ? 'playerDisable' : 'playerEnable') + results[i].id);
 	}
 }
 
 function loadGamesSuccess(resp) 
+{
+	loadGamesSuccessInner(resp, 1);
+}
+
+function loadNewGamesSuccess(resp) 
+{
+	loadGamesSuccessInner(resp, 0);
+}
+
+function loadGamesSuccessInner(resp, code) 
 {
 	var i, j, k, results, li, e, div, icon;
 
@@ -235,13 +255,11 @@ function loadGamesSuccess(resp)
 		div = document.createElement('span');
 		div.appendChild(document.createTextNode('No games.'));
 		li.appendChild(div);
-		doHide('checkGameLoad');
-		doUnhide('checkGameNo');
+		doClassFail('checkGameLoad');
 		return;
 	}
 
-	doHide('checkGameLoad');
-	doUnhide('checkGameYes');
+	doClassOk('checkGameLoad');
 
 	for (i = 0; i < results.length; i++) {
 		li = document.createElement('li');
@@ -266,21 +284,16 @@ function loadGamesSuccess(resp)
 		}
 		div.appendChild(document.createTextNode('}'));
 
-		icon = document.createElement('img');
-		icon.setAttribute('src', '@@htdocs@@/disable.png');
-		icon.setAttribute('id', 'gameDelete' + results[i].id);
-		icon.setAttribute('onclick', 'doDeleteGame(' + results[i].id + '); return false;');
-		icon.setAttribute('class', 'disable');
-		icon.setAttribute('alt', 'Delete');
-		div.appendChild(icon);
-
-		appendLoading(div).setAttribute
-			('id', 'gameWaiting' + results[i].id);
-
+		if (0 == code) {
+			icon = document.createElement('a');
+			icon.setAttribute('href', '#');
+			icon.setAttribute('class', 'fa fa-remove');
+			icon.setAttribute('id', 'gameDelete' + results[i].id);
+			icon.setAttribute('onclick', 'doDeleteGame(' + results[i].id + '); return false;');
+			div.appendChild(icon);
+		}
 		li.appendChild(div);
 		e.appendChild(li);
-
-		doHide('gameWaiting' + results[i].id);
 	}
 }
 
@@ -324,22 +337,13 @@ function doDisableEnablePlayer(id, url)
 	if (null != (e = document.getElementById('player' + id)))
 		e.className = 'waiting';
 
+	doClassLoading('playerLoad' + id);
 	doHide('playerInfo');
-	doHide('playerDisable' + id);
-	doHide('playerEnable' + id);
-	doUnhide('playerWaiting' + id);
 
 	xrh = new XMLHttpRequest();
 	xrh.onreadystatechange=function() {
-		if (xrh.readyState==4 && xrh.status==200) {
-			if (null != (e = document.getElementById('player' + id)))
-				e.className = '';
-			doHide('playerWaiting' + id);
-			if (url == 'doenableplayer')
-				doUnhide('playerDisable' + id);
-			else
-				doUnhide('playerEnable' + id);
-		}
+		if (xrh.readyState==4 && xrh.status==200)
+			loadPlayers()
 	} 
 	xrh.open('GET', '@@cgibin@@/' + url + '.json?pid=' + id, true);
 	xrh.send(null);
@@ -352,8 +356,7 @@ function doDeleteGame(id)
 	if (null != (e = document.getElementById('game' + id)))
 		e.className = 'waiting';
 
-	doHide('gameDelete' + id);
-	doUnhide('gameWaiting' + id);
+	doClassLoading('gameDelete' + id);
 
 	xrh = new XMLHttpRequest();
 	xrh.onreadystatechange=function() {
@@ -374,8 +377,7 @@ function doDeletePlayer(id)
 	if (null != (e = document.getElementById('player' + id)))
 		e.className = 'waiting';
 
-	doHide('playerDelete' + id);
-	doUnhide('playerWaiting' + id);
+	doClassLoading('playerDelete' + id);
 
 	xrh = new XMLHttpRequest();
 	xrh.onreadystatechange=function() {
@@ -411,11 +413,9 @@ function doDisablePlayer(id)
 function loadSmtpSetup()
 {
 
-	doHide('checkSmtpYes');
-	doHide('checkSmtpNo');
 	doHide('checkSmtpResults');
 	doHide('checkSmtpResultsNone');
-	doUnhide('checkSmtpLoad');
+	doClassLoading('checkSmtpLoad');
 	doUnhide('checkSmtpResultsLoad');
 }
 
@@ -423,8 +423,7 @@ function loadSmtpSuccess(resp)
 {
 	var results, e, link, button;
 
-	doHide('checkSmtpLoad');
-	doUnhide('checkSmtpYes');
+	doClassOk('checkSmtpLoad');
 
 	try {
 		results = JSON.parse(resp);
@@ -435,24 +434,9 @@ function loadSmtpSuccess(resp)
 	doHide('checkSmtpResultsLoad');
 	doUnhide('checkSmtpResults');
 
-	doClearReplace('checkSmtpResultsServer', results.server);
-	doClearReplace('checkSmtpResultsUser', results.user);
-	doClearReplace('checkSmtpResultsFrom', results.mail);
-
-	/*e.appendChild(document.createTextNode('Current values: '));
-	link = document.createElement('a');
-	link.setAttribute('href', 'mailto:' + results.mail);
-	link.appendChild(document.createTextNode(results.mail));
-	e.appendChild(link);
-	e.appendChild(document.createTextNode(', '));
-	e.appendChild(document.createTextNode(results.user));
-	e.appendChild(document.createTextNode('@'));
-	e.appendChild(document.createTextNode(results.server));
-
-	button = document.createElement('button');
-	button.setAttribute('onclick', 'testSmtp();');
-	button.appendChild(document.createTextNode('Test'));
-	e.appendChild(button);*/
+	document.getElementById('checkSmtpResultsServer').value=results.server;
+	document.getElementById('checkSmtpResultsUser').value=results.user;
+	document.getElementById('checkSmtpResultsFrom').value=results.mail;
 }
 
 function loadSmtpError(err)
@@ -460,8 +444,8 @@ function loadSmtpError(err)
 
 	if (400 != err)
 		return;
-	doHide('checkSmtpLoad');
-	doUnhide('checkSmtpNo');
+
+	doClassFail('checkSmtpLoad');
 	doHide('checkSmtpResultsLoad');
 	doUnhide('checkSmtpResultsNone');
 }
@@ -486,9 +470,7 @@ function loadList(url, name, onsuccess, onerror)
 function loadNewPlayers() 
 {
 
-	doHide('checkPlayersYes');
-	doHide('checkPlayersNo');
-	doUnhide('checkPlayersLoad');
+	doClassLoading('checkPlayersLoad');
 	loadList('@@cgibin@@/doloadplayers.json', 'loadNewPlayers', 
 		loadNewPlayersSuccess, loadNewPlayersError);
 }
@@ -501,12 +483,18 @@ function loadPlayers()
 		loadPlayersSuccess, loadPlayersError);
 }
 
+function loadNewGames() 
+{
+
+	doClassLoading('checkGameLoad');
+	loadList('@@cgibin@@/doloadgames.json', 'loadGames', 
+		loadNewGamesSuccess, loadGamesError);
+}
+
 function loadGames() 
 {
 
-	doHide('checkGameYes');
-	doHide('checkGameNo');
-	doUnhide('checkGameLoad');
+	doClassLoading('checkGameLoad');
 	loadList('@@cgibin@@/doloadgames.json', 'loadGames', 
 		loadGamesSuccess, loadGamesError);
 }

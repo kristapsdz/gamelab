@@ -5,6 +5,7 @@
 		<meta charset="utf-8" /> 
 		<title>Gamelab Administration</title>
 		<link rel="stylesheet" href="@@cgibin@@/style.css" type="text/css" />
+		<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet" />
 		<style>
 			nav li:first-child { background-color: red; }
 			h1 { color: #fff; }
@@ -17,7 +18,9 @@
 			<nav>
 				<ul>
 					<li><h1>Administrator</h1></li>
-					<li><a href="@@cgibin@@/dologout.html"><img src="@@htdocs@@/logout.png" alt="Logout" class="logout" /></a></li>
+					<li>
+						<a href="@@cgibin@@/dologout.html"><i class="fa fa-sign-out"></i>Logout</a>
+					</li>
 				</ul>
 			</nav>
 		</header>
@@ -53,7 +56,7 @@
 					</ul>
 					<div id="playerInfo" class="canclose noshow">
 						<h4>Player Status</h4>
-						<img class="close" src="@@htdocs@@/disable.png" alt="Close" onclick="doHideNode(this.parentNode)" />
+						<a href="#" class="close" onclick="doHideNode(this.parentNode); return false;"><i class="fa fa-minus-square"></i></a>
 						<span id="playerInfoEmail"></span>: 
 						<span id="playerInfoStatus"></span>, 
 						<span id="playerInfoEnabled"></span>
@@ -78,10 +81,22 @@
 							</div>
 						</div>
 						<fieldset>
-							<div><input required="required" type="email" name="email1" placeholder="Existing E-mail"/></div>
-							<div><input required="required" type="email" name="email2" placeholder="New E-mail"/></div>
-							<div><input required="required" type="email" name="email3" placeholder="Repeat New E-mail"/></div>
-							<div><input id="changeMailSubmit" type="submit" value="Submit" /></div>
+							<div class="input">
+								<i class="fa fa-fw fa-envelope"></i>
+								<input required="required" type="email" name="email1" placeholder="Existing E-mail"/>
+							</div>
+							<div class="input">
+								<i class="fa fa-fw fa-envelope-o"></i>
+								<input required="required" type="email" name="email2" placeholder="New E-mail"/>
+							</div>
+							<div class="input">
+								<i class="fa fa-fw fa-envelope-o"></i>
+								<input required="required" type="email" name="email3" placeholder="Repeat New E-mail"/>
+							</div>
+							<div class="input input-submit">
+								<i class="fa fa-fw fa-check"></i>
+								<input id="changeMailSubmit" type="submit" value="Submit" />
+							</div>
 						</fieldset>
 					</form>
 				</section>
@@ -103,10 +118,22 @@
 							</div>
 						</div>
 						<fieldset>
-							<div><input required="required" type="password" name="password1" placeholder="Existing Password"/></div>
-							<div><input required="required" type="password" name="password2" placeholder="New Password"/></div>
-							<div><input required="required" type="password" name="password3" placeholder="Repeat New Password"/></div>
-							<div><input id="changePassSubmit" type="submit" value="Submit" /></div>
+							<div class="input">
+								<i class="fa fa-fw fa-lock"></i>
+								<input required="required" type="password" name="password1" placeholder="Existing Password"/>
+							</div>
+							<div class="input">
+								<i class="fa fa-fw fa-lock"></i>
+								<input required="required" type="password" name="password2" placeholder="New Password"/>
+							</div>
+							<div class="input">
+								<i class="fa fa-fw fa-lock"></i>
+								<input required="required" type="password" name="password3" placeholder="Repeat New Password"/>
+							</div>
+							<div class="input input-submit">
+								<i class="fa fa-fw fa-check"></i>
+								<input id="changePassSubmit" type="submit" value="Submit" />
+							</div>
 						</fieldset>
 					</form>
 				</section>
@@ -118,12 +145,25 @@
 						Click <q>Send Test</q> to send a test message to the administrator account.
 					</aside>
 					<div id="checkSmtpResults" class="noshow">
-						<ul>
-							<li><span>SMTP server: <span id="checkSmtpResultsServer"></span></span></li>
-							<li><span>SMTP user: <span id="checkSmtpResultsUser"></span></span></li>
-							<li><span>From address: <span id="checkSmtpResultsFrom"></span></span></li>
-						</ul>
-						<div><button class="send" id="checkSmtpButton" onclick="testSmtp();">Send Test</button></div>
+						<h4>Current Values</h4>
+						<fieldset>
+							<div class="input">
+								<i class="fa fa-fw fa-database"></i>
+								<input disabled="disabled" id="checkSmtpResultsServer" type="text" />
+							</div>
+							<div class="input">
+								<i class="fa fa-fw fa-user"></i>
+								<input disabled="disabled" id="checkSmtpResultsUser" type="text" />
+							</div>
+							<div class="input">
+								<i class="fa fa-fw fa-envelope"></i>
+								<input disabled="disabled" id="checkSmtpResultsFrom" type="text" />
+							</div>
+							<div class="input input-submit">
+								<i class="fa fa-send"></i>
+								<button class="send" id="checkSmtpButton" onclick="testSmtp();">Send Test</button>
+							</div>
+						</fieldset>
 					</div>
 					<div id="testSmtpResults" class="noshow canclose">
 						<h4>Results</h4>
@@ -156,11 +196,26 @@
 							</div>
 						</div>
 						<fieldset>
-							<div><input required="required" type="email" name="email" placeholder="you@example.com"/></div>
-							<div><input required="required" type="text" name="server" placeholder="smtp://example.com:587"/></div>
-							<div><input required="required" type="text" name="user" placeholder="SMTP User"/></div>
-							<div><input required="required" type="password" name="password" placeholder="SMTP Password"/></div>
-							<div><input id="changeSmtpSubmit" type="submit" value="Submit" /></div>
+							<div class="input">
+								<i class="fa fa-fw fa-envelope"></i>
+								<input required="required" type="email" name="email" placeholder="you@example.com"/>
+							</div>
+							<div class="input">
+								<i class="fa fa-fw fa-database"></i>
+								<input required="required" type="text" name="server" placeholder="smtp://example.com:587"/>
+							</div>
+							<div class="input">
+								<i class="fa fa-fw fa-user"></i>
+								<input required="required" type="text" name="user" placeholder="SMTP User"/>
+							</div>
+							<div class="input">
+								<i class="fa fa-fw fa-lock"></i>
+								<input required="required" type="password" name="password" placeholder="SMTP Password"/>
+							</div>
+							<div class="input input-submit">
+								<i class="fa fa-fw fa-check"></i>
+								<input id="changeSmtpSubmit" type="submit" value="Submit" />
+							</div>
 						</fieldset>
 					</form>
 				</section>
