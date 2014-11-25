@@ -17,6 +17,7 @@
 
 #include <gmp.h>
 #include <kcgi.h>
+#include <kcgijson.h>
 
 #include "extern.h"
 
@@ -259,7 +260,7 @@ send303(struct kreq *r, enum page dest, int dostatus)
 	full = kutil_urlabs(KSCHEME_HTTP, r->host, r->port, page);
 	khttp_head(r, kresps[KRESP_LOCATION], "%s", full);
 	khttp_body(r);
-	khtml_text(r, "Redirecting...");
+	khttp_puts(r, "Redirecting...");
 	free(full);
 	free(page);
 }
@@ -272,11 +273,11 @@ sendtempl(size_t key, void *arg)
 
 	switch (key) {
 	case (TEMPL_CGIBIN):
-		khtml_text(r, r->pname);
+		khttp_puts(r, r->pname);
 		break;
 	case (TEMPL_HTDOCS):
 		p = getenv("HTML_URI");
-		khtml_text(r, NULL != p ? p : "");
+		khttp_puts(r, NULL != p ? p : "");
 		break;
 	default:
 		break;
@@ -309,6 +310,7 @@ static void
 senddogetexpr(struct kreq *r)
 {
 	struct expr	*expr;
+	struct kjsonreq	 req;
 
 	if (NULL == (expr = db_expr_get())) {
 		http_open(r, KHTTP_409);
@@ -318,9 +320,12 @@ senddogetexpr(struct kreq *r)
 
 	http_open(r, KHTTP_200);
 	khttp_body(r);
-	khttp_putc(r, '{');
-	json_putexpr(r, expr);
-	khttp_putc(r, '}');
+
+	kjson_open(&req, r);
+	kjson_obj_open(&req);
+	json_putexpr(&req, expr);
+	kjson_obj_close(&req);
+	kjson_close(&req);
 	db_expr_free(expr);
 }
 
@@ -417,16 +422,19 @@ senddotestsmtp(struct kreq *r)
 {
 	pid_t		 pid;
 	char		*mail;
+	struct kjsonreq	 req;
 
 	mail = db_admin_get_mail();
 	fprintf(stderr, "mailing: %s\n", mail);
 
 	http_open(r, KHTTP_200);
-	khttp_body(r);
-	khttp_putc(r, '{');
-	json_putstring(r, "mail", mail);
-	khttp_putc(r, '}');
 
+	khttp_body(r);
+	kjson_open(&req, r);
+	kjson_obj_open(&req);
+	kjson_putstringp(&req, "mail", mail);
+	kjson_obj_close(&req);
+	kjson_close(&req);
 	free(mail);
 
 	db_close();
@@ -448,6 +456,7 @@ static void
 senddochecksmtp(struct kreq *r)
 {
 	struct smtp	*smtp;
+	struct kjsonreq	 req;
 
 	if (NULL == (smtp = db_smtp_get())) {
 		http_open(r, KHTTP_400);
@@ -457,13 +466,13 @@ senddochecksmtp(struct kreq *r)
 
 	http_open(r, KHTTP_200);
 	khttp_body(r);
-	khttp_putc(r, '{');
-	json_putstring(r, "server", smtp->server);
-	khttp_putc(r, ',');
-	json_putstring(r, "mail", smtp->from);
-	khttp_putc(r, ',');
-	json_putstring(r, "user", smtp->user);
-	khttp_putc(r, '}');
+	kjson_open(&req, r);
+	kjson_obj_open(&req);
+	kjson_putstringp(&req, "server", smtp->server);
+	kjson_putstringp(&req, "mail", smtp->from);
+	kjson_putstringp(&req, "user", smtp->user);
+	kjson_obj_close(&req);
+	kjson_close(&req);
 	db_smtp_free(smtp);
 }
 
@@ -636,64 +645,58 @@ senddoaddplayers(struct kreq *r)
 static void
 senddoloadplayer(const struct player *player, size_t count, void *arg)
 {
-	struct kreq	*r = arg;
+	struct kjsonreq	*r = arg;
 
-	if (count > 0)
-		khttp_putc(r, ',');
-	khttp_putc(r, '{');
-	json_putstring(r, "mail", player->mail);
-	khttp_putc(r, ',');
-	json_putint(r, "id", player->id);
-	khttp_putc(r, ',');
-	json_putint(r, "enabled", player->enabled);
-	khttp_putc(r, ',');
-	json_putint(r, "status", player->state);
-	khttp_putc(r, ',');
-	json_putint(r, "role", player->role);
-	khttp_putc(r, '}');
+	kjson_obj_open(r);
+	kjson_putstringp(r, "mail", player->mail);
+	kjson_putintp(r, "id", player->id);
+	kjson_putintp(r, "enabled", player->enabled);
+	kjson_putintp(r, "status", player->state);
+	kjson_putintp(r, "role", player->role);
+	kjson_obj_close(r);
 }
 
 static void
 senddoloadgame(const struct game *game, size_t count, void *arg)
 {
-	struct kreq	*r = arg;
+	struct kjsonreq	*r = arg;
 
-	if (count > 0)
-		khttp_putc(r, ',');
-	khttp_putc(r, '{');
-	json_putint(r, "id", game->id);
-	khttp_putc(r, ',');
-	json_putint(r, "p1", game->p1);
-	khttp_putc(r, ',');
-	json_putint(r, "p2", game->p2);
-	khttp_putc(r, ',');
-	json_putstring(r, "name", game->name);
-	khttp_putc(r, ',');
-	json_putmpqs(r, "payoffs", game->payoffs, game->p1, game->p2);
-	khttp_putc(r, '}');
+	kjson_obj_open(r);
+	kjson_putintp(r, "id", game->id);
+	kjson_putintp(r, "p1", game->p1);
+	kjson_putintp(r, "p2", game->p2);
+	kjson_putstringp(r, "name", game->name);
+	json_putmpqs(r, game->payoffs, game->p1, game->p2);
+	kjson_obj_close(r);
 }
 
 static void
 senddoloadplayers(struct kreq *r)
 {
+	struct kjsonreq	 req;
 
 	http_open(r, KHTTP_200);
 	khttp_body(r);
-	khttp_putc(r, '[');
-	db_player_load_all(senddoloadplayer, r);
-	khttp_puts(r, "]\n");
+	kjson_open(&req, r);
+	kjson_array_open(&req);
+	db_player_load_all(senddoloadplayer, &req);
+	kjson_array_close(&req);
+	kjson_close(&req);
 }
 
 
 static void
 senddoloadgames(struct kreq *r)
 {
+	struct kjsonreq	 req;
 
 	http_open(r, KHTTP_200);
 	khttp_body(r);
-	khttp_putc(r, '[');
-	db_game_load_all(senddoloadgame, r);
-	khttp_puts(r, "]\n");
+	kjson_open(&req, r);
+	kjson_array_open(&req);
+	db_game_load_all(senddoloadgame, &req);
+	kjson_array_close(&req);
+	kjson_close(&req);
 }
 
 static void
@@ -839,12 +842,14 @@ kvalid_minutes(struct kpair *kp)
 	return(kp->parsed.i > 0 && kp->parsed.i <= 1440);
 }
 
+#include <sys/socket.h>
+
 int
 main(void)
 {
 	struct kreq	 r;
 	unsigned int	 bit;
-	
+
 	if ( ! khttp_parse(&r, keys, KEY__MAX, 
 			pages, PAGE__MAX, PAGE_INDEX))
 		return(EXIT_FAILURE);

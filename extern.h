@@ -115,9 +115,8 @@ void		 json_puts(struct kreq *r, const char *cp);
 void		 json_putdouble(struct kreq *r, const char *key, double val);
 void		 json_putint(struct kreq *r, const char *key, int64_t val);
 void		 json_putstring(struct kreq *r, const char *key, const char *val);
-void		 json_putmpqs(struct kreq *r, const char *key, 
-			mpq_t *vals, int64_t p1, int64_t p2);
-void		 json_putexpr(struct kreq *r, const struct expr *expr);
+void		 json_putmpqs(struct kjsonreq *r, mpq_t *vals, int64_t p1, int64_t p2);
+void		 json_putexpr(struct kjsonreq *r, const struct expr *expr);
 
 __END_DECLS
 

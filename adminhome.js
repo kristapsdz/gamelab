@@ -65,9 +65,11 @@ function loadNewPlayersSuccess(resp)
 	if (null == e)
 		return;
 
+	console.log('Response: ' + resp);
 	try  { 
 		results = JSON.parse(resp);
 	} catch (error) {
+		console.log('Error: ' + error);
 		li = document.createElement('li');
 		li.appendChild(document.createTextNode('Parse error.'));
 		e.appendChild(li);
@@ -164,9 +166,11 @@ function loadPlayersSuccess(resp)
 	if (null == e)
 		return;
 
+	console.log('Response: ' + resp);
 	try  { 
 		results = JSON.parse(resp);
 	} catch (error) {
+		console.log('Error: ' + error);
 		li = document.createElement('li');
 		li.appendChild(document.createTextNode('Parse error.'));
 		e.appendChild(li);
@@ -240,9 +244,11 @@ function loadGamesSuccessInner(resp, code)
 	if (null == e)
 		return;
 
+	console.log('Response: ' + resp);
 	try  { 
 		results = JSON.parse(resp);
 	} catch (error) {
+		console.log('Error: ' + error);
 		li = document.createElement('li');
 		li.appendChild(document.createTextNode('Parse error.'));
 		e.appendChild(li);
@@ -425,9 +431,11 @@ function loadSmtpSuccess(resp)
 
 	doClassOk('checkSmtpLoad');
 
+	console.log('Response: ' + resp);
 	try {
 		results = JSON.parse(resp);
 	} catch (error) {
+		console.log('Error: ' + error);
 		return;
 	}
 
@@ -503,10 +511,11 @@ function loadExprSuccess(resp)
 {
 	var results, v, e, chld, head, expr;
 
-	console.log(resp);
+	console.log('Response: ' + resp);
 	try  { 
 		results = JSON.parse(resp);
 	} catch (error) {
+		console.log('Error: ' + error);
 		return;
 	}
 
@@ -657,10 +666,12 @@ function doTestSmtpSuccess(resp)
 {
 	var results, mail;
 
+	console.log('Response: ' + resp);
 	try  { 
 		results = JSON.parse(resp);
 		mail = results.mail;
 	} catch (error) {
+		console.log('Error: ' + error);
 		mail = 'unknown';
 	}
 

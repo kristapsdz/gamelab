@@ -28,10 +28,10 @@ STATIC	 =
 all: admin lab
 
 admin: admin.o db.o mail.o json.o
-	$(CC) $(STATIC) -L/usr/local/lib -o $@ admin.o db.o mail.o json.o -lsqlite3 -lkcgi -lz -lgmp `curl-config --libs`
+	$(CC) $(STATIC) -L/usr/local/lib -o $@ admin.o db.o mail.o json.o -lsqlite3 -lkcgi -lkcgijson -lz -lgmp `curl-config --libs`
 
 lab: lab.o db.o mail.o json.o
-	$(CC) $(STATIC) -L/usr/local/lib -o $@ lab.o db.o mail.o json.o -lsqlite3 -lkcgi -lz -lgmp `curl-config --libs`
+	$(CC) $(STATIC) -L/usr/local/lib -o $@ lab.o db.o mail.o json.o -lsqlite3 -lkcgi -lkcgijson -lz -lgmp `curl-config --libs`
 
 admin.o lab.o db.o mail.o: extern.h
 

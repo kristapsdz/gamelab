@@ -15,6 +15,7 @@
 
 #include <gmp.h>
 #include <kcgi.h>
+#include <kcgijson.h>
 
 #include "extern.h"
 
@@ -180,7 +181,7 @@ send303(struct kreq *r, enum page dest, int dostatus)
 	full = kutil_urlabs(KSCHEME_HTTP, r->host, r->port, page);
 	khttp_head(r, kresps[KRESP_LOCATION], "%s", full);
 	khttp_body(r);
-	khtml_text(r, "Redirecting...");
+	khttp_puts(r, "Redirecting...");
 	free(full);
 	free(page);
 }
@@ -193,11 +194,11 @@ sendtempl(size_t key, void *arg)
 
 	switch (key) {
 	case (TEMPL_CGIBIN):
-		khtml_text(r, r->pname);
+		khttp_puts(r, r->pname);
 		break;
 	case (TEMPL_HTDOCS):
 		p = getenv("HTML_URI");
-		khtml_text(r, NULL != p ? p : "");
+		khttp_puts(r, NULL != p ? p : "");
 		break;
 	default:
 		break;
@@ -265,21 +266,15 @@ senddologin(struct kreq *r)
 static void
 senddoloadgame(const struct game *game, size_t count, void *arg)
 {
-	struct kreq	*r = arg;
+	struct kjsonreq	*r = arg;
 
-	if (count > 0)
-		khttp_putc(r, ',');
-	khttp_putc(r, '{');
-	json_putint(r, "p1", game->p1);
-	khttp_putc(r, ',');
-	json_putint(r, "p2", game->p2);
-	khttp_putc(r, ',');
-	json_putstring(r, "name", game->name);
-	khttp_putc(r, ',');
-	json_putmpqs(r, "payoffs", game->payoffs, game->p1, game->p2);
-	khttp_putc(r, ',');
-	json_putint(r, "id", game->id);
-	khttp_putc(r, '}');
+	kjson_obj_open(r);
+	kjson_putintp(r, "p1", game->p1);
+	kjson_putintp(r, "p2", game->p2);
+	kjson_putstringp(r, "name", game->name);
+	json_putmpqs(r, game->payoffs, game->p1, game->p2);
+	kjson_putintp(r, "id", game->id);
+	kjson_obj_close(r);
 }
 
 static void
@@ -288,6 +283,7 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 	struct expr	*expr;
 	struct player	*player;
 	time_t		 t;
+	struct kjsonreq	 req;
 
 	player = db_player_load(playerid);
 	expr = db_expr_get();
@@ -295,22 +291,19 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 	http_open(r, KHTTP_200);
 	khttp_body(r);
 
-	khttp_putc(r, '{');
+	kjson_open(&req, r);
+	kjson_obj_open(&req);
 	if ((t = time(NULL)) < expr->end && t > expr->start) {
-		json_putint(r, "role", player->role);
-		khttp_putc(r, ',');
-		json_puts(r, "games");
-		khttp_putc(r, ':');
-		khttp_putc(r, '[');
+		kjson_putintp(&req, "role", player->role);
+		kjson_arrayp_open(&req, "games");
 		db_game_load_player(playerid, 
 			(t - expr->start) / (expr->minutes * 60), 
-			senddoloadgame, r);
-		khttp_putc(r, ']');
-		khttp_putc(r, ',');
+			senddoloadgame, &req);
+		kjson_array_close(&req);
 	}
-
-	json_putexpr(r, expr);
-	khttp_putc(r, '}');
+	json_putexpr(&req, expr);
+	kjson_obj_close(&req);
+	kjson_close(&req);
 	db_expr_free(expr);
 	db_player_free(player);
 }

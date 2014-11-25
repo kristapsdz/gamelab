@@ -13,6 +13,7 @@
 #include <unistd.h>
 
 #include <kcgi.h>
+#include <kcgijson.h>
 #include <gmp.h>
 #include <sqlite3.h>
 
