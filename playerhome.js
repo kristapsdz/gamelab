@@ -148,6 +148,7 @@ function loadExprSuccess(resp)
 			input.setAttribute('type', 'text');
 			input.setAttribute('required', 'required');
 			input.setAttribute('placeholder', 'Strategy ' + (i + 1));
+			input.setAttribute('id', 'index' + matrix[i].index);
 			input.setAttribute('name', 'index' + matrix[i].index);
 			div.appendChild(ii);
 			div.appendChild(input);
@@ -218,8 +219,17 @@ function doPlayGameError(err)
 
 function doPlayGameSuccess(resp)
 {
+	var i, e;
 
-	document.getElementById('playGameSubmit').value = 'Submitted!';
+	e = document.getElementById('playGameSubmit');
+	e.setAttribute('value', 'Submitted!');
+
+	for (i = 0; ; i++) {
+		e = document.getElementById('index' + i);
+		if (null == e)
+			break;
+		e.setAttribute('readonly', 'readonly');
+	}
 }
 
 function playGame(form)

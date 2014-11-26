@@ -7,6 +7,7 @@ h1				{ font-weight: normal;
 a				{ text-decoration: none; 
 				  color: blue; }
 body				{ font-size: 14pt; }
+i.fa-warning + span		{ margin-left: 0.5ex; }
 header a			{ color: #000; }
 nav ul				{ list-style-type: none; 
 				  background-color: #ccc;
