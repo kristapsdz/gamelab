@@ -121,8 +121,10 @@ function loadExprSuccess(resp)
 		 * everything there is to play), then simply 
 		 * Else we format our matrix and payoff list.
 		 */
-		if (0 == results.games.length)
+		if (0 == results.games.length) {
+			doUnhide('exprDone');
 			return;
+		}
 
 		doUnhide('exprPlay');
 		game = results.games[Math.floor
@@ -157,6 +159,7 @@ function loadExprSuccess(resp)
 		ii.setAttribute('class', 'fa fa-fw fa-check');
 		input = document.createElement('input');
 		input.setAttribute('type', 'submit');
+		input.setAttribute('id', 'playGameSubmit');
 		input.setAttribute('value', 'Submit Play');
 		div.appendChild(ii);
 		div.appendChild(input);
@@ -176,6 +179,7 @@ function loadExprSetup()
 
 	doHide('exprPlay');
 	doHide('exprCountdown');
+	doHide('exprDone');
 	doUnhide('exprLoading');
 }
 
@@ -184,4 +188,43 @@ function loadExpr()
 
 	sendQuery('@@cgibin@@/doloadexpr.json', 
 		loadExprSetup, loadExprSuccess, null);
+}
+
+function doPlayGameSetup()
+{
+
+	doHide('playGameErrorJson');
+	doHide('playGameErrorForm');
+	document.getElementById('playGameSubmit').value = 'Submitting...';
+}
+
+function doPlayGameError(err)
+{
+
+	document.getElementById('playGameSubmit').value = 'Submit';
+	switch (err) {
+	case 400:
+		doUnhide('playGameErrorForm');
+		break;
+	case 409:
+		doHide('exprPlay');
+		doUnhide('exprDone');
+		break;
+	default:
+		doUnhide('playGameErrorJson');
+		break;
+	}
+}
+
+function doPlayGameSuccess(resp)
+{
+
+	document.getElementById('playGameSubmit').value = 'Submitted!';
+}
+
+function playGame(form)
+{
+
+	return(sendForm(form, doPlayGameSetup,
+		doPlayGameError, doPlayGameSuccess));
 }

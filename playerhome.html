@@ -28,13 +28,27 @@
 		<article>
 			<section id="exprCountdown" class="noshow"></section>
 			<section id="exprLoading"><i class="fa fa-spinner fa-spin"></i></section>
+			<section id="exprDone">
+				<div>
+					You've aleady played all games for this round!
+					When the clock reaches zero, you'll be able to play again.
+				</div>
+			</section>
 			<section id="exprPlay" class="noshow">
 				<div id="exprMatrix"></div>
 				<aside>
 					Enter your matrix payoffs below.
 					These must be fractions or decimal numbers with no greater than four digits following the decimal.
 				</aside>
-				<form method="post" action="@@cgibin@@/doplay.json">
+				<form method="post" action="@@cgibin@@/doplay.json" id="playGame" onsubmit="return(playGame(this));">
+					<div class="error">
+						<div id="playGameErrorJson" class="noshow">
+							<i class="fa fa-warning"></i>A system error occured.
+						</div>
+						<div id="playGameErrorForm" class="noshow">
+							<i class="fa fa-warning"></i>Form not correctly filled out.
+						</div>
+					</div>
 					<input type="hidden" id="exprPlayGid" name="gid" />
 					<input type="hidden" id="exprPlayRound" name="round" />
 					<fieldset id="exprPlayList"></fieldset>

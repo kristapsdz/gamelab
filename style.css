@@ -203,7 +203,10 @@ sup				{ font-size: 8pt;
 	div.countdown > div > div
 				{ width: 25%; }
 	div.countdown > div:first-child > div
-				{ padding: 0; }
+				{ padding: 0.5ex 0; 
+				  font-size: 16pt; }
+	div.countdown > div:last-child > div
+				{ font-size: 10pt; }
 	article ul li > span	{ display: block; 
 				  margin: 1ex 0; }
 	article ul li > div	{ margin: 1ex 0; }

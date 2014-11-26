@@ -8,6 +8,16 @@ CREATE TABLE player (
 	UNIQUE (email)
 );
 
+CREATE TABLE choice (
+	round INTEGER NOT NULL,
+	strategy INTEGER NOT NULL,
+	randr DOUBLE NOT NULL,
+	playerid INTEGER REFERENCES player(id) NOT NULL,
+	gameid INTEGER REFERENCES game(id) NOT NULL,
+	id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+	UNIQUE (round, playerid, gameid)
+);
+
 CREATE TABLE play (
 	fraction TEXT NOT NULL,
 	round INTEGER NOT NULL,
@@ -15,7 +25,7 @@ CREATE TABLE play (
 	playerid INTEGER REFERENCES player(id) NOT NULL,
 	gameid INTEGER REFERENCES game(id) NOT NULL,
 	id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-	UNIQUE (round,playerid,strategy)
+	UNIQUE (round,playerid,gameid,strategy)
 );
 
 CREATE TABLE experiment (

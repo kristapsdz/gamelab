@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include <unistd.h>
 
 #include <kcgi.h>
@@ -183,6 +184,18 @@ db_bind_text(sqlite3_stmt *stmt, size_t pos, const char *val)
 		(stmt, pos, val, -1, SQLITE_STATIC))
 		return;
 	fprintf(stderr, "sqlite3_bind_text: %s\n", sqlite3_errmsg(db));
+	db_finalise(stmt);
+	exit(EXIT_FAILURE);
+}
+
+static void
+db_bind_double(sqlite3_stmt *stmt, size_t pos, double val)
+{
+
+	assert(pos > 0);
+	if (SQLITE_OK == sqlite3_bind_double(stmt, pos, val))
+		return;
+	fprintf(stderr, "sqlite3_bind_double: %s\n", sqlite3_errmsg(db));
 	db_finalise(stmt);
 	exit(EXIT_FAILURE);
 }
@@ -521,8 +534,7 @@ db_payoff_to_mpq(char *buf, int64_t p1, int64_t p2)
 	int	 rc;
 	char	*tok;
 
-	rops = calloc(p1 * p2 * 2, sizeof(mpq_t));
-	assert(NULL != rops);
+	rops = kcalloc(p1 * p2 * 2, sizeof(mpq_t));
 
 	for (i = 0; i < (size_t)(p1 * p2 * 2); i++)
 		mpq_init(rops[i]);
@@ -637,30 +649,89 @@ db_player_load_all(void (*fp)(const struct player *, size_t, void *), void *arg)
 	return(count);
 }
 
+/*
+ * The "plays" values should be canonicalised from mpq_t prior to being
+ * passed here.
+ */
 int
 db_player_play(int64_t playerid, int64_t round, 
-	int64_t gameid, const mpq_t *plays, size_t sz)
+	int64_t gameid, const char *const *plays, 
+	size_t sz, size_t choice, double rr)
 {
+	struct expr	*expr;
+	time_t		 t;
+	sqlite3_stmt	*stmt;
+	size_t		 i;
+	int		 rc;
 
+	/*
+	 * Check this outside of a transaction.
+	 * The values needn't be completely "on time" to the
+	 * microsecond and this doesn't change in the database.
+	 */
+	t = time(NULL);
+	expr = db_expr_get();
+	assert(NULL != expr);
+	if (round > expr->rounds) {
+		db_expr_free(expr);
+		return(0);
+	} else if (round != (t - expr->start) / (expr->minutes * 60)) {
+		db_expr_free(expr);
+		return(0);
+	}
+	db_expr_free(expr);
+
+	/*
+	 * Uniquely create our choice.
+	 * We do this before setting the play choices, because we've
+	 * basically "locked" what follows into the original player.
+	 */
+	stmt = db_stmt("INSERT INTO choice "
+		"(round,playerid,gameid,strategy,randr) "
+		"VALUES (?,?,?,?,?)");
+	db_bind_int(stmt, 1, round);
+	db_bind_int(stmt, 2, playerid);
+	db_bind_int(stmt, 3, gameid);
+	db_bind_int(stmt, 4, choice);
+	db_bind_double(stmt, 5, rr);
+	rc = db_step(stmt, DB_STEP_CONSTRAINT);
+	db_finalise(stmt);
+	if (SQLITE_CONSTRAINT == rc)
+		return(0);
+
+	/*
+	 * Insert all of our play choices.
+	 */
+	stmt = db_stmt("INSERT into play "
+		"(fraction, round, strategy, playerid, gameid) "
+		"VALUES (?, ?, ?, ?, ?)");
+	for (i = 0; i < sz; i++) {
+		db_bind_text(stmt, 1, plays[i]);
+		db_bind_int(stmt, 2, round);
+		db_bind_int(stmt, 3, i);
+		db_bind_int(stmt, 4, playerid);
+		db_bind_int(stmt, 5, gameid);
+		db_step(stmt, 0);
+		sqlite3_reset(stmt);
+	}
+	db_finalise(stmt);
+	return(1);
 }
 
 int
 db_game_check_player(int64_t playerid, int64_t round, int64_t game)
 {
 	sqlite3_stmt	*stmt;
-	int64_t		 res;
 	int		 rc;
 
-	stmt = db_stmt("SELECT EXISTS(SELECT 1 FROM play "
-		"WHERE playerid=? AND round=? AND gameid=?)");
+	stmt = db_stmt("SELECT * FROM choice "
+		"WHERE playerid=? AND round=? AND gameid=?");
 	db_bind_int(stmt, 1, playerid);
 	db_bind_int(stmt, 2, round);
 	db_bind_int(stmt, 3, game);
 	rc = db_step(stmt, 0);
-	assert(SQLITE_ROW == rc);
-	res = sqlite3_column_int(stmt, 0);
 	db_finalise(stmt);
-	return(res > 0);
+	return(rc == SQLITE_ROW);
 }
 
 size_t
@@ -701,6 +772,33 @@ db_game_load_player(int64_t playerid, int64_t round,
 	return(count);
 }
 
+struct game *
+db_game_load(int64_t gameid)
+{
+	sqlite3_stmt	*stmt;
+	struct game	*game;
+	char		*sv;
+
+	game = NULL;
+	stmt = db_stmt("SELECT payoffs,p1,p2,"
+		"name,id FROM game WHERE id=?");
+	db_bind_int(stmt, 1, gameid);
+
+	if (SQLITE_ROW == db_step(stmt, 0)) {
+		game = kcalloc(1, sizeof(struct game));
+		sv = kstrdup((char *)sqlite3_column_text(stmt, 0));
+		game->p1 = sqlite3_column_int(stmt, 1);
+		game->p2 = sqlite3_column_int(stmt, 2);
+		game->payoffs = db_payoff_to_mpq(sv, game->p1, game->p2);
+		game->name = kstrdup((char *)sqlite3_column_text(stmt, 3));
+		game->id = sqlite3_column_int(stmt, 4);
+		free(sv);
+	}
+
+	db_finalise(stmt);
+	return(game);
+}
+
 size_t
 db_game_load_all(void (*fp)(const struct game *, size_t, void *), void *arg)
 {
@@ -713,14 +811,11 @@ db_game_load_all(void (*fp)(const struct game *, size_t, void *), void *arg)
 	stmt = db_stmt("SELECT payoffs,p1,p2,name,id FROM game");
 	while (SQLITE_ROW == db_step(stmt, 0)) {
 		memset(&game, 0, sizeof(struct game));
-		sv = strdup((char *)sqlite3_column_text(stmt, 0));
-		assert(NULL != sv);
+		sv = kstrdup((char *)sqlite3_column_text(stmt, 0));
 		game.p1 = sqlite3_column_int(stmt, 1);
 		game.p2 = sqlite3_column_int(stmt, 2);
 		game.payoffs = db_payoff_to_mpq(sv, game.p1, game.p2);
-		assert(NULL != game.payoffs);
-		game.name = strdup((char *)sqlite3_column_text(stmt, 3));
-		assert(NULL != game.name);
+		game.name = kstrdup((char *)sqlite3_column_text(stmt, 3));
 		game.id = sqlite3_column_int(stmt, 4);
 		(*fp)(&game, count++, arg);
 		for (i = 0; i < (size_t)(2 * game.p1 * game.p2); i++)
@@ -750,10 +845,8 @@ db_game_alloc(const char *poffs,
 		return(NULL);
 	}
 
-	sv = buf = strdup(poffs);
-	assert(NULL != buf);
-	rops = calloc(p1 * p2 * 2, sizeof(mpq_t));
-	assert(NULL != rops);
+	sv = buf = kstrdup(poffs);
+	rops = kcalloc(p1 * p2 * 2, sizeof(mpq_t));
 
 	for (i = 0; i < (size_t)(p1 * p2 * 2); i++)
 		mpq_init(rops[i]);
@@ -789,13 +882,11 @@ db_game_alloc(const char *poffs,
 		return(NULL);
 	}
 
-	game = calloc(1, sizeof(struct game));
-	assert(NULL != game);
+	game = kcalloc(1, sizeof(struct game));
 	game->payoffs = rops;
 	game->p1 = p1;
 	game->p2 = p2;
-	game->name = strdup(name);
-	assert(NULL != game->name);
+	game->name = kstrdup(name);
 
 	stmt = db_stmt("INSERT INTO game "
 		"(payoffs, p1, p2, name) VALUES(?,?,?,?)");

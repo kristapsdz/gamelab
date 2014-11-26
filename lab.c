@@ -6,6 +6,7 @@
 
 #include <assert.h>
 #include <inttypes.h>
+#include <math.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -305,18 +306,142 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 static void
 senddoplay(struct kreq *r, int64_t playerid)
 {
-	struct player	*player;
+	struct player	 *player;
+	struct game	 *game;
+	size_t		  i, j, strats, strat;
+	char		  buf[128];
+	mpq_t		  mix, sum, one, tmp;
+	double		  rr, v;
+	int 		  selected;
+	char		**mixes;
 
+	player = NULL;
+	game = NULL;
+	mixes = NULL;
+	strats = 0;
+	mpq_init(mix);
+	mpq_init(one);
+	mpq_init(sum);
+	mpq_init(tmp);
+
+	/* 
+	 * First, make sure our basic parameters are there (game
+	 * identifier, round, and the game itself).
+	 */
 	if (kpairbad(r, KEY_GAMEID) ||
-		kpairbad(r, KEY_ROUND)) {
+		kpairbad(r, KEY_ROUND) ||
+		NULL == (game = db_game_load
+			(r->fieldmap[KEY_GAMEID]->parsed.i))) {
 		http_open(r, KHTTP_400);
-		khttp_body(r);
-		return;
+		fprintf(stderr, "bad bucketed input\n");
+		goto out;
 	}
 
+	/* Get our player handle (for the role). */
 	player = db_player_load(playerid);
 	assert(NULL != player);
+
+	/* 
+	 * We'll need this number of strategies.
+	 * Initialise the strategy array right now.
+	 */
+	strats = (0 == player->role) ? game->p1 : game->p2;
+	mixes = kcalloc(strats, sizeof(char *));
+
+	/*
+	 * Look up each strategy array in the field array.
+	 * Then make sure it's a valid number and canonicalise it.
+	 * If anything goes wrong, punt to KHTTP_400.
+	 * Also set our chosen random number.
+	 */
+	rr = arc4random() / (double)UINT32_MAX;
+	fprintf(stderr, "looking for %zu strats\n", strats);
+	selected = 0;
+	for (i = 0; i < strats; i++) {
+		(void)snprintf(buf, sizeof(buf), "index%zu", i);
+		for (j = 0; j < r->fieldsz; j++)
+			if (0 == strcmp(r->fields[j].key, buf))
+				break;
+		if (j == r->fieldsz) {
+			fprintf(stderr, "no input: %zu\n", i);
+			http_open(r, KHTTP_400);
+			goto out;
+		}
+		if ( ! kvalid_stringne(&r->fields[j])) {
+			fprintf(stderr, "bad field: %s\n", r->fields[j].val);
+			http_open(r, KHTTP_400);
+			goto out;
+		}
+		fprintf(stderr, "parsing %s\n", r->fields[j].val);
+		if (mpq_set_str(mix, r->fields[j].val, 10) < 0) {
+			fprintf(stderr, "bad number: %s\n", r->fields[j].val);
+			http_open(r, KHTTP_400);
+			goto out;
+
+		}
+		mpq_canonicalize(mix);
+		gmp_asprintf(&mixes[i], "%Qd", mix);
+		fprintf(stderr, "canonical: %s\n", mixes[i]);
+		assert(NULL != mixes[i]);
+		/* This is to verify the sum is 1. */
+		mpq_set(tmp, sum);
+		mpq_add(sum, tmp, mix);
+		mpq_canonicalize(sum);
+		/* Accumulate after conversion. */
+		v = mpq_get_d(sum);
+		if (0.0 != v && ! isnormal(v)) {
+			fprintf(stderr, "bad double: ");
+			gmp_fprintf(stderr, "%Qd\n", sum);
+			http_open(r, KHTTP_400);
+			goto out;
+		}
+		if ( ! selected && v > rr) {
+			fprintf(stderr, "selected strategy: %g > %g\n", v, rr);
+			strat = i;
+			selected = 1;
+		}
+	}
+	assert(selected);
+	mpq_set_ui(one, 1, 1);
+	mpq_canonicalize(one);
+
+	if ( ! mpq_equal(one, sum)) {
+		fprintf(stderr, "not one: ");
+		gmp_fprintf(stderr, "%Qd\n", sum);
+		http_open(r, KHTTP_400);
+		goto out;
+	}
+
+	/*
+	 * Actually play the game by assigning an array of strategies to
+	 * a given round, game, and player.
+	 * This can fail for many reasons, in which case we kick to
+	 * KHTTP_400 and depend on the frontend.
+	 */
+	if ( ! db_player_play
+		(player->id, r->fieldmap[KEY_ROUND]->parsed.i,
+		 game->id, (const char *const *)mixes, strats, 
+		 strat, rr))
+		http_open(r, KHTTP_409);
+	else
+		http_open(r, KHTTP_200);
+
+out:
+	/*
+	 * Clean up.
+	 * Assume we've already opened our HTTP response with the code,
+	 * so just pump our empty body and free memory.
+	 */
+	khttp_body(r);
+	for (i = 0; i < strats; i++)
+		free(mixes[i]);
+	free(mixes);
+	mpq_clear(mix);
+	mpq_clear(one);
+	mpq_clear(sum);
+	mpq_clear(tmp);
 	db_player_free(player);
+	db_game_free(game);
 }
 
 static void

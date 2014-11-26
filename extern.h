@@ -21,8 +21,8 @@ struct	sess {
 
 struct	game {
 	mpq_t		*payoffs;
-	int64_t		 p1;
-	int64_t		 p2;
+	int64_t		 p1; /* rows */
+	int64_t		 p2; /* columns */
 	char		*name;
 	int64_t		 id;
 };
@@ -78,6 +78,7 @@ size_t		 db_game_count_all(void);
 int		 db_game_delete(int64_t id);
 void		 db_game_free(struct game *game);
 size_t		 db_game_load_all(void (*fp)(const struct game *, size_t, void *), void *arg);
+struct game	*db_game_load(int64_t gameid);
 size_t		 db_game_load_player(int64_t playerid, int64_t round, 
 			void (*fp)(const struct game *, size_t, void *), void *arg);
 int		 db_game_check_player(int64_t playerid, int64_t round, int64_t gameid);
@@ -98,7 +99,8 @@ int		 db_player_valid(int64_t *id, const char *mail, const char *pass);
 int		 db_player_sess_valid(int64_t *playerid, int64_t id, int64_t cookie);
 void		 db_player_free(struct player *player);
 int		 db_player_play(int64_t playerid, int64_t round, 
-			int64_t gameid, const mpq_t *plays, size_t sz);
+			int64_t gameid, const char *const *plays, 
+			size_t sz, size_t choice, double rr);
 
 void		 db_sess_delete(int64_t id);
 void		 db_sess_free(struct sess *sess);
