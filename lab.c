@@ -30,7 +30,6 @@ enum	page {
 	PAGE_HOME,
 	PAGE_INDEX,
 	PAGE_LOGIN,
-	PAGE_STYLE,
 	PAGE__MAX
 };
 
@@ -39,7 +38,6 @@ enum	page {
  * By "manage" I mean that we template them.
  */
 enum	cntt {
-	CNTT_CSS_STYLE,
 	CNTT_HTML_HOME,
 	CNTT_HTML_LOGIN,
 	CNTT_JS_HOME,
@@ -71,7 +69,6 @@ enum	templ {
 #define	PERM_LOGIN	0x01
 #define	PERM_HTML	0x08
 #define	PERM_JSON	0x10
-#define	PERM_CSS	0x20
 #define	PERM_JS		0x40
 
 static	unsigned int perms[PAGE__MAX] = {
@@ -82,7 +79,6 @@ static	unsigned int perms[PAGE__MAX] = {
 	PERM_JS | PERM_HTML | PERM_LOGIN, /* PAGE_HOME */
 	PERM_JS | PERM_HTML | PERM_LOGIN, /* PAGE_INDEX */
 	PERM_HTML, /* PAGE_LOGIN */
-	PERM_CSS, /* PAGE_STYLE */
 };
 
 static const char *const pages[PAGE__MAX] = {
@@ -93,7 +89,6 @@ static const char *const pages[PAGE__MAX] = {
 	"home", /* PAGE_HOME */
 	"index", /* PAGE_INDEX */
 	"login", /* PAGE_LOGIN */
-	"style", /* PAGE_STYLE */
 };
 
 static	const char *const templs[TEMPL__MAX] = {
@@ -102,7 +97,6 @@ static	const char *const templs[TEMPL__MAX] = {
 };
 
 static const char *const cntts[CNTT__MAX] = {
-	"style.css", /* CNTT_CSS_STYLE */
 	"playerhome.html", /* CNTT_HTML_HOME_NEW */
 	"playerlogin.html", /* CNTT_HTML_LOGIN */
 	"playerhome.js", /* CNTT_JS_HOME */
@@ -357,9 +351,6 @@ main(void)
 	 * If it doesn't, then run an HTTP 404.
 	 */
 	switch (r.mime) {
-	case (KMIME_TEXT_CSS):
-		bit = PERM_CSS;
-		break;
 	case (KMIME_TEXT_HTML):
 		bit = PERM_HTML;
 		break;
@@ -408,9 +399,6 @@ main(void)
 		break;
 	case (PAGE_LOGIN):
 		sendcontent(&r, CNTT_HTML_LOGIN);
-		break;
-	case (PAGE_STYLE):
-		sendcontent(&r, CNTT_CSS_STYLE);
 		break;
 	default:
 		http_open(&r, KHTTP_404);

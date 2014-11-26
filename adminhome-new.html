@@ -4,7 +4,7 @@
 		<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
 		<meta charset="utf-8" /> 
 		<title>Gamelab Administration</title>
-		<link rel="stylesheet" href="@@cgibin@@/style.css" type="text/css" />
+		<link rel="stylesheet" href="@@htdocs@@/style.css" type="text/css" />
 		<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet" />
 		<style>
 			nav li:first-child { background-color: red; }
@@ -120,7 +120,7 @@
 						To delete a game, click the red symbol alongside.
 					</aside>
 					<ul id="loadGames">
-						<li><span class="loading">Loading...</span></li>
+						<li><i class="fa fa-spinner fa-spin"></i></li>
 					</ul>
 					<aside>
 						You may add games by specifying a name and payoffs.
@@ -171,7 +171,7 @@
 						To delete a player, just click the red symbol alongisde.
 					</aside>
 					<ul id="loadNewPlayers">
-						<li><span class="loading">Loading...</span></li>
+						<li><i class="fa fa-spinner fa-spin"></i></li>
 					</ul>
 					<aside>
 						Add players to the game using this form.
@@ -309,14 +309,11 @@
 						If you do not receive it in a little while, please fix your mail settings.
 					</div>
 					<div id="checkSmtpResultsNone" class="noshow">
-						<ul>
-							<li><span>You have not yet configured your e-mail server.</span></li>
-						</ul>
+						<i class="fa fa-warning"></i>
+						You have not yet configured your e-mail server.
 					</div>
 					<div id="checkSmtpResultsLoad">
-						<ul>
-							<li><span><span class="loading">Loading...</span></span></li>
-						</ul>
+						<i class="fa fa-spinner fa-spin"></i>
 					</div>
 					<aside>
 						Fill in the <q>From Address</q> (which appears on all e-mails to players), <q>SMTP

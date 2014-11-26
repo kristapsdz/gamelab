@@ -4,7 +4,7 @@
 		<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
 		<meta charset="utf-8" /> 
 		<title>Gamelab</title>
-		<link rel="stylesheet" href="@@cgibin@@/style.css" type="text/css" />
+		<link rel="stylesheet" href="@@htdocs@@/style.css" type="text/css" />
 		<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet" />
 		<style>
 			ol, section, fieldset { max-width: 1024px; }
@@ -27,7 +27,7 @@
 		</header>
 		<article>
 			<section id="exprCountdown" class="noshow"></section>
-			<section id="exprLoading"><span class="loading">Loading...</span></section>
+			<section id="exprLoading"><i class="fa fa-spinner fa-spin"></i></section>
 			<section id="exprPlay" class="noshow">
 				<div id="exprMatrix"></div>
 				<aside>
@@ -37,11 +37,7 @@
 				<form method="post" action="@@cgibin@@/doplay.json">
 					<input type="hidden" id="exprPlayGid" name="gid" />
 					<input type="hidden" id="exprPlayRound" name="round" />
-					<fieldset>
-						<div id="exprPlayList">
-						</div>
-						<input type="submit" value="Submit" />
-					</fieldset>
+					<fieldset id="exprPlayList"></fieldset>
 				</form>
 			</section>
 		</article>

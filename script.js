@@ -144,17 +144,6 @@ function formatCountdown(head, v, e)
 	row.appendChild(cell);
 }
 
-function appendLoading(e)
-{
-	var span;
-
-	span = document.createElement('span');
-	span.setAttribute('class', 'loading');
-	span.appendChild(document.createTextNode('Loading...'));
-	e.appendChild(span);
-	return(span);
-}
-
 function appendProgress(e, fraction)
 {
 	var prog;

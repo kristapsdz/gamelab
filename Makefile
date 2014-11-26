@@ -9,8 +9,7 @@ PAGES 	 = addplayer.eml \
 	   playerlogin.html \
 	   style.css \
 	   test.eml
-STATICS	 = ajax-loader.gif \
-	   script.js
+STATICS	 = script.js
 
 # Mac OSX testing.
 PREFIX	 = /Users/kristaps/Sites

@@ -77,7 +77,7 @@ function matrixCreateTranspose(game)
 
 function loadExprSuccess(resp)
 {
-	var results, e, v, head, game, i, j, matrix, div, input, expr;
+	var results, e, v, head, game, i, j, matrix, div, input, expr, ii;
 
 	try  { 
 		results = JSON.parse(resp);
@@ -139,15 +139,28 @@ function loadExprSuccess(resp)
 		e = doClear('exprPlayList');
 		for (i = 0; i < matrix.length; i++) {
 			div = document.createElement('div');
-			e.appendChild(div);
+			div.setAttribute('class', 'input');
+			ii = document.createElement('i');
+			ii.setAttribute('class', 'fa fa-fw fa-square');
 			input = document.createElement('input');
 			input.setAttribute('type', 'text');
 			input.setAttribute('required', 'required');
 			input.setAttribute('placeholder', 'Strategy ' + (i + 1));
-			input.setAttribute('name', 
-				'index' + matrix[i].index);
+			input.setAttribute('name', 'index' + matrix[i].index);
+			div.appendChild(ii);
 			div.appendChild(input);
+			e.appendChild(div);
 		}
+		div = document.createElement('div');
+		div.setAttribute('class', 'input input-submit');
+		ii = document.createElement('i');
+		ii.setAttribute('class', 'fa fa-fw fa-check');
+		input = document.createElement('input');
+		input.setAttribute('type', 'submit');
+		input.setAttribute('value', 'Submit Play');
+		div.appendChild(ii);
+		div.appendChild(input);
+		e.appendChild(div);
 	} else {
 		/*
 		 * Case where the game has finished.

@@ -467,10 +467,12 @@ function loadSmtp()
 
 function loadList(url, name, onsuccess, onerror) 
 {
-	var e, li;
+	var e, li, ii;
 
 	li = document.createElement('li');
-	appendLoading(li);
+	ii = document.createElement('i');
+	ii.setAttribute('class', 'fa fa-spinner fa-spin');
+	li.appendChild(ii);
 	doClear(name).appendChild(li);
 	sendQuery(url, null, onsuccess, onerror);
 }

@@ -39,10 +39,6 @@ section section >h3		{ margin: 0;
 				  color: #fff;
 				  background-color: #5555aa; }
 section section h4		{ margin: 0; }
-.loading			{ background-position: 4px center;
-				  background-repeat: no-repeat;
-				  padding-left: 32px;
-				  background-image: url('@@htdocs@@/ajax-loader.gif'); }
 article >section > aside			
 				{ padding: 1ex; }
 form .error			{ color: red;
