@@ -1,5 +1,12 @@
 "use strict";
 
+function shuffle(o)
+{
+
+	for (var j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
+        return o;
+};
+
 function appendMatrix(e, matrix)
 {
 	var table, row, cell, i, j, poff;
@@ -133,6 +140,8 @@ function loadExprSuccess(resp)
 			matrix = matrixCreate(game);
 		else
 			matrix = matrixCreateTranspose(game);
+
+		shuffle(matrix);
 		appendMatrix(doClear('exprMatrix'), matrix);
 
 		document.getElementById('exprPlayGid').value = game.id;

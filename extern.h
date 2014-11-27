@@ -83,6 +83,7 @@ size_t		 db_game_load_player(int64_t playerid, int64_t round,
 			void (*fp)(const struct game *, size_t, void *), void *arg);
 int		 db_game_check_player(int64_t playerid, int64_t round, int64_t gameid);
 
+void		 db_player_reset_error(void);
 void		 db_player_set_mailed(int64_t id, const char *pass);
 void		 db_player_set_state(int64_t id, enum pstate state);
 size_t		 db_player_count_all(void);

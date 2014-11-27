@@ -40,6 +40,7 @@ enum	page {
 	PAGE_DOLOADPLAYERS,
 	PAGE_DOLOGIN,
 	PAGE_DOLOGOUT,
+	PAGE_DORESENDEMAIL,
 	PAGE_DOSTARTEXPR,
 	PAGE_DOTESTSMTP,
 	PAGE_HOME,
@@ -121,6 +122,7 @@ static	unsigned int perms[PAGE__MAX] = {
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOLOADPLAYERS */
 	PERM_JSON, /* PAGE_DOLOGIN */
 	PERM_HTML | PERM_LOGIN, /* PAGE_DOLOGOUT */
+	PERM_JSON | PERM_LOGIN, /* PAGE_DORESENDEMAIL */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOSTARTEXPR */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOTESTSMTP */
 	PERM_JS | PERM_HTML | PERM_LOGIN, /* PAGE_HOME */
@@ -144,6 +146,7 @@ static const char *const pages[PAGE__MAX] = {
 	"doloadplayers", /* PAGE_DOLOADPLAYERS */
 	"dologin", /* PAGE_DOLOGIN */
 	"dologout", /* PAGE_DOLOGOUT */
+	"doresendemail", /* PAGE_DORESENDEMAIL */
 	"dostartexpr", /* PAGE_DOSTARTEXPR */
 	"dotestsmtp", /* PAGE_DOTESTSMTP */
 	"home", /* PAGE_HOME */
@@ -419,7 +422,6 @@ senddotestsmtp(struct kreq *r)
 	struct kjsonreq	 req;
 
 	mail = db_admin_get_mail();
-	fprintf(stderr, "mailing: %s\n", mail);
 
 	http_open(r, KHTTP_200);
 
@@ -715,6 +717,39 @@ senddologin(struct kreq *r)
 }
 
 static void
+senddoresendmail(struct kreq *r)
+{
+	pid_t		 pid;
+	char		*sv;
+	struct expr	*expr;
+
+	db_player_reset_error();
+
+	http_open(r, KHTTP_200);
+	khttp_body(r);
+	expr = db_expr_get();
+	sv = kstrdup(expr->loginuri);
+	db_expr_free(expr);
+	db_close();
+
+	if (-1 == (pid = fork())) {
+		fprintf(stderr, "cannot fork!\n");
+	} else if (0 == pid) {
+		khttp_child_free(r);
+		if (0 == (pid = fork())) {
+			mail_players(sv);
+			db_close();
+		} else if (pid < 0) 
+			fprintf(stderr, "cannot double-fork!\n");
+		free(sv);
+		_exit(EXIT_SUCCESS);
+	} else 
+		waitpid(pid, NULL, 0);
+
+	free(sv);
+}
+
+static void
 senddostartexpr(struct kreq *r)
 {
 	pid_t	 pid;
@@ -930,6 +965,9 @@ main(void)
 		break;
 	case (PAGE_DOSTARTEXPR):
 		senddostartexpr(&r);
+		break;
+	case (PAGE_DORESENDEMAIL):
+		senddoresendmail(&r);
 		break;
 	case (PAGE_DOTESTSMTP):
 		senddotestsmtp(&r);

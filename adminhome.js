@@ -139,7 +139,7 @@ function doShowPlayer(name)
 		doClearReplace('playerInfoStatus', 'logged in');
 		break;
 	default:
-		doClearReplace('playerInfoStatus', 'unknown');
+		doClearReplace('playerInfoStatus', 'error e-mailing');
 		break;
 	}
 
@@ -657,11 +657,24 @@ function addPlayers(form)
 		doAddPlayersError, doAddPlayersSuccess));
 }
 
+function doReTestSmtpSetup()
+{
+
+	doClearReplace('recheckSmtpButton', 'Resending...');
+}
+
 function doTestSmtpSetup()
 {
 
 	doHide('testSmtpResults');
 	doClearReplace('checkSmtpButton', 'Mailing test...');
+}
+
+function doReTestSmtpSuccess(resp)
+{
+
+	doClearReplace('recheckSmtpButton', 'Resend Mails');
+	loadPlayers();
 }
 
 function doTestSmtpSuccess(resp)
@@ -680,6 +693,13 @@ function doTestSmtpSuccess(resp)
 	doClearReplace('checkSmtpButton', 'Send Test');
 	doClearReplace('testSmtpResultsMail', mail);
 	doUnhide('testSmtpResults');
+}
+
+function reTestSmtp() 
+{
+
+	sendQuery('@@cgibin@@/doresendemail.json', 
+		doReTestSmtpSetup, doReTestSmtpSuccess, null);
 }
 
 function testSmtp() 

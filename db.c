@@ -986,6 +986,16 @@ db_player_enable(int64_t id)
 }
 
 void
+db_player_reset_error(void)
+{
+	sqlite3_stmt	*stmt;
+
+	stmt = db_stmt("UPDATE player SET state=0 WHERE state=3");
+	db_step(stmt, 0);
+	db_finalise(stmt);
+}
+
+void
 db_player_set_state(int64_t id, enum pstate state)
 {
 	sqlite3_stmt	*stmt;
