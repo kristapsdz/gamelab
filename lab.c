@@ -259,7 +259,7 @@ senddologin(struct kreq *r)
 }
 
 static void
-senddoloadgame(const struct game *game, size_t count, void *arg)
+senddoloadgame(const struct game *game, void *arg)
 {
 	struct kjsonreq	*r = arg;
 

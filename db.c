@@ -624,14 +624,12 @@ db_player_load(int64_t id)
 	return(player);
 }
 
-size_t
-db_player_load_all(void (*fp)(const struct player *, size_t, void *), void *arg)
+void
+db_player_load_all(playerf fp, void *arg)
 {
 	sqlite3_stmt	*stmt;
 	struct player	 player;
-	size_t		 count;
 
-	count = 0;
 	stmt = db_stmt("SELECT email,state,id,enabled,role FROM player");
 	while (SQLITE_ROW == db_step(stmt, 0)) {
 		memset(&player, 0, sizeof(struct player));
@@ -641,12 +639,11 @@ db_player_load_all(void (*fp)(const struct player *, size_t, void *), void *arg)
 		player.id = sqlite3_column_int(stmt, 2);
 		player.enabled = sqlite3_column_int(stmt, 3);
 		player.role = sqlite3_column_int(stmt, 4);
-		(*fp)(&player, count++, arg);
+		(*fp)(&player, arg);
 		free(player.mail);
 	}
 
 	db_finalise(stmt);
-	return(count);
 }
 
 /*
@@ -734,17 +731,15 @@ db_game_check_player(int64_t playerid, int64_t round, int64_t game)
 	return(rc == SQLITE_ROW);
 }
 
-size_t
-db_game_load_player(int64_t playerid, int64_t round, 
-	void (*fp)(const struct game *, size_t, void *), void *arg)
+void
+db_game_load_player(int64_t playerid, int64_t round, gamef fp, void *arg)
 {
 	sqlite3_stmt	*stmt;
 	struct game	 game;
 	int64_t		 id;
-	size_t		 i, count;
+	size_t		 i;
 	char		*sv;
 
-	count = 0;
 	stmt = db_stmt("SELECT payoffs,p1,p2,name,id FROM game");
 	while (SQLITE_ROW == db_step(stmt, 0)) {
 		id = sqlite3_column_int(stmt, 4);
@@ -760,7 +755,7 @@ db_game_load_player(int64_t playerid, int64_t round,
 		game.name = strdup((char *)sqlite3_column_text(stmt, 3));
 		assert(NULL != game.name);
 		game.id = sqlite3_column_int(stmt, 4);
-		(*fp)(&game, count++, arg);
+		(*fp)(&game, arg);
 		for (i = 0; i < (size_t)(2 * game.p1 * game.p2); i++)
 			mpq_clear(game.payoffs[i]);
 		free(game.payoffs);
@@ -769,7 +764,6 @@ db_game_load_player(int64_t playerid, int64_t round,
 	}
 
 	db_finalise(stmt);
-	return(count);
 }
 
 struct game *
@@ -799,15 +793,14 @@ db_game_load(int64_t gameid)
 	return(game);
 }
 
-size_t
-db_game_load_all(void (*fp)(const struct game *, size_t, void *), void *arg)
+void
+db_game_load_all(gamef fp, void *arg)
 {
 	sqlite3_stmt	*stmt;
 	struct game	 game;
-	size_t		 i, count;
+	size_t		 i;
 	char		*sv;
 
-	count = 0;
 	stmt = db_stmt("SELECT payoffs,p1,p2,name,id FROM game");
 	while (SQLITE_ROW == db_step(stmt, 0)) {
 		memset(&game, 0, sizeof(struct game));
@@ -817,7 +810,7 @@ db_game_load_all(void (*fp)(const struct game *, size_t, void *), void *arg)
 		game.payoffs = db_payoff_to_mpq(sv, game.p1, game.p2);
 		game.name = kstrdup((char *)sqlite3_column_text(stmt, 3));
 		game.id = sqlite3_column_int(stmt, 4);
-		(*fp)(&game, count++, arg);
+		(*fp)(&game, arg);
 		for (i = 0; i < (size_t)(2 * game.p1 * game.p2); i++)
 			mpq_clear(game.payoffs[i]);
 		free(game.payoffs);
@@ -826,7 +819,6 @@ db_game_load_all(void (*fp)(const struct game *, size_t, void *), void *arg)
 	}
 
 	db_finalise(stmt);
-	return(count);
 }
 
 struct game *
@@ -853,7 +845,7 @@ db_game_alloc(const char *poffs,
 
 	count = 0;
 	while (NULL != (tok = strsep(&buf, " \t\n\r"))) {
-		if (count > (size_t)(p1 * p2 * 2)) {
+		if (count >= (size_t)(p1 * p2 * 2)) {
 			fprintf(stderr, "%s: matrix too big", name);
 			free(sv);
 			free(rops);

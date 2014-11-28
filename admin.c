@@ -639,7 +639,7 @@ senddoaddplayers(struct kreq *r)
 }
 
 static void
-senddoloadplayer(const struct player *player, size_t count, void *arg)
+senddoloadplayer(const struct player *player, void *arg)
 {
 	struct kjsonreq	*r = arg;
 
@@ -653,7 +653,7 @@ senddoloadplayer(const struct player *player, size_t count, void *arg)
 }
 
 static void
-senddoloadgame(const struct game *game, size_t count, void *arg)
+senddoloadgame(const struct game *game, void *arg)
 {
 	struct kjsonreq	*r = arg;
 
