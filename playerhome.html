@@ -10,6 +10,7 @@
 			ol, section, fieldset { max-width: 1024px; }
 			fieldset { box-shadow: none; }
 			#exprCountdown { margin-bottom: 1em; }
+			#exprDone { text-align: center; }
 		</style>
 		<script src="@@htdocs@@/script.js"></script>
 		<script src="@@cgibin@@/home.js"></script>
@@ -37,8 +38,13 @@
 			<section id="exprPlay" class="noshow">
 				<div id="exprMatrix"></div>
 				<aside>
-					Enter your matrix payoffs below.
-					These must be fractions or decimal numbers with no greater than four digits following the decimal.
+					<div>
+						Enter your matrix payoffs below.
+						These must be fractions or decimal numbers with no greater than four digits following the decimal.
+					</div>
+					<div>
+						Game: <span id="playGameNum"></span>/<span id="playGameMax"></span>
+					</div>
 				</aside>
 				<form method="post" action="@@cgibin@@/doplay.json" id="playGame" onsubmit="return(playGame(this));">
 					<div class="error">

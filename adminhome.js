@@ -517,7 +517,7 @@ function loadGames()
 
 function loadExprSuccess(resp) 
 {
-	var res, v, e, i, chld, head, expr, li;
+	var res, v, e, i, chld, head, expr, li, div;
 
 	console.log('Response: ' + resp);
 	try  { 
@@ -562,12 +562,29 @@ function loadExprSuccess(resp)
 		doValue('statusExprPBar', expr.progress);
 
 		e = doClear('statusExprPGames');
+		li = document.createElement('div');
+		div = document.createElement('div');
+		div.appendChild(document.createTextNode('Name'));
+		li.appendChild(div);
+		div = document.createElement('div');
+		div.appendChild(document.createTextNode('Row Plays'));
+		li.appendChild(div);
+		div = document.createElement('div');
+		div.appendChild(document.createTextNode('Column Plays'));
+		li.appendChild(div);
+		e.appendChild(li);
+
 		for (i = 0; i < res.games.length; i++) {
-			li = document.createElement('li');
-			li.appendChild(document.createTextNode
-				(res.games[i].name + ': ' + 
-				 res.games[i].prow + ' row plays, ' +
-				 res.games[i].pcol + ' column.'));
+			li = document.createElement('div');
+			div = document.createElement('div');
+			div.appendChild(document.createTextNode(res.games[i].name));
+			li.appendChild(div);
+			div = document.createElement('div');
+			div.appendChild(document.createTextNode(res.games[i].prow));
+			li.appendChild(div);
+			div = document.createElement('div');
+			div.appendChild(document.createTextNode(res.games[i].pcol));
+			li.appendChild(div);
 			e.appendChild(li);
 		}
 	}

@@ -9,6 +9,9 @@
 		<style>
 			nav li:first-child { background-color: red; }
 			h1 { color: #fff; }
+			#statusExprPGames { display: table; border-spacing: 1ex; }
+			#statusExprPGames > div { display: table-row; }
+			#statusExprPGames > div > * { display: table-cell; text-align: right; }
 		</style>
 		<script src="@@htdocs@@/script.js"></script>
 		<script src="@@cgibin@@/home.js"></script>
@@ -34,8 +37,8 @@
 							Round: <span id="statusExprPRound"></span>/<span id="statusExprPMax"></span>
 						</div>
 						<progress max="1.0" id="statusExprPBar"></progress>
-						<ul id="statusExprPGames">
-						</ul>
+						<div id="statusExprPGames">
+						</div>
 					</div>
 					<div id="statusExprWaiting">
 						Waiting for experiment to begin.

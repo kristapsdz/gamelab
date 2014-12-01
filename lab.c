@@ -112,6 +112,10 @@ static const struct kvalid keys[KEY__MAX] = {
 	{ kvalid_int, "sessid" }, /* KEY_SESSID */
 };
 
+/*
+ * Check if the player session identified in the cookiemap is valid.
+ * We must do so with every attempt to hit the site.
+ */
 static int
 sess_valid(struct kreq *r, int64_t *id)
 {
@@ -289,6 +293,7 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 	kjson_open(&req, r);
 	kjson_obj_open(&req);
 	if ((t = time(NULL)) < expr->end && t > expr->start) {
+		kjson_putintp(&req, "gamesz", db_game_count_all());
 		kjson_putintp(&req, "role", player->role);
 		kjson_arrayp_open(&req, "games");
 		db_game_load_player(playerid, 

@@ -97,6 +97,10 @@ function loadGame()
 
 	doUnhide('exprPlay');
 
+
+	doClearReplace('playGameNum', ((res.gamesz - res.games.length) + resindex + 1));
+	doClearReplace('playGameMax', res.gamesz);
+
 	game = res.games[resindex];
 
 	if (0 == res.role)
@@ -252,7 +256,6 @@ function doPlayGameSuccess(resp)
 	}
 
 	resindex++;
-	console.log('Game played: now at index ' + resindex + '/' + res.games.length);
 
 	e = document.getElementById('exprPlayList');
 
