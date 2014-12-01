@@ -338,7 +338,6 @@ senddoplay(struct kreq *r, int64_t playerid)
 		NULL == (game = db_game_load
 			(r->fieldmap[KEY_GAMEID]->parsed.i))) {
 		http_open(r, KHTTP_400);
-		fprintf(stderr, "bad bucketed input\n");
 		goto out;
 	}
 
@@ -360,7 +359,6 @@ senddoplay(struct kreq *r, int64_t playerid)
 	 * Also set our chosen random number.
 	 */
 	rr = arc4random() / (double)UINT32_MAX;
-	fprintf(stderr, "looking for %zu strats\n", strats);
 	selected = 0;
 	for (i = 0; i < strats; i++) {
 		(void)snprintf(buf, sizeof(buf), "index%zu", i);
@@ -368,25 +366,20 @@ senddoplay(struct kreq *r, int64_t playerid)
 			if (0 == strcmp(r->fields[j].key, buf))
 				break;
 		if (j == r->fieldsz) {
-			fprintf(stderr, "no input: %zu\n", i);
 			http_open(r, KHTTP_400);
 			goto out;
 		}
 		if ( ! kvalid_stringne(&r->fields[j])) {
-			fprintf(stderr, "bad field: %s\n", r->fields[j].val);
 			http_open(r, KHTTP_400);
 			goto out;
 		}
-		fprintf(stderr, "parsing %s\n", r->fields[j].val);
 		if (mpq_set_str(mix, r->fields[j].val, 10) < 0) {
-			fprintf(stderr, "bad number: %s\n", r->fields[j].val);
 			http_open(r, KHTTP_400);
 			goto out;
 
 		}
 		mpq_canonicalize(mix);
 		gmp_asprintf(&mixes[i], "%Qd", mix);
-		fprintf(stderr, "canonical: %s\n", mixes[i]);
 		assert(NULL != mixes[i]);
 		/* This is to verify the sum is 1. */
 		mpq_set(tmp, sum);
@@ -395,13 +388,10 @@ senddoplay(struct kreq *r, int64_t playerid)
 		/* Accumulate after conversion. */
 		v = mpq_get_d(sum);
 		if (0.0 != v && ! isnormal(v)) {
-			fprintf(stderr, "bad double: ");
-			gmp_fprintf(stderr, "%Qd\n", sum);
 			http_open(r, KHTTP_400);
 			goto out;
 		}
 		if ( ! selected && v > rr) {
-			fprintf(stderr, "selected strategy: %g > %g\n", v, rr);
 			strat = i;
 			selected = 1;
 		}
@@ -411,8 +401,6 @@ senddoplay(struct kreq *r, int64_t playerid)
 	mpq_canonicalize(one);
 
 	if ( ! mpq_equal(one, sum)) {
-		fprintf(stderr, "not one: ");
-		gmp_fprintf(stderr, "%Qd\n", sum);
 		http_open(r, KHTTP_400);
 		goto out;
 	}

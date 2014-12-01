@@ -29,10 +29,19 @@
 		<article>
 			<section id="exprCountdown" class="noshow"></section>
 			<section id="exprLoading"><i class="fa fa-spinner fa-spin"></i></section>
-			<section id="exprDone">
+			<section id="exprDone" class="noshow">
 				<div>
-					You've aleady played all games for this round!
-					When the clock reaches zero, you'll be able to play again.
+					You've played all the games for this round &ndash; great!
+					Please wait to play again.
+				</div>
+			</section>
+			<section id="exprError" class="noshow">
+				<div class="error">
+					<i class="fa fa-warning"></i>
+					You've already played this game: are you playing the same experiment in different windows?
+				</div>
+				<div>
+					Please <a href="#" onclick="window.location.reload(true);">click here</a> to reload the page.
 				</div>
 			</section>
 			<section id="exprPlay" class="noshow">

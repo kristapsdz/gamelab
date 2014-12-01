@@ -9,9 +9,7 @@
 		<style>
 			nav li:first-child { background-color: red; }
 			h1 { color: #fff; }
-			#statusExprPGames { display: table; border-spacing: 1ex; }
-			#statusExprPGames > div { display: table-row; }
-			#statusExprPGames > div > * { display: table-cell; text-align: right; }
+			#statusExprPGames > div > * { text-align: right; }
 		</style>
 		<script src="@@htdocs@@/script.js"></script>
 		<script src="@@cgibin@@/home.js"></script>
@@ -37,7 +35,17 @@
 							Round: <span id="statusExprPRound"></span>/<span id="statusExprPMax"></span>
 						</div>
 						<progress max="1.0" id="statusExprPBar"></progress>
-						<div id="statusExprPGames">
+						<div class="tabled">
+							<div>
+								<div>Complete row plays:</div>
+								<div id="statusExprFrow"></div>
+							</div>
+							<div>
+								<div>Complete column plays:</div>
+								<div id="statusExprFcol"></div>
+							</div>
+						</div>
+						<div class="tabled" id="statusExprPGames">
 						</div>
 					</div>
 					<div id="statusExprWaiting">
@@ -74,7 +82,7 @@
 					<fieldset>
 						<div class="input input-submit">
 							<i class="fa fa-send"></i>
-							<button class="send" id="recheckSmtpButton" onclick="reTestSmtp();">Resend Mails</button>
+							<button type="button" class="send" id="recheckSmtpButton" onclick="reTestSmtp();">Resend Mails</button>
 						</div>
 					</fieldset>
 				</section>

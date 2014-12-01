@@ -120,6 +120,8 @@ struct game	*db_game_load(int64_t gameid);
 struct game	*db_game_load_array(size_t *sz);
 size_t		 db_game_round_count(int64_t gameid,
 			int64_t round, int64_t role);
+size_t		 db_game_round_count_done(int64_t round, 
+	 		int64_t role, size_t gamesz);
 void		 db_game_load_all(gamef fp, void *arg);
 void		 db_game_load_player(int64_t playerid, 
 			int64_t round, gamef f, void *arg);

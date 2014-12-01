@@ -329,6 +329,7 @@ senddogetexpr(struct kreq *r)
 	struct kjsonreq	 req;
 	struct exprget	 get;
 	time_t		 t;
+	size_t		 gamesz, round;
 
 	if (NULL == (expr = db_expr_get())) {
 		http_open(r, KHTTP_409);
@@ -349,6 +350,16 @@ senddogetexpr(struct kreq *r)
 		db_game_load_all(senddogetexprgame, &get);
 	} 
 	kjson_array_close(&req);
+
+	if ((t = time(NULL)) > expr->start && t < expr->end) {
+		gamesz = db_game_count_all();
+		round = (t - expr->start) / (expr->minutes * 60);
+		kjson_putintp(&req, "frow",
+			db_game_round_count_done(round, 0, gamesz));
+		kjson_putintp(&req, "fcol",
+			db_game_round_count_done(round, 1, gamesz));
+	}
+
 	kjson_obj_close(&req);
 	kjson_close(&req);
 	db_expr_free(expr);

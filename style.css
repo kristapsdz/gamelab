@@ -42,7 +42,7 @@ section section >h3		{ margin: 0;
 section section h4		{ margin: 0; }
 article >section > aside			
 				{ padding: 1ex; }
-form .error			{ color: red;
+.error				{ color: red;
 				  font-weight: bolder; }
 aside div			{ margin: 0.75em 0; }
 /*
@@ -198,7 +198,9 @@ div.canclose h4			{ position: absolute;
 sup				{ font-size: 8pt; 
 				  font-style: italic; }
 .noshow				{ display: none; }
-
+.tabled 			{ display: table; border-spacing: 1ex; }
+.tabled > div 			{ display: table-row; }
+.tabled > div > * 		{ display: table-cell; }
 @media only screen and (max-width: 400px), only screen and (max-device-width: 400px) {
 	div.countdown 		{ width: 100%; }
 	div.countdown > div > div

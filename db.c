@@ -712,6 +712,22 @@ db_player_play(int64_t playerid, int64_t round,
 		sqlite3_reset(stmt);
 	}
 	db_finalise(stmt);
+
+	stmt = db_stmt("INSERT INTO gameplay "
+		"(round,playerid) VALUES (?,?)");
+	db_bind_int(stmt, 1, round);
+	db_bind_int(stmt, 2, playerid);
+	db_step(stmt, DB_STEP_CONSTRAINT);
+	db_finalise(stmt);
+
+	stmt = db_stmt("UPDATE gameplay "
+		"SET choices=choices + 1 "
+		"WHERE round=? AND playerid=?");
+	db_bind_int(stmt, 1, round);
+	db_bind_int(stmt, 2, playerid);
+	db_step(stmt, 0);
+	db_finalise(stmt);
+
 	return(1);
 }
 
@@ -764,6 +780,26 @@ db_game_load_player(int64_t playerid, int64_t round, gamef fp, void *arg)
 	}
 
 	db_finalise(stmt);
+}
+
+size_t
+db_game_round_count_done(int64_t round, int64_t role, size_t gamesz)
+{
+	sqlite3_stmt	*stmt;
+	int		 rc;
+	int64_t		 result;
+
+	stmt = db_stmt("SELECT count(*) FROM gameplay "
+		"INNER JOIN player ON player.id = gameplay.playerid "
+		"WHERE round=? AND choices=? AND player.role = ?");
+	db_bind_int(stmt, 1, round);
+	db_bind_int(stmt, 2, gamesz);
+	db_bind_int(stmt, 3, role);
+	rc = db_step(stmt, 0);
+	assert(SQLITE_ROW == rc);
+	result = (size_t)sqlite3_column_int(stmt, 0);
+	db_finalise(stmt);
+	return(result);
 }
 
 size_t

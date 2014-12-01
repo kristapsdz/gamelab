@@ -1,15 +1,38 @@
 "use strict";
 
+/*
+ * The results.
+ * This is only valid after we've run loadExprSuccess(), otherwise it's
+ * null.
+ * It's loaded with the games that we haven't played yet.
+ */
 var res;
+
+/*
+ * When we play games, we go through the [shuffled] array in "res".
+ * This is the current position.
+ * We'll have no more when resindex == res.gamesz.
+ */
 var resindex;
 
+/*
+ * Use a simple in-place fisher-yates shuffle on an array.
+ * (The array can be anything--we use it both for arrays and matrices,
+ * which are just arrays of arrays of course.)
+ */
 function shuffle(o)
 {
 
-	for (var j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
+	for (var j, x, i = o.length; i; 
+		j = Math.floor(Math.random() * i), 
+		x = o[--i], o[i] = o[j], o[j] = x);
         return o;
 };
 
+/*
+ * Append an HTML matrix "matrix" to the element "e".
+ * This formats everything properly.
+ */
 function appendMatrix(e, matrix)
 {
 	var table, row, cell, i, j, poff;
@@ -49,6 +72,13 @@ function appendMatrix(e, matrix)
 	e.appendChild(table);
 }
 
+/*
+ * Convert a game, which is in top-left to bottom-right order with row
+ * player payoff first, into a matrix we'll use in appendMatrix() and
+ * other places.
+ * We add some extra bookkeeping to the matrix--beyond that, it's more
+ * or less what we have in the game matrix.
+ */
 function matrixCreate(game)
 {
 	var matrix, i, j;
@@ -67,6 +97,10 @@ function matrixCreate(game)
 	return(matrix);
 }
 
+/*
+ * This is like matrixCreate(), but it transposes the matrix so that the
+ * column player can appear to play as a row player.
+ */
 function matrixCreateTranspose(game)
 {
 	var matrix, i, j;
@@ -85,6 +119,10 @@ function matrixCreateTranspose(game)
 	return(matrix);
 }
 
+/*
+ * Given that we've already loaded the experiment via loadGameSuccess(),
+ * take the existing game and lay out our inputs.
+ */
 function loadGame()
 {
 	var game, matrix, e, div, ii, i, input;
@@ -92,22 +130,20 @@ function loadGame()
 	if (resindex == res.games.length) {
 		doUnhide('exprDone');
 		doHide('exprPlay');
+		doHide('exprError');
 		return;
 	} 
 
 	doUnhide('exprPlay');
 
-
-	doClearReplace('playGameNum', ((res.gamesz - res.games.length) + resindex + 1));
+	doClearReplace('playGameNum', 
+		((res.gamesz - res.games.length) + 
+		 resindex + 1));
 	doClearReplace('playGameMax', res.gamesz);
 
 	game = res.games[resindex];
-
-	if (0 == res.role)
-		matrix = matrixCreate(game);
-	else
-		matrix = matrixCreateTranspose(game);
-
+	matrix = 0 == res.role ? 
+		matrixCreate(game) : matrixCreateTranspose(game);
 	shuffle(matrix);
 	appendMatrix(doClear('exprMatrix'), matrix);
 
@@ -155,7 +191,6 @@ function loadExprSuccess(resp)
 		return;
 	}
 
-	console.log(resp);
 	doHide('exprLoading');
 	expr = res.expr;
 
@@ -204,6 +239,7 @@ function loadExprSetup()
 	doHide('exprPlay');
 	doHide('exprCountdown');
 	doHide('exprDone');
+	doHide('exprError');
 	doUnhide('exprLoading');
 }
 
@@ -232,7 +268,8 @@ function doPlayGameError(err)
 		break;
 	case 409:
 		doHide('exprPlay');
-		doUnhide('exprDone');
+		doHide('exprDone');
+		doUnhide('exprError');
 		break;
 	default:
 		doUnhide('playGameErrorJson');
@@ -264,14 +301,13 @@ function doPlayGameSuccess(resp)
 	ii = document.createElement('i');
 	ii.setAttribute('class', 'fa fa-fw fa-refresh');
 	input = document.createElement('button');
+	input.setAttribute('type', 'button');
 	input.setAttribute('onclick', 'loadGame();');
 	input.setAttribute('id', 'playGameRefresh');
 
-	if (resindex < res.games.length) {
-		input.appendChild(document.createTextNode('Load Next Game'));
-	} else {
-		input.appendChild(document.createTextNode('Wait for Next Game'));
-	}
+	input.appendChild(document.createTextNode
+		(resindex < res.games.length ?
+		 'Load Next Game' : 'Wait for Next Game'));
 
 	div.appendChild(ii);
 	div.appendChild(input);

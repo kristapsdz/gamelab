@@ -434,7 +434,7 @@ function loadSmtpSetup()
 
 function loadSmtpSuccess(resp)
 {
-	var results, e, link, button;
+	var results;
 
 	doClassOk('checkSmtpLoad');
 
@@ -560,6 +560,9 @@ function loadExprSuccess(resp)
 		doClearReplace('statusExprPRound', (expr.round + 1));
 		doClearReplace('statusExprPMax', expr.rounds);
 		doValue('statusExprPBar', expr.progress);
+
+		doClearReplace('statusExprFrow', res.frow);
+		doClearReplace('statusExprFcol', res.fcol);
 
 		e = doClear('statusExprPGames');
 		li = document.createElement('div');
