@@ -117,6 +117,9 @@ size_t		 db_game_count_all(void);
 int		 db_game_delete(int64_t id);
 void		 db_game_free(struct game *game);
 struct game	*db_game_load(int64_t gameid);
+struct game	*db_game_load_array(size_t *sz);
+size_t		 db_game_round_count(int64_t gameid,
+			int64_t round, int64_t role);
 void		 db_game_load_all(gamef fp, void *arg);
 void		 db_game_load_player(int64_t playerid, 
 			int64_t round, gamef f, void *arg);

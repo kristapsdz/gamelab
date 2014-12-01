@@ -27,14 +27,14 @@ function doClassFail(name)
 function doSuccess(submitName, formName) 
 {
 
-	document.getElementById(submitName).value = 'Submit';
+	doValue(submitName, 'Submit');
 	document.getElementById(formName).reset();
 }
 
 function doError(err, submitName, errName) 
 {
 
-	document.getElementById(submitName).value = 'Submit';
+	doValue(submitName, 'Submit');
 	switch (err) {
 	case 400:
 		doUnhide(errName + 'Form');
@@ -51,7 +51,7 @@ function doError(err, submitName, errName)
 function doSetup(submitName, errName) 
 {
 
-	document.getElementById(submitName).value = 'Submitting...';
+	doValue(submitName, 'Submitting...');
 	doHide(errName + 'Form');
 	doHide(errName + 'System');
 	doHide(errName + 'State');
@@ -96,8 +96,6 @@ function loadNewPlayersSuccess(resp)
 
 		span = document.createElement('span');
 		span.setAttribute('id', 'player' + results[i].id);
-		span.appendChild(document.createTextNode(results[i].mail));
-		li.appendChild(span);
 
 		icon = document.createElement('a');
 		icon.setAttribute('class', 'fa fa-remove');
@@ -105,6 +103,9 @@ function loadNewPlayersSuccess(resp)
 		icon.setAttribute('id', 'playerDelete' + results[i].id);
 		icon.setAttribute('onclick', 'doDeletePlayer(' + results[i].id + '); return false;');
 		span.appendChild(icon);
+		span.appendChild(document.createTextNode(' '));
+		span.appendChild(document.createTextNode(results[i].mail));
+		li.appendChild(span);
 	}
 
 	if (count >= 2)
@@ -193,18 +194,23 @@ function loadPlayersSuccess(resp)
 	for (i = 0; i < results.length; i++) {
 		span = document.createElement('span');
 
-		sup = document.createElement('i');
-		if (0 == parseInt(results[i].role))
-			sup.setAttribute('class', 'fa fa-bars');
-		else
-			sup.setAttribute('class', 'fa fa-columns');
-		span.appendChild(sup);
+		icon = document.createElement('a');
+		icon.setAttribute('href', '#');
+		icon.setAttribute('id', 'playerLoad' + results[i].id);
+		if (0 == results[i].enabled) {
+			icon.setAttribute('class', 'fa fa-toggle-off');
+			icon.setAttribute('onclick', 'doEnablePlayer(' + results[i].id + '); return false;');
+		} else {
+			icon.setAttribute('class', 'fa fa-toggle-on');
+			icon.setAttribute('onclick', 'doDisablePlayer(' + results[i].id + '); return false;');
+		}
+		span.appendChild(icon);
+		span.appendChild(document.createTextNode(' '));
 
 		span.setAttribute('id', 'player' + results[i].id);
 		span.setAttribute('data-gamelab-status', results[i].status);
 		span.setAttribute('data-gamelab-mail', results[i].mail);
 		span.setAttribute('data-gamelab-enabled', results[i].enabled);
-		li.appendChild(span);
 
 		link = document.createElement('a');
 		link.setAttribute('href', '#');
@@ -212,17 +218,16 @@ function loadPlayersSuccess(resp)
 		link.appendChild(document.createTextNode(results[i].mail));
 		span.appendChild(link);
 
-		icon = document.createElement('a');
-		icon.setAttribute('href', '#');
-		icon.setAttribute('id', 'playerLoad' + results[i].id);
-		if (0 == results[i].enabled) {
-			icon.setAttribute('class', 'fa fa-plus');
-			icon.setAttribute('onclick', 'doEnablePlayer(' + results[i].id + '); return false;');
-		} else {
-			icon.setAttribute('class', 'fa fa-remove');
-			icon.setAttribute('onclick', 'doDisablePlayer(' + results[i].id + '); return false;');
-		}
-		span.appendChild(icon);
+		sup = document.createElement('i');
+		if (0 == parseInt(results[i].role))
+			sup.setAttribute('class', 'fa fa-bars');
+		else
+			sup.setAttribute('class', 'fa fa-columns');
+
+		span.appendChild(document.createTextNode(' '));
+		span.appendChild(sup);
+
+		li.appendChild(span);
 	}
 }
 
@@ -271,6 +276,17 @@ function loadGamesSuccessInner(resp, code)
 		li = document.createElement('li');
 		div = document.createElement('span');
 		div.setAttribute('id', 'game' + results[i].id);
+
+		if (0 == code) {
+			icon = document.createElement('a');
+			icon.setAttribute('href', '#');
+			icon.setAttribute('class', 'fa fa-remove');
+			icon.setAttribute('id', 'gameDelete' + results[i].id);
+			icon.setAttribute('onclick', 'doDeleteGame(' + results[i].id + '); return false;');
+			div.appendChild(icon);
+			div.appendChild(document.createTextNode(' '));
+		}
+
 		div.appendChild(document.createTextNode(results[i].name));
 		div.appendChild(document.createTextNode(': {'));
 		for (j = 0; j < results[i].payoffs.length; j++) {
@@ -289,15 +305,6 @@ function loadGamesSuccessInner(resp, code)
 			div.appendChild(document.createTextNode('}'));
 		}
 		div.appendChild(document.createTextNode('}'));
-
-		if (0 == code) {
-			icon = document.createElement('a');
-			icon.setAttribute('href', '#');
-			icon.setAttribute('class', 'fa fa-remove');
-			icon.setAttribute('id', 'gameDelete' + results[i].id);
-			icon.setAttribute('onclick', 'doDeleteGame(' + results[i].id + '); return false;');
-			div.appendChild(icon);
-		}
 		li.appendChild(div);
 		e.appendChild(li);
 	}
@@ -441,10 +448,9 @@ function loadSmtpSuccess(resp)
 
 	doHide('checkSmtpResultsLoad');
 	doUnhide('checkSmtpResults');
-
-	document.getElementById('checkSmtpResultsServer').value=results.server;
-	document.getElementById('checkSmtpResultsUser').value=results.user;
-	document.getElementById('checkSmtpResultsFrom').value=results.mail;
+	doValue('checkSmtpResultsServer', results.server);
+	doValue('checkSmtpResultsUser', results.user);
+	doValue('checkSmtpResultsFrom', results.mail);
 }
 
 function loadSmtpError(err)
@@ -511,17 +517,17 @@ function loadGames()
 
 function loadExprSuccess(resp) 
 {
-	var results, v, e, chld, head, expr;
+	var res, v, e, i, chld, head, expr, li;
 
 	console.log('Response: ' + resp);
 	try  { 
-		results = JSON.parse(resp);
+		res = JSON.parse(resp);
 	} catch (error) {
 		console.log('Error: ' + error);
 		return;
 	}
 
-	expr = results.expr;
+	expr = res.expr;
 
 	if ((v = parseInt(expr.tilstart)) > 0) {
 		doUnhide('statusExprWaiting');
@@ -547,16 +553,23 @@ function loadExprSuccess(resp)
 				head, loadExpr, chld, 
 				v, new Date().getTime());
 		}
-		e = doClearNode(doUnhide('statusExprProgress'));
-		doHide('statusExprLoading');
-		chld = document.createElement('div');
-		chld.appendChild(document.createTextNode
-			('Round: ' + (parseInt(expr.round) + 1) + '/' + 
-			 expr.rounds + ' (' + 
-			 Math.round(parseFloat(expr.progress) * 100.0) + 
-			 '%)'));
-		e.appendChild(chld);
-		appendProgress(e, expr.progress);
+
+		doUnhide('statusExprProg');
+		doClearReplace('statusExprPBar', 
+			Math.round(expr.progress * 100.0) + '%');
+		doClearReplace('statusExprPRound', (expr.round + 1));
+		doClearReplace('statusExprPMax', expr.rounds);
+		doValue('statusExprPBar', expr.progress);
+
+		e = doClear('statusExprPGames');
+		for (i = 0; i < res.games.length; i++) {
+			li = document.createElement('li');
+			li.appendChild(document.createTextNode
+				(res.games[i].name + ': ' + 
+				 res.games[i].prow + ' row plays, ' +
+				 res.games[i].pcol + ' column.'));
+			e.appendChild(li);
+		}
 	}
 }
 
@@ -566,7 +579,7 @@ function loadExprSetup()
 	doUnhide('statusExprLoading');
 	doHide('statusExprTtl');
 	doHide('statusExprWaiting');
-	doHide('statusExprProgress');
+	doHide('statusExprProg');
 }
 
 function loadExpr() 
@@ -580,20 +593,20 @@ function doStartExprSetup()
 {
 
 	doSetup('startExprSubmit', 'startExprErr');
-	document.getElementById('startExprSubmit').value = 'Starting...';
+	doValue('startExprSubmit', 'Starting...');
 }
 
 function doStartExprError(err) 
 {
 
 	doError(err, 'startExprSubmit', 'startExprErr');
-	document.getElementById('startExprSubmit').value = 'Start';
+	doValue('startExprSubmit', 'Start');
 }
 
 function doStartExprSuccess(resp) 
 {
 
-	document.getElementById('startExprSubmit').value = 'Started!  Reloading...';
+	doValue('startExprSubmit', 'Started!  Reloading...');
 	document.getElementById('startExpr').reset();
 	window.location.reload(true);
 }
@@ -621,7 +634,7 @@ function doAddGameSuccess(resp)
 {
 
 	doSuccess('addGameSubmit', 'addGame');
-	loadGames();
+	loadNewGames();
 }
 
 function addGame(form)

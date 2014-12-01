@@ -58,6 +58,14 @@ function doClearNode(e)
 	return(e);
 }
 
+function doValue(name, value)
+{
+	var e;
+
+	if (null != (e = document.getElementById(name)))
+		e.value = value;
+}
+
 function doClear(name) 
 {
 
@@ -142,18 +150,6 @@ function formatCountdown(head, v, e)
 	cell = document.createElement('div');
 	cell.appendChild(document.createTextNode('seconds'));
 	row.appendChild(cell);
-}
-
-function appendProgress(e, fraction)
-{
-	var prog;
-
-	prog = document.createElement('progress');
-	prog.setAttribute('max', '1.0');
-	prog.setAttribute('value', fraction);
-	prog.appendChild(document.createTextNode
-		(Math.round(fraction * 100.0) + '%'));
-	e.appendChild(prog);
 }
 
 function sendQuery(url, setup, success, error) 

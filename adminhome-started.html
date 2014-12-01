@@ -29,7 +29,14 @@
 				<div id="statusExprTtl"></div>
 				<section id="statusExpr">
 					<h3>Run Status</h3>
-					<div id="statusExprProgress"></div>
+					<div id="statusExprProg">
+						<div>
+							Round: <span id="statusExprPRound"></span>/<span id="statusExprPMax"></span>
+						</div>
+						<progress max="1.0" id="statusExprPBar"></progress>
+						<ul id="statusExprPGames">
+						</ul>
+					</div>
 					<div id="statusExprWaiting">
 						Waiting for experiment to begin.
 					</div>
@@ -47,8 +54,7 @@
 					<h3>Experiment Players</h3>
 					<aside>
 						Players in your experiment.
-						To disable a player, just click the <i class="fa fa-remove"></i> symbol alongisde.
-						To enable a player, use the <i class="fa fa-plus"></i> symbol.
+						Enable or disable a player by toggling the icon.
 						Row players are noted with <i class="fa fa-bars"></i>, column players with
 						<i class="fa fa-columns"></i>.
 					</aside>

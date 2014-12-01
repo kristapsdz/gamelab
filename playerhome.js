@@ -1,5 +1,8 @@
 "use strict";
 
+var res;
+var resindex;
+
 function shuffle(o)
 {
 
@@ -82,12 +85,67 @@ function matrixCreateTranspose(game)
 	return(matrix);
 }
 
+function loadGame()
+{
+	var game, matrix, e, div, ii, i, input;
+
+	if (resindex == res.games.length) {
+		doUnhide('exprDone');
+		doHide('exprPlay');
+		return;
+	} 
+
+	doUnhide('exprPlay');
+
+	game = res.games[resindex];
+
+	if (0 == res.role)
+		matrix = matrixCreate(game);
+	else
+		matrix = matrixCreateTranspose(game);
+
+	shuffle(matrix);
+	appendMatrix(doClear('exprMatrix'), matrix);
+
+	doValue('exprPlayGid', game.id);
+
+	e = doClear('exprPlayList');
+	for (i = 0; i < matrix.length; i++) {
+		div = document.createElement('div');
+		div.setAttribute('class', 'input');
+		ii = document.createElement('i');
+		ii.setAttribute('class', 'fa fa-fw fa-square');
+		input = document.createElement('input');
+		input.setAttribute('type', 'text');
+		input.setAttribute('required', 'required');
+		input.setAttribute('placeholder', 'Strategy ' + (i + 1));
+		input.setAttribute('id', 'index' + matrix[i].index);
+		input.setAttribute('name', 'index' + matrix[i].index);
+		div.appendChild(ii);
+		div.appendChild(input);
+		e.appendChild(div);
+	}
+	div = document.createElement('div');
+	div.setAttribute('class', 'input input-submit');
+	ii = document.createElement('i');
+	ii.setAttribute('class', 'fa fa-fw fa-check');
+	input = document.createElement('input');
+	input.setAttribute('type', 'submit');
+	input.setAttribute('id', 'playGameSubmit');
+	input.setAttribute('value', 'Submit Play');
+	div.appendChild(ii);
+	div.appendChild(input);
+	e.appendChild(div);
+}
+
 function loadExprSuccess(resp)
 {
-	var results, e, v, head, game, i, j, matrix, div, input, expr, ii;
+	var e, v, head, i, j, expr;
+
+	resindex = 0;
 
 	try  { 
-		results = JSON.parse(resp);
+		res = JSON.parse(resp);
 	} catch (error) {
 		loadExprFailure();
 		return;
@@ -95,7 +153,7 @@ function loadExprSuccess(resp)
 
 	console.log(resp);
 	doHide('exprLoading');
-	expr = results.expr;
+	expr = res.expr;
 
 	if ((v = parseInt(expr.tilstart)) > 0) {
 		/*
@@ -123,57 +181,9 @@ function loadExprSuccess(resp)
 			loadExpr, e, v, 
 			new Date().getTime());
 
-		/*
-		 * If we have no games (i.e., we've already played
-		 * everything there is to play), then simply 
-		 * Else we format our matrix and payoff list.
-		 */
-		if (0 == results.games.length) {
-			doUnhide('exprDone');
-			return;
-		}
-
-		doUnhide('exprPlay');
-		game = results.games[Math.floor
-			(Math.random() * results.games.length)];
-		if (0 == results.role)
-			matrix = matrixCreate(game);
-		else
-			matrix = matrixCreateTranspose(game);
-
-		shuffle(matrix);
-		appendMatrix(doClear('exprMatrix'), matrix);
-
-		document.getElementById('exprPlayGid').value = game.id;
-		document.getElementById('exprPlayRound').value = expr.round;
-
-		e = doClear('exprPlayList');
-		for (i = 0; i < matrix.length; i++) {
-			div = document.createElement('div');
-			div.setAttribute('class', 'input');
-			ii = document.createElement('i');
-			ii.setAttribute('class', 'fa fa-fw fa-square');
-			input = document.createElement('input');
-			input.setAttribute('type', 'text');
-			input.setAttribute('required', 'required');
-			input.setAttribute('placeholder', 'Strategy ' + (i + 1));
-			input.setAttribute('id', 'index' + matrix[i].index);
-			input.setAttribute('name', 'index' + matrix[i].index);
-			div.appendChild(ii);
-			div.appendChild(input);
-			e.appendChild(div);
-		}
-		div = document.createElement('div');
-		div.setAttribute('class', 'input input-submit');
-		ii = document.createElement('i');
-		ii.setAttribute('class', 'fa fa-fw fa-check');
-		input = document.createElement('input');
-		input.setAttribute('type', 'submit');
-		input.setAttribute('id', 'playGameSubmit');
-		input.setAttribute('value', 'Submit Play');
-		div.appendChild(ii);
-		div.appendChild(input);
-		e.appendChild(div);
+		doValue('exprPlayRound', expr.round);
+		shuffle(res.games);
+		loadGame();
 	} else {
 		/*
 		 * Case where the game has finished.
@@ -205,13 +215,13 @@ function doPlayGameSetup()
 
 	doHide('playGameErrorJson');
 	doHide('playGameErrorForm');
-	document.getElementById('playGameSubmit').value = 'Submitting...';
+	doValue('playGameSubmit', 'Submitting...');
 }
 
 function doPlayGameError(err)
 {
 
-	document.getElementById('playGameSubmit').value = 'Submit';
+	doValue('playGameSubmit', 'Submit');
 	switch (err) {
 	case 400:
 		doUnhide('playGameErrorForm');
@@ -228,10 +238,11 @@ function doPlayGameError(err)
 
 function doPlayGameSuccess(resp)
 {
-	var i, e;
+	var i, e, div, ii, input;
 
 	e = document.getElementById('playGameSubmit');
 	e.setAttribute('value', 'Submitted!');
+	e.setAttribute('disabled', 'disabled');
 
 	for (i = 0; ; i++) {
 		e = document.getElementById('index' + i);
@@ -239,6 +250,29 @@ function doPlayGameSuccess(resp)
 			break;
 		e.setAttribute('readonly', 'readonly');
 	}
+
+	resindex++;
+	console.log('Game played: now at index ' + resindex + '/' + res.games.length);
+
+	e = document.getElementById('exprPlayList');
+
+	div = document.createElement('div');
+	div.setAttribute('class', 'input input-submit');
+	ii = document.createElement('i');
+	ii.setAttribute('class', 'fa fa-fw fa-refresh');
+	input = document.createElement('button');
+	input.setAttribute('onclick', 'loadGame();');
+	input.setAttribute('id', 'playGameRefresh');
+
+	if (resindex < res.games.length) {
+		input.appendChild(document.createTextNode('Load Next Game'));
+	} else {
+		input.appendChild(document.createTextNode('Wait for Next Game'));
+	}
+
+	div.appendChild(ii);
+	div.appendChild(input);
+	e.appendChild(div);
 }
 
 function playGame(form)

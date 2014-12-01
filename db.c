@@ -766,6 +766,26 @@ db_game_load_player(int64_t playerid, int64_t round, gamef fp, void *arg)
 	db_finalise(stmt);
 }
 
+size_t
+db_game_round_count(int64_t gameid, int64_t round, int64_t role)
+{
+	sqlite3_stmt	*stmt;
+	int		 rc;
+	int64_t		 result;
+
+	stmt = db_stmt("SELECT count(*) FROM choice "
+		"INNER JOIN player ON player.id = choice.playerid "
+		"WHERE round=? AND gameid=? AND player.role = ?");
+	db_bind_int(stmt, 1, round);
+	db_bind_int(stmt, 2, gameid);
+	db_bind_int(stmt, 3, role);
+	rc = db_step(stmt, 0);
+	assert(SQLITE_ROW == rc);
+	result = (size_t)sqlite3_column_int(stmt, 0);
+	db_finalise(stmt);
+	return(result);
+}
+
 struct game *
 db_game_load(int64_t gameid)
 {

@@ -470,11 +470,6 @@ main(void)
 			pages, PAGE__MAX, PAGE_INDEX))
 		return(EXIT_FAILURE);
 
-	/* 
-	 * First, make sure that the page accepts the content type we've
-	 * assigned to it.
-	 * If it doesn't, then run an HTTP 404.
-	 */
 	switch (r.mime) {
 	case (KMIME_TEXT_HTML):
 		bit = PERM_HTML;

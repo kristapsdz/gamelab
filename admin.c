@@ -303,11 +303,32 @@ sendcontent(struct kreq *r, enum cntt cntt)
 	khttp_template(r, &t, fname);
 }
 
+struct	exprget {
+	struct kjsonreq	*req;
+	int64_t		 round;
+};
+
+static void
+senddogetexprgame(const struct game *game, void *arg)
+{
+	struct exprget	*get = arg;
+
+	kjson_obj_open(get->req);
+	kjson_putstringp(get->req, "name", game->name);
+	kjson_putintp(get->req, "prow",
+		db_game_round_count(game->id, get->round, 0));
+	kjson_putintp(get->req, "pcol",
+		db_game_round_count(game->id, get->round, 1));
+	kjson_obj_close(get->req);
+}
+
 static void
 senddogetexpr(struct kreq *r)
 {
 	struct expr	*expr;
 	struct kjsonreq	 req;
+	struct exprget	 get;
+	time_t		 t;
 
 	if (NULL == (expr = db_expr_get())) {
 		http_open(r, KHTTP_409);
@@ -321,6 +342,13 @@ senddogetexpr(struct kreq *r)
 	kjson_open(&req, r);
 	kjson_obj_open(&req);
 	json_putexpr(&req, expr);
+	kjson_arrayp_open(&req, "games");
+	if ((t = time(NULL)) > expr->start && t < expr->end) {
+		get.round = (t - expr->start) / (expr->minutes * 60);
+		get.req = &req;
+		db_game_load_all(senddogetexprgame, &get);
+	} 
+	kjson_array_close(&req);
 	kjson_obj_close(&req);
 	kjson_close(&req);
 	db_expr_free(expr);
