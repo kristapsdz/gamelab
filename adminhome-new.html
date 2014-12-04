@@ -279,10 +279,18 @@
 					<aside>
 						In order to send e-mails to players, you need to configure a valid e-mail sending
 						service.
-						Click <q>Send Test</q> to send a test message to the administrator account.
+						If you mess up, you can always fix this information after the game starts and re-try e-mails
+						that failed to send.
 					</aside>
 					<div id="checkSmtpResults" class="noshow">
 						<h4>Current Values</h4>
+						<aside>
+							<div>
+								The following are your SMTP parameters.
+								Click <q>Send Test</q> to send a test message to the administrator account
+								(<em>not</em> the <q>from address</q>!).
+							</div>
+						</aside>
 						<fieldset>
 							<div class="input">
 								<i class="fa fa-fw fa-database"></i>
@@ -308,7 +316,7 @@
 						A test e-mail has been sent to <span id="testSmtpResultsMail"></span>.
 						If you do not receive it in a little while, please fix your mail settings.
 					</div>
-					<div id="checkSmtpResultsNone" class="noshow">
+					<div id="checkSmtpResultsNone" class="noshow error">
 						<i class="fa fa-warning"></i>
 						<span>You have not yet configured your e-mail server.</span>
 					</div>
@@ -316,9 +324,17 @@
 						<i class="fa fa-spinner fa-spin"></i>
 					</div>
 					<aside>
-						Fill in the <q>From Address</q> (which appears on all e-mails to players), <q>SMTP
-							Server</q> to a valid SSL-secured SMTP server, <q>SMTP User</q> to the your
-						server account name, and <q>SMTP Password</q> to the your user's password.
+						<div>
+							The e-mail address <i class="fa fa-envelope"></i> will appear as the <q>from</q> address
+							on all e-mails the system sends out.
+							Make sure this is a real address so participants can write to you!
+							The server <i class="fa fa-database"></i> is your SMTP server.
+							It must be encrypted (SSL/TLS), and be in the form
+							<q>smtp://the.server.name:port</q>, where the port is usually 25, 465, or 587.
+							(It can be anything, though.)
+							The username <i class="fa fa-user"></i> and password <i class="fa fa-lock"></i> are used
+							to log into your server.
+						</div>
 					</aside>
 					<form action="@@cgibin@@/dochangesmtp.json" method="post" id="changeSmtp" onsubmit="return(changeSmtp(this));">
 						<div class="error">

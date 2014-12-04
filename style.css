@@ -40,11 +40,11 @@ section section >h3		{ margin: 0;
 				  color: #fff;
 				  background-color: #5555aa; }
 section section h4		{ margin: 0; }
-article >section > aside			
-				{ padding: 1ex; }
+article >section > aside	{ padding: 1ex; }
 .error				{ color: red;
 				  font-weight: bolder; }
-aside div			{ margin: 0.75em 0; }
+aside div			{ margin: 0.75em 0; 
+				  line-height: 120%; }
 /*
  * Now layout the specific components. 
  */
