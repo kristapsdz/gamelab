@@ -286,6 +286,7 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 	struct kjsonreq	 req;
 
 	expr = db_expr_get();
+	assert(NULL != expr);
 
 	/* 
 	 * Make sure we fall within the rounds and time specified by the

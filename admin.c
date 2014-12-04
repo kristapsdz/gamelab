@@ -762,24 +762,29 @@ senddoresendmail(struct kreq *r)
 	char		*sv;
 	struct expr	*expr;
 
+	if (NULL == (expr = db_expr_get())) {
+		http_open(r, KHTTP_409);
+		khttp_body(r);
+		return;
+	}
+
 	db_player_reset_error();
 
 	http_open(r, KHTTP_200);
 	khttp_body(r);
-	expr = db_expr_get();
 	sv = kstrdup(expr->loginuri);
 	db_expr_free(expr);
 	db_close();
 
 	if (-1 == (pid = fork())) {
-		fprintf(stderr, "cannot fork!\n");
+		perror(NULL);
 	} else if (0 == pid) {
 		khttp_child_free(r);
 		if (0 == (pid = fork())) {
 			mail_players(sv);
 			db_close();
 		} else if (pid < 0) 
-			fprintf(stderr, "cannot double-fork!\n");
+			perror(NULL);
 		free(sv);
 		_exit(EXIT_SUCCESS);
 	} else 
