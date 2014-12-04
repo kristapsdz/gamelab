@@ -79,6 +79,11 @@ function loadNewPlayersSuccess(resp)
 	if (0 == results.length) {
 		li = document.createElement('li');
 		span = document.createElement('span');
+		span.setAttribute('class', 'error');
+		icon = document.createElement('i');
+		icon.setAttribute('class', 'fa fa-warning');
+		span.appendChild(icon);
+		span.appendChild(document.createTextNode(' '));
 		span.appendChild(document.createTextNode('No players.'));
 		li.appendChild(span);
 		e.appendChild(li);
@@ -181,6 +186,11 @@ function loadPlayersSuccess(resp)
 	if (0 == results.length) {
 		li = document.createElement('li');
 		span = document.createElement('span');
+		span.setAttribute('class', 'error');
+		icon = document.createElement('i');
+		icon.setAttribute('class', 'fa fa-warning');
+		span.appendChild(icon);
+		span.appendChild(document.createTextNode(' '));
 		span.appendChild(document.createTextNode('No players.'));
 		li.appendChild(span);
 		e.appendChild(li);
@@ -264,6 +274,11 @@ function loadGamesSuccessInner(resp, code)
 		li = document.createElement('li');
 		e.appendChild(li);
 		div = document.createElement('span');
+		div.setAttribute('class', 'error');
+		icon = document.createElement('i');
+		icon.setAttribute('class', 'fa fa-warning');
+		div.appendChild(icon);
+		div.appendChild(document.createTextNode(' '));
 		div.appendChild(document.createTextNode('No games.'));
 		li.appendChild(div);
 		doClassFail('checkGameLoad');
