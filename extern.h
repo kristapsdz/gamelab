@@ -49,6 +49,17 @@ struct	game {
 	int64_t		 id;
 };
 
+struct	roundup {
+	mpq_t		**avgp1;
+	mpq_t		**avgp2;
+	mpq_t		**avg;
+	size_t		 *p1sz;
+	size_t		 *p2sz;
+	int64_t		 *ids;
+	int64_t		  round;
+	size_t		  gamesz;
+};
+
 /*
  * The state of a user's e-mail and password.
  */
@@ -108,6 +119,9 @@ int		 db_expr_start(int64_t date, int64_t rounds,
 void		 db_expr_free(struct expr *expr);
 struct expr	*db_expr_get(void);
 
+struct roundup	*db_roundup(int64_t);
+void		 db_roundup_free(struct roundup *);
+
 struct game	*db_game_alloc(const char *payoffs,
 			const char *name, 
 			int64_t p1, int64_t p2);
@@ -143,9 +157,8 @@ int		 db_player_valid(int64_t *id,
 int		 db_player_sess_valid(int64_t *playerid, 
 			int64_t id, int64_t cookie);
 void		 db_player_free(struct player *player);
-int		 db_player_play(int64_t playerid, int64_t round, 
-			int64_t gameid, const char *const *plays, 
-			size_t sz, size_t choice, double rr);
+int		 db_player_play(int64_t, int64_t, 
+			int64_t, const mpq_t *, size_t);
 
 void		 db_sess_delete(int64_t id);
 void		 db_sess_free(struct sess *sess);

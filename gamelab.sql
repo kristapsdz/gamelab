@@ -18,22 +18,11 @@ CREATE TABLE gameplay (
 
 CREATE TABLE choice (
 	round INTEGER NOT NULL,
-	strategy INTEGER NOT NULL,
-	randr DOUBLE NOT NULL,
+	strats TEXT NOT NULL,
 	playerid INTEGER REFERENCES player(id) NOT NULL,
 	gameid INTEGER REFERENCES game(id) NOT NULL,
 	id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
 	UNIQUE (round, playerid, gameid)
-);
-
-CREATE TABLE play (
-	fraction TEXT NOT NULL,
-	round INTEGER NOT NULL,
-	strategy INTEGER NOT NULL,
-	playerid INTEGER REFERENCES player(id) NOT NULL,
-	gameid INTEGER REFERENCES game(id) NOT NULL,
-	id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-	UNIQUE (round,playerid,gameid,strategy)
 );
 
 CREATE TABLE experiment (
@@ -63,6 +52,16 @@ CREATE TABLE admin (
 	email TEXT NOT NULL,
 	hash TEXT NOT NULL,
 	id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL
+);
+
+CREATE TABLE past (
+	round INTEGER NOT NULL,
+	gameid INTEGER REFERENCES game(id) NOT NULL,
+	id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+	averages TEXT NOT NULL,
+	averagesp1 TEXT NOT NULL,
+	averagesp2 TEXT NOT NULL,
+	unique (round, gameid)
 );
 
 CREATE TABLE smtp (

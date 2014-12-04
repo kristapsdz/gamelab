@@ -87,7 +87,7 @@ dobuf(void *ptr, size_t sz, size_t nm, void *arg)
 	if (rsz > buf->sz - buf->cur)
 		rsz = buf->sz - buf->cur;
 
-	fprintf(stderr, "[%.*s]\n", (int)rsz, buf->buf + buf->cur);
+	/*fprintf(stderr, "[%.*s]\n", (int)rsz, buf->buf + buf->cur);*/
 
 	memcpy(ptr, buf->buf + buf->cur, rsz);
 	buf->cur += rsz;

@@ -918,7 +918,7 @@ main(void)
 	struct kreq	 r;
 	unsigned int	 bit;
 
-	if ( ! khttp_parse(&r, keys, KEY__MAX, 
+	if (KCGI_OK != khttp_parse(&r, keys, KEY__MAX, 
 			pages, PAGE__MAX, PAGE_INDEX))
 		return(EXIT_FAILURE);
 

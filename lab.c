@@ -282,30 +282,61 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 	struct expr	*expr;
 	struct player	*player;
 	time_t		 t;
+	int64_t	 	 round;
 	struct kjsonreq	 req;
 
-	player = db_player_load(playerid);
 	expr = db_expr_get();
+
+	/* 
+	 * Make sure we fall within the rounds and time specified by the
+	 * system.
+	 * Check both, in case rounding error.
+	 */
+	t = time(NULL);
+	if (t >= expr->end || t < expr->start)
+		goto empty;
+	round = (t - expr->start) / (expr->minutes * 60);
+	if (round >= expr->rounds)
+		goto empty;
+
+	/* Compute round data. */
+	db_roundup_free(db_roundup(round - 1));
 
 	http_open(r, KHTTP_200);
 	khttp_body(r);
-
 	kjson_open(&req, r);
 	kjson_obj_open(&req);
-	if ((t = time(NULL)) < expr->end && t > expr->start) {
-		kjson_putintp(&req, "gamesz", db_game_count_all());
-		kjson_putintp(&req, "role", player->role);
-		kjson_arrayp_open(&req, "games");
-		db_game_load_player(playerid, 
-			(t - expr->start) / (expr->minutes * 60), 
-			senddoloadgame, &req);
-		kjson_array_close(&req);
-	}
+	player = db_player_load(playerid);
+	kjson_putintp(&req, "gamesz", db_game_count_all());
+	kjson_putintp(&req, "role", player->role);
+	kjson_arrayp_open(&req, "games");
+	db_game_load_player(playerid, 
+		round, senddoloadgame, &req);
+	kjson_array_close(&req);
+	db_player_free(player);
 	json_putexpr(&req, expr);
 	kjson_obj_close(&req);
 	kjson_close(&req);
 	db_expr_free(expr);
-	db_player_free(player);
+	return;
+empty:
+	http_open(r, KHTTP_200);
+	khttp_body(r);
+	kjson_open(&req, r);
+	kjson_obj_open(&req);
+	json_putexpr(&req, expr);
+	kjson_obj_close(&req);
+	kjson_close(&req);
+	db_expr_free(expr);
+}
+
+static void
+sendhistory(struct kreq *r)
+{
+	mpq_t		*rows, *cols;
+	size_t		 maxrows, maxcols;
+
+	
 }
 
 static void
@@ -313,18 +344,15 @@ senddoplay(struct kreq *r, int64_t playerid)
 {
 	struct player	 *player;
 	struct game	 *game;
-	size_t		  i, j, strats, strat;
+	size_t		  i, j, strats;
 	char		  buf[128];
-	mpq_t		  mix, sum, one, tmp;
-	double		  rr, v;
-	int 		  selected;
-	char		**mixes;
+	mpq_t		  sum, one, tmp;
+	mpq_t		 *mixes;
 
 	player = NULL;
 	game = NULL;
 	mixes = NULL;
 	strats = 0;
-	mpq_init(mix);
 	mpq_init(one);
 	mpq_init(sum);
 	mpq_init(tmp);
@@ -350,7 +378,7 @@ senddoplay(struct kreq *r, int64_t playerid)
 	 * Initialise the strategy array right now.
 	 */
 	strats = (0 == player->role) ? game->p1 : game->p2;
-	mixes = kcalloc(strats, sizeof(char *));
+	mixes = kcalloc(strats, sizeof(mpq_t));
 
 	/*
 	 * Look up each strategy array in the field array.
@@ -358,8 +386,6 @@ senddoplay(struct kreq *r, int64_t playerid)
 	 * If anything goes wrong, punt to KHTTP_400.
 	 * Also set our chosen random number.
 	 */
-	rr = arc4random() / (double)UINT32_MAX;
-	selected = 0;
 	for (i = 0; i < strats; i++) {
 		(void)snprintf(buf, sizeof(buf), "index%zu", i);
 		for (j = 0; j < r->fieldsz; j++)
@@ -373,30 +399,19 @@ senddoplay(struct kreq *r, int64_t playerid)
 			http_open(r, KHTTP_400);
 			goto out;
 		}
-		if (mpq_set_str(mix, r->fields[j].val, 10) < 0) {
+		if (mpq_set_str(mixes[i], r->fields[j].val, 10) < 0) {
 			http_open(r, KHTTP_400);
 			goto out;
 
 		}
-		mpq_canonicalize(mix);
-		gmp_asprintf(&mixes[i], "%Qd", mix);
-		assert(NULL != mixes[i]);
+		mpq_canonicalize(mixes[i]);
 		/* This is to verify the sum is 1. */
 		mpq_set(tmp, sum);
-		mpq_add(sum, tmp, mix);
+		mpq_add(sum, tmp, mixes[i]);
 		mpq_canonicalize(sum);
 		/* Accumulate after conversion. */
-		v = mpq_get_d(sum);
-		if (0.0 != v && ! isnormal(v)) {
-			http_open(r, KHTTP_400);
-			goto out;
-		}
-		if ( ! selected && v > rr) {
-			strat = i;
-			selected = 1;
-		}
 	}
-	assert(selected);
+
 	mpq_set_ui(one, 1, 1);
 	mpq_canonicalize(one);
 
@@ -413,8 +428,7 @@ senddoplay(struct kreq *r, int64_t playerid)
 	 */
 	if ( ! db_player_play
 		(player->id, r->fieldmap[KEY_ROUND]->parsed.i,
-		 game->id, (const char *const *)mixes, strats, 
-		 strat, rr))
+		 game->id, mixes, strats))
 		http_open(r, KHTTP_409);
 	else
 		http_open(r, KHTTP_200);
@@ -427,9 +441,8 @@ out:
 	 */
 	khttp_body(r);
 	for (i = 0; i < strats; i++)
-		free(mixes[i]);
+		mpq_clear(mixes[i]);
 	free(mixes);
-	mpq_clear(mix);
 	mpq_clear(one);
 	mpq_clear(sum);
 	mpq_clear(tmp);
@@ -459,7 +472,7 @@ main(void)
 	int64_t		 id;
 	unsigned int	 bit;
 	
-	if ( ! khttp_parse(&r, keys, KEY__MAX, 
+	if (KCGI_OK != khttp_parse(&r, keys, KEY__MAX, 
 			pages, PAGE__MAX, PAGE_INDEX))
 		return(EXIT_FAILURE);
 

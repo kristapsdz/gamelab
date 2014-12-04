@@ -189,18 +189,6 @@ db_bind_text(sqlite3_stmt *stmt, size_t pos, const char *val)
 }
 
 static void
-db_bind_double(sqlite3_stmt *stmt, size_t pos, double val)
-{
-
-	assert(pos > 0);
-	if (SQLITE_OK == sqlite3_bind_double(stmt, pos, val))
-		return;
-	fprintf(stderr, "sqlite3_bind_double: %s\n", sqlite3_errmsg(db));
-	db_finalise(stmt);
-	exit(EXIT_FAILURE);
-}
-
-static void
 db_bind_int(sqlite3_stmt *stmt, size_t pos, int64_t val)
 {
 
@@ -266,6 +254,81 @@ db_trans_rollback(void)
 {
 
 	db_exec("ROLLBACK TRANSACTION");
+}
+
+static char *
+db_mpq2str(const mpq_t *v, size_t sz)
+{
+	char	*p, *tmp;
+	size_t	 i, psz;
+
+	for (p = NULL, psz = i = 0; i < sz; i++) {
+		gmp_asprintf(&tmp, "%Qd", v[i]);
+		psz += strlen(tmp) + 2;
+		p = krealloc(p, psz);
+		if (i > 0)
+			(void)strlcat(p, " ", psz);
+		else
+			p[0] = '\0';
+		(void)strlcat(p, tmp, psz);
+		free(tmp);
+	}
+
+	return(p);
+}
+
+static void
+db_str2mpq_add(const unsigned char *v, size_t sz, mpq_t *p)
+{
+	size_t	 i;
+	char	*buf, *tok, *sv;
+	int	 rc;
+	mpq_t	 tmp, sum;
+
+	buf = sv = kstrdup((const char *)v);
+
+	mpq_init(tmp);
+	mpq_init(sum);
+
+	i = 0;
+	while (NULL != (tok = strsep(&buf, " \t\n\r"))) {
+		assert(i < sz);
+		rc = mpq_set_str(tmp, tok, 10);
+		assert(0 == rc);
+		mpq_canonicalize(tmp);
+		mpq_set(sum, p[i]);
+		mpq_add(p[i], sum, tmp);
+		i++;
+	}
+
+	free(sv);
+	mpq_clear(tmp);
+	mpq_clear(sum);
+}
+
+static mpq_t *
+db_str2mpq(const unsigned char *v, size_t sz)
+{
+	mpq_t	*p;
+	size_t	 i;
+	char	*buf, *tok, *sv;
+	int	 rc;
+
+	p = kcalloc(sz, sizeof(mpq_t));
+	buf = sv = kstrdup((const char *)v);
+
+	i = 0;
+	while (NULL != (tok = strsep(&buf, " \t\n\r"))) {
+		assert(i < sz);
+		mpq_init(p[i]);
+		rc = mpq_set_str(p[i], tok, 10);
+		assert(0 == rc);
+		mpq_canonicalize(p[i]);
+		i++;
+	}
+
+	free(sv);
+	return(p);
 }
 
 void
@@ -522,37 +585,6 @@ db_game_free(struct game *game)
 	free(game);
 }
 
-/*
- * This should only be called on rationals that are in the database,
- * i.e., those that have been canonicalised and validated.
- */
-static mpq_t *
-db_payoff_to_mpq(char *buf, int64_t p1, int64_t p2)
-{
-	mpq_t	*rops;
-	size_t	 i, count;
-	int	 rc;
-	char	*tok;
-
-	rops = kcalloc(p1 * p2 * 2, sizeof(mpq_t));
-
-	for (i = 0; i < (size_t)(p1 * p2 * 2); i++)
-		mpq_init(rops[i]);
-
-	count = 0;
-	while (NULL != (tok = strsep(&buf, " \t\n\r"))) {
-		assert(count < (size_t)(p1 * p2 * 2));
-		rc = mpq_set_str(rops[count], tok, 10);
-		assert(0 == rc);
-		mpq_canonicalize(rops[count]);
-		assert(0 == rc);
-		count++;
-	}
-
-	assert(count == (size_t)(p1 * p2 * 2));
-	return(rops);
-}
-
 size_t
 db_game_count_all(void)
 {
@@ -652,14 +684,13 @@ db_player_load_all(playerf fp, void *arg)
  */
 int
 db_player_play(int64_t playerid, int64_t round, 
-	int64_t gameid, const char *const *plays, 
-	size_t sz, size_t choice, double rr)
+	int64_t gameid, const mpq_t *plays, size_t sz)
 {
 	struct expr	*expr;
 	time_t		 t;
 	sqlite3_stmt	*stmt;
-	size_t		 i;
 	int		 rc;
+	char		*buf;
 
 	/*
 	 * Check this outside of a transaction.
@@ -678,40 +709,19 @@ db_player_play(int64_t playerid, int64_t round,
 	}
 	db_expr_free(expr);
 
-	/*
-	 * Uniquely create our choice.
-	 * We do this before setting the play choices, because we've
-	 * basically "locked" what follows into the original player.
-	 */
+	buf = db_mpq2str(plays, sz);
 	stmt = db_stmt("INSERT INTO choice "
-		"(round,playerid,gameid,strategy,randr) "
-		"VALUES (?,?,?,?,?)");
+		"(round,playerid,gameid,strats) "
+		"VALUES (?,?,?,?)");
 	db_bind_int(stmt, 1, round);
 	db_bind_int(stmt, 2, playerid);
 	db_bind_int(stmt, 3, gameid);
-	db_bind_int(stmt, 4, choice);
-	db_bind_double(stmt, 5, rr);
+	db_bind_text(stmt, 4, buf);
 	rc = db_step(stmt, DB_STEP_CONSTRAINT);
 	db_finalise(stmt);
+	free(buf);
 	if (SQLITE_CONSTRAINT == rc)
 		return(0);
-
-	/*
-	 * Insert all of our play choices.
-	 */
-	stmt = db_stmt("INSERT into play "
-		"(fraction, round, strategy, playerid, gameid) "
-		"VALUES (?, ?, ?, ?, ?)");
-	for (i = 0; i < sz; i++) {
-		db_bind_text(stmt, 1, plays[i]);
-		db_bind_int(stmt, 2, round);
-		db_bind_int(stmt, 3, i);
-		db_bind_int(stmt, 4, playerid);
-		db_bind_int(stmt, 5, gameid);
-		db_step(stmt, 0);
-		sqlite3_reset(stmt);
-	}
-	db_finalise(stmt);
 
 	stmt = db_stmt("INSERT INTO gameplay "
 		"(round,playerid) VALUES (?,?)");
@@ -754,7 +764,6 @@ db_game_load_player(int64_t playerid, int64_t round, gamef fp, void *arg)
 	struct game	 game;
 	int64_t		 id;
 	size_t		 i;
-	char		*sv;
 
 	stmt = db_stmt("SELECT payoffs,p1,p2,name,id FROM game");
 	while (SQLITE_ROW == db_step(stmt, 0)) {
@@ -762,12 +771,11 @@ db_game_load_player(int64_t playerid, int64_t round, gamef fp, void *arg)
 		if (db_game_check_player(playerid, round, id))
 			continue;
 		memset(&game, 0, sizeof(struct game));
-		sv = strdup((char *)sqlite3_column_text(stmt, 0));
-		assert(NULL != sv);
 		game.p1 = sqlite3_column_int(stmt, 1);
 		game.p2 = sqlite3_column_int(stmt, 2);
-		game.payoffs = db_payoff_to_mpq(sv, game.p1, game.p2);
-		assert(NULL != game.payoffs);
+		game.payoffs = db_str2mpq
+			(sqlite3_column_text(stmt, 0), 
+			 game.p1 * game.p2 * 2);
 		game.name = strdup((char *)sqlite3_column_text(stmt, 3));
 		assert(NULL != game.name);
 		game.id = sqlite3_column_int(stmt, 4);
@@ -776,7 +784,6 @@ db_game_load_player(int64_t playerid, int64_t round, gamef fp, void *arg)
 			mpq_clear(game.payoffs[i]);
 		free(game.payoffs);
 		free(game.name);
-		free(sv);
 	}
 
 	db_finalise(stmt);
@@ -827,7 +834,6 @@ db_game_load(int64_t gameid)
 {
 	sqlite3_stmt	*stmt;
 	struct game	*game;
-	char		*sv;
 
 	game = NULL;
 	stmt = db_stmt("SELECT payoffs,p1,p2,"
@@ -836,13 +842,13 @@ db_game_load(int64_t gameid)
 
 	if (SQLITE_ROW == db_step(stmt, 0)) {
 		game = kcalloc(1, sizeof(struct game));
-		sv = kstrdup((char *)sqlite3_column_text(stmt, 0));
 		game->p1 = sqlite3_column_int(stmt, 1);
 		game->p2 = sqlite3_column_int(stmt, 2);
-		game->payoffs = db_payoff_to_mpq(sv, game->p1, game->p2);
+		game->payoffs = db_str2mpq
+			(sqlite3_column_text(stmt, 0), 
+			 game->p1 * game->p2 * 2);
 		game->name = kstrdup((char *)sqlite3_column_text(stmt, 3));
 		game->id = sqlite3_column_int(stmt, 4);
-		free(sv);
 	}
 
 	db_finalise(stmt);
@@ -855,15 +861,15 @@ db_game_load_all(gamef fp, void *arg)
 	sqlite3_stmt	*stmt;
 	struct game	 game;
 	size_t		 i;
-	char		*sv;
 
 	stmt = db_stmt("SELECT payoffs,p1,p2,name,id FROM game");
 	while (SQLITE_ROW == db_step(stmt, 0)) {
 		memset(&game, 0, sizeof(struct game));
-		sv = kstrdup((char *)sqlite3_column_text(stmt, 0));
 		game.p1 = sqlite3_column_int(stmt, 1);
 		game.p2 = sqlite3_column_int(stmt, 2);
-		game.payoffs = db_payoff_to_mpq(sv, game.p1, game.p2);
+		game.payoffs = db_str2mpq
+			(sqlite3_column_text(stmt, 0), 
+			 game.p1 * game.p2 * 2);
 		game.name = kstrdup((char *)sqlite3_column_text(stmt, 3));
 		game.id = sqlite3_column_int(stmt, 4);
 		(*fp)(&game, arg);
@@ -871,7 +877,6 @@ db_game_load_all(gamef fp, void *arg)
 			mpq_clear(game.payoffs[i]);
 		free(game.payoffs);
 		free(game.name);
-		free(sv);
 	}
 
 	db_finalise(stmt);
@@ -1194,6 +1199,197 @@ db_smtp_set(const char *user, const char *server,
 	db_bind_text(stmt, 4, from);
 	db_step(stmt, 0);
 	db_finalise(stmt);
+}
+
+static void
+db_expr_game_roundup(const struct game *game, void *arg)
+{
+	struct roundup	*r = arg;
+	size_t		 i, j, k, count, gidx;
+	sqlite3_stmt	*stmt;
+	mpq_t		 tmp, sum;
+	char		*avgsp1, *avgsp2, *avgs;
+	int		 rc;
+
+	/*
+	 * First, find our current index in the list of games for which
+	 * we're accumulating roundup values.
+	 */
+	for (gidx = 0; gidx < r->gamesz; gidx++) 
+		if (0 == r->p1sz[gidx]) {
+			assert(0 == r->p2sz[gidx]);
+			break;
+		}
+
+	assert(gidx < r->gamesz);
+	assert(game->p1 > 0);
+	assert(game->p2 > 0);
+	r->p1sz[gidx] = game->p1;
+	r->p2sz[gidx] = game->p2;
+
+	fprintf(stderr, "Roundup: game index %zu, round %" PRId64 "\n", gidx, r->round);
+
+	/*
+	 * Try to look up the round in the previously-cached roundup for
+	 * the game and round.
+	 */
+	stmt = db_stmt("SELECT averagesp1,averagesp2,averages "
+		"FROM past WHERE round=? AND gameid=?");
+	db_bind_int(stmt, 1, r->round);
+	db_bind_int(stmt, 2, game->id);
+
+	if (SQLITE_ROW == db_step(stmt, 0)) {
+		r->avgp1[gidx] = db_str2mpq
+			(sqlite3_column_text(stmt, 0), game->p1);
+		r->avgp2[gidx] = db_str2mpq
+			(sqlite3_column_text(stmt, 1), game->p2);
+		r->avg[gidx] = db_str2mpq
+			(sqlite3_column_text(stmt, 2), 
+			 game->p1 * game->p2);
+		db_finalise(stmt);
+		return;
+	}
+
+	db_finalise(stmt);
+
+	r->avgp1[gidx] = kcalloc(game->p1, sizeof(mpq_t));
+	r->avgp2[gidx] = kcalloc(game->p2, sizeof(mpq_t));
+	r->avg[gidx] = kcalloc(game->p1 * game->p2, sizeof(mpq_t));
+
+	for (i = 0; i < (size_t)game->p1; i++)
+		mpq_init(r->avgp1[gidx][i]);
+	for (i = 0; i < (size_t)game->p2; i++)
+		mpq_init(r->avgp2[gidx][i]);
+	for (i = 0; i < (size_t)game->p1 * (size_t)game->p2; i++)
+		mpq_init(r->avg[gidx][i]);
+
+
+	mpq_init(sum);
+	mpq_init(tmp);
+
+	fprintf(stderr, "Rounding up for round %" PRId64 
+		", game %" PRId64 "\n", r->round, game->id);
+
+	stmt = db_stmt("SELECT strats from choice "
+		"INNER JOIN player ON player.id=choice.playerid "
+		"WHERE round=? AND gameid=? "
+		"AND player.role=?");
+
+	db_bind_int(stmt, 1, r->round);
+	db_bind_int(stmt, 2, game->id);
+	db_bind_int(stmt, 3, 0);
+	for (count = 0; SQLITE_ROW == db_step(stmt, 0); count++)
+		db_str2mpq_add(sqlite3_column_text
+			(stmt, 0), game->p1, r->avgp1[gidx]);
+
+	if (count > 0)
+		for (i = 0; i < (size_t)game->p1; i++) {
+			mpq_set_ui(tmp, count, 1);
+			mpq_canonicalize(tmp);
+			mpq_set(sum, r->avgp1[gidx][i]);
+			mpq_div(r->avgp1[gidx][i], sum, tmp);
+		} 
+
+	sqlite3_reset(stmt);
+
+	db_bind_int(stmt, 1, r->round);
+	db_bind_int(stmt, 2, game->id);
+	db_bind_int(stmt, 3, 1);
+	for (count = 0; SQLITE_ROW == db_step(stmt, 0); count++) 
+		db_str2mpq_add(sqlite3_column_text
+			(stmt, 0), game->p2, r->avgp2[gidx]);
+
+	if (count > 0) 
+		for (i = 0; i < (size_t)game->p2; i++) {
+			mpq_set_ui(tmp, count, 1);
+			mpq_canonicalize(tmp);
+			mpq_set(sum, r->avgp2[gidx][i]);
+			mpq_div(r->avgp2[gidx][i], sum, tmp);
+		} 
+
+	db_finalise(stmt);
+
+	for (k = i = 0; i < (size_t)game->p1; i++)
+		for (j = 0; j < (size_t)game->p2; j++, k++)
+			mpq_mul(r->avg[gidx][k], 
+				r->avgp1[gidx][i], r->avgp2[gidx][j]);
+
+	avgsp1 = db_mpq2str(r->avgp1[gidx], game->p1);
+	avgsp2 = db_mpq2str(r->avgp2[gidx], game->p2);
+	avgs = db_mpq2str(r->avg[gidx], game->p1 * game->p2);
+
+	fprintf(stderr, "P1 averages for round %" 
+		PRId64 ": %s\n", r->round, avgsp1);
+	fprintf(stderr, "P2 averages for round %" 
+		PRId64 ": %s\n", r->round, avgsp2);
+	fprintf(stderr, "Averages for round %" PRId64 ": %s\n", r->round, avgs);
+
+	stmt = db_stmt("INSERT INTO past (round, "
+		"averagesp1, averagesp2, averages, gameid) "
+		"VALUES (?,?,?,?,?)");
+	db_bind_int(stmt, 1, r->round);
+	db_bind_text(stmt, 2, avgsp1);
+	db_bind_text(stmt, 3, avgsp2);
+	db_bind_text(stmt, 4, avgs);
+	db_bind_int(stmt, 5, game->id);
+	rc = db_step(stmt, DB_STEP_CONSTRAINT);
+	db_finalise(stmt);
+	if (SQLITE_CONSTRAINT == rc) 
+		fprintf(stderr, "Round-up already exists.\n");
+
+	free(avgs);
+	free(avgsp1);
+	free(avgsp2);
+	mpq_clear(sum);
+	mpq_clear(tmp);
+}
+
+struct roundup *
+db_roundup(int64_t round)
+{
+	struct roundup	*p;
+
+	if (round < 0)
+		return(NULL);
+
+	fprintf(stderr, "Rounding up (start) %" PRId64 "\n", round);
+
+	p = kcalloc(1, sizeof(struct roundup));
+	p->gamesz = db_game_count_all();
+	p->round = round;
+	p->avgp1 = kcalloc(p->gamesz, sizeof(mpq_t *));
+	p->avgp2 = kcalloc(p->gamesz, sizeof(mpq_t *));
+	p->avg = kcalloc(p->gamesz, sizeof(mpq_t *));
+	p->p1sz = kcalloc(p->gamesz, sizeof(size_t));
+	p->p2sz = kcalloc(p->gamesz, sizeof(size_t));
+	db_game_load_all(db_expr_game_roundup, p);
+	return(p);
+}
+
+void
+db_roundup_free(struct roundup *p)
+{
+	size_t		i, j;
+
+	if (NULL == p)
+		return;
+	
+	for (i = 0; i < p->gamesz; i++) {
+		for (j = 0; j < p->p1sz[i]; j++)
+			mpq_clear(p->avgp1[i][j]);
+		for (j = 0; j < p->p2sz[i]; j++)
+			mpq_clear(p->avgp2[i][j]);
+		for (j = 0; j < p->p1sz[i] * p->p2sz[i]; j++)
+			mpq_clear(p->avg[i][j]);
+	}
+
+	free(p->ids);
+	free(p->avg);
+	free(p->avgp1);
+	free(p->avgp2);
+	free(p->p1sz);
+	free(p->p2sz);
+	free(p);
 }
 
 struct expr *
