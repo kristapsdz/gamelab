@@ -453,7 +453,7 @@ function loadSmtpSuccess(resp)
 
 	doClassOk('checkSmtpLoad');
 
-	console.log('Response: ' + resp);
+	console.log('SMTP Response: ' + resp);
 	try {
 		results = JSON.parse(resp);
 	} catch (error) {

@@ -50,14 +50,15 @@ struct	game {
 };
 
 struct	roundup {
-	mpq_t		**avgp1;
-	mpq_t		**avgp2;
-	mpq_t		**avg;
-	size_t		 *p1sz;
-	size_t		 *p2sz;
-	int64_t		 *ids;
-	int64_t		  round;
-	size_t		  gamesz;
+	mpq_t		*avgp1;
+	mpq_t		*avgp2;
+	mpq_t		*avg;
+	int		 skip;
+	size_t		 roundcount;
+	size_t		 p1sz;
+	size_t		 p2sz;
+	int64_t		 gameid;
+	int64_t		 round;
 };
 
 /*
@@ -100,81 +101,78 @@ struct	smtp {
 __BEGIN_DECLS
 
 typedef void	(*gamef)(const struct game *, void *);
+typedef void	(*gameroundf)(const struct game *, int64_t, void *);
 typedef void	(*playerf)(const struct player *, void *);
 
 char		*db_admin_get_mail(void);
-void		 db_admin_set_pass(const char *pass);
-void		 db_admin_set_mail(const char *email);
-int		 db_admin_valid(const char *email, const char *pass);
-int		 db_admin_valid_email(const char *email);
-int		 db_admin_valid_pass(const char *pass);
+void		 db_admin_set_pass(const char *);
+void		 db_admin_set_mail(const char *);
+int		 db_admin_valid(const char *, const char *);
+int		 db_admin_valid_email(const char *);
+int		 db_admin_valid_pass(const char *);
 struct sess	*db_admin_sess_alloc(void);
-int		 db_admin_sess_valid(int64_t id, int64_t cookie);
+int		 db_admin_sess_valid(int64_t, int64_t);
 
 void		 db_close(void);
 
-int		 db_expr_checkstate(enum estate state);
-int		 db_expr_start(int64_t date, int64_t rounds, 
-			int64_t minutes, const char *uri);
-void		 db_expr_free(struct expr *expr);
+int		 db_expr_checkstate(enum estate);
+int		 db_expr_start(int64_t, int64_t, 
+			int64_t, const char *);
+void		 db_expr_free(struct expr *);
 struct expr	*db_expr_get(void);
 
-struct roundup	*db_roundup(int64_t);
+struct roundup	*db_roundup(int64_t, const struct game *);
 void		 db_roundup_free(struct roundup *);
 
-struct game	*db_game_alloc(const char *payoffs,
-			const char *name, 
-			int64_t p1, int64_t p2);
-int		 db_game_check_player(int64_t playerid, 
-			int64_t round, int64_t gameid);
+struct game	*db_game_alloc(const char *,
+			const char *, int64_t, int64_t);
+int		 db_game_check_player(int64_t, int64_t, int64_t);
 size_t		 db_game_count_all(void);
-int		 db_game_delete(int64_t id);
-void		 db_game_free(struct game *game);
-struct game	*db_game_load(int64_t gameid);
-struct game	*db_game_load_array(size_t *sz);
-size_t		 db_game_round_count(int64_t gameid,
-			int64_t round, int64_t role);
-size_t		 db_game_round_count_done(int64_t round, 
-	 		int64_t role, size_t gamesz);
-void		 db_game_load_all(gamef fp, void *arg);
-void		 db_game_load_player(int64_t playerid, 
-			int64_t round, gamef f, void *arg);
+int		 db_game_delete(int64_t);
+void		 db_game_free(struct game *);
+struct game	*db_game_load(int64_t);
+struct game	*db_game_load_array(size_t *);
+size_t		 db_game_round_count(int64_t, int64_t, int64_t);
+size_t		 db_game_round_count_done(int64_t, int64_t, size_t);
+void		 db_game_load_all(gamef fp, void *);
+void		 db_game_load_player(int64_t, 
+			int64_t, gameroundf, void *);
 
 void		 db_player_reset_error(void);
-void		 db_player_set_mailed(int64_t id, const char *pass);
-void		 db_player_set_state(int64_t id, enum pstate state);
+void		 db_player_set_mailed(int64_t, const char *);
+void		 db_player_set_state(int64_t, enum pstate);
 size_t		 db_player_count_all(void);
-int		 db_player_create(const char *email);
-void		 db_player_enable(int64_t id);
-int		 db_player_delete(int64_t id);
-void		 db_player_disable(int64_t id);
-struct player	*db_player_load(int64_t id);
-void		 db_player_load_all(playerf fp, void *arg);
-char		*db_player_next_new(int64_t *id, char **pass);
-struct sess	*db_player_sess_alloc(int64_t playerid);
-int		 db_player_valid(int64_t *id, 
-			const char *mail, const char *pass);
-int		 db_player_sess_valid(int64_t *playerid, 
-			int64_t id, int64_t cookie);
-void		 db_player_free(struct player *player);
+int		 db_player_create(const char *);
+void		 db_player_enable(int64_t);
+int		 db_player_delete(int64_t);
+void		 db_player_disable(int64_t);
+struct player	*db_player_load(int64_t);
+void		 db_player_load_all(playerf, void *);
+char		*db_player_next_new(int64_t *, char **);
+struct sess	*db_player_sess_alloc(int64_t);
+int		 db_player_valid(int64_t *, 
+			const char *, const char *);
+int		 db_player_sess_valid(int64_t *, int64_t, int64_t);
+void		 db_player_free(struct player *);
 int		 db_player_play(int64_t, int64_t, 
 			int64_t, const mpq_t *, size_t);
 
-void		 db_sess_delete(int64_t id);
-void		 db_sess_free(struct sess *sess);
+void		 db_sess_delete(int64_t);
+void		 db_sess_free(struct sess *);
 
 struct smtp	*db_smtp_get(void);
 void		 db_smtp_free(struct smtp *);
-void		 db_smtp_set(const char *user, const char *server, 
-			const char *from, const char *pass);
+void		 db_smtp_set(const char *, const char *, 
+			const char *, const char *);
 
-void		 mail_players(const char *uri);
+void		 mail_players(const char *);
 void		 mail_test(void);
 
-void		 json_putmpqs(struct kjsonreq *r, 
-			mpq_t *vals, int64_t p1, int64_t p2);
-void		 json_putexpr(struct kjsonreq *r, 
-			const struct expr *expr);
+void		 json_putmpqs(struct kjsonreq *, 
+			const char *, mpq_t *, int64_t, int64_t);
+void		 json_putroundup(struct kjsonreq *, 
+			const char *, const struct roundup *);
+void		 json_putexpr(struct kjsonreq *, const struct expr *);
 
 __END_DECLS
 

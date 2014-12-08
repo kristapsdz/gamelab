@@ -701,7 +701,8 @@ senddoloadgame(const struct game *game, void *arg)
 	kjson_putintp(r, "p1", game->p1);
 	kjson_putintp(r, "p2", game->p2);
 	kjson_putstringp(r, "name", game->name);
-	json_putmpqs(r, game->payoffs, game->p1, game->p2);
+	json_putmpqs(r, "payoffs", 
+		game->payoffs, game->p1, game->p2);
 	kjson_obj_close(r);
 }
 

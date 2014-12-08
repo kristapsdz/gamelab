@@ -86,6 +86,79 @@
 						</div>
 					</fieldset>
 				</section>
+				<section id="changeMailSection">
+					<h3>Change E-mail</h3>
+					<aside>
+						You should set the e-mail address to your address, as the system (or system administrator) will
+						mail you if it has issues.
+						You will be logged out after doing so.
+					</aside>
+					<form action="@@cgibin@@/dochangemail.json" method="post" id="changeMail" onsubmit="return(changeMail(this));">
+						<div class="error">
+							<div class="noshow" id="changeMailErrSystem">
+								An unexpected error occurred.
+							</div>
+							<div class="noshow" id="changeMailErrForm">
+								Invalid new or existing e-mail address.
+							</div>
+						</div>
+						<fieldset>
+							<div class="input">
+								<i class="fa fa-fw fa-envelope"></i>
+								<input required="required" type="email" name="email1" placeholder="Existing E-mail"/>
+							</div>
+							<div class="input">
+								<i class="fa fa-fw fa-envelope-o"></i>
+								<input required="required" type="email" name="email2" placeholder="New E-mail"/>
+							</div>
+							<div class="input">
+								<i class="fa fa-fw fa-envelope-o"></i>
+								<input required="required" type="email" name="email3" placeholder="Repeat New E-mail"/>
+							</div>
+							<div class="input input-submit">
+								<i class="fa fa-fw fa-check"></i>
+								<input id="changeMailSubmit" type="submit" value="Submit" />
+							</div>
+						</fieldset>
+					</form>
+				</section>
+				<section id="changePassSection">
+					<h3>Change Password</h3>
+					<aside>
+						Set your password (at least one character) here.
+						You should do this when you first use the system, as the default is too easy.
+						It's up to you to make sure your password is secure.
+						You will be logged out after doing so.
+					</aside>
+					<form action="@@cgibin@@/dochangepass.json" method="post" id="changePass" onsubmit="return(changePass(this));">
+						<div class="error">
+							<div class="noshow" id="changePassErrSystem">
+								An unexpected error occurred.
+							</div>
+							<div class="noshow" id="changePassErrForm">
+								Invalid new or existing password.
+							</div>
+						</div>
+						<fieldset>
+							<div class="input">
+								<i class="fa fa-fw fa-lock"></i>
+								<input required="required" type="password" name="password1" placeholder="Existing Password"/>
+							</div>
+							<div class="input">
+								<i class="fa fa-fw fa-lock"></i>
+								<input required="required" type="password" name="password2" placeholder="New Password"/>
+							</div>
+							<div class="input">
+								<i class="fa fa-fw fa-lock"></i>
+								<input required="required" type="password" name="password3" placeholder="Repeat New Password"/>
+							</div>
+							<div class="input input-submit">
+								<i class="fa fa-fw fa-check"></i>
+								<input id="changePassSubmit" type="submit" value="Submit" />
+							</div>
+						</fieldset>
+					</form>
+				</section>
 				<section id="changeSmtpSection">
 					<h3>Change SMTP</h3>
 					<aside>

@@ -58,9 +58,10 @@ CREATE TABLE past (
 	round INTEGER NOT NULL,
 	gameid INTEGER REFERENCES game(id) NOT NULL,
 	id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-	averages TEXT NOT NULL,
 	averagesp1 TEXT NOT NULL,
 	averagesp2 TEXT NOT NULL,
+	skip INTEGER NOT NULL,
+	roundcount INTEGER NOT NULL,
 	unique (round, gameid)
 );
 

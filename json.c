@@ -57,27 +57,67 @@ json_putexpr(struct kjsonreq *r, const struct expr *expr)
 	kjson_obj_close(r);
 }
 
+static void
+json_putmpq(struct kjsonreq *r, mpq_t val)
+{
+	char	*buf;
+
+	gmp_asprintf(&buf, "%Qd", val);
+	kjson_putstring(r, buf);
+	free(buf);
+}
+
+void
+json_putroundup(struct kjsonreq *r, const char *name,
+	const struct roundup *roundup)
+{
+	size_t	 i, j, k;
+
+	if (NULL == roundup) {
+		kjson_putnullp(r, name);
+		return;
+	}
+
+	kjson_objp_open(r, name);
+	kjson_arrayp_open(r, "avgp1");
+	for (i = 0; i < roundup->p1sz; i++)
+		json_putmpq(r, roundup->avgp1[i]);
+	kjson_array_close(r);
+
+	kjson_arrayp_open(r, "avgp2");
+	for (i = 0; i < roundup->p2sz; i++)
+		json_putmpq(r, roundup->avgp2[i]);
+	kjson_array_close(r);
+
+	kjson_arrayp_open(r, "avgs");
+	for (k = i = 0; i < roundup->p1sz; i++) {
+		kjson_array_open(r);
+		for (j = 0; j < roundup->p2sz; j++, k++)
+			json_putmpq(r, roundup->avg[k]);
+		kjson_array_close(r);
+	}
+	kjson_array_close(r);
+	kjson_obj_close(r);
+}
+
 /*
  * Put a quoted JSON string key and array of rational fractions.
  */
 void
-json_putmpqs(struct kjsonreq *r, 
+json_putmpqs(struct kjsonreq *r, const char *name,
 	mpq_t *vals, int64_t p1, int64_t p2)
 {
-	int64_t		i, j;
-	char		buf[128];
+	int64_t		 i, j;
 
-	kjson_arrayp_open(r, "payoffs");
+	kjson_arrayp_open(r, name);
 	for (i = 0; i < p1; i++) {
 		kjson_array_open(r);
 		for (j = 0; j < p2; j++) {
 			kjson_array_open(r);
-			gmp_snprintf(buf, sizeof(buf), "%Qd", 
-				vals[i * (p2 * 2) + (j * 2)]);
-			kjson_putstring(r, buf);
-			gmp_snprintf(buf, sizeof(buf), "%Qd", 
-				vals[i * (p2 * 2) + (j * 2) + 1]);
-			kjson_putstring(r, buf);
+			json_putmpq(r, vals[i * 
+				(p2 * 2) + (j * 2)]);
+			json_putmpq(r, vals[i * 
+				(p2 * 2) + (j * 2) + 1]);
 			kjson_array_close(r);
 		}
 		kjson_array_close(r);

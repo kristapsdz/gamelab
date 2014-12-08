@@ -777,7 +777,8 @@ db_game_check_player(int64_t playerid, int64_t round, int64_t game)
 }
 
 void
-db_game_load_player(int64_t playerid, int64_t round, gamef fp, void *arg)
+db_game_load_player(int64_t playerid, 
+	int64_t round, gameroundf fp, void *arg)
 {
 	sqlite3_stmt	*stmt;
 	struct game	 game;
@@ -798,7 +799,7 @@ db_game_load_player(int64_t playerid, int64_t round, gamef fp, void *arg)
 		game.name = strdup((char *)sqlite3_column_text(stmt, 3));
 		assert(NULL != game.name);
 		game.id = sqlite3_column_int(stmt, 4);
-		(*fp)(&game, arg);
+		(*fp)(&game, round, arg);
 		for (i = 0; i < (size_t)(2 * game.p1 * game.p2); i++)
 			mpq_clear(game.payoffs[i]);
 		free(game.payoffs);
@@ -881,7 +882,8 @@ db_game_load_all(gamef fp, void *arg)
 	struct game	 game;
 	size_t		 i;
 
-	stmt = db_stmt("SELECT payoffs,p1,p2,name,id FROM game");
+	stmt = db_stmt("SELECT payoffs,p1,p2,"
+		"name,id FROM game ORDER BY id");
 	while (SQLITE_ROW == db_step(stmt, 0)) {
 		memset(&game, 0, sizeof(struct game));
 		game.p1 = sqlite3_column_int(stmt, 1);
@@ -1228,75 +1230,133 @@ db_smtp_set(const char *user, const char *server,
 		"from %s set.\n", server, user, from);
 }
 
-static void
-db_expr_game_roundup(const struct game *game, void *arg)
+static struct roundup *
+db_roundup_round(struct roundup *r)
 {
-	struct roundup	*r = arg;
-	size_t		 i, j, k, count, gidx;
-	sqlite3_stmt	*stmt;
-	mpq_t		 tmp, sum;
-	char		*avgsp1, *avgsp2, *avgs;
-	int		 rc;
+	size_t	 i, j, k;
+	mpq_t	 tmp, div, sum, row, col;
 
-	/*
-	 * First, find our current index in the list of games for which
-	 * we're accumulating roundup values.
-	 */
-	for (gidx = 0; gidx < r->gamesz; gidx++) 
-		if (0 == r->p1sz[gidx]) {
-			assert(0 == r->p2sz[gidx]);
-			break;
+	fprintf(stderr, "Roundup for round %" PRId64 ".\n", r->round);
+
+	r->avg = kcalloc(r->p1sz * r->p2sz, sizeof(mpq_t));
+	for (i = 0; i < r->p1sz * r->p2sz; i++)
+		mpq_init(r->avg[i]);
+
+	if (0 == r->roundcount) {
+		fprintf(stderr, "Roundup: roundcount zero for round %" PRId64 ".\n", r->round);
+		return(r);
+	}
+
+	mpq_init(tmp);
+	mpq_init(sum);
+	mpq_init(div);
+	mpq_init(row);
+	mpq_init(col);
+
+	for (i = 0; i < r->roundcount; i++) {
+		mpq_set_ui(div, i + 1, r->roundcount);
+		mpq_canonicalize(div);
+		mpq_set(tmp, sum);
+		mpq_add(sum, div, tmp);
+	}
+
+	for (i = k = 0; i < r->p1sz; i++) {
+		mpq_set(tmp, r->avgp1[i]);
+		mpq_mul(row, div, tmp);
+		for (j = 0; j < r->p2sz; j++, k++) {
+			mpq_set(tmp, r->avgp2[j]);
+			mpq_mul(col, div, tmp);
+			mpq_mul(r->avg[k], col, row);
 		}
+	}
 
-	assert(gidx < r->gamesz);
-	assert(game->p1 > 0);
-	assert(game->p2 > 0);
-	r->p1sz[gidx] = game->p1;
-	r->p2sz[gidx] = game->p2;
+	mpq_clear(tmp);
+	mpq_clear(div);
+	mpq_clear(sum);
+	mpq_clear(row);
+	mpq_clear(col);
+
+	fprintf(stderr, "Roundup: complete for round %" PRId64 ".\n", r->round);
+	return(r);
+}
+
+struct roundup *
+db_roundup(int64_t round, const struct game *game)
+{
+	struct roundup	*r;
+	size_t		 i, count;
+	sqlite3_stmt	*stmt;
+	mpq_t		 tmp, sum, swap;
+	char		*avgsp1, *avgsp2;
+	int		 rc;
+	struct roundup	*prev;
+
+	if (round < 0) {
+		fprintf(stderr, "No roundup: first round.\n");
+		return(NULL);
+	}
+
+	fprintf(stderr, "Roundup query: %" PRId64 ".\n", round);
+
+	r = kcalloc(1, sizeof(struct roundup));
+	r->round = round;
+	r->p1sz = game->p1;
+	r->p2sz = game->p2;
+	r->gameid = game->id;
 
 	/*
 	 * Try to look up the round in the previously-cached roundup for
 	 * the game and round.
+	 * If we find it, we're good: just exit.
 	 */
-	stmt = db_stmt("SELECT averagesp1,averagesp2,averages "
-		"FROM past WHERE round=? AND gameid=?");
+	stmt = db_stmt("SELECT averagesp1,averagesp2,skip,"
+		"roundcount FROM past WHERE round=? AND gameid=?");
+
 	db_bind_int(stmt, 1, r->round);
-	db_bind_int(stmt, 2, game->id);
+	db_bind_int(stmt, 2, r->gameid);
 
 	if (SQLITE_ROW == db_step(stmt, 0)) {
-		r->avgp1[gidx] = db_str2mpq
-			(sqlite3_column_text(stmt, 0), game->p1);
-		r->avgp2[gidx] = db_str2mpq
-			(sqlite3_column_text(stmt, 1), game->p2);
-		r->avg[gidx] = db_str2mpq
-			(sqlite3_column_text(stmt, 2), 
-			 game->p1 * game->p2);
+		r->avgp1 = db_str2mpq
+			(sqlite3_column_text
+			 (stmt, 0), r->p1sz);
+		r->avgp2 = db_str2mpq
+			(sqlite3_column_text
+			 (stmt, 1), r->p2sz);
+		r->skip = sqlite3_column_int(stmt, 3);
+		r->roundcount = sqlite3_column_int(stmt, 3);
 		db_finalise(stmt);
-		return;
+		fprintf(stderr, "Round round %" 
+			PRId64 " cached.\n", r->round);
+		return(db_roundup_round(r));
 	}
 	db_finalise(stmt);
 
-	/*
-	 * The game hasn't been round up.
-	 * Do so now.
-	 */
 	fprintf(stderr, "Roundup: game %" PRId64 
 		", round %" PRId64 "\n", game->id, r->round);
+	/*
+	 * Allocate and zero our internal structures.
+	 */
+	r->avgp1 = kcalloc(r->p1sz, sizeof(mpq_t));
+	r->avgp2 = kcalloc(r->p2sz, sizeof(mpq_t));
 
-	r->avgp1[gidx] = kcalloc(game->p1, sizeof(mpq_t));
-	r->avgp2[gidx] = kcalloc(game->p2, sizeof(mpq_t));
-	r->avg[gidx] = kcalloc(game->p1 * game->p2, sizeof(mpq_t));
-
-	for (i = 0; i < (size_t)game->p1; i++)
-		mpq_init(r->avgp1[gidx][i]);
-	for (i = 0; i < (size_t)game->p2; i++)
-		mpq_init(r->avgp2[gidx][i]);
-	for (i = 0; i < (size_t)game->p1 * (size_t)game->p2; i++)
-		mpq_init(r->avg[gidx][i]);
+	for (i = 0; i < r->p1sz; i++)
+		mpq_init(r->avgp1[i]);
+	for (i = 0; i < r->p2sz; i++)
+		mpq_init(r->avgp2[i]);
 
 	mpq_init(sum);
+	mpq_init(swap);
 	mpq_init(tmp);
 
+	r->skip = 1;
+
+	/*
+	 * Accumulate all the mixtures from all players.
+	 * Then average the accumulated mixtures.
+	 * If a player has had no plays, then mark that this round
+	 * should be skipped in computing the next round: we'll simply
+	 * inherit directly from the last round.
+	 */
 	stmt = db_stmt("SELECT strats from choice "
 		"INNER JOIN player ON player.id=choice.playerid "
 		"WHERE round=? AND gameid=? AND player.role=?");
@@ -1306,15 +1366,23 @@ db_expr_game_roundup(const struct game *game, void *arg)
 	db_bind_int(stmt, 3, 0);
 	for (count = 0; SQLITE_ROW == db_step(stmt, 0); count++)
 		db_str2mpq_add(sqlite3_column_text
-			(stmt, 0), game->p1, r->avgp1[gidx]);
+			(stmt, 0), r->p1sz, r->avgp1);
 
-	if (count > 0)
-		for (i = 0; i < (size_t)game->p1; i++) {
-			mpq_set_ui(tmp, count, 1);
-			mpq_canonicalize(tmp);
-			mpq_set(sum, r->avgp1[gidx][i]);
-			mpq_div(r->avgp1[gidx][i], sum, tmp);
-		} 
+	if (0 == count) {
+		fprintf(stderr, "Roundup round %" PRId64 
+			": no plays for player 1.\n", r->round);
+		goto aggregate;
+	}
+
+	fprintf(stderr, "Roundup round %" PRId64 
+		": %zu plays for player 1.\n", r->round, count);
+
+	for (i = 0; i < r->p1sz; i++) {
+		mpq_set_ui(tmp, count, 1);
+		mpq_canonicalize(tmp);
+		mpq_set(sum, r->avgp1[i]);
+		mpq_div(r->avgp1[i], sum, tmp);
+	} 
 
 	sqlite3_reset(stmt);
 
@@ -1323,97 +1391,127 @@ db_expr_game_roundup(const struct game *game, void *arg)
 	db_bind_int(stmt, 3, 1);
 	for (count = 0; SQLITE_ROW == db_step(stmt, 0); count++) 
 		db_str2mpq_add(sqlite3_column_text
-			(stmt, 0), game->p2, r->avgp2[gidx]);
+			(stmt, 0), r->p2sz, r->avgp2);
 
-	if (count > 0) 
-		for (i = 0; i < (size_t)game->p2; i++) {
-			mpq_set_ui(tmp, count, 1);
-			mpq_canonicalize(tmp);
-			mpq_set(sum, r->avgp2[gidx][i]);
-			mpq_div(r->avgp2[gidx][i], sum, tmp);
-		} 
+	if (0 == count) {
+		/* Zero out first strategy. */
+		mpq_set_ui(tmp, 0, 1);
+		mpq_canonicalize(tmp);
+		for (i = 0; i < r->p1sz; i++)
+			mpq_set(r->avgp1[i], tmp);
+		fprintf(stderr, "Roundup round %" PRId64 
+			": no plays for player 2.\n", r->round);
+		goto aggregate;
+	}
 
+	fprintf(stderr, "Roundup round %" PRId64 
+		": %zu plays for player 2.\n", r->round, count);
+
+	for (i = 0; i < r->p2sz; i++) {
+		mpq_set_ui(tmp, count, 1);
+		mpq_canonicalize(tmp);
+		mpq_set(sum, r->avgp2[i]);
+		mpq_div(r->avgp2[i], sum, tmp);
+	} 
+
+	r->skip = 0;
+aggregate:
 	db_finalise(stmt);
 
-	for (k = i = 0; i < (size_t)game->p1; i++)
-		for (j = 0; j < (size_t)game->p2; j++, k++)
-			mpq_mul(r->avg[gidx][k], 
-				r->avgp1[gidx][i], r->avgp2[gidx][j]);
+	r->roundcount = 0;
+	if (NULL != (prev = db_roundup(r->round - 1, game))) 
+		r->roundcount = prev->roundcount;
+	r->roundcount += r->skip ? 0 : 1;
 
-	avgsp1 = db_mpq2str(r->avgp1[gidx], game->p1);
-	avgsp2 = db_mpq2str(r->avgp2[gidx], game->p2);
-	avgs = db_mpq2str(r->avg[gidx], game->p1 * game->p2);
+	/*
+	 * Ok, now we want to make our adjustments for history.
+	 * First, we see if we should NOT skip the last round.
+	 * If we should NOT skip it, then divide it by half.
+	 */
+	if (NULL != prev && 0 == prev->skip) {
+		mpq_set_ui(tmp, 1, 2);
+		mpq_canonicalize(tmp);
+		for (i = 0; i < r->p1sz; i++) {
+			mpq_set(sum, prev->avgp1[i]);
+			mpq_mul(prev->avgp1[i], tmp, sum);
+		}
+		for (i = 0; i < r->p2sz; i++) {
+			mpq_set(sum, prev->avgp2[i]);
+			mpq_mul(prev->avgp2[i], tmp, sum);
+		}
+	}
 
-	fprintf(stderr, "Player 1 averages for round %" 
+	/*
+	 * Next, accumulate the last round into our own.
+	 * If we're marked to skip it, we still incorporate it into our
+	 * own.
+	 */
+	if (NULL != prev) {
+		for (i = 0; i < r->p1sz; i++) {
+			mpq_set(sum, r->avgp1[i]);
+			mpq_add(r->avgp1[i], 
+				prev->avgp1[i], sum);
+		}
+		for (i = 0; i < r->p2sz; i++) {
+			mpq_set(sum, r->avgp2[i]);
+			mpq_add(r->avgp2[i], 
+				prev->avgp2[i], sum);
+		}
+	}
+
+	avgsp1 = db_mpq2str(r->avgp1, r->p1sz);
+	avgsp2 = db_mpq2str(r->avgp2, r->p2sz);
+
+	fprintf(stderr, "Player 1 sums for round %" 
 		PRId64 ": %s\n", r->round, avgsp1);
-	fprintf(stderr, "Player 2 averages for round %" 
+	fprintf(stderr, "Player 2 sums for round %" 
 		PRId64 ": %s\n", r->round, avgsp2);
-	fprintf(stderr, "Averages for round %" PRId64 
-		": %s\n", r->round, avgs);
+	fprintf(stderr, "Round-count for round %" 
+		PRId64 ": %zu (skip=%d)\n", r->round, 
+		r->roundcount, r->skip);
 
-	stmt = db_stmt("INSERT INTO past (round, "
-		"averagesp1, averagesp2, averages, gameid) "
-		"VALUES (?,?,?,?,?)");
+	stmt = db_stmt("INSERT INTO past (round,averagesp1,"
+		"averagesp2,gameid,skip,roundcount) "
+		"VALUES (?,?,?,?,?,?)");
+
 	db_bind_int(stmt, 1, r->round);
 	db_bind_text(stmt, 2, avgsp1);
 	db_bind_text(stmt, 3, avgsp2);
-	db_bind_text(stmt, 4, avgs);
-	db_bind_int(stmt, 5, game->id);
+	db_bind_int(stmt, 4, game->id);
+	db_bind_int(stmt, 5, r->skip);
+	db_bind_int(stmt, 6, r->roundcount);
 	rc = db_step(stmt, DB_STEP_CONSTRAINT);
 	db_finalise(stmt);
 	if (SQLITE_CONSTRAINT == rc) 
 		fprintf(stderr, "Roundup slipped in during build.\n");
 
-	free(avgs);
 	free(avgsp1);
 	free(avgsp2);
 	mpq_clear(sum);
+	mpq_clear(swap);
 	mpq_clear(tmp);
-}
-
-struct roundup *
-db_roundup(int64_t round)
-{
-	struct roundup	*p;
-
-	if (round < 0)
-		return(NULL);
-
-	p = kcalloc(1, sizeof(struct roundup));
-	p->gamesz = db_game_count_all();
-	p->round = round;
-	p->avgp1 = kcalloc(p->gamesz, sizeof(mpq_t *));
-	p->avgp2 = kcalloc(p->gamesz, sizeof(mpq_t *));
-	p->avg = kcalloc(p->gamesz, sizeof(mpq_t *));
-	p->p1sz = kcalloc(p->gamesz, sizeof(size_t));
-	p->p2sz = kcalloc(p->gamesz, sizeof(size_t));
-	db_game_load_all(db_expr_game_roundup, p);
-	return(p);
+	db_roundup_free(prev);
+	return(db_roundup_round(r));
 }
 
 void
 db_roundup_free(struct roundup *p)
 {
-	size_t		i, j;
+	size_t		i;
 
 	if (NULL == p)
 		return;
 	
-	for (i = 0; i < p->gamesz; i++) {
-		for (j = 0; j < p->p1sz[i]; j++)
-			mpq_clear(p->avgp1[i][j]);
-		for (j = 0; j < p->p2sz[i]; j++)
-			mpq_clear(p->avgp2[i][j]);
-		for (j = 0; j < p->p1sz[i] * p->p2sz[i]; j++)
-			mpq_clear(p->avg[i][j]);
-	}
+	for (i = 0; i < p->p1sz; i++)
+		mpq_clear(p->avgp1[i]);
+	for (i = 0; i < p->p2sz; i++)
+		mpq_clear(p->avgp2[i]);
+	for (i = 0; i < p->p1sz * p->p2sz; i++)
+		mpq_clear(p->avg[i]);
 
-	free(p->ids);
 	free(p->avg);
 	free(p->avgp1);
 	free(p->avgp2);
-	free(p->p1sz);
-	free(p->p2sz);
 	free(p);
 }
 

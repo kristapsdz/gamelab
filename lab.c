@@ -263,17 +263,23 @@ senddologin(struct kreq *r)
 }
 
 static void
-senddoloadgame(const struct game *game, void *arg)
+senddoloadgame(const struct game *game, int64_t round, void *arg)
 {
-	struct kjsonreq	*r = arg;
+	struct kjsonreq	*req = arg;
+	struct roundup	*r;
 
-	kjson_obj_open(r);
-	kjson_putintp(r, "p1", game->p1);
-	kjson_putintp(r, "p2", game->p2);
-	kjson_putstringp(r, "name", game->name);
-	json_putmpqs(r, game->payoffs, game->p1, game->p2);
-	kjson_putintp(r, "id", game->id);
-	kjson_obj_close(r);
+	r = db_roundup(round - 1, game);
+
+	kjson_obj_open(req);
+	kjson_putintp(req, "p1", game->p1);
+	kjson_putintp(req, "p2", game->p2);
+	kjson_putstringp(req, "name", game->name);
+	json_putmpqs(req, "payoffs", 
+		game->payoffs, game->p1, game->p2);
+	json_putroundup(req, "roundup", r);
+	kjson_putintp(req, "id", game->id);
+	kjson_obj_close(req);
+	db_roundup_free(r);
 }
 
 static void
@@ -299,9 +305,6 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 	round = (t - expr->start) / (expr->minutes * 60);
 	if (round >= expr->rounds)
 		goto empty;
-
-	/* Compute round data. */
-	db_roundup_free(db_roundup(round - 1));
 
 	http_open(r, KHTTP_200);
 	khttp_body(r);
@@ -329,15 +332,6 @@ empty:
 	kjson_obj_close(&req);
 	kjson_close(&req);
 	db_expr_free(expr);
-}
-
-static void
-sendhistory(struct kreq *r)
-{
-	mpq_t		*rows, *cols;
-	size_t		 maxrows, maxcols;
-
-	
 }
 
 static void

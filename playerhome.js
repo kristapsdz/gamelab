@@ -30,10 +30,78 @@ function shuffle(o)
 };
 
 /*
+ * Append the roundup matrix by way of the payoff matrix, which has one
+ * attribute per row that points to the roundup matrix row.
+ * This lets us show the shuffled matrix's corresponding rows.
+ */
+function appendMatrix(e, matrix, rowavgs, colavgs)
+{
+	var table, row, cell, i, j, poff;
+
+	table = document.createElement('div');
+	table.setAttribute('class', 'payoffs');
+	table.setAttribute('style', 
+		'width: ' + (matrix.length * 10) + 'em;');
+
+	for (i = 0; i < matrix.length; i++) {
+		row = document.createElement('div');
+		table.appendChild(row);
+		cell = document.createElement('div');
+		cell.setAttribute('class', 'payoffhead');
+		cell.setAttribute('style', 'width: ' + 
+			(100.0 / (matrix[0].hmatrix.length + 2)) + '%;');
+		cell.appendChild(document.createTextNode
+			((i + 1) + '.'));
+		row.appendChild(cell);
+		for (j = 0; j < matrix[i].hmatrix.length; j++) {
+			cell = document.createElement('div');
+			cell.setAttribute('class', 'payoff');
+			cell.setAttribute('style', 'width: ' + 
+				(100.0 / (matrix[i].hmatrix.length + 2)) + '%;');
+			row.appendChild(cell);
+			cell.appendChild
+				(document.createTextNode
+				 (matrix[i].hmatrix[j]));
+		}
+
+		cell = document.createElement('div');
+		cell.setAttribute('class', 'payoffright');
+		cell.setAttribute('style', 'width: ' + 
+			(100.0 / (matrix[i].hmatrix.length + 2)) + '%;');
+		cell.appendChild(document.createTextNode(rowavgs[i]));
+		row.appendChild(cell);
+	}
+
+	row = document.createElement('div');
+	table.appendChild(row);
+	cell = document.createElement('div');
+	cell.setAttribute('class', 'payoffbottom');
+	cell.setAttribute('style', 'width: ' + 
+		(100.0 / (matrix[0].hmatrix.length + 2)) + '%;');
+	row.appendChild(cell);
+	for (i = 0; i < matrix[0].hmatrix.length; i++) {
+		cell = document.createElement('div');
+		cell.setAttribute('class', 'payoffbottom');
+		cell.setAttribute('style', 'width: ' + 
+			(100.0 / (matrix[0].hmatrix.length + 2)) + '%;');
+		row.appendChild(cell);
+		cell.appendChild(document.createTextNode(colavgs[i]));
+	}
+
+	cell = document.createElement('div');
+	cell.setAttribute('class', 'payoffbottom');
+	cell.setAttribute('style', 'width: ' + 
+		(100.0 / (matrix[0].hmatrix.length + 2)) + '%;');
+	row.appendChild(cell);
+
+	e.appendChild(table);
+}
+
+/*
  * Append an HTML matrix "matrix" to the element "e".
  * This formats everything properly.
  */
-function appendMatrix(e, matrix)
+function appendBimatrix(e, matrix)
 {
 	var table, row, cell, i, j, poff;
 
@@ -72,6 +140,21 @@ function appendMatrix(e, matrix)
 	e.appendChild(table);
 }
 
+function matrixCreate(vector)
+{
+	var matrix, i, j;
+
+	matrix = new Array(vector.length);
+	for (i = 0; i < vector.length; i++) {
+		matrix[i] = new Array(vector[0].length);
+		matrix[i].index = i;
+		for (j = 0; j < vector[0].length; j++)
+			matrix[i][j] = vector[i][j];
+	}
+
+	return(matrix);
+}
+
 /*
  * Convert a game, which is in top-left to bottom-right order with row
  * player payoff first, into a matrix we'll use in appendMatrix() and
@@ -79,40 +162,55 @@ function appendMatrix(e, matrix)
  * We add some extra bookkeeping to the matrix--beyond that, it's more
  * or less what we have in the game matrix.
  */
-function matrixCreate(game)
+function bimatrixCreate(vector)
 {
 	var matrix, i, j;
 
-	matrix = new Array(game.payoffs.length);
-	for (i = 0; i < game.payoffs.length; i++) {
-		matrix[i] = new Array(game.payoffs[0].length);
+	matrix = new Array(vector.length);
+	for (i = 0; i < vector.length; i++) {
+		matrix[i] = new Array(vector[0].length);
 		matrix[i].index = i;
-		for (j = 0; j < game.payoffs[0].length; j++) {
+		for (j = 0; j < vector[0].length; j++) {
 			matrix[i][j] = new Array(2);
-			matrix[i][j][0] = game.payoffs[i][j][0];
-			matrix[i][j][1] = game.payoffs[i][j][1];
+			matrix[i][j][0] = vector[i][j][0];
+			matrix[i][j][1] = vector[i][j][1];
 		}
 	}
 
 	return(matrix);
 }
 
-/*
- * This is like matrixCreate(), but it transposes the matrix so that the
- * column player can appear to play as a row player.
- */
-function matrixCreateTranspose(game)
+function matrixCreateTranspose(vector)
 {
 	var matrix, i, j;
 
-	matrix = new Array(game.payoffs[0].length);
-	for (i = 0; i < game.payoffs[0].length; i++) {
-		matrix[i] = new Array(game.payoffs.length);
+	matrix = new Array(vector[0].length);
+	for (i = 0; i < vector[0].length; i++) {
+		matrix[i] = new Array(vector.length);
 		matrix[i].index = i;
-		for (j = 0; j < game.payoffs.length; j++) {
+		for (j = 0; j < vector.length; j++)
+			matrix[i][j] = vector[j][i];
+	}
+
+	return(matrix);
+}
+
+/*
+ * This is like bimatrixCreate(), but it transposes the matrix so that the
+ * column player can appear to play as a row player.
+ */
+function bimatrixCreateTranspose(vector)
+{
+	var matrix, i, j;
+
+	matrix = new Array(vector[0].length);
+	for (i = 0; i < vector[0].length; i++) {
+		matrix[i] = new Array(vector.length);
+		matrix[i].index = i;
+		for (j = 0; j < vector.length; j++) {
 			matrix[i][j] = new Array(2);
-			matrix[i][j][0] = game.payoffs[j][i][1];
-			matrix[i][j][1] = game.payoffs[j][i][0];
+			matrix[i][j][0] = vector[j][i][1];
+			matrix[i][j][1] = vector[j][i][0];
 		}
 	}
 
@@ -125,7 +223,7 @@ function matrixCreateTranspose(game)
  */
 function loadGame()
 {
-	var game, matrix, e, div, ii, i, input;
+	var game, matrix, hmatrix, e, div, ii, i, input;
 
 	if (resindex == res.games.length) {
 		doUnhide('exprDone');
@@ -142,13 +240,50 @@ function loadGame()
 	doClearReplace('playGameMax', res.gamesz);
 
 	game = res.games[resindex];
+	/*
+	 * Transpose the matrix so that we always appear to be the row
+	 * player (for consistency).
+	 */
 	matrix = 0 == res.role ? 
-		matrixCreate(game) : matrixCreateTranspose(game);
+		bimatrixCreate(game.payoffs) : 
+		bimatrixCreateTranspose(game.payoffs);
+
+	/*
+	 * If we have roundup information, first transpose it in the
+	 * same way as above.
+	 * Then assign each matrix row to a row in the roundup; this
+	 * will allow us to shuffle both in tandem.
+	 */
+	if (null != game.roundup) {
+		hmatrix = 0 == res.role ? 
+			matrixCreate(game.roundup.avgs) : 
+			matrixCreateTranspose(game.roundup.avgs);
+		for (i = 0; i < matrix.length; i++)
+			matrix[i].hmatrix = hmatrix[i];
+	} else
+		hmatrix = null;
+
+	/* Shuffle the presentation of rows. */
 	shuffle(matrix);
-	appendMatrix(doClear('exprMatrix'), matrix);
+	appendBimatrix(doClear('exprMatrix'), matrix);
 
+	/* Show the shuffled roundup matrix, if it exists. */
+	if (null != hmatrix) {
+		appendMatrix(doClear('exprHistory'), matrix,
+			0 == res.role ? game.roundup.avgp1 : 
+				game.roundup.avgp2,
+			0 == res.role ? game.roundup.avgp2 : 
+				game.roundup.avgp1);
+	} else
+		doClear('exprHistory');
+
+	/*
+	 * Assign an input field per strategy.
+	 * These will correspond to the input fields that are in our
+	 * matrix by textual representation.
+	 * Include submission button and everything.
+	 */
 	doValue('exprPlayGid', game.id);
-
 	e = doClear('exprPlayList');
 	for (i = 0; i < matrix.length; i++) {
 		div = document.createElement('div');
@@ -158,7 +293,8 @@ function loadGame()
 		input = document.createElement('input');
 		input.setAttribute('type', 'text');
 		input.setAttribute('required', 'required');
-		input.setAttribute('placeholder', 'Strategy ' + (i + 1));
+		input.setAttribute('placeholder', 
+			'Strategy ' + (i + 1));
 		input.setAttribute('id', 'index' + matrix[i].index);
 		input.setAttribute('name', 'index' + matrix[i].index);
 		div.appendChild(ii);
@@ -184,10 +320,16 @@ function loadExprSuccess(resp)
 
 	resindex = 0;
 
+	console.log('Expr response: ' + resp);
+
 	try  { 
 		res = JSON.parse(resp);
 	} catch (error) {
-		loadExprFailure();
+		doUnhide('exprLoading');
+		doHide('exprDone');
+		doHide('exprCountdown');
+		doHide('exprError');
+		doHide('exprPlay');
 		return;
 	}
 

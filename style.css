@@ -140,8 +140,9 @@ div.payoffs > div		{ display: table-row; }
 div.payoffs > div > div		{ display: table-cell; 
 				  text-align: center; 
 				  background-color: #333; }
-div.payoffs > div > div	> div 
-				{ display: inline-block; 
+div.payoffs > div > div.payoff	{ padding: 1ex 1ex; 
+				  color: #fff; }
+div.payoffs > div > div	> div 	{ display: inline-block; 
 				  padding: 1ex 0.5ex; }
 div.payoffs > div > div	> div:first-child
 				{ display: inline-block; 
@@ -152,10 +153,20 @@ div.payoffs > div > div	> div:last-child
 				{ display: inline-block; 
 				  text-align: left;
 				  color: #666; }
+div.payoffs > div > div.payoffright
+				{ background-color: inherit;
+				  text-align: left;
+				  padding: 1ex;
+				  color: #666; }
 div.payoffs > div > div.payoffhead		
 				{ background-color: inherit;
 				  text-align: right;
 				  padding-right: 1ex;
+				  color: #666; }
+div.payoffs > div > div.payoffbottom		
+				{ background-color: inherit;
+				  text-align: center;
+				  padding: 1ex;
 				  color: #666; }
 div.countdown			{ display: table; 
 				  margin-left: auto;
