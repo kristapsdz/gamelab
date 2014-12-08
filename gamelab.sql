@@ -16,6 +16,15 @@ CREATE TABLE gameplay (
 	UNIQUE (round, playerid)
 );
 
+CREATE TABLE payoff (
+	round INTEGER NOT NULL,
+	playerid INTEGER REFERENCES player(id) NOT NULL,
+	gameid INTEGER REFERENCES game(id) NOT NULL,
+	payoff TEXT NOT NULL,
+	id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+	UNIQUE (round, playerid, gameid)
+);
+
 CREATE TABLE choice (
 	round INTEGER NOT NULL,
 	strats TEXT NOT NULL,
@@ -63,6 +72,15 @@ CREATE TABLE past (
 	skip INTEGER NOT NULL,
 	roundcount INTEGER NOT NULL,
 	unique (round, gameid)
+);
+
+CREATE TABLE tickets (
+	round INTEGER NOT NULL,
+	gameid INTEGER REFERENCES game(id) NOT NULL,
+	id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+	tickets TEXT NOT NULL,
+	unique (round, gameid)
+
 );
 
 CREATE TABLE smtp (

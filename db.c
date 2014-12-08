@@ -1236,14 +1236,16 @@ db_roundup_round(struct roundup *r)
 	size_t	 i, j, k;
 	mpq_t	 tmp, div, sum, row, col;
 
-	fprintf(stderr, "Roundup for round %" PRId64 ".\n", r->round);
+	fprintf(stderr, "Roundup for "
+		"round %" PRId64 ".\n", r->round);
 
 	r->avg = kcalloc(r->p1sz * r->p2sz, sizeof(mpq_t));
 	for (i = 0; i < r->p1sz * r->p2sz; i++)
 		mpq_init(r->avg[i]);
 
 	if (0 == r->roundcount) {
-		fprintf(stderr, "Roundup: roundcount zero for round %" PRId64 ".\n", r->round);
+		fprintf(stderr, "Roundup: roundcount "
+			"zero for round %" PRId64 ".\n", r->round);
 		return(r);
 	}
 
@@ -1276,8 +1278,169 @@ db_roundup_round(struct roundup *r)
 	mpq_clear(row);
 	mpq_clear(col);
 
-	fprintf(stderr, "Roundup: complete for round %" PRId64 ".\n", r->round);
+	fprintf(stderr, "Roundup: complete for "
+		"round %" PRId64 ".\n", r->round);
 	return(r);
+}
+
+void
+do_roundup_players(int64_t round, 
+	const struct roundup *r, 
+	const struct game *game)
+{
+	mpq_t		*qs, *opponent;
+	sqlite3_stmt	*stmt, *stmt2;
+	size_t		 i, j, sz;
+	mpq_t		 tmp, sum, div, mul;
+	char		*buf;
+	int64_t	 	 playerid;
+
+	mpq_init(tmp);
+	mpq_init(sum);
+	mpq_init(div);
+	mpq_init(mul);
+
+	/* We need a buffer for both strategy vectors. */
+
+	sz = r->p1sz > r->p2sz ? r->p1sz : r->p2sz;
+	opponent = kcalloc(sz, sizeof(mpq_t));
+	for (i = 0; i < sz; i++)
+		mpq_init(opponent[i]);
+
+	/* Establish the common divisor for roundup aggregates. */
+
+	for (i = 0; i < r->roundcount; i++) {
+		mpq_set_ui(div, i + 1, r->roundcount);
+		mpq_canonicalize(div);
+		mpq_set(tmp, sum);
+		mpq_add(sum, div, tmp);
+	}
+
+	stmt = db_stmt("SELECT strats,playerid FROM choice "
+		"INNER JOIN player ON player.id=choice.playerid "
+		"WHERE round=? AND gameid=? AND player.role=?");
+	stmt2 = db_stmt("INSERT INTO payoff (round,playerid,"
+		"gameid,payoff) VALUES (?,?,?,?)");
+
+	/* First, handle the row player. */
+
+	db_bind_int(stmt, 1, r->round);
+	db_bind_int(stmt, 2, game->id);
+	db_bind_int(stmt, 3, 0);
+
+	for (i = 0; i < r->p1sz; i++) {
+		mpq_set_ui(opponent[i], 0, 1);
+		mpq_canonicalize(opponent[i]);
+		for (j = 0; j < r->p2sz; j++) {
+			/* Normalise aggregate. */
+			mpq_set(tmp, r->avgp2[j]);
+			mpq_mul(mul, div, tmp);
+			/* Multiply norm by payoff. */
+			mpq_mul(sum, mul, 
+				game->payoffs[j * 2 + 
+				i * (r->p2sz * 2)]);
+			mpq_set(tmp, opponent[i]);
+			/* Add to current row total. */
+			mpq_add(opponent[i], tmp, mul);
+		}
+	}
+
+	/*
+	 * For each player, get her strategies, then multiply each
+	 * strategy probability by the opponent's sum for that strategy.
+	 * Insert that as the payoff for the given player.
+	 */
+	while (SQLITE_ROW == db_step(stmt, 0)) {
+		qs = db_str2mpq
+			(sqlite3_column_text(stmt, 0), r->p1sz);
+		playerid = sqlite3_column_int(stmt, 1);
+		mpq_set_ui(sum, 0, 1);
+		mpq_canonicalize(sum);
+		for (i = 0; i < r->p1sz; i++) {
+			mpq_set(tmp, qs[i]);
+			mpq_mul(mul, tmp, opponent[i]);
+			mpq_set(tmp, sum);
+			mpq_add(sum, tmp, mul);
+		}
+		gmp_asprintf(&buf, "%Qd", sum);
+		sqlite3_reset(stmt2);
+		db_bind_int(stmt2, 1, r->round);
+		db_bind_int(stmt2, 2, playerid);
+		db_bind_int(stmt2, 3, game->id);
+		db_bind_text(stmt2, 4, buf);
+		db_step(stmt2, DB_STEP_CONSTRAINT);
+		free(buf);
+		for (i = 0; i < r->p1sz; i++)
+			mpq_clear(qs[i]);
+		free(qs);
+	}
+
+	/* Now, handle the column player. */
+
+	sqlite3_reset(stmt);
+
+	db_bind_int(stmt, 1, r->round);
+	db_bind_int(stmt, 2, game->id);
+	db_bind_int(stmt, 3, 1);
+
+	for (i = 0; i < r->p2sz; i++) {
+		mpq_set_ui(opponent[i], 0, 1);
+		mpq_canonicalize(opponent[i]);
+		for (j = 0; j < r->p1sz; j++) {
+			/* Normalise aggregate. */
+			mpq_set(tmp, r->avgp1[j]);
+			mpq_mul(mul, div, tmp);
+			/* Multiply norm by payoff. */
+			mpq_mul(sum, mul, 
+				game->payoffs[i * 2 + 
+				j * (r->p2sz * 2)]);
+			mpq_set(tmp, opponent[i]);
+			/* Add to current row total. */
+			mpq_add(opponent[i], tmp, mul);
+		}
+	}
+
+	/*
+	 * For each player, get her strategies, then multiply each
+	 * strategy probability by the opponent's sum for that strategy.
+	 * Insert that as the payoff for the given player.
+	 */
+	while (SQLITE_ROW == db_step(stmt, 0)) {
+		qs = db_str2mpq
+			(sqlite3_column_text(stmt, 0), r->p2sz);
+		playerid = sqlite3_column_int(stmt, 1);
+		mpq_set_ui(sum, 0, 1);
+		mpq_canonicalize(sum);
+		for (i = 0; i < r->p2sz; i++) {
+			mpq_set(tmp, qs[i]);
+			mpq_mul(mul, tmp, opponent[i]);
+			mpq_set(tmp, sum);
+			mpq_add(sum, tmp, mul);
+		}
+		gmp_asprintf(&buf, "%Qd", sum);
+		sqlite3_reset(stmt2);
+		db_bind_int(stmt2, 1, r->round);
+		db_bind_int(stmt2, 2, playerid);
+		db_bind_int(stmt2, 3, game->id);
+		db_bind_text(stmt2, 4, buf);
+		db_step(stmt2, DB_STEP_CONSTRAINT);
+		free(buf);
+		for (i = 0; i < r->p2sz; i++)
+			mpq_clear(qs[i]);
+		free(qs);
+	}
+
+	db_finalise(stmt);
+	db_finalise(stmt2);
+
+	mpq_clear(tmp);
+	mpq_clear(sum);
+	mpq_clear(div);
+	mpq_clear(mul);
+
+	for (i = 0; i < sz; i++)
+		mpq_clear(opponent[i]);
+	free(opponent);
 }
 
 struct roundup *
@@ -1482,7 +1645,8 @@ aggregate:
 	db_bind_int(stmt, 6, r->roundcount);
 	rc = db_step(stmt, DB_STEP_CONSTRAINT);
 	db_finalise(stmt);
-	if (SQLITE_CONSTRAINT == rc) 
+
+	if (SQLITE_CONSTRAINT == rc)
 		fprintf(stderr, "Roundup slipped in during build.\n");
 
 	free(avgsp1);
