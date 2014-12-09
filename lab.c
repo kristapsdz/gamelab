@@ -308,7 +308,6 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 		goto empty;
 
 	db_roundup(round - 1);
-	fprintf(stderr, "1\n");
 
 	http_open(r, KHTTP_200);
 	khttp_body(r);
@@ -316,9 +315,7 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 	kjson_obj_open(&req);
 	player = db_player_load(playerid);
 
-	fprintf(stderr, "2\n");
 	kjson_putintp(&req, "gamesz", db_game_count_all());
-	fprintf(stderr, "3\n");
 	lottery = db_player_payoff(round - 1, playerid);
 	if (NULL != lottery) {
 		json_putmpqp(&req, "payoff", *lottery);
@@ -326,7 +323,6 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 		free(lottery);
 	} else 
 		kjson_putnullp(&req, "payoff");
-	fprintf(stderr, "4\n");
 	kjson_putintp(&req, "gamesz", db_game_count_all());
 	kjson_putintp(&req, "role", player->role);
 	kjson_arrayp_open(&req, "games");

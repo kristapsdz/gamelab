@@ -274,6 +274,12 @@ function loadGame()
 				game.roundup.avgp2,
 			0 == res.role ? game.roundup.avgp2 : 
 				game.roundup.avgp1);
+
+		div = document.createElement('div');
+		div.appendChild
+			(document.createTextNode
+			 ('Payoffs: ' + res.payoff));
+		document.getElementById('exprHistory').appendChild(div);
 	} else
 		doClear('exprHistory');
 
