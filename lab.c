@@ -406,12 +406,16 @@ senddoplay(struct kreq *r, int64_t playerid)
 			http_open(r, KHTTP_400);
 			goto out;
 		}
+		mpq_init(mixes[i]);
 		if (mpq_set_str(mixes[i], r->fields[j].val, 10) < 0) {
 			http_open(r, KHTTP_400);
 			goto out;
-
-		}
+		} 
 		mpq_canonicalize(mixes[i]);
+		if (mpq_sgn(mixes[i]) < 0) {
+			http_open(r, KHTTP_400);
+			goto out;
+		}
 		/* This is to verify the sum is 1. */
 		mpq_set(tmp, sum);
 		mpq_add(sum, tmp, mixes[i]);
@@ -447,8 +451,9 @@ out:
 	 * so just pump our empty body and free memory.
 	 */
 	khttp_body(r);
-	for (i = 0; i < strats; i++)
-		mpq_clear(mixes[i]);
+	if (NULL != mixes)
+		for (i = 0; i < strats; i++)
+			mpq_clear(mixes[i]);
 	free(mixes);
 	mpq_clear(one);
 	mpq_clear(sum);

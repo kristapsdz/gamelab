@@ -8,7 +8,9 @@ a				{ text-decoration: none;
 				  color: blue; }
 body				{ font-size: 14pt; }
 i.fa-warning + span		{ margin-left: 0.5ex; }
-header a			{ color: #000; }
+body > header a			{ color: #000; }
+section > header		{ text-align: center; }
+section h2			{ font-size: 16pt; }
 nav ul				{ list-style-type: none; 
 				  background-color: #ccc;
 				  padding: 0; 
@@ -130,8 +132,11 @@ article ul li > span:first-child
 				{ margin-left: 0; }
 article ul li > span:last-child { margin-right: 0; }
 span.waiting			{ background-color: #aaa; }
+div.lottery			{ text-align: center; }
+div.payoffheader		{ text-align: center; }
 div.payoffs			{ display: table; 
 				  max-width: 100%; 
+				  width: 75%;
 				  margin-left: auto;
 				  margin-right: auto;
 				  border-spacing: 2px;

@@ -45,15 +45,15 @@
 				</div>
 			</section>
 			<section id="exprPlay" class="noshow">
+				<header>
+					<h2>Game <span id="playGameNum"></span> of <span id="playGameMax"></span></h2>
+				</header>
 				<p id="exprHistory"></p>
 				<p id="exprMatrix"></p>
 				<aside>
 					<div>
 						Enter your matrix payoffs below.
 						These must be fractions or decimal numbers with no greater than four digits following the decimal.
-					</div>
-					<div>
-						Game: <span id="playGameNum"></span>/<span id="playGameMax"></span>
 					</div>
 				</aside>
 				<form method="post" action="@@cgibin@@/doplay.json" id="playGame" onsubmit="return(playGame(this));">

@@ -105,6 +105,11 @@ function appendBimatrix(e, matrix)
 {
 	var table, row, cell, i, j, poff;
 
+	cell = document.createElement('div');
+	cell.setAttribute('class', 'payoffheader');
+	cell.appendChild(document.createTextNode('Payoff Matrix'));
+	e.appendChild(cell);
+
 	table = document.createElement('div');
 	table.setAttribute('class', 'payoffs');
 	table.setAttribute('style', 
@@ -269,17 +274,18 @@ function loadGame()
 
 	/* Show the shuffled roundup matrix, if it exists. */
 	if (null != hmatrix) {
-		appendMatrix(doClear('exprHistory'), matrix,
+		e = doClear('exprHistory');
+		div = document.createElement('div');
+		div.setAttribute('class', 'lottery');
+		div.appendChild
+			(document.createTextNode
+			 ('Lottery tickets: ' + res.payoff));
+		e.appendChild(div);
+		appendMatrix(e, matrix,
 			0 == res.role ? game.roundup.avgp1 : 
 				game.roundup.avgp2,
 			0 == res.role ? game.roundup.avgp2 : 
 				game.roundup.avgp1);
-
-		div = document.createElement('div');
-		div.appendChild
-			(document.createTextNode
-			 ('Payoffs: ' + res.payoff));
-		document.getElementById('exprHistory').appendChild(div);
 	} else
 		doClear('exprHistory');
 
