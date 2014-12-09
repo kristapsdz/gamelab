@@ -268,7 +268,7 @@ senddoloadgame(const struct game *game, int64_t round, void *arg)
 	struct kjsonreq	*req = arg;
 	struct roundup	*r;
 
-	r = db_roundup(round - 1, game);
+	r = db_roundup_get(round - 1, game);
 
 	kjson_obj_open(req);
 	kjson_putintp(req, "p1", game->p1);
@@ -287,6 +287,7 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 {
 	struct expr	*expr;
 	struct player	*player;
+	mpq_t		*lottery;
 	time_t		 t;
 	int64_t	 	 round;
 	struct kjsonreq	 req;
@@ -306,11 +307,26 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 	if (round >= expr->rounds)
 		goto empty;
 
+	db_roundup(round - 1);
+	fprintf(stderr, "1\n");
+
 	http_open(r, KHTTP_200);
 	khttp_body(r);
 	kjson_open(&req, r);
 	kjson_obj_open(&req);
 	player = db_player_load(playerid);
+
+	fprintf(stderr, "2\n");
+	kjson_putintp(&req, "gamesz", db_game_count_all());
+	fprintf(stderr, "3\n");
+	lottery = db_player_payoff(round - 1, playerid);
+	if (NULL != lottery) {
+		json_putmpqp(&req, "payoff", *lottery);
+		mpq_clear(*lottery);
+		free(lottery);
+	} else 
+		kjson_putnullp(&req, "payoff");
+	fprintf(stderr, "4\n");
 	kjson_putintp(&req, "gamesz", db_game_count_all());
 	kjson_putintp(&req, "role", player->role);
 	kjson_arrayp_open(&req, "games");

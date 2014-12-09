@@ -57,6 +57,16 @@ json_putexpr(struct kjsonreq *r, const struct expr *expr)
 	kjson_obj_close(r);
 }
 
+void
+json_putmpqp(struct kjsonreq *r, const char *key, mpq_t val)
+{
+	char	*buf;
+
+	gmp_asprintf(&buf, "%Qd", val);
+	kjson_putstringp(r, key, buf);
+	free(buf);
+}
+
 static void
 json_putmpq(struct kjsonreq *r, mpq_t val)
 {

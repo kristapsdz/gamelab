@@ -43,6 +43,7 @@ enum	page {
 	PAGE_DORESENDEMAIL,
 	PAGE_DOSTARTEXPR,
 	PAGE_DOTESTSMTP,
+	PAGE_DOWIPE,
 	PAGE_HOME,
 	PAGE_INDEX,
 	PAGE_LOGIN,
@@ -125,6 +126,7 @@ static	unsigned int perms[PAGE__MAX] = {
 	PERM_JSON | PERM_LOGIN, /* PAGE_DORESENDEMAIL */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOSTARTEXPR */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOTESTSMTP */
+	PERM_JSON | PERM_LOGIN, /* PAGE_DOWIPE */
 	PERM_JS | PERM_HTML | PERM_LOGIN, /* PAGE_HOME */
 	PERM_JS | PERM_HTML | PERM_LOGIN, /* PAGE_INDEX */
 	PERM_HTML, /* PAGE_LOGIN */
@@ -149,6 +151,7 @@ static const char *const pages[PAGE__MAX] = {
 	"doresendemail", /* PAGE_DORESENDEMAIL */
 	"dostartexpr", /* PAGE_DOSTARTEXPR */
 	"dotestsmtp", /* PAGE_DOTESTSMTP */
+	"dowipe", /* PAGE_DOWIPE */
 	"home", /* PAGE_HOME */
 	"index", /* PAGE_INDEX */
 	"login", /* PAGE_LOGIN */
@@ -653,6 +656,7 @@ static void
 senddoaddplayers(struct kreq *r)
 {
 	char	*tok, *buf, *mail, *sv;
+	size_t	 count = 0;
 
 	/* 
 	 * FIXME: send the KHTTP_200 (or whatever) after the
@@ -665,14 +669,16 @@ senddoaddplayers(struct kreq *r)
 	if (NULL == r->fieldmap[KEY_PLAYERS])
 		return;
 
+	count = 0;
 	buf = sv = kstrdup(r->fieldmap[KEY_PLAYERS]->parsed.s);
 	while (NULL != (tok = strsep(&buf, " \t\n\r"))) {
 		if (*tok == '\0')
 			continue;
 		if (NULL == (mail = valid_email(tok)))
 			continue;
-		if ( ! db_player_create(mail))
+		if ( ! db_player_create(mail, count % 2))
 			break;
+		count++;
 	}
 	free(sv);
 }
@@ -861,6 +867,15 @@ senddologout(struct kreq *r)
 	send303(r, PAGE_LOGIN, 0);
 }
 
+static void
+senddowipe(struct kreq *r)
+{
+
+	db_expr_wipe();
+	http_open(r, KHTTP_200);
+	khttp_body(r);
+}
+
 static int
 kvalid_rounds(struct kpair *kp)
 {
@@ -1016,6 +1031,9 @@ main(void)
 		break;
 	case (PAGE_DOTESTSMTP):
 		senddotestsmtp(&r);
+		break;
+	case (PAGE_DOWIPE):
+		senddowipe(&r);
 		break;
 	case (PAGE_HOME):
 		if (KMIME_APP_JAVASCRIPT == r.mime)

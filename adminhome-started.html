@@ -51,6 +51,15 @@
 					<div id="statusExprWaiting">
 						Waiting for experiment to begin.
 					</div>
+					<div id="statusExprFinished">
+						Experiment has finished.
+						<fieldset>
+							<div class="input input-submit">
+								<i class="fa fa-recycle"></i>
+								<button type="button" id="wipeExprButton" onclick="wipeExpr();">Wipe Experiment</button>
+							</div>
+						</fieldset>
+					</div>
 					<div id="statusExprLoading">
 						<i class="fa fa-spinner fa-spin"></i>
 					</div>
@@ -82,7 +91,7 @@
 					<fieldset>
 						<div class="input input-submit">
 							<i class="fa fa-send"></i>
-							<button type="button" class="send" id="recheckSmtpButton" onclick="reTestSmtp();">Resend Mails</button>
+							<button type="button" id="recheckSmtpButton" onclick="reTestSmtp();">Resend Mails</button>
 						</div>
 					</fieldset>
 				</section>
@@ -219,6 +228,8 @@
 							(It can be anything, though.)
 							The username <i class="fa fa-user"></i> and password <i class="fa fa-lock"></i> are used
 							to log into your server.
+							<em>Your password is stored on the gamelab server</em>:
+							make sure it's something random and not used elsewhere!
 						</div>
 					</aside>
 					<form action="@@cgibin@@/dochangesmtp.json" method="post" id="changeSmtp" onsubmit="return(changeSmtp(this));">

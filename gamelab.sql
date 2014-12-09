@@ -8,6 +8,14 @@ CREATE TABLE player (
 	UNIQUE (email)
 );
 
+CREATE TABLE lottery (
+	round INTEGER NOT NULL,
+	playerid INTEGER REFERENCES player(id) NOT NULL,
+	payoff TEXT NOT NULL,
+	id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+	UNIQUE (round, playerid)
+);
+
 CREATE TABLE gameplay (
 	round INTEGER NOT NULL,
 	choices INTEGER NOT NULL DEFAULT(0),

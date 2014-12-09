@@ -532,7 +532,7 @@ function loadGames()
 
 function loadExprSuccess(resp) 
 {
-	var res, v, e, i, chld, head, expr, li, div;
+	var res, e, i, chld, head, expr, li, div;
 
 	console.log('Response: ' + resp);
 	try  { 
@@ -544,29 +544,35 @@ function loadExprSuccess(resp)
 
 	expr = res.expr;
 
-	if ((v = parseInt(expr.tilstart)) > 0) {
+	if (expr.tilstart < 0 && expr.tilnext < 0) {
+		doHide('statusExprProg');
+		doHide('statusExprLoading');
+		doUnhide('statusExprFinished');
+		return;
+	}
+
+	if (expr.tilstart > 0) {
 		doUnhide('statusExprWaiting');
 		e = doClearNode(doUnhide('statusExprTtl'));
 		doHide('statusExprLoading');
 		chld = document.createElement('div');
 		head = 'Time Until Experiment';
-		formatCountdown(head, v, chld);
+		formatCountdown(head, expr.tilstart, chld);
 		e.appendChild(chld);
 		setTimeout(timerCountdown, 1000, 
 			head, loadExpr, chld, 
-			v, new Date().getTime());
+			expr.tilstart, new Date().getTime());
 	} else {
-		if (0 == v) {
-			v = parseInt(expr.tilnext);
+		if (0 == expr.tilstart) {
 			e = doClearNode(doUnhide('statusExprTtl'));
 			doHide('statusExprLoading');
 			chld = document.createElement('div');
 			head = 'Time Until Round Expires';
-			formatCountdown(head, v, chld);
+			formatCountdown(head, expr.tilnext, chld);
 			e.appendChild(chld);
 			setTimeout(timerCountdown, 1000, 
 				head, loadExpr, chld, 
-				v, new Date().getTime());
+				expr.tilnext, new Date().getTime());
 		}
 
 		doUnhide('statusExprProg');
@@ -614,6 +620,7 @@ function loadExprSetup()
 	doUnhide('statusExprLoading');
 	doHide('statusExprTtl');
 	doHide('statusExprWaiting');
+	doHide('statusExprFinished');
 	doHide('statusExprProg');
 }
 
@@ -705,6 +712,12 @@ function addPlayers(form)
 		doAddPlayersError, doAddPlayersSuccess));
 }
 
+function doWipeExprSetup()
+{
+
+	doClearReplace('wipeExprButton', 'Wiping...');
+}
+
 function doReTestSmtpSetup()
 {
 
@@ -716,6 +729,13 @@ function doTestSmtpSetup()
 
 	doHide('testSmtpResults');
 	doClearReplace('checkSmtpButton', 'Mailing test...');
+}
+
+function doWipeExprSuccess(resp)
+{
+
+	doClearReplace('wipeExprButton', 'Wipe Experiment');
+	window.location.reload(true);
 }
 
 function doReTestSmtpSuccess(resp)
@@ -742,6 +762,14 @@ function doTestSmtpSuccess(resp)
 	doClearReplace('testSmtpResultsMail', mail);
 	doUnhide('testSmtpResults');
 }
+
+function wipeExpr() 
+{
+
+	sendQuery('@@cgibin@@/dowipe.json', 
+		doWipeExprSetup, doWipeExprSuccess, null);
+}
+
 
 function reTestSmtp() 
 {

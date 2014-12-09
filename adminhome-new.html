@@ -12,8 +12,18 @@
 		</style>
 		<script src="@@htdocs@@/script.js"></script>
 		<script src="@@cgibin@@/home.js"></script>
+		<script>
+			function onLoad() 
+			{
+				var url = document.URL;
+
+				url = url.substring(0, url.lastIndexOf("/"));
+				url = url.replace('admin', 'lab');
+				document.getElementById('loginURI').value = url + '/dologin.html';
+			}
+		</script>
 	</head>
-	<body onload="loadNewGames(); loadNewPlayers(); loadSmtp();">
+	<body onload="onLoad(); loadNewGames(); loadNewPlayers(); loadSmtp();">
 		<header>
 			<nav>
 				<ul>
@@ -84,7 +94,7 @@
 						<fieldset>
 							<div class="input">
 								<i class="fa fa-fw fa-link"></i>
-								<input required="required" type="url" name="uri" placeholder="http://lab/loginpage.html" />
+								<input required="required" id="loginURI" type="url" name="uri" />
 							</div>
 							<div class="input">
 								<i class="fa fa-fw fa-calendar"></i>
@@ -332,6 +342,8 @@
 							(It can be anything, though.)
 							The username <i class="fa fa-user"></i> and password <i class="fa fa-lock"></i> are used
 							to log into your server.
+							<em>Your password is stored on the gamelab server</em>:
+							make sure it's something random and not used elsewhere!
 						</div>
 					</aside>
 					<form action="@@cgibin@@/dochangesmtp.json" method="post" id="changeSmtp" onsubmit="return(changeSmtp(this));">

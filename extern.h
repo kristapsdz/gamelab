@@ -120,8 +120,10 @@ int		 db_expr_start(int64_t, int64_t,
 			int64_t, const char *);
 void		 db_expr_free(struct expr *);
 struct expr	*db_expr_get(void);
+void		 db_expr_wipe(void);
 
-struct roundup	*db_roundup(int64_t, const struct game *);
+void		 db_roundup(int64_t);
+struct roundup	*db_roundup_get(int64_t round, const struct game *);
 void		 db_roundup_free(struct roundup *);
 
 struct game	*db_game_alloc(const char *,
@@ -142,7 +144,7 @@ void		 db_player_reset_error(void);
 void		 db_player_set_mailed(int64_t, const char *);
 void		 db_player_set_state(int64_t, enum pstate);
 size_t		 db_player_count_all(void);
-int		 db_player_create(const char *);
+int		 db_player_create(const char *, size_t);
 void		 db_player_enable(int64_t);
 int		 db_player_delete(int64_t);
 void		 db_player_disable(int64_t);
@@ -156,6 +158,7 @@ int		 db_player_sess_valid(int64_t *, int64_t, int64_t);
 void		 db_player_free(struct player *);
 int		 db_player_play(int64_t, int64_t, 
 			int64_t, const mpq_t *, size_t);
+mpq_t		*db_player_payoff(int64_t, int64_t);
 
 void		 db_sess_delete(int64_t);
 void		 db_sess_free(struct sess *);
@@ -168,6 +171,7 @@ void		 db_smtp_set(const char *, const char *,
 void		 mail_players(const char *);
 void		 mail_test(void);
 
+void		 json_putmpqp(struct kjsonreq *, const char *, mpq_t);
 void		 json_putmpqs(struct kjsonreq *, 
 			const char *, mpq_t *, int64_t, int64_t);
 void		 json_putroundup(struct kjsonreq *, 

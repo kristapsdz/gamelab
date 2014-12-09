@@ -301,10 +301,21 @@ db_str2mpq_add(const unsigned char *v, size_t sz, mpq_t *p)
 	int	 rc;
 	mpq_t	 tmp, sum;
 
-	buf = sv = kstrdup((const char *)v);
-
 	mpq_init(tmp);
 	mpq_init(sum);
+
+	if (1 == sz) {
+		rc = mpq_set_str(tmp, (const char *)v, 10);
+		assert(0 == rc);
+		mpq_canonicalize(tmp);
+		mpq_set(sum, *p);
+		mpq_add(*p, sum, tmp);
+		mpq_clear(tmp);
+		mpq_clear(sum);
+		return;
+	}
+
+	buf = sv = kstrdup((const char *)v);
 
 	i = 0;
 	while (NULL != (tok = strsep(&buf, " \t\n\r"))) {
@@ -331,6 +342,15 @@ db_str2mpq(const unsigned char *v, size_t sz)
 	int	 rc;
 
 	p = kcalloc(sz, sizeof(mpq_t));
+
+	if (1 == sz) {
+		mpq_init(p[0]);
+		rc = mpq_set_str(p[0], (const char *)v, 10);
+		assert(0 == rc);
+		mpq_canonicalize(p[0]);
+		return(p);
+	}
+
 	buf = sv = kstrdup((const char *)v);
 
 	i = 0;
@@ -478,7 +498,7 @@ db_admin_set_pass(const char *pass)
 	db_bind_text(stmt, 1, db_crypt_hash(pass));
 	db_step(stmt, 0);
 	db_finalise(stmt);
-	fprintf(stderr, "Administrator set password.\n");
+	fprintf(stderr, "Administrator set password\n");
 }
 
 char *
@@ -505,7 +525,7 @@ db_admin_set_mail(const char *email)
 	db_bind_text(stmt, 1, email);
 	db_step(stmt, 0);
 	db_finalise(stmt);
-	fprintf(stderr, "Administrator set email: %s.\n", email);
+	fprintf(stderr, "Administrator set email: %s\n", email);
 }
 
 int
@@ -519,7 +539,7 @@ db_admin_valid_pass(const char *pass)
 	assert(SQLITE_ROW == rc);
 
 	if ( ! db_crypt_check(sqlite3_column_text(stmt, 0), pass)) {
-		fprintf(stderr, "Administrator failed login.\n");
+		fprintf(stderr, "Administrator failed login\n");
 		db_finalise(stmt);
 		return(0);
 	}
@@ -551,7 +571,7 @@ db_player_valid(int64_t *id, const char *mail, const char *pass)
 
 	if (SQLITE_ROW != db_step(stmt, 0)) {
 		fprintf(stderr, "Player (%s) failed "
-			"login: no such player.\n", mail);
+			"login: no such player\n", mail);
 		db_finalise(stmt);
 		return(0);
 	} 
@@ -560,7 +580,7 @@ db_player_valid(int64_t *id, const char *mail, const char *pass)
 
 	if ( ! db_crypt_check(sqlite3_column_text(stmt, 0), pass)) {
 		fprintf(stderr, "Player %" PRId64 " (%s) failed "
-			"login: bad password.\n", *id, mail);
+			"login: bad password\n", *id, mail);
 		db_finalise(stmt);
 		return(0);
 	}
@@ -706,13 +726,13 @@ db_player_play(int64_t playerid, int64_t round,
 		db_expr_free(expr);
 		fprintf(stderr, "Player %" PRId64 " tried playing "
 			"game %" PRId64 " (round %" PRId64 "), but "
-			"round invalid (max %" PRId64 ").\n", 
+			"round invalid (max %" PRId64 ")\n", 
 			playerid, gameid, round, expr->rounds);
 		return(0);
 	} else if (round != (t - expr->start) / (expr->minutes * 60)) {
 		fprintf(stderr, "Player %" PRId64 " tried playing "
 			"game %" PRId64 " (round %" PRId64 "), but "
-			"round invalid (at %" PRId64 ").\n", 
+			"round invalid (at %" PRId64 ")\n", 
 			playerid, gameid, round, 
 			(t - expr->start) / (expr->minutes * 60));
 		db_expr_free(expr);
@@ -734,13 +754,13 @@ db_player_play(int64_t playerid, int64_t round,
 	if (SQLITE_CONSTRAINT == rc) {
 		fprintf(stderr, "Player %" PRId64 " tried "
 			"playing game %" PRId64 " (round %" 
-			PRId64 "), but has already played.\n",
+			PRId64 "), but has already played\n",
 			playerid, gameid, round);
 		return(0);
 	}
 
 	fprintf(stderr, "Player %" PRId64 " has played "
-		"game %" PRId64 " (round %" PRId64 ").\n",
+		"game %" PRId64 " (round %" PRId64 ")\n",
 		playerid, gameid, round);
 
 	stmt = db_stmt("INSERT INTO gameplay "
@@ -917,7 +937,7 @@ db_game_alloc(const char *poffs,
 	if (p2 && p1 > INT64_MAX / p2) {
 		fprintf(stderr, "Game allocated with "
 			"too many strategies: %" PRId64 
-			", %" PRId64 ".\n", p1, p2);
+			", %" PRId64 "\n", p1, p2);
 		return(NULL);
 	}
 
@@ -963,7 +983,7 @@ db_game_alloc(const char *poffs,
 	game->id = sqlite3_last_insert_rowid(db);
 	db_trans_commit();
 
-	fprintf(stderr, "Game %" PRId64 " created.\n", game->id);
+	fprintf(stderr, "Game %" PRId64 " created\n", game->id);
 	return(game);
 err:
 	free(sv);
@@ -974,7 +994,7 @@ err:
 }
 
 int
-db_player_create(const char *email)
+db_player_create(const char *email, size_t role)
 {
 	sqlite3_stmt	*stmt;
 	int		 rc;
@@ -984,21 +1004,21 @@ db_player_create(const char *email)
 	if ( ! db_expr_checkstate(ESTATE_NEW)) {
 		db_trans_rollback();
 		fprintf(stderr, "Player (%s) could not be "
-			"created: bad state.\n", email);
+			"created: bad state\n", email);
 		return(0);
 	}
 
 	stmt = db_stmt("INSERT INTO player "
 		"(email,role) VALUES (?,?)");
 	db_bind_text(stmt, 1, email);
-	db_bind_int(stmt, 2, arc4random_uniform(2));
+	db_bind_int(stmt, 2, role);
 	rc = db_step(stmt, DB_STEP_CONSTRAINT);
 	db_finalise(stmt);
 
 	if (SQLITE_DONE == rc) {
 		id = sqlite3_last_insert_rowid(db);
-		fprintf(stderr, "Player %" PRId64 
-			"created: %s.\n", id, email);
+		fprintf(stderr, "Player %" PRId64 " "
+			"created: %s\n", id, email);
 	}
 
 	db_trans_commit();
@@ -1028,7 +1048,7 @@ db_expr_start(int64_t date, int64_t rounds,
 	if ( ! db_expr_checkstate(ESTATE_NEW)) {
 		db_trans_rollback();
 		fprintf(stderr, "Experiment could not "
-			"be started: bad state.\n");
+			"be started: bad state\n");
 		return(0);
 	}
 
@@ -1054,7 +1074,7 @@ db_player_enable(int64_t id)
 	db_bind_int(stmt, 1, id);
 	db_step(stmt, 0);
 	db_finalise(stmt);
-	fprintf(stderr, "Player %" PRId64 " enabled.\n", id);
+	fprintf(stderr, "Player %" PRId64 " enabled\n", id);
 }
 
 void
@@ -1065,7 +1085,7 @@ db_player_reset_error(void)
 	stmt = db_stmt("UPDATE player SET state=0 WHERE state=3");
 	db_step(stmt, 0);
 	db_finalise(stmt);
-	fprintf(stderr, "Updated player error states.\n");
+	fprintf(stderr, "Updated player error states\n");
 }
 
 void
@@ -1079,7 +1099,7 @@ db_player_set_state(int64_t id, enum pstate state)
 	db_step(stmt, 0);
 	db_finalise(stmt);
 	fprintf(stderr, "Player %" PRId64 
-		" state updated: %d.\n", id, state);
+		" state updated: %d\n", id, state);
 }
 
 void
@@ -1093,7 +1113,7 @@ db_player_set_mailed(int64_t id, const char *pass)
 	db_bind_int(stmt, 3, id);
 	db_step(stmt, 0);
 	db_finalise(stmt);
-	fprintf(stderr, "Player %" PRId64 " mailed password.\n", id);
+	fprintf(stderr, "Player %" PRId64 " mailed password\n", id);
 }
 
 char *
@@ -1126,7 +1146,7 @@ db_game_delete(int64_t id)
 	if ( ! db_expr_checkstate(ESTATE_NEW)) {
 		db_trans_rollback();
 		fprintf(stderr, "Game %" PRId64 " not "
-			"deleted: bad game state.\n", id);
+			"deleted: bad game state\n", id);
 		return(0);
 	}
 
@@ -1135,7 +1155,7 @@ db_game_delete(int64_t id)
 	db_step(stmt, 0);
 	db_finalise(stmt);
 	db_trans_commit();
-	fprintf(stderr, "Game %" PRId64 " deleted.\n", id);
+	fprintf(stderr, "Game %" PRId64 " deleted\n", id);
 	return(1);
 }
 
@@ -1148,7 +1168,7 @@ db_player_delete(int64_t id)
 	if ( ! db_expr_checkstate(ESTATE_NEW)) {
 		db_trans_rollback();
 		fprintf(stderr, "Player %" PRId64 " not "
-			"deleted: bad game state.\n", id);
+			"deleted: bad game state\n", id);
 		return(0);
 	}
 
@@ -1157,7 +1177,7 @@ db_player_delete(int64_t id)
 	db_step(stmt, 0);
 	db_finalise(stmt);
 	db_trans_commit();
-	fprintf(stderr, "Player %" PRId64 " deleted.\n", id);
+	fprintf(stderr, "Player %" PRId64 " deleted\n", id);
 	return(1);
 }
 
@@ -1170,7 +1190,7 @@ db_player_disable(int64_t id)
 	db_bind_int(stmt, 1, id);
 	db_step(stmt, 0);
 	db_finalise(stmt);
-	fprintf(stderr, "Player %" PRId64 " disabled.\n", id);
+	fprintf(stderr, "Player %" PRId64 " disabled\n", id);
 }
 
 struct smtp *
@@ -1227,7 +1247,7 @@ db_smtp_set(const char *user, const char *server,
 	db_step(stmt, 0);
 	db_finalise(stmt);
 	fprintf(stderr, "SMTP server %s, user %s, "
-		"from %s set.\n", server, user, from);
+		"from %s set\n", server, user, from);
 }
 
 static struct roundup *
@@ -1237,7 +1257,7 @@ db_roundup_round(struct roundup *r)
 	mpq_t	 tmp, div, sum, row, col;
 
 	fprintf(stderr, "Roundup for "
-		"round %" PRId64 ".\n", r->round);
+		"round %" PRId64 "\n", r->round);
 
 	r->avg = kcalloc(r->p1sz * r->p2sz, sizeof(mpq_t));
 	for (i = 0; i < r->p1sz * r->p2sz; i++)
@@ -1245,7 +1265,7 @@ db_roundup_round(struct roundup *r)
 
 	if (0 == r->roundcount) {
 		fprintf(stderr, "Roundup: roundcount "
-			"zero for round %" PRId64 ".\n", r->round);
+			"zero for round %" PRId64 "\n", r->round);
 		return(r);
 	}
 
@@ -1279,12 +1299,82 @@ db_roundup_round(struct roundup *r)
 	mpq_clear(col);
 
 	fprintf(stderr, "Roundup: complete for "
-		"round %" PRId64 ".\n", r->round);
+		"round %" PRId64 "\n", r->round);
 	return(r);
 }
 
-void
-do_roundup_players(int64_t round, 
+mpq_t *
+db_player_payoff(int64_t round, int64_t playerid)
+{
+	sqlite3_stmt	*stmt;
+	mpq_t		*qp;
+	size_t		 i, count;
+	char		*sv;
+
+	qp = NULL;
+	stmt = db_stmt("SELECT payoff FROM lottery "
+		"WHERE playerid=? AND round=?");
+	db_bind_int(stmt, 1, playerid);
+	db_bind_int(stmt, 2, round);
+	if (SQLITE_ROW == db_step(stmt, 0))
+		qp = db_str2mpq(sqlite3_column_text(stmt, 0), 1);
+	db_finalise(stmt);
+	
+	if (round < 0) {
+		fprintf(stderr, "Ignoring first-round for "
+			"player %" PRId64 " lottery\n", playerid);
+		return(NULL);
+	}
+
+	if (NULL != qp) {
+		fprintf(stderr, "Player %" PRId64 ", round %" 
+			PRId64 ", cached lottery\n", playerid, round);
+		return(qp);
+	}
+
+	fprintf(stderr, "Player %" PRId64 ", round %" 
+		PRId64 ", new lottery\n", playerid, round);
+
+	qp = kcalloc(1, sizeof(mpq_t));
+	mpq_init(*qp);
+
+	stmt = db_stmt("SELECT payoff FROM payoff "
+		"WHERE playerid=? AND round=?");
+	db_bind_int(stmt, 1, playerid);
+	db_bind_int(stmt, 2, round);
+	i = 0;
+	while (SQLITE_ROW == db_step(stmt, 0)) {
+		db_str2mpq_add(sqlite3_column_text(stmt, 0), 1, qp);
+		i++;
+	}
+	db_finalise(stmt);
+
+	if (i != (count = db_game_count_all())) {
+		fprintf(stderr, "Player %" PRId64 ", round %" 
+			PRId64 ", not enough plays for lotter "
+			"(%zu < %zu)\n", playerid, round, i, count);
+		mpq_set_ui(*qp, 0, 1);
+		mpq_canonicalize(*qp);
+	}
+
+	sv = db_mpq2str(qp, 1);
+	assert(NULL != sv);
+
+	stmt = db_stmt("INSERT INTO lottery "
+		"(payoff,playerid,round) VALUES (?,?,?)");
+	db_bind_text(stmt, 1, sv);
+	db_bind_int(stmt, 2, playerid);
+	db_bind_int(stmt, 3, round);
+	if (SQLITE_CONSTRAINT == db_step(stmt, DB_STEP_CONSTRAINT))
+		fprintf(stderr, "Player %" PRId64 ", round %" 
+			PRId64 ", snuck in lottery\n", playerid, round);
+	db_finalise(stmt);
+	free(sv);
+	return(qp);
+}
+
+static void
+db_roundup_players(int64_t round, 
 	const struct roundup *r, 
 	const struct game *game)
 {
@@ -1294,6 +1384,11 @@ do_roundup_players(int64_t round,
 	mpq_t		 tmp, sum, div, mul;
 	char		*buf;
 	int64_t	 	 playerid;
+
+	if (round < 0) {
+		fprintf(stderr, "No player roundup: no rounds\n");
+		return;
+	}
 
 	mpq_init(tmp);
 	mpq_init(sum);
@@ -1341,7 +1436,8 @@ do_roundup_players(int64_t round,
 				i * (r->p2sz * 2)]);
 			mpq_set(tmp, opponent[i]);
 			/* Add to current row total. */
-			mpq_add(opponent[i], tmp, mul);
+			mpq_add(opponent[i], tmp, sum);
+			gmp_fprintf(stderr, "Row player opponent[%zu] %zu = %Qd\n", i, j, opponent[i]);
 		}
 	}
 
@@ -1354,6 +1450,7 @@ do_roundup_players(int64_t round,
 		qs = db_str2mpq
 			(sqlite3_column_text(stmt, 0), r->p1sz);
 		playerid = sqlite3_column_int(stmt, 1);
+		fprintf(stderr, "Player %" PRId64 " rounding up\n", playerid);
 		mpq_set_ui(sum, 0, 1);
 		mpq_canonicalize(sum);
 		for (i = 0; i < r->p1sz; i++) {
@@ -1361,6 +1458,7 @@ do_roundup_players(int64_t round,
 			mpq_mul(mul, tmp, opponent[i]);
 			mpq_set(tmp, sum);
 			mpq_add(sum, tmp, mul);
+			gmp_fprintf(stderr, "Player %" PRId64 " aggregate: %Qd\n", playerid, sum);
 		}
 		gmp_asprintf(&buf, "%Qd", sum);
 		sqlite3_reset(stmt2);
@@ -1368,7 +1466,9 @@ do_roundup_players(int64_t round,
 		db_bind_int(stmt2, 2, playerid);
 		db_bind_int(stmt2, 3, game->id);
 		db_bind_text(stmt2, 4, buf);
-		db_step(stmt2, DB_STEP_CONSTRAINT);
+		if (SQLITE_CONSTRAINT == db_step(stmt2, DB_STEP_CONSTRAINT)) {
+			fprintf(stderr, "Player %" PRId64 " already rounded up\n", playerid);
+		}
 		free(buf);
 		for (i = 0; i < r->p1sz; i++)
 			mpq_clear(qs[i]);
@@ -1392,11 +1492,12 @@ do_roundup_players(int64_t round,
 			mpq_mul(mul, div, tmp);
 			/* Multiply norm by payoff. */
 			mpq_mul(sum, mul, 
-				game->payoffs[i * 2 + 
+				game->payoffs[(i * 2) + 1 + 
 				j * (r->p2sz * 2)]);
 			mpq_set(tmp, opponent[i]);
 			/* Add to current row total. */
-			mpq_add(opponent[i], tmp, mul);
+			mpq_add(opponent[i], tmp, sum);
+			gmp_fprintf(stderr, "Column player opponent[%zu] %zu = %Qd\n", i, j, opponent[i]);
 		}
 	}
 
@@ -1409,6 +1510,7 @@ do_roundup_players(int64_t round,
 		qs = db_str2mpq
 			(sqlite3_column_text(stmt, 0), r->p2sz);
 		playerid = sqlite3_column_int(stmt, 1);
+		fprintf(stderr, "Player %" PRId64 " rounding up\n", playerid);
 		mpq_set_ui(sum, 0, 1);
 		mpq_canonicalize(sum);
 		for (i = 0; i < r->p2sz; i++) {
@@ -1416,6 +1518,7 @@ do_roundup_players(int64_t round,
 			mpq_mul(mul, tmp, opponent[i]);
 			mpq_set(tmp, sum);
 			mpq_add(sum, tmp, mul);
+			gmp_fprintf(stderr, "Player %" PRId64 " aggregate: %Qd\n", playerid, sum);
 		}
 		gmp_asprintf(&buf, "%Qd", sum);
 		sqlite3_reset(stmt2);
@@ -1423,7 +1526,8 @@ do_roundup_players(int64_t round,
 		db_bind_int(stmt2, 2, playerid);
 		db_bind_int(stmt2, 3, game->id);
 		db_bind_text(stmt2, 4, buf);
-		db_step(stmt2, DB_STEP_CONSTRAINT);
+		if (SQLITE_CONSTRAINT == db_step(stmt2, DB_STEP_CONSTRAINT))
+			fprintf(stderr, "Player %" PRId64 " already rounded up\n", playerid);
 		free(buf);
 		for (i = 0; i < r->p2sz; i++)
 			mpq_clear(qs[i]);
@@ -1444,22 +1548,13 @@ do_roundup_players(int64_t round,
 }
 
 struct roundup *
-db_roundup(int64_t round, const struct game *game)
+db_roundup_get(int64_t round, const struct game *game)
 {
 	struct roundup	*r;
-	size_t		 i, count;
 	sqlite3_stmt	*stmt;
-	mpq_t		 tmp, sum, swap;
-	char		*avgsp1, *avgsp2;
-	int		 rc;
-	struct roundup	*prev;
 
-	if (round < 0) {
-		fprintf(stderr, "No roundup: first round.\n");
+	if (round < 0)
 		return(NULL);
-	}
-
-	fprintf(stderr, "Roundup query: %" PRId64 ".\n", round);
 
 	r = kcalloc(1, sizeof(struct roundup));
 	r->round = round;
@@ -1467,11 +1562,6 @@ db_roundup(int64_t round, const struct game *game)
 	r->p2sz = game->p2;
 	r->gameid = game->id;
 
-	/*
-	 * Try to look up the round in the previously-cached roundup for
-	 * the game and round.
-	 * If we find it, we're good: just exit.
-	 */
 	stmt = db_stmt("SELECT averagesp1,averagesp2,skip,"
 		"roundcount FROM past WHERE round=? AND gameid=?");
 
@@ -1488,17 +1578,59 @@ db_roundup(int64_t round, const struct game *game)
 		r->skip = sqlite3_column_int(stmt, 3);
 		r->roundcount = sqlite3_column_int(stmt, 3);
 		db_finalise(stmt);
-		fprintf(stderr, "Round round %" 
-			PRId64 " cached.\n", r->round);
 		return(db_roundup_round(r));
 	}
+
+	db_finalise(stmt);
+	return(NULL);
+}
+
+static void
+db_roundup_game(const struct game *game, void *arg)
+{
+	int64_t		 round;
+	struct roundup	*r;
+	size_t		 i, count;
+	sqlite3_stmt	*stmt;
+	mpq_t		 tmp, sum, swap;
+	char		*avgsp1, *avgsp2;
+	int		 rc;
+	struct roundup	*prev;
+	
+	if ((round = *(int64_t *)arg) < 0)
+		return;
+
+	/*
+	 * Try to look up the round in the previously-cached roundup for
+	 * the game and round.
+	 * If we find it, we're good: just exit.
+	 */
+	stmt = db_stmt("SELECT * FROM past "
+		"WHERE round=? AND gameid=?");
+
+	db_bind_int(stmt, 1, round);
+	db_bind_int(stmt, 2, game->id);
+	rc = db_step(stmt, 0);
 	db_finalise(stmt);
 
+	if (SQLITE_ROW == rc)
+		return;
+
+	/* Recursively make sure all priors rounds are accounted. */
+
+	db_roundup(round - 1);
+
+	r = kcalloc(1, sizeof(struct roundup));
+	r->round = round;
+	r->p1sz = game->p1;
+	r->p2sz = game->p2;
+	r->gameid = game->id;
+
 	fprintf(stderr, "Roundup: game %" PRId64 
-		", round %" PRId64 "\n", game->id, r->round);
-	/*
-	 * Allocate and zero our internal structures.
-	 */
+		", round %" PRId64 "\n", game->id, round);
+
+	/* Allocate and zero our internal structures. */
+
 	r->avgp1 = kcalloc(r->p1sz, sizeof(mpq_t));
 	r->avgp2 = kcalloc(r->p2sz, sizeof(mpq_t));
 
@@ -1527,18 +1659,19 @@ db_roundup(int64_t round, const struct game *game)
 	db_bind_int(stmt, 1, r->round);
 	db_bind_int(stmt, 2, game->id);
 	db_bind_int(stmt, 3, 0);
+
 	for (count = 0; SQLITE_ROW == db_step(stmt, 0); count++)
 		db_str2mpq_add(sqlite3_column_text
 			(stmt, 0), r->p1sz, r->avgp1);
 
 	if (0 == count) {
 		fprintf(stderr, "Roundup round %" PRId64 
-			": no plays for player 1.\n", r->round);
+			": no plays for row player\n", r->round);
 		goto aggregate;
 	}
 
 	fprintf(stderr, "Roundup round %" PRId64 
-		": %zu plays for player 1.\n", r->round, count);
+		": %zu plays for column player\n", r->round, count);
 
 	for (i = 0; i < r->p1sz; i++) {
 		mpq_set_ui(tmp, count, 1);
@@ -1563,12 +1696,12 @@ db_roundup(int64_t round, const struct game *game)
 		for (i = 0; i < r->p1sz; i++)
 			mpq_set(r->avgp1[i], tmp);
 		fprintf(stderr, "Roundup round %" PRId64 
-			": no plays for player 2.\n", r->round);
+			": no plays for column player\n", r->round);
 		goto aggregate;
 	}
 
 	fprintf(stderr, "Roundup round %" PRId64 
-		": %zu plays for player 2.\n", r->round, count);
+		": %zu plays for column player\n", r->round, count);
 
 	for (i = 0; i < r->p2sz; i++) {
 		mpq_set_ui(tmp, count, 1);
@@ -1578,11 +1711,12 @@ db_roundup(int64_t round, const struct game *game)
 	} 
 
 	r->skip = 0;
+
 aggregate:
 	db_finalise(stmt);
 
 	r->roundcount = 0;
-	if (NULL != (prev = db_roundup(r->round - 1, game))) 
+	if (NULL != (prev = db_roundup_get(r->round - 1, game))) 
 		r->roundcount = prev->roundcount;
 	r->roundcount += r->skip ? 0 : 1;
 
@@ -1647,7 +1781,9 @@ aggregate:
 	db_finalise(stmt);
 
 	if (SQLITE_CONSTRAINT == rc)
-		fprintf(stderr, "Roundup slipped in during build.\n");
+		fprintf(stderr, "Roundup slipped in during build\n");
+	else
+		db_roundup_players(round, r, game);
 
 	free(avgsp1);
 	free(avgsp2);
@@ -1655,7 +1791,14 @@ aggregate:
 	mpq_clear(swap);
 	mpq_clear(tmp);
 	db_roundup_free(prev);
-	return(db_roundup_round(r));
+	db_roundup_free(r);
+}
+
+void
+db_roundup(int64_t round)
+{
+
+	db_game_load_all(db_roundup_game, &round);
 }
 
 void
@@ -1666,12 +1809,15 @@ db_roundup_free(struct roundup *p)
 	if (NULL == p)
 		return;
 	
-	for (i = 0; i < p->p1sz; i++)
-		mpq_clear(p->avgp1[i]);
-	for (i = 0; i < p->p2sz; i++)
-		mpq_clear(p->avgp2[i]);
-	for (i = 0; i < p->p1sz * p->p2sz; i++)
-		mpq_clear(p->avg[i]);
+	if (NULL != p->avgp1)
+		for (i = 0; i < p->p1sz; i++)
+			mpq_clear(p->avgp1[i]);
+	if (NULL != p->avgp2)
+		for (i = 0; i < p->p2sz; i++)
+			mpq_clear(p->avgp2[i]);
+	if (NULL != p->avg)
+		for (i = 0; i < p->p1sz * p->p2sz; i++)
+			mpq_clear(p->avg[i]);
 
 	free(p->avg);
 	free(p->avgp1);
@@ -1713,4 +1859,19 @@ db_expr_free(struct expr *expr)
 
 	free(expr->loginuri);
 	free(expr);
+}
+
+void
+db_expr_wipe(void)
+{
+
+	fprintf(stderr, "Database being wiped!\n");
+	db_exec("DELETE FROM gameplay");
+	db_exec("DELETE FROM sess WHERE playerid IS NOT NULL");
+	db_exec("DELETE FROM payoff");
+	db_exec("DELETE FROM choice");
+	db_exec("DELETE FROM past");
+	db_exec("DELETE FROM tickets");
+	db_exec("UPDATE player SET state=0,enabled=1");
+	db_exec("UPDATE experiment SET state=0,rounds=0,minutes=0,loginuri=\'\'");
 }
