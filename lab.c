@@ -311,6 +311,9 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 	kjson_obj_open(&req);
 	player = db_player_load(playerid);
 
+	kjson_putintp(&req, "colour", playerid % 12);
+	kjson_putintp(&req, "ocolour", (playerid + 6) % 12);
+
 	kjson_putintp(&req, "gamesz", db_game_count_all());
 	lottery = db_player_payoff(round - 1, playerid);
 	if (NULL != lottery) {

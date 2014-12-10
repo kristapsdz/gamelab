@@ -101,9 +101,23 @@ function appendMatrix(e, matrix, rowavgs, colavgs)
  * Append an HTML matrix "matrix" to the element "e".
  * This formats everything properly.
  */
-function appendBimatrix(e, matrix)
+function appendBimatrix(e, matrix, colour, ocolour)
 {
 	var table, row, cell, i, j, poff;
+	var colours = [
+		"magenta",
+		"#ff00cc",
+		"red",
+		"orange",
+		"yellow",
+		"#99ff00",
+		"green",
+		"#00ff99",
+		"cyan",
+		"azure",
+		"blue",
+		"violet"
+	];
 
 	cell = document.createElement('div');
 	cell.setAttribute('class', 'payoffheader');
@@ -131,11 +145,13 @@ function appendBimatrix(e, matrix)
 				(100.0 / (matrix[i].length + 1)) + '%;');
 			row.appendChild(cell);
 			poff = document.createElement('div');
+			poff.setAttribute('style', 'color: ' + colours[colour]);
 			poff.appendChild
 				(document.createTextNode
 				 (matrix[i][j][0]));
 			cell.appendChild(poff);
 			poff = document.createElement('div');
+			poff.setAttribute('style', 'color: ' + colours[ocolour]);
 			poff.appendChild
 				(document.createTextNode
 				 (matrix[i][j][1]));
@@ -270,7 +286,8 @@ function loadGame()
 
 	/* Shuffle the presentation of rows. */
 	shuffle(matrix);
-	appendBimatrix(doClear('exprMatrix'), matrix);
+	appendBimatrix(doClear('exprMatrix'), 
+		matrix, res.colour, res.ocolour);
 
 	/* Show the shuffled roundup matrix, if it exists. */
 	if (null != hmatrix) {
