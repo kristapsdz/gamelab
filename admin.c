@@ -268,7 +268,6 @@ send303(struct kreq *r, enum page dest, int dostatus)
 static int
 sendtempl(size_t key, void *arg)
 {
-	const char	*p;
 	struct kreq	*r = arg;
 
 	switch (key) {
@@ -276,8 +275,7 @@ sendtempl(size_t key, void *arg)
 		khttp_puts(r, r->pname);
 		break;
 	case (TEMPL_HTDOCS):
-		p = getenv("HTML_URI");
-		khttp_puts(r, NULL != p ? p : "");
+		khttp_puts(r, HTDOCS);
 		break;
 	default:
 		break;
@@ -290,16 +288,14 @@ sendcontent(struct kreq *r, enum cntt cntt)
 {
 	struct ktemplate t;
 	char		 fname[PATH_MAX];
-	const char	*p;
 
 	t.key = templs;
 	t.keysz = TEMPL__MAX;
 	t.arg = r;
 	t.cb = sendtempl;
 
-	p = getenv("DB_DIR");
-	snprintf(fname, sizeof(fname), "%s/%s",
-		NULL != p ? p : ".", cntts[cntt]);
+	snprintf(fname, sizeof(fname), 
+		DATADIR "/%s", cntts[cntt]);
 
 	http_open(r, KHTTP_200);
 	khttp_body(r);

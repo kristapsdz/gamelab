@@ -55,13 +55,9 @@ db_tryopen(void)
 {
 	size_t	 attempt;
 	int	 rc;
-	char	 dbpath[PATH_MAX];
 
 	if (NULL != db)
 		return;
-
-	snprintf(dbpath, sizeof(dbpath), "%s/gamelab.db",
-		NULL != getenv("DB_DIR") ? getenv("DB_DIR") : ".");
 
 	/* Register exit hook for the destruction of the database. */
 	if (-1 == atexit(db_close)) {
@@ -76,7 +72,7 @@ again:
 		exit(EXIT_FAILURE);
 	}
 
-	rc = sqlite3_open(dbpath, &db);
+	rc = sqlite3_open(DATADIR "/gamelab.db", &db);
 	if (SQLITE_BUSY == rc) {
 		fprintf(stderr, "sqlite3_open: "
 			"busy database (%zu)\n", attempt);
@@ -1367,7 +1363,7 @@ db_player_payoff(int64_t round, int64_t playerid)
 		free(prev);
 	}
 
-	sv = db_mpq2str(qp, 1);
+	sv = db_mpq2str((const mpq_t *)qp, 1);
 	assert(NULL != sv);
 
 	stmt = db_stmt("INSERT INTO lottery "
@@ -1775,8 +1771,8 @@ aggregate:
 		}
 	}
 
-	avgsp1 = db_mpq2str(r->avgp1, r->p1sz);
-	avgsp2 = db_mpq2str(r->avgp2, r->p2sz);
+	avgsp1 = db_mpq2str((const mpq_t *)r->avgp1, r->p1sz);
+	avgsp2 = db_mpq2str((const mpq_t *)r->avgp2, r->p2sz);
 
 	fprintf(stderr, "Row player sums for round %" 
 		PRId64 ": %s\n", r->round, avgsp1);
@@ -1892,6 +1888,7 @@ db_expr_wipe(void)
 	db_exec("DELETE FROM payoff");
 	db_exec("DELETE FROM choice");
 	db_exec("DELETE FROM past");
+	db_exec("DELETE FROM lottery");
 	db_exec("DELETE FROM tickets");
 	db_exec("UPDATE player SET state=0,enabled=1");
 	db_exec("UPDATE experiment SET state=0,rounds=0,minutes=0,loginuri=\'\'");

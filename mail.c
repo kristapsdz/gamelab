@@ -322,7 +322,6 @@ mail_players(const char *uri)
 	CURL		  *curl;
 	CURLcode 	   res;
 	struct curl_slist *recipients = NULL;
-	char		   fname[PATH_MAX];
 	struct buf	   buf;
 	struct mail	   mail;
 	int64_t		   id;
@@ -330,14 +329,11 @@ mail_players(const char *uri)
 	size_t		   mbufsz;
 	int		   mbuffd;
 
-	/* Initialise source file. */
-	snprintf(fname, sizeof(fname), "%s/%s",
-		NULL == getenv("DB_DIR") ? "." : getenv("DB_DIR"),
-		"addplayer.eml");
+	mbuf = mail_template_open
+		(DATADIR "/addplayer.eml", &mbuffd, &mbufsz);
 
-	mbuf = mail_template_open(fname, &mbuffd, &mbufsz);
 	if (NULL == mbuf) {
-		fprintf(stderr, "%s: invalid mail\n", fname);
+		fprintf(stderr, "addplayer.eml: invalid mail\n");
 		return;
 	}
 
@@ -402,20 +398,17 @@ mail_test(void)
 	CURL		  *curl;
 	CURLcode 	   res;
 	struct curl_slist *recipients = NULL;
-	char		   fname[PATH_MAX];
 	struct buf	   buf;
 	struct mail	   mail;
 	char		  *mbuf;
 	size_t		   mbufsz;
 	int		   mbuffd;
 
-	snprintf(fname, sizeof(fname), "%s/%s",
-		NULL == getenv("DB_DIR") ? "." : getenv("DB_DIR"),
-		"test.eml");
+	mbuf = mail_template_open
+		(DATADIR "/test.eml", &mbuffd, &mbufsz);
 
-	mbuf = mail_template_open(fname, &mbuffd, &mbufsz);
 	if (NULL == mbuf) {
-		fprintf(stderr, "%s: invalid mail\n", fname);
+		fprintf(stderr, "test.eml: invalid mail\n");
 		return;
 	}
 

@@ -7,30 +7,36 @@ PAGES 	 = addplayer.eml \
 	   playerhome.html \
 	   playerhome.js \
 	   playerlogin.html \
-	   style.css \
 	   test.eml
-STATICS	 = script.js
+STATICS	 = style.css \
+	   script.js
 
 # Mac OSX testing.
-PREFIX	 = /Users/kristaps/Sites
-HTDOCS	 = $(PREFIX)
-CGIBIN	 = $(PREFIX)
-DATADIR	 = $(PREFIX)
-STATIC	 = 
+# PREFIX	 = /Users/kristaps/Sites
+# HTDOCS	 = $(PREFIX)
+# CGIBIN	 = $(PREFIX)
+# DATADIR	 = $(PREFIX)
+# RDATADIR 	 = $(PREFIX)
+# HTURI	 	 = /~kristaps
+# STATIC	 = 
 # OpenBSD production.
-# PREFIX	 = /var/www
-# HTDOCS	 = $(PREFIX)/htdocs/gamelab
-# CGIBIN	 = $(PREFIX)/cgi-bin/gamelab
-# DATADIR	 = $(PREFIX)/data/gamelab
-# STATIC	 = -static
+PREFIX	 = /var/www
+HTDOCS	 = $(PREFIX)/htdocs/gamelab
+HTURI	 = /gamelab
+CGIBIN	 = $(PREFIX)/cgi-bin/gamelab
+DATADIR	 = $(PREFIX)/data/gamelab
+RDATADIR = /data/gamelab
+STATIC	 = -static
+
+CFLAGS	+= -DDATADIR=\"$(RDATADIR)\" -DHTDOCS=\"$(HTURI)\"
 
 all: admin lab
 
 admin: admin.o db.o mail.o json.o
-	$(CC) $(STATIC) -L/usr/local/lib -o $@ admin.o db.o mail.o json.o -lsqlite3 -lkcgi -lkcgijson -lz -lgmp `curl-config --libs`
+	$(CC) $(STATIC) -L/usr/local/lib -o $@ admin.o db.o mail.o json.o -lsqlite3 -lkcgi -lkcgijson -lz -lgmp `curl-config --libs` -lintl -liconv
 
 lab: lab.o db.o mail.o json.o
-	$(CC) $(STATIC) -L/usr/local/lib -o $@ lab.o db.o mail.o json.o -lsqlite3 -lkcgi -lkcgijson -lz -lgmp `curl-config --libs`
+	$(CC) $(STATIC) -L/usr/local/lib -o $@ lab.o db.o mail.o json.o -lsqlite3 -lkcgi -lkcgijson -lz -lgmp `curl-config --libs` -lintl -liconv
 
 admin.o lab.o db.o mail.o: extern.h
 

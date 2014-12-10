@@ -140,7 +140,7 @@ div.payoffs			{ display: table;
 				  width: 75%;
 				  margin-left: auto;
 				  margin-right: auto;
-				  border-spacing: 2px;
+				  border-spacing: 4px;
 				  background-color: #ccc; }
 div.payoffs > div		{ display: table-row; }
 div.payoffs > div > div		{ display: table-cell; 
@@ -152,12 +152,12 @@ div.payoffs > div > div	> div 	{ display: inline-block;
 				  padding: 1ex 0.5ex; }
 div.payoffs > div > div	> div:first-child
 				{ display: inline-block; 
-				  text-align: right;
-				  border-right: thin solid #666;
+				  text-align: center;
+				  border-right: 2px solid #666;
 				  color: #fff; }
 div.payoffs > div > div	> div:last-child
 				{ display: inline-block; 
-				  text-align: left;
+				  text-align: center;
 				  color: #666; }
 div.payoffs > div > div.payoffright
 				{ background-color: inherit;
