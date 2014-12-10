@@ -36,28 +36,56 @@ function shuffle(o)
  */
 function appendMatrix(e, matrix, rowavgs, colavgs)
 {
-	var table, row, cell, i, j, poff;
+	var table, row, cell, i, j, poff, rowinner;
 
 	table = document.createElement('div');
-	table.setAttribute('class', 'payoffs');
+	e.appendChild(table);
+
+	table.setAttribute('class', 'history');
 	table.setAttribute('style', 
-		'width: ' + (matrix.length * 10) + 'em;');
+		'width: ' + (matrix[0].length * 10) + 'em;');
+
+	row = document.createElement('div');
+	table.appendChild(row);
+
+	cell = document.createElement('div');
+	cell.setAttribute('class', 'labelaside');
+	cell.setAttribute('width', '1%;');
+	row.appendChild(cell);
+
+	for (i = 0; i < matrix.length; i++) {
+		cell = document.createElement('div');
+		cell.setAttribute('class', 'labelatop');
+		cell.setAttribute('style', 'width: ' + 
+			((100.0 / (matrix[0].length + 1)) - 1) + '%;');
+		cell.appendChild(document.createTextNode((i + 1) + '.'));
+		row.appendChild(cell);
+	}
+
+	cell = document.createElement('div');
+	cell.setAttribute('class', 'sumaside');
+	cell.setAttribute('style', 'width: ' + 
+		((100.0 / (matrix[0].length + 1)) - 1) + '%;');
+	cell.appendChild(document.createTextNode('\u2211'));
+	row.appendChild(cell);
 
 	for (i = 0; i < matrix.length; i++) {
 		row = document.createElement('div');
 		table.appendChild(row);
+
 		cell = document.createElement('div');
-		cell.setAttribute('class', 'payoffhead');
-		cell.setAttribute('style', 'width: ' + 
-			(100.0 / (matrix[0].hmatrix.length + 2)) + '%;');
+		cell.setAttribute('class', 'labelaside');
+		cell.setAttribute('width', '1%;');
 		cell.appendChild(document.createTextNode
 			((i + 1) + '.'));
 		row.appendChild(cell);
-		for (j = 0; j < matrix[i].hmatrix.length; j++) {
+
+		for (j = 0; j < matrix[i].length; j++) {
 			cell = document.createElement('div');
-			cell.setAttribute('class', 'payoff');
+			cell.setAttribute('class', 'mix');
 			cell.setAttribute('style', 'width: ' + 
-				(100.0 / (matrix[i].hmatrix.length + 2)) + '%;');
+				((100.0 / 
+				  (matrix[i].length + 1)) - 1) + '%;');
 			row.appendChild(cell);
 			cell.appendChild
 				(document.createTextNode
@@ -65,36 +93,35 @@ function appendMatrix(e, matrix, rowavgs, colavgs)
 		}
 
 		cell = document.createElement('div');
-		cell.setAttribute('class', 'payoffright');
+		cell.setAttribute('class', 'sumaside sum');
 		cell.setAttribute('style', 'width: ' + 
-			(100.0 / (matrix[i].hmatrix.length + 2)) + '%;');
+			((100.0 / (matrix[i].length + 1)) - 1) + '%;');
 		cell.appendChild(document.createTextNode(rowavgs[i]));
 		row.appendChild(cell);
 	}
 
 	row = document.createElement('div');
 	table.appendChild(row);
+
 	cell = document.createElement('div');
-	cell.setAttribute('class', 'payoffbottom');
-	cell.setAttribute('style', 'width: ' + 
-		(100.0 / (matrix[0].hmatrix.length + 2)) + '%;');
+	cell.setAttribute('class', 'labelaside');
+	cell.appendChild(document.createTextNode('\u2211'));
 	row.appendChild(cell);
+
 	for (i = 0; i < matrix[0].hmatrix.length; i++) {
 		cell = document.createElement('div');
-		cell.setAttribute('class', 'payoffbottom');
+		cell.setAttribute('class', 'sumbelow sum');
 		cell.setAttribute('style', 'width: ' + 
-			(100.0 / (matrix[0].hmatrix.length + 2)) + '%;');
+			((100.0 / (matrix[0].length + 1)) - 1) + '%;');
 		row.appendChild(cell);
 		cell.appendChild(document.createTextNode(colavgs[i]));
 	}
 
 	cell = document.createElement('div');
-	cell.setAttribute('class', 'payoffbottom');
+	cell.setAttribute('class', 'sumaside');
 	cell.setAttribute('style', 'width: ' + 
-		(100.0 / (matrix[0].hmatrix.length + 2)) + '%;');
+		((100.0 / (matrix[0].length + 1)) - 1) + '%;');
 	row.appendChild(cell);
-
-	e.appendChild(table);
 }
 
 /*
@@ -120,7 +147,7 @@ function appendBimatrix(e, matrix, colour, ocolour)
 	];
 
 	cell = document.createElement('div');
-	cell.setAttribute('class', 'payoffheader');
+	cell.setAttribute('class', 'header');
 	cell.appendChild(document.createTextNode('Payoff Matrix'));
 	e.appendChild(cell);
 
@@ -129,29 +156,48 @@ function appendBimatrix(e, matrix, colour, ocolour)
 	table.setAttribute('style', 
 		'width: ' + (matrix.length * 10) + 'em;');
 
+	row = document.createElement('div');
+	table.appendChild(row);
+
+	cell = document.createElement('div');
+	cell.setAttribute('class', 'labelaside');
+	row.appendChild(cell);
+
+	for (i = 0; i < matrix.length; i++) {
+		cell = document.createElement('div');
+		cell.setAttribute('class', 'labelatop');
+		cell.setAttribute('style', 'width: ' + 
+			(100.0 / (matrix[i].length)) + '%;');
+		cell.appendChild(document.createTextNode
+			((i + 1) + '.'));
+		row.appendChild(cell);
+	}
+
+
 	for (i = 0; i < matrix.length; i++) {
 		row = document.createElement('div');
 		table.appendChild(row);
 		cell = document.createElement('div');
-		cell.setAttribute('class', 'payoffhead');
-		cell.setAttribute('style', 'width: ' + 
-			(100.0 / (matrix[0].length + 1)) + '%;');
+		cell.setAttribute('class', 'labelaside');
 		cell.appendChild(document.createTextNode
 			((i + 1) + '.'));
 		row.appendChild(cell);
 		for (j = 0; j < matrix[i].length; j++) {
 			cell = document.createElement('div');
+			cell.setAttribute('class', 'pair');
 			cell.setAttribute('style', 'width: ' + 
-				(100.0 / (matrix[i].length + 1)) + '%;');
+				(100.0 / (matrix[i].length)) + '%;');
 			row.appendChild(cell);
 			poff = document.createElement('div');
-			poff.setAttribute('style', 'color: ' + colours[colour]);
+			poff.setAttribute('style', 
+				'color: ' + colours[colour]);
 			poff.appendChild
 				(document.createTextNode
 				 (matrix[i][j][0]));
 			cell.appendChild(poff);
 			poff = document.createElement('div');
-			poff.setAttribute('style', 'color: ' + colours[ocolour]);
+			poff.setAttribute('style', 
+				'color: ' + colours[ocolour]);
 			poff.appendChild
 				(document.createTextNode
 				 (matrix[i][j][1]));

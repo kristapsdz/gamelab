@@ -134,46 +134,47 @@ article ul li > span:first-child
 article ul li > span:last-child { margin-right: 0; }
 span.waiting			{ background-color: #aaa; }
 div.lottery			{ text-align: center; }
-div.payoffheader		{ text-align: center; }
-div.payoffs			{ display: table; 
-				  max-width: 100%; 
-				  width: 75%;
+div.header			{ text-align: center; }
+
+div.history			{ display: table;
+				  max-width: 100%;
 				  margin-left: auto;
 				  margin-right: auto;
-				  border-spacing: 4px;
-				  background-color: #ccc; }
+				  border-spacing: 1ex;
+				  white-space: nowrap; }
+div.history > div 		{ display: table-row; }
+div.history > div > div		{ display: table-cell; }
+div.history div.labelaside	{ padding: 0 0.5ex; }
+div.history div.sum		{ border-radius: 0.5ex;
+				  padding: 0.5ex;
+				  border: thin solid #ddd; }
+div.history div.mix		{ text-align: center; 
+				  padding: 0.5ex; 
+				  border-radius: 0.5ex;
+				  border: thin solid #888; }
+div.history div.labelatop	{ text-align: center; }
+div.history div.sumbelow	{ text-align: center; }
+div.history div.sumaside	{ text-align: center; }
+div.payoffs			{ display: table; 
+				  max-width: 100%; 
+				  margin-left: auto;
+				  margin-right: auto;
+				  border-radius: 0.5ex;
+				  border-spacing: 1ex; 
+				  background-color: #ddd; }
 div.payoffs > div		{ display: table-row; }
-div.payoffs > div > div		{ display: table-cell; 
-				  text-align: center; 
-				  background-color: #333; }
-div.payoffs > div > div.payoff	{ padding: 1ex 1ex; 
-				  color: #fff; }
-div.payoffs > div > div	> div 	{ display: inline-block; 
-				  padding: 1ex 0.5ex; }
-div.payoffs > div > div	> div:first-child
-				{ display: inline-block; 
-				  text-align: center;
-				  border-right: 2px solid #666;
-				  color: #fff; }
-div.payoffs > div > div	> div:last-child
-				{ display: inline-block; 
-				  text-align: center;
-				  color: #666; }
-div.payoffs > div > div.payoffright
-				{ background-color: inherit;
-				  text-align: left;
-				  padding: 1ex;
-				  color: #666; }
-div.payoffs > div > div.payoffhead		
-				{ background-color: inherit;
-				  text-align: right;
-				  padding-right: 1ex;
-				  color: #666; }
-div.payoffs > div > div.payoffbottom		
-				{ background-color: inherit;
-				  text-align: center;
-				  padding: 1ex;
-				  color: #666; }
+div.payoffs > div > div		{ display: table-cell;  }
+div.payoffs div.pair 		{ background-color: #333; 
+				  border-radius: 0.5ex; }
+div.payoffs div.pair > div 	{ display: inline-block; 
+				  width: 49%;
+				  padding: 1ex 0;
+				  text-align: center; }
+div.payoffs div.pair > div:first-child
+				{ border-right: 2px solid #666; }
+div.payoffs div.labelaside	{ text-align: right;
+				  width: 1%; }
+div.payoffs div.labelatop	{ text-align: center; }
 div.countdown			{ display: table; 
 				  margin-left: auto;
 				  margin-right: auto;
