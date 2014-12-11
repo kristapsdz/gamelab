@@ -58,7 +58,8 @@ function appendMatrix(e, matrix, rowavgs, colavgs)
 		cell.setAttribute('class', 'labelatop');
 		cell.setAttribute('style', 'width: ' + 
 			((100.0 / (matrix[0].length + 1)) - 1) + '%;');
-		cell.appendChild(document.createTextNode((i + 1) + '.'));
+		cell.appendChild(document.createTextNode
+			(String.fromCharCode(97 + i) + '.'));
 		row.appendChild(cell);
 	}
 
@@ -169,7 +170,7 @@ function appendBimatrix(e, matrix, colour, ocolour)
 		cell.setAttribute('style', 'width: ' + 
 			(100.0 / (matrix[i].length)) + '%;');
 		cell.appendChild(document.createTextNode
-			((i + 1) + '.'));
+			(String.fromCharCode(97 + i) + '.'));
 		row.appendChild(cell);
 	}
 
@@ -342,7 +343,7 @@ function loadGame()
 		div.setAttribute('class', 'lottery');
 		div.appendChild
 			(document.createTextNode
-			 ('Lottery tickets: ' + res.payoff));
+			 ('Lottery tickets: ' + res.curlottery));
 		e.appendChild(div);
 		appendMatrix(e, matrix,
 			0 == res.role ? game.roundup.avgp1 : 
@@ -363,13 +364,14 @@ function loadGame()
 	for (i = 0; i < matrix.length; i++) {
 		div = document.createElement('div');
 		div.setAttribute('class', 'input');
-		ii = document.createElement('i');
-		ii.setAttribute('class', 'fa fa-fw fa-square');
+		ii = document.createElement('span');
+		ii.setAttribute('class', 'strat');
+		ii.appendChild(document.createTextNode((matrix[i].index + 1) + '.'));
 		input = document.createElement('input');
 		input.setAttribute('type', 'text');
+		input.setAttribute('class', 'stratUnselect');
 		input.setAttribute('required', 'required');
-		input.setAttribute('placeholder', 
-			'Strategy ' + (i + 1));
+		input.setAttribute('value', '0');
 		input.setAttribute('id', 'index' + matrix[i].index);
 		input.setAttribute('name', 'index' + matrix[i].index);
 		div.appendChild(ii);

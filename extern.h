@@ -158,7 +158,7 @@ int		 db_player_sess_valid(int64_t *, int64_t, int64_t);
 void		 db_player_free(struct player *);
 int		 db_player_play(int64_t, int64_t, 
 			int64_t, const mpq_t *, size_t);
-mpq_t		*db_player_payoff(int64_t, int64_t);
+int		 db_player_lottery(int64_t, int64_t, mpq_t, mpq_t);
 
 void		 db_sess_delete(int64_t);
 void		 db_sess_free(struct sess *);

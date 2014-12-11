@@ -290,6 +290,23 @@ db_mpq2str(const mpq_t *v, size_t sz)
 }
 
 static void
+db_str2mpq_single_add(const unsigned char *v, mpq_t p)
+{
+	int	 rc;
+	mpq_t	 tmp, sum;
+
+	mpq_init(tmp);
+	mpq_init(sum);
+	rc = mpq_set_str(tmp, (const char *)v, 10);
+	assert(0 == rc);
+	mpq_canonicalize(tmp);
+	mpq_set(sum, p);
+	mpq_add(p, sum, tmp);
+	mpq_clear(tmp);
+	mpq_clear(sum);
+}
+
+static void
 db_str2mpq_add(const unsigned char *v, size_t sz, mpq_t *p)
 {
 	size_t	 i;
@@ -327,6 +344,21 @@ db_str2mpq_add(const unsigned char *v, size_t sz, mpq_t *p)
 	free(sv);
 	mpq_clear(tmp);
 	mpq_clear(sum);
+}
+
+/*
+ * Assign the string value into "val".
+ * NOTE: "val" is initialised here!
+ */
+static void
+db_str2mpq_single(const unsigned char *v, mpq_t val)
+{
+	int	 rc;
+
+	mpq_init(val);
+	rc = mpq_set_str(val, (const char *)v, 10);
+	assert(0 == rc);
+	mpq_canonicalize(val);
 }
 
 static mpq_t *
@@ -1299,85 +1331,91 @@ db_roundup_round(struct roundup *r)
 	return(r);
 }
 
-mpq_t *
-db_player_payoff(int64_t round, int64_t playerid)
+/*
+ * Compute lottery tickets on-demand for the noted round and all prior
+ * rounds recursively.
+ * Set "cur" to be an mpq (initialising it!) of the current lottery
+ * ticket amount and "aggr" (also initialising in the proess!) to be the
+ * accumulated (inclusive).
+ */
+int
+db_player_lottery(int64_t round, int64_t pid, mpq_t cur, mpq_t aggr)
 {
 	sqlite3_stmt	*stmt;
-	mpq_t		*qp, *prev;
 	size_t		 i, count;
-	char		*sv;
-	mpq_t		 tmp;
+	int		 rc;
+	char		*curstr, *aggrstr;
+	mpq_t		 prevcur, prevaggr;
 
-	qp = NULL;
-	stmt = db_stmt("SELECT payoff FROM lottery "
-		"WHERE playerid=? AND round=?");
-	db_bind_int(stmt, 1, playerid);
+	if (round < 0)
+		return(0);
+
+	stmt = db_stmt("SELECT aggrpayoff,curpayoff FROM "
+		"lottery WHERE playerid=? AND round=?");
+	db_bind_int(stmt, 1, pid);
 	db_bind_int(stmt, 2, round);
-	if (SQLITE_ROW == db_step(stmt, 0))
-		qp = db_str2mpq(sqlite3_column_text(stmt, 0), 1);
+	if (SQLITE_ROW == (rc = db_step(stmt, 0))) {
+		db_str2mpq_single(sqlite3_column_text(stmt, 0), aggr);
+		db_str2mpq_single(sqlite3_column_text(stmt, 1), cur);
+	}
 	db_finalise(stmt);
-	
-	if (round < 0) {
-		fprintf(stderr, "Ignoring first-round for "
-			"player %" PRId64 " lottery\n", playerid);
-		return(NULL);
-	}
-
-	if (NULL != qp) {
-		fprintf(stderr, "Player %" PRId64 ", round %" 
-			PRId64 ", cached lottery\n", playerid, round);
-		return(qp);
-	}
+	if (SQLITE_ROW == rc)
+		return(1);
 
 	fprintf(stderr, "Player %" PRId64 ", round %" 
-		PRId64 ", new lottery\n", playerid, round);
+		PRId64 ", new lottery\n", pid, round);
 
-	qp = kcalloc(1, sizeof(mpq_t));
-	mpq_init(*qp);
+	/* FIXME: cache or parameterise this. */
+	count = db_game_count_all();
+
+	mpq_init(cur);
+	mpq_init(aggr);
 
 	stmt = db_stmt("SELECT payoff FROM payoff "
 		"WHERE playerid=? AND round=?");
-	db_bind_int(stmt, 1, playerid);
+	db_bind_int(stmt, 1, pid);
 	db_bind_int(stmt, 2, round);
-	i = 0;
-	while (SQLITE_ROW == db_step(stmt, 0)) {
-		db_str2mpq_add(sqlite3_column_text(stmt, 0), 1, qp);
-		i++;
-	}
+	for (i = 0; SQLITE_ROW == db_step(stmt, 0); i++)
+		db_str2mpq_single_add
+			(sqlite3_column_text(stmt, 0), cur);
 	db_finalise(stmt);
 
-	if (i != (count = db_game_count_all())) {
+	if (i < count) {
+		/* If not enough plays, set lottery to zero. */
 		fprintf(stderr, "Player %" PRId64 ", round %" 
 			PRId64 ", not enough plays for lotter "
-			"(%zu < %zu)\n", playerid, round, i, count);
-		mpq_set_ui(*qp, 0, 1);
-		mpq_canonicalize(*qp);
-	}
+			"(%zu < %zu)\n", pid, round, i, count);
+		mpq_set_ui(cur, 0, 1);
+		mpq_canonicalize(cur);
+	} else
+		assert(i == count);
 
-	if (NULL != (prev = db_player_payoff(round - 1, playerid))) {
-		mpq_init(tmp);
-		mpq_set(tmp, *qp);
-		mpq_add(*qp, tmp, *prev);
-		mpq_clear(tmp);
-		mpq_clear(*prev);
-		free(prev);
-	}
+	if (db_player_lottery(round - 1, pid, prevcur, prevaggr)) {
+		mpq_add(aggr, cur, prevaggr);
+		mpq_clear(prevcur);
+		mpq_clear(prevaggr);
+	} else
+		mpq_set(aggr, cur);
 
-	sv = db_mpq2str((const mpq_t *)qp, 1);
-	assert(NULL != sv);
+	/* Convert the current and last to strings. */
 
-	stmt = db_stmt("INSERT INTO lottery "
-		"(payoff,playerid,round) VALUES (?,?,?)");
-	db_bind_text(stmt, 1, sv);
-	db_bind_int(stmt, 2, playerid);
-	db_bind_int(stmt, 3, round);
-	if (SQLITE_CONSTRAINT == db_step(stmt, DB_STEP_CONSTRAINT))
-		fprintf(stderr, "Player %" PRId64 ", round %" 
-			PRId64 ", snuck in lottery\n", 
-			playerid, round);
+	gmp_asprintf(&curstr, "%Qd", cur);
+	gmp_asprintf(&aggrstr, "%Qd", aggr);
+
+	/* Record both in database. */
+
+	stmt = db_stmt("INSERT INTO lottery (aggrpayoff,"
+		"curpayoff,playerid,round) VALUES (?,?,?,?)");
+	db_bind_text(stmt, 1, aggrstr);
+	db_bind_text(stmt, 2, curstr);
+	db_bind_int(stmt, 3, pid);
+	db_bind_int(stmt, 4, round);
+	(void)db_step(stmt, DB_STEP_CONSTRAINT);
 	db_finalise(stmt);
-	free(sv);
-	return(qp);
+
+	free(aggrstr);
+	free(curstr);
+	return(1);
 }
 
 static void

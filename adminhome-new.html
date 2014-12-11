@@ -6,10 +6,6 @@
 		<title>Gamelab Administration</title>
 		<link rel="stylesheet" href="@@htdocs@@/style.css" type="text/css" />
 		<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet" />
-		<style>
-			nav li:first-child { background-color: red; }
-			h1 { color: #fff; }
-		</style>
 		<script src="@@htdocs@@/script.js"></script>
 		<script src="@@cgibin@@/home.js"></script>
 		<script>
@@ -25,15 +21,16 @@
 	</head>
 	<body onload="onLoad(); loadNewGames(); loadNewPlayers(); loadSmtp();">
 		<header>
-			<nav>
+			<a id="navButton" href="#" onclick="onNav(); return false;"><i class="fa fa-navicon"></i></a>
+			<h1>gamelab admin</h1>
+		</header>
+		<div id="navParent">
+			<nav id="nav">
 				<ul>
-					<li><h1>Administrator</h1></li>
-					<li>
-						<a href="@@cgibin@@/dologout.html"><i class="fa fa-sign-out"></i>Logout</a>
-					</li>
+					<li><a href="@@cgibin@@/dologout.html"><i class="fa fa-sign-out"></i> Logout</a></li>
 				</ul>
 			</nav>
-		</header>
+		</div>
 		<article>
 			<section>
 				<aside>

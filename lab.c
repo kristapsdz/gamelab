@@ -283,7 +283,7 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 {
 	struct expr	*expr;
 	struct player	*player;
-	mpq_t		*lottery;
+	mpq_t		 cur, aggr;
 	time_t		 t;
 	int64_t	 	 round;
 	struct kjsonreq	 req;
@@ -315,13 +315,15 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 	kjson_putintp(&req, "ocolour", (playerid + 6) % 12);
 
 	kjson_putintp(&req, "gamesz", db_game_count_all());
-	lottery = db_player_payoff(round - 1, playerid);
-	if (NULL != lottery) {
-		json_putmpqp(&req, "payoff", *lottery);
-		mpq_clear(*lottery);
-		free(lottery);
-	} else 
-		kjson_putnullp(&req, "payoff");
+	if (db_player_lottery(round - 1, playerid, cur, aggr)) {
+		json_putmpqp(&req, "curlottery", cur);
+		json_putmpqp(&req, "aggrlottery", aggr);
+		mpq_clear(cur);
+		mpq_clear(aggr);
+	} else {
+		kjson_putnullp(&req, "curlottery");
+		kjson_putnullp(&req, "aggrlottery");
+	}
 	kjson_putintp(&req, "gamesz", db_game_count_all());
 	kjson_putintp(&req, "role", player->role);
 	kjson_arrayp_open(&req, "games");

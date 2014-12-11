@@ -1,5 +1,19 @@
 "use strict";
 
+function onNav() 
+{
+	var nav = document.getElementById('nav');
+	var btn = document.getElementById('navButton');
+
+	if ('' == nav.style.maxHeight || nav.style.maxHeight == '0px') {
+		nav.style.maxHeight = '100em';
+		btn.style.textShadow = '1px 1px #fff';
+	} else {
+		nav.style.maxHeight = '0px';
+		btn.style.textShadow = 'none';
+	}
+}
+
 function timerCountdown(head, donefunc, e, value, start)
 {
 	var elapsed;

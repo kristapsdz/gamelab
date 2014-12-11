@@ -17,16 +17,22 @@
 	</head>
 	<body onload="loadExpr();">
 		<header>
-			<nav>
+			<a id="navButton" href="#" onclick="onNav(); return false;"><i class="fa fa-navicon"></i></a>
+			<h1>gamelab</h1>
+		</header>
+		<div id="navParent">
+			<nav id="nav">
 				<ul>
-					<li><h1>Participation</h1></li>
-					<li>
-						<a href="@@cgibin@@/dologout.html"><i class="fa fa-sign-out"></i>Logout</a>
-					</li>
+					<li><a href="#"><i class="fa fa-fw fa-gear"></i> Play</a></li>
+					<li><a href="#"><i class="fa fa-fw fa-info"></i> Instructions</a></li>
+					<li><a href="#"><i class="fa fa-fw fa-history"></i> History</a></li>
+					<li><a href="@@cgibin@@/dologout.html"><i class="fa fa-fw fa-sign-out"></i> Logout</a></li>
 				</ul>
 			</nav>
-		</header>
-		<article>
+		</div>
+		<article id="instructions">
+		</article>
+		<article id="gameplay">
 			<section id="exprCountdown" class="noshow"></section>
 			<section id="exprLoading"><i class="fa fa-spinner fa-spin"></i></section>
 			<section id="exprDone" class="noshow">

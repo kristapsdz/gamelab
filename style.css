@@ -2,23 +2,38 @@
  * Lay out the general page structure here.
  */
 html, body			{ margin: 0; }
-h1				{ font-weight: normal;
-				  color: #222; }
 a				{ text-decoration: none; 
 				  color: blue; }
 body				{ font-size: 14pt; }
+body > header			{ background-color: #ccc; 
+				  border-bottom: thin solid #aaa; }
+body > header > *		{ display: inline-block; 
+				  padding: 0.5ex 1ex; }
+body > header a			{ color: #222; }
+body > header h1		{ margin: 0; 
+				  border-left: thin solid #eee; }
+#navParent			{ position: relative; }
+#nav a				{ font-size: 12pt; 
+			  	  color: #222; }
+#nav				{ padding: 0 2ex; 
+				  position: absolute;
+				  top: 0;
+				  left: 0;
+				  border-bottom-right-radius: 1ex;
+				  border-bottom-left-radius: 1ex;
+				  box-shadow: 1px 1px 4px #555;
+				  background-color: #eee;
+				  overflow: hidden;
+				  transition: max-height 0.5s ease-in-out;
+				  max-height: 0px; }
+#nav ul				{ list-style-type: none; 
+				  padding: 1ex 0 0 0; 
+				  margin: 0; }
+#nav li				{ padding: 0.5ex 0; }
 i.fa-warning + span		{ margin-left: 0.5ex; }
-body > header a			{ color: #000; }
 section > header		{ text-align: center; }
 section h2			{ font-size: 16pt; }
-nav ul				{ list-style-type: none; 
-				  background-color: #ccc;
-				  padding: 0; 
-				  margin: 0 0 1em 0; }
-nav li				{ display: inline-block; 
-				  background-color: #ccc;
-				  padding: 1ex; }
-nav li:first-child		{ background-color: #8888aa; }
+article				{ margin-top: 1em; }
 article, footer			{ max-width: 1024px;
 				  margin-left: auto;
 				  margin-right: auto; }
@@ -140,6 +155,9 @@ div.history			{ display: table;
 				  max-width: 100%;
 				  margin-left: auto;
 				  margin-right: auto;
+				  background-color: #eee;
+				  border-radius: 0.5ex;
+				  border: thin solid #ddd;
 				  border-spacing: 1ex;
 				  white-space: nowrap; }
 div.history > div 		{ display: table-row; }
@@ -147,11 +165,11 @@ div.history > div > div		{ display: table-cell; }
 div.history div.labelaside	{ padding: 0 0.5ex; }
 div.history div.sum		{ border-radius: 0.5ex;
 				  padding: 0.5ex;
-				  border: thin solid #ddd; }
+				  border: thin solid #aaa; }
 div.history div.mix		{ text-align: center; 
 				  padding: 0.5ex; 
 				  border-radius: 0.5ex;
-				  border: thin solid #888; }
+				  border: thin solid #555; }
 div.history div.labelatop	{ text-align: center; }
 div.history div.sumbelow	{ text-align: center; }
 div.history div.sumaside	{ text-align: center; }
@@ -159,19 +177,17 @@ div.payoffs			{ display: table;
 				  max-width: 100%; 
 				  margin-left: auto;
 				  margin-right: auto;
-				  border-radius: 0.5ex;
-				  border-spacing: 1ex; 
-				  background-color: #ddd; }
+				  border-spacing: 1ex; }
 div.payoffs > div		{ display: table-row; }
 div.payoffs > div > div		{ display: table-cell;  }
-div.payoffs div.pair 		{ background-color: #333; 
+div.payoffs div.pair 		{ background-color: #777; 
 				  border-radius: 0.5ex; }
 div.payoffs div.pair > div 	{ display: inline-block; 
 				  width: 49%;
 				  padding: 1ex 0;
 				  text-align: center; }
 div.payoffs div.pair > div:first-child
-				{ border-right: 2px solid #666; }
+				{ border-right: 2px solid #ccc; }
 div.payoffs div.labelaside	{ text-align: right;
 				  width: 1%; }
 div.payoffs div.labelatop	{ text-align: center; }
@@ -194,6 +210,8 @@ div.countdown > div:last-child > div
 				{ color: #aaa; }
 div.countdownHead		{ text-align: center;
 				  font-size: 16pt; }
+
+
 div.canclose			{ position: relative; 
 				  border: thin solid #ccc;
 				  border-radius: 1ex;
@@ -238,4 +256,5 @@ sup				{ font-size: 8pt;
 	section section >*	{ margin: 1em 0.5em 1em 0.5em; }
 	section section >h3	{ text-align: center; }
 	div.payoffs		{ width: 100% !important; }
+	div.history		{ width: 100% !important; }
 }

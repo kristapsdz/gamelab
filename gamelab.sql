@@ -11,7 +11,8 @@ CREATE TABLE player (
 CREATE TABLE lottery (
 	round INTEGER NOT NULL,
 	playerid INTEGER REFERENCES player(id) NOT NULL,
-	payoff TEXT NOT NULL,
+	aggrpayoff TEXT NOT NULL,
+	curpayoff TEXT NOT NULL,
 	id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
 	UNIQUE (round, playerid)
 );
