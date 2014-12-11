@@ -96,74 +96,51 @@ function doClearReplace(name, str)
 
 function formatCountdown(head, v, e)
 {
-	var p, div, table, row, cell;
+	var p, span;
 
-	if (null != head) {
-		div = document.createElement('div');
-		div.setAttribute('class', 'countdownHead');
-		div.appendChild(document.createTextNode(head));
-		e.appendChild(div);
-	}
+	if (null != head) 
+		e.appendChild(document.createTextNode(head));
 
-	table = document.createElement('div');
-	table.setAttribute('class', 'countdown');
-	e.appendChild(table);
-
-	row = document.createElement('div');
-	table.appendChild(row);
-
-	cell = document.createElement('div');
+	span = document.createElement('span');
 	if (v > 24 * 60 * 60) {
 		p = Math.floor(v / (24 * 60 * 60));
-		cell.appendChild(document.createTextNode(p));
+		span.appendChild(document.createTextNode(p));
+		span.appendChild(document.createTextNode(':'));
 		v -= p * (24 * 60 * 60);
 	} else
-		cell.appendChild(document.createTextNode("00"));
+		span.appendChild(document.createTextNode('00:'));
 
-	row.appendChild(cell);
-	cell = document.createElement('div');
+	e.appendChild(span);
+	span = document.createElement('span');
 	if (v > 60 * 60) {
 		p = Math.floor(v / (60 * 60));
 		if (p < 10)
-			cell.appendChild(document.createTextNode("0"));
-		cell.appendChild(document.createTextNode(p));
+			span.appendChild(document.createTextNode('0'));
+		span.appendChild(document.createTextNode(p));
+		span.appendChild(document.createTextNode(':'));
 		v -= p * (60 * 60);
 	} else
-		cell.appendChild(document.createTextNode("00"));
+		span.appendChild(document.createTextNode('00:'));
 
-	row.appendChild(cell);
-	cell = document.createElement('div');
+	e.appendChild(span);
+	span = document.createElement('span');
 	if (v > 60) {
 		p = Math.floor(v / 60);
 		if (p < 10)
-			cell.appendChild(document.createTextNode("0"));
-		cell.appendChild(document.createTextNode(p));
+			span.appendChild(document.createTextNode('0'));
+		span.appendChild(document.createTextNode(p));
+		span.appendChild(document.createTextNode(':'));
 		v -= p * (60);
 	} else
-		cell.appendChild(document.createTextNode("00"));
+		span.appendChild(document.createTextNode('00:'));
 
-	row.appendChild(cell);
-	cell = document.createElement('div');
+	e.appendChild(span);
+	span = document.createElement('span');
 	p = Math.round(v);
 	if (p < 10)
-		cell.appendChild(document.createTextNode("0"));
-	cell.appendChild(document.createTextNode(p));
-	row.appendChild(cell);
-
-	row = document.createElement('div');
-	table.appendChild(row);
-	cell = document.createElement('div');
-	cell.appendChild(document.createTextNode('days'));
-	row.appendChild(cell);
-	cell = document.createElement('div');
-	cell.appendChild(document.createTextNode('hours'));
-	row.appendChild(cell);
-	cell = document.createElement('div');
-	cell.appendChild(document.createTextNode('minutes'));
-	row.appendChild(cell);
-	cell = document.createElement('div');
-	cell.appendChild(document.createTextNode('seconds'));
-	row.appendChild(cell);
+		span.appendChild(document.createTextNode('0'));
+	span.appendChild(document.createTextNode(p));
+	e.appendChild(span);
 }
 
 function sendQuery(url, setup, success, error) 

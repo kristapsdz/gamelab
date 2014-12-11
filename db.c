@@ -1454,9 +1454,11 @@ db_roundup_players(int64_t round,
 		mpq_add(sum, div, tmp);
 	}
 
-	stmt = db_stmt("SELECT strats,playerid FROM choice "
+	stmt = db_stmt("SELECT choice.strats,choice.playerid FROM choice "
 		"INNER JOIN player ON player.id=choice.playerid "
-		"WHERE round=? AND gameid=? AND player.role=?");
+		"INNER JOIN gameplay ON gameplay.playerid=choice.playerid "
+		"WHERE choice.round=?1 AND choice.gameid=?2 "
+		"AND gameplay.round=?1 AND player.role=?3");
 	stmt2 = db_stmt("INSERT INTO payoff (round,playerid,"
 		"gameid,payoff) VALUES (?,?,?,?)");
 

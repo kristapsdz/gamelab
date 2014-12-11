@@ -6,12 +6,21 @@ a				{ text-decoration: none;
 				  color: blue; }
 body				{ font-size: 14pt; }
 body > header			{ background-color: #ccc; 
+				  display: table;
+				  width: 100%;
 				  border-bottom: thin solid #aaa; }
-body > header > *		{ display: inline-block; 
-				  padding: 0.5ex 1ex; }
+body > header > *		{ display: table-cell; 
+				  padding: 0.5ex 1ex;
+				  text-align: center;
+				  width: 1%;
+				  white-space: nowrap;
+				  border-right: thin solid #eee; }
+body > header > *:last-child	{ border-right: none; 
+				  text-align: left; 
+				  width: 98%; }
 body > header a			{ color: #222; }
-body > header h1		{ margin: 0; 
-				  border-left: thin solid #eee; }
+.tab, .tab:target ~ #defaultTab	{ display: none; }
+#defaultTab, .tab:target 	{ display: block; }
 #navParent			{ position: relative; }
 #nav a				{ font-size: 12pt; 
 			  	  color: #222; }
@@ -31,12 +40,13 @@ body > header h1		{ margin: 0;
 				  margin: 0; }
 #nav li				{ padding: 0.5ex 0; }
 i.fa-warning + span		{ margin-left: 0.5ex; }
-section > header		{ text-align: center; }
-section h2			{ font-size: 16pt; }
-article				{ margin-top: 1em; }
-article, footer			{ max-width: 1024px;
+h1				{ margin: 0; }
+h2				{ font-size: 16pt; }
+body > article, 
+body > footer			{ max-width: 1024px;
 				  margin-left: auto;
 				  margin-right: auto; }
+body > article			{ padding: 0 0.5ex; }
 footer				{ text-align: center; 
 				  margin-top: 1em;
 				  margin-bottom: 1em;
@@ -149,8 +159,6 @@ article ul li > span:first-child
 article ul li > span:last-child { margin-right: 0; }
 span.waiting			{ background-color: #aaa; }
 div.lottery			{ text-align: center; }
-div.header			{ text-align: center; }
-
 div.history			{ display: table;
 				  max-width: 100%;
 				  margin-left: auto;
@@ -191,27 +199,6 @@ div.payoffs div.pair > div:first-child
 div.payoffs div.labelaside	{ text-align: right;
 				  width: 1%; }
 div.payoffs div.labelatop	{ text-align: center; }
-div.countdown			{ display: table; 
-				  margin-left: auto;
-				  margin-right: auto;
-				  background-color: #666; 
-				  border-spacing: 2px;
-				  color: #eee; }
-div.countdown > div		{ display: table-row; }
-div.countdown > div > div	
-				{ display: table-cell; 
-				  text-align: center; }
-div.countdown > div:first-child > div
-				{ background-color: #000; 
-				  font-family: monospace;
-				  font-size: 24pt;
-				  padding: 1ex 2ex; }
-div.countdown > div:last-child > div
-				{ color: #aaa; }
-div.countdownHead		{ text-align: center;
-				  font-size: 16pt; }
-
-
 div.canclose			{ position: relative; 
 				  border: thin solid #ccc;
 				  border-radius: 1ex;
@@ -238,14 +225,6 @@ sup				{ font-size: 8pt;
 .tabled > div 			{ display: table-row; }
 .tabled > div > * 		{ display: table-cell; }
 @media only screen and (max-width: 400px), only screen and (max-device-width: 400px) {
-	div.countdown 		{ width: 100%; }
-	div.countdown > div > div
-				{ width: 25%; }
-	div.countdown > div:first-child > div
-				{ padding: 0.5ex 0; 
-				  font-size: 16pt; }
-	div.countdown > div:last-child > div
-				{ font-size: 10pt; }
 	article ul li > span	{ display: block; 
 				  margin: 1ex 0; }
 	article ul li > div	{ margin: 1ex 0; }
@@ -257,4 +236,6 @@ sup				{ font-size: 8pt;
 	section section >h3	{ text-align: center; }
 	div.payoffs		{ width: 100% !important; }
 	div.history		{ width: 100% !important; }
+	h1			{ font-size: 18pt; }
+	#exprCountdown		{ font-size: 12pt; }
 }

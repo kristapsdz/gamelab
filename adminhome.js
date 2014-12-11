@@ -548,30 +548,27 @@ function loadExprSuccess(resp)
 		doHide('statusExprProg');
 		doHide('statusExprLoading');
 		doUnhide('statusExprFinished');
+		doClearReplace('exprCountdown', 'Finished');
 		return;
 	}
 
 	if (expr.tilstart > 0) {
 		doUnhide('statusExprWaiting');
-		e = doClearNode(doUnhide('statusExprTtl'));
 		doHide('statusExprLoading');
-		chld = document.createElement('div');
-		head = 'Time Until Experiment';
-		formatCountdown(head, expr.tilstart, chld);
-		e.appendChild(chld);
+		e = doClearNode('exprCountdown');
+		head = 'Begin in ';
+		formatCountdown(head, expr.tilstart, e);
 		setTimeout(timerCountdown, 1000, 
-			head, loadExpr, chld, 
+			head, loadExpr, e, 
 			expr.tilstart, new Date().getTime());
 	} else {
 		if (0 == expr.tilstart) {
-			e = doClearNode(doUnhide('statusExprTtl'));
+			e = doClear('exprCountdown');
 			doHide('statusExprLoading');
-			chld = document.createElement('div');
-			head = 'Time Until Round Expires';
-			formatCountdown(head, expr.tilnext, chld);
-			e.appendChild(chld);
+			head = 'Next in ';
+			formatCountdown(head, expr.tilnext, e);
 			setTimeout(timerCountdown, 1000, 
-				head, loadExpr, chld, 
+				head, loadExpr, e, 
 				expr.tilnext, new Date().getTime());
 		}
 
@@ -618,7 +615,6 @@ function loadExprSetup()
 {
 
 	doUnhide('statusExprLoading');
-	doHide('statusExprTtl');
 	doHide('statusExprWaiting');
 	doHide('statusExprFinished');
 	doHide('statusExprProg');

@@ -9,7 +9,6 @@
 		<style>
 			ol, section, fieldset { max-width: 1024px; }
 			fieldset { box-shadow: none; }
-			#exprCountdown { margin-bottom: 1em; }
 			#exprDone { text-align: center; }
 		</style>
 		<script src="@@htdocs@@/script.js"></script>
@@ -19,65 +18,74 @@
 		<header>
 			<a id="navButton" href="#" onclick="onNav(); return false;"><i class="fa fa-navicon"></i></a>
 			<h1>gamelab</h1>
+			<div id="exprCountdown"><i class="fa fa-spinner fa-spin"></i></div>
 		</header>
 		<div id="navParent">
 			<nav id="nav">
 				<ul>
-					<li><a href="#"><i class="fa fa-fw fa-gear"></i> Play</a></li>
-					<li><a href="#"><i class="fa fa-fw fa-info"></i> Instructions</a></li>
+					<li><a href="#defaultTab"><i class="fa fa-fw fa-gear"></i> Play</a></li>
+					<li><a href="#instructions"><i class="fa fa-fw fa-info"></i> Instructions</a></li>
 					<li><a href="#"><i class="fa fa-fw fa-history"></i> History</a></li>
 					<li><a href="@@cgibin@@/dologout.html"><i class="fa fa-fw fa-sign-out"></i> Logout</a></li>
 				</ul>
 			</nav>
 		</div>
-		<article id="instructions">
+		<article id="instructions" class="tab">
+			<h2>Instructions</h2>
+			<p>
+				Something here.
+			</p>
 		</article>
-		<article id="gameplay">
-			<section id="exprCountdown" class="noshow"></section>
-			<section id="exprLoading"><i class="fa fa-spinner fa-spin"></i></section>
-			<section id="exprDone" class="noshow">
-				<div>
-					You've played all the games for this round &ndash; great!
-					Please wait to play again.
-				</div>
-			</section>
-			<section id="exprError" class="noshow">
-				<div class="error">
-					<i class="fa fa-warning"></i>
-					You've already played this game: are you playing the same experiment in different windows?
-				</div>
-				<div>
-					Please <a href="#" onclick="window.location.reload(true);">click here</a> to reload the page.
-				</div>
-			</section>
-			<section id="exprPlay" class="noshow">
-				<header>
-					<h2>Game <span id="playGameNum"></span> of <span id="playGameMax"></span></h2>
-				</header>
-				<p id="exprHistory"></p>
-				<p id="exprMatrix"></p>
-				<aside>
+		<article id="history" class="tab">
+			<h2>Play History</h2>
+			<div id="historyLoading"><i class="fa fa-spinner fa-spin"></i></div>
+			<div id="historyLoaded" class="noshow">
+			</div>
+		</article>
+		<article id="defaultTab" class="tab">
+			<h2 id="exprHeader">Play Game</h2>
+			<div id="exprLoading"><i class="fa fa-spinner fa-spin"></i></div>
+			<div id="exprLoaded" class="noshow">
+				<section id="exprDone" class="noshow">
 					<div>
-						Enter your strategy mixture below.
-						These must be fractions or decimal numbers with no greater than four digits following the decimal.
+						You've played all the games for this round &ndash; great!
+						Please wait to play again.
 					</div>
-				</aside>
-				<form method="post" action="@@cgibin@@/doplay.json" id="playGame" onsubmit="return(playGame(this));">
-					<div class="error">
-						<div id="playGameErrorJson" class="noshow">
-							<i class="fa fa-warning"></i>
-							<span>A system error occured.</span>
+				</section>
+				<section id="exprPlay" class="noshow">
+					<h3>
+						Game <span id="playGameNum"></span> of <span id="playGameMax"></span>,
+						round <span id="playRoundNum"></span> of <span id="playRoundMax"></span>
+					</h3>
+					<p id="exprHistory"></p>
+					<p id="exprMatrix"></p>
+					<aside>
+						<div>
+							Enter your strategy mixture below.
+							These must be fractions or decimal numbers with no greater than four digits following the decimal.
 						</div>
-						<div id="playGameErrorForm" class="noshow">
-							<i class="fa fa-warning"></i>
-							<span>Form not correctly filled out.</span>
+					</aside>
+					<form method="post" action="@@cgibin@@/doplay.json" id="playGame" onsubmit="return(playGame(this));">
+						<div class="error">
+							<div id="playGameErrorState" class="noshow">
+								<i class="fa fa-warning"></i>
+								<span>You've already played this game.  (Did you play twice?)</span>
+							</div>
+							<div id="playGameErrorJson" class="noshow">
+								<i class="fa fa-warning"></i>
+								<span>A system error occured.</span>
+							</div>
+							<div id="playGameErrorForm" class="noshow">
+								<i class="fa fa-warning"></i>
+								<span>Form not correctly filled out.</span>
+							</div>
 						</div>
-					</div>
-					<input type="hidden" id="exprPlayGid" name="gid" />
-					<input type="hidden" id="exprPlayRound" name="round" />
-					<fieldset id="exprPlayList"></fieldset>
-				</form>
-			</section>
+						<input type="hidden" id="exprPlayGid" name="gid" />
+						<input type="hidden" id="exprPlayRound" name="round" />
+						<fieldset id="exprPlayList"></fieldset>
+					</form>
+				</section>
+			</div>
 		</article>
 		<footer>
 			&copy; 2014, 

@@ -12,7 +12,8 @@
 	<body onload="loadGames(); loadPlayers(); loadExpr(); loadSmtp();">
 		<header>
 			<a id="navButton" href="#" onclick="onNav(); return false;"><i class="fa fa-navicon"></i></a>
-			<h1>gamelab admin</h1>
+			<h1>gamelab</h1>
+			<div id="exprCountdown"><i class="fa fa-spinner fa-spin"></i></div>
 		</header>
 		<div id="navParent">
 			<nav id="nav">
@@ -23,7 +24,6 @@
 		</div>
 		<article>
 			<section>
-				<div id="statusExprTtl"></div>
 				<section id="statusExpr">
 					<h3>Run Status</h3>
 					<div id="statusExprProg">

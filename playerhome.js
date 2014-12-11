@@ -147,11 +147,6 @@ function appendBimatrix(e, matrix, colour, ocolour)
 		"violet"
 	];
 
-	cell = document.createElement('div');
-	cell.setAttribute('class', 'header');
-	cell.appendChild(document.createTextNode('Payoff Matrix'));
-	e.appendChild(cell);
-
 	table = document.createElement('div');
 	table.setAttribute('class', 'payoffs');
 	table.setAttribute('style', 
@@ -296,7 +291,6 @@ function loadGame()
 	if (resindex == res.games.length) {
 		doUnhide('exprDone');
 		doHide('exprPlay');
-		doHide('exprError');
 		return;
 	} 
 
@@ -306,6 +300,8 @@ function loadGame()
 		((res.gamesz - res.games.length) + 
 		 resindex + 1));
 	doClearReplace('playGameMax', res.gamesz);
+	doClearReplace('playRoundNum', res.expr.round + 1);
+	doClearReplace('playRoundMax', res.expr.rounds);
 
 	game = res.games[resindex];
 	/*
@@ -403,14 +399,12 @@ function loadExprSuccess(resp)
 		res = JSON.parse(resp);
 	} catch (error) {
 		doUnhide('exprLoading');
-		doHide('exprDone');
-		doHide('exprCountdown');
-		doHide('exprError');
-		doHide('exprPlay');
+		doUnhide('exprLoaded');
 		return;
 	}
 
 	doHide('exprLoading');
+	doUnhide('exprLoaded');
 	expr = res.expr;
 
 	if ((v = parseInt(expr.tilstart)) > 0) {
@@ -418,8 +412,8 @@ function loadExprSuccess(resp)
 		 * If we haven't yet started, then simply set our timer
 		 * and exit: we have nothing to show.
 		 */
-		e = doClearNode(doUnhide('exprCountdown'));
-		head = 'Time Until Experiment';
+		e = doClear('exprCountdown');
+		head = 'Begin in ';
 		formatCountdown(head, v, e);
 		setTimeout(timerCountdown, 1000, 
 			head, loadExpr, e, v, 
@@ -429,11 +423,12 @@ function loadExprSuccess(resp)
 		 * Start by setting the countdown til the next
 		 * game-play.
 		 */
-		e = doClearNode(doUnhide('exprCountdown'));
+		e = doClear('exprCountdown');
 		v = parseInt(expr.tilnext);
-		head = 'Time Left in Round ' + 
+		/*head = 'Time Left in Round ' + 
 			(parseInt(expr.round) + 1) + 
-			'/' + expr.rounds;
+			'/' + expr.rounds;*/
+		head = 'Next in ';
 		formatCountdown(head, v, e);
 		setTimeout(timerCountdown, 1000, head, 
 			loadExpr, e, v, 
@@ -455,10 +450,7 @@ function loadExprSetup()
 {
 	var e;
 
-	doHide('exprPlay');
-	doHide('exprCountdown');
-	doHide('exprDone');
-	doHide('exprError');
+	doHide('exprLoaded');
 	doUnhide('exprLoading');
 }
 
@@ -474,6 +466,7 @@ function doPlayGameSetup()
 
 	doHide('playGameErrorJson');
 	doHide('playGameErrorForm');
+	doHide('playGameErrorState');
 	doValue('playGameSubmit', 'Submitting...');
 }
 
@@ -486,9 +479,7 @@ function doPlayGameError(err)
 		doUnhide('playGameErrorForm');
 		break;
 	case 409:
-		doHide('exprPlay');
-		doHide('exprDone');
-		doUnhide('exprError');
+		doUnhide('playGameErrorState');
 		break;
 	default:
 		doUnhide('playGameErrorJson');
