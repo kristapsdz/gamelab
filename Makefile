@@ -34,13 +34,13 @@ CFLAGS	+= -DDATADIR=\"$(RDATADIR)\" -DHTDOCS=\"$(HTURI)\"
 
 all: admin lab
 
-admin: admin.o db.o mail.o json.o
-	$(CC) $(STATIC) -L/usr/local/lib -o $@ admin.o db.o mail.o json.o -lsqlite3 -lkcgi -lkcgijson -lz -lgmp `curl-config --libs` $(LIBS)
+admin: admin.o db.o mail.o json.o mpq.o
+	$(CC) $(STATIC) -L/usr/local/lib -o $@ admin.o db.o mail.o json.o mpq.o -lsqlite3 -lkcgi -lkcgijson -lz -lgmp `curl-config --libs` $(LIBS)
 
-lab: lab.o db.o mail.o json.o
-	$(CC) $(STATIC) -L/usr/local/lib -o $@ lab.o db.o mail.o json.o -lsqlite3 -lkcgi -lkcgijson -lz -lgmp `curl-config --libs` $(LIBS)
+lab: lab.o db.o mail.o json.o mpq.o
+	$(CC) $(STATIC) -L/usr/local/lib -o $@ lab.o db.o mail.o json.o mpq.o -lsqlite3 -lkcgi -lkcgijson -lz -lgmp `curl-config --libs` $(LIBS)
 
-admin.o lab.o db.o mail.o: extern.h
+admin.o lab.o db.o mail.o mpq.o: extern.h
 
 installwww: all
 	install -m 0444 $(STATICS) $(HTDOCS)
@@ -58,4 +58,4 @@ gamelab.db: gamelab.sql
 	sqlite3 $@ < gamelab.sql
 
 clean:
-	rm -f admin admin.o gamelab.db lab lab.o db.o mail.o json.o
+	rm -f admin admin.o gamelab.db lab lab.o db.o mail.o json.o mpq.o

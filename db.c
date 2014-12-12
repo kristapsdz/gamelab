@@ -290,23 +290,6 @@ db_mpq2str(const mpq_t *v, size_t sz)
 }
 
 static void
-db_str2mpq_single_add(const unsigned char *v, mpq_t p)
-{
-	int	 rc;
-	mpq_t	 tmp, sum;
-
-	mpq_init(tmp);
-	mpq_init(sum);
-	rc = mpq_set_str(tmp, (const char *)v, 10);
-	assert(0 == rc);
-	mpq_canonicalize(tmp);
-	mpq_set(sum, p);
-	mpq_add(p, sum, tmp);
-	mpq_clear(tmp);
-	mpq_clear(sum);
-}
-
-static void
 db_str2mpq_add(const unsigned char *v, size_t sz, mpq_t *p)
 {
 	size_t	 i;
@@ -971,17 +954,14 @@ db_game_alloc(const char *poffs,
 
 	sv = buf = kstrdup(poffs);
 	rops = kcalloc(p1 * p2 * 2, sizeof(mpq_t));
-	for (i = 0; i < (size_t)(p1 * p2 * 2); i++)
-		mpq_init(rops[i]);
 
 	count = 0;
-	while (NULL != (tok = strsep(&buf, " \t\n\r"))) {
+	while (NULL != (tok = strsep(&buf, " \t\n\r")))
 		if (count >= (size_t)(p1 * p2 * 2))
 			goto err;
-		if (-1 == mpq_set_str(rops[count], tok, 10))
+		else if ( ! mpq_str2mpq(tok, rops[count++]))
 			goto err;
-		mpq_canonicalize(rops[count++]);
-	}
+
 	free(sv);
 	sv = NULL;
 
@@ -1015,7 +995,7 @@ db_game_alloc(const char *poffs,
 	return(game);
 err:
 	free(sv);
-	for (i = 0; i < (size_t)(p1 * p2 * 2); i++)
+	for (i = 0; i < count; i++)
 		mpq_clear(rops[i]);
 	free(rops);
 	return(NULL);
@@ -1376,8 +1356,8 @@ db_player_lottery(int64_t round, int64_t pid, mpq_t cur, mpq_t aggr)
 	db_bind_int(stmt, 1, pid);
 	db_bind_int(stmt, 2, round);
 	for (i = 0; SQLITE_ROW == db_step(stmt, 0); i++)
-		db_str2mpq_single_add
-			(sqlite3_column_text(stmt, 0), cur);
+		mpq_summation_str(cur, 
+			sqlite3_column_text(stmt, 0));
 	db_finalise(stmt);
 
 	if (i < count) {

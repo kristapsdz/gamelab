@@ -555,7 +555,7 @@ function loadExprSuccess(resp)
 	if (expr.tilstart > 0) {
 		doUnhide('statusExprWaiting');
 		doHide('statusExprLoading');
-		e = doClearNode('exprCountdown');
+		e = doClear('exprCountdown');
 		head = 'Begin in ';
 		formatCountdown(head, expr.tilstart, e);
 		setTimeout(timerCountdown, 1000, 

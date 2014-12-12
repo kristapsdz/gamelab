@@ -178,6 +178,11 @@ void		 json_putroundup(struct kjsonreq *,
 			const char *, const struct roundup *);
 void		 json_putexpr(struct kjsonreq *, const struct expr *);
 
+int		 mpq_str2mpq(const char *, mpq_t);
+int		 mpq_str2mpqu(const char *, mpq_t);
+void		 mpq_summation(mpq_t, const mpq_t);
+void		 mpq_summation_str(mpq_t, const unsigned char *);
+
 __END_DECLS
 
 #endif

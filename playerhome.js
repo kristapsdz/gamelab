@@ -405,6 +405,9 @@ function loadExprSuccess(resp)
 
 	doHide('exprLoading');
 	doUnhide('exprLoaded');
+	doHide('historyLoading');
+	doUnhide('historyLoaded');
+
 	expr = res.expr;
 
 	if ((v = parseInt(expr.tilstart)) > 0) {
@@ -452,6 +455,8 @@ function loadExprSetup()
 
 	doHide('exprLoaded');
 	doUnhide('exprLoading');
+	doHide('historyLoaded');
+	doUnhide('historyLoading');
 }
 
 function loadExpr() 

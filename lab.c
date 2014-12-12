@@ -354,7 +354,7 @@ senddoplay(struct kreq *r, int64_t playerid)
 	struct game	 *game;
 	size_t		  i, j, strats;
 	char		  buf[128];
-	mpq_t		  sum, one, tmp;
+	mpq_t		  sum, one;
 	mpq_t		 *mixes;
 
 	player = NULL;
@@ -363,7 +363,6 @@ senddoplay(struct kreq *r, int64_t playerid)
 	strats = 0;
 	mpq_init(one);
 	mpq_init(sum);
-	mpq_init(tmp);
 
 	/* 
 	 * First, make sure our basic parameters are there (game
@@ -407,21 +406,13 @@ senddoplay(struct kreq *r, int64_t playerid)
 			http_open(r, KHTTP_400);
 			goto out;
 		}
-		mpq_init(mixes[i]);
-		if (mpq_set_str(mixes[i], r->fields[j].val, 10) < 0) {
-			http_open(r, KHTTP_400);
-			goto out;
-		} 
-		mpq_canonicalize(mixes[i]);
-		if (mpq_sgn(mixes[i]) < 0) {
+		
+		if ( ! mpq_str2mpqu(r->fields[j].val, mixes[i])) {
 			http_open(r, KHTTP_400);
 			goto out;
 		}
-		/* This is to verify the sum is 1. */
-		mpq_set(tmp, sum);
-		mpq_add(sum, tmp, mixes[i]);
-		mpq_canonicalize(sum);
-		/* Accumulate after conversion. */
+
+		mpq_summation(sum, mixes[i]);
 	}
 
 	mpq_set_ui(one, 1, 1);
@@ -458,7 +449,6 @@ out:
 	free(mixes);
 	mpq_clear(one);
 	mpq_clear(sum);
-	mpq_clear(tmp);
 	db_player_free(player);
 	db_game_free(game);
 }

@@ -7,9 +7,7 @@
 		<link rel="stylesheet" href="@@htdocs@@/style.css" type="text/css" />
 		<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet" />
 		<style>
-			ol, section, fieldset { max-width: 1024px; }
 			fieldset { box-shadow: none; }
-			#exprDone { text-align: center; }
 		</style>
 		<script src="@@htdocs@@/script.js"></script>
 		<script src="@@cgibin@@/home.js"></script>
@@ -24,8 +22,8 @@
 			<nav id="nav">
 				<ul>
 					<li><a href="#defaultTab"><i class="fa fa-fw fa-gear"></i> Play</a></li>
+					<li><a href="#history"><i class="fa fa-fw fa-history"></i> History</a></li>
 					<li><a href="#instructions"><i class="fa fa-fw fa-info"></i> Instructions</a></li>
-					<li><a href="#"><i class="fa fa-fw fa-history"></i> History</a></li>
 					<li><a href="@@cgibin@@/dologout.html"><i class="fa fa-fw fa-sign-out"></i> Logout</a></li>
 				</ul>
 			</nav>
@@ -40,6 +38,9 @@
 			<h2>Play History</h2>
 			<div id="historyLoading"><i class="fa fa-spinner fa-spin"></i></div>
 			<div id="historyLoaded" class="noshow">
+				<p>
+				the history will go here.
+				</p>
 			</div>
 		</article>
 		<article id="defaultTab" class="tab">
