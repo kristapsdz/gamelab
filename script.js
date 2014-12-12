@@ -125,10 +125,10 @@ function formatCountdown(head, v, e)
 	if (v >= 24 * 60 * 60) {
 		p = Math.floor(v / (24 * 60 * 60));
 		span.appendChild(document.createTextNode(p));
-		span.appendChild(document.createTextNode(':'));
+		span.appendChild(document.createTextNode('d'));
 		v -= p * (24 * 60 * 60);
 	} else
-		span.appendChild(document.createTextNode('00:'));
+		span.appendChild(document.createTextNode('00d'));
 
 	e.appendChild(span);
 	span = document.createElement('span');
@@ -137,10 +137,10 @@ function formatCountdown(head, v, e)
 		if (p < 10)
 			span.appendChild(document.createTextNode('0'));
 		span.appendChild(document.createTextNode(p));
-		span.appendChild(document.createTextNode(':'));
+		span.appendChild(document.createTextNode('h'));
 		v -= p * (60 * 60);
 	} else
-		span.appendChild(document.createTextNode('00:'));
+		span.appendChild(document.createTextNode('00h'));
 
 	e.appendChild(span);
 	span = document.createElement('span');
@@ -149,20 +149,21 @@ function formatCountdown(head, v, e)
 		if (p < 10)
 			span.appendChild(document.createTextNode('0'));
 		span.appendChild(document.createTextNode(p));
+		span.appendChild(document.createTextNode('m'));
 		v -= p * (60);
 	} else
-		span.appendChild(document.createTextNode('00'));
+		span.appendChild(document.createTextNode('00m'));
 
 	e.appendChild(span);
 
 	if (showseconds) {
-		e.appendChild(document.createTextNode(':'));
 		span = document.createElement('span');
 		span.setAttribute('class', 'seconds');
 		p = Math.round(v);
 		if (p < 10)
 			span.appendChild(document.createTextNode('0'));
 		span.appendChild(document.createTextNode(p));
+		span.appendChild(document.createTextNode('s'));
 		e.appendChild(span);
 	}
 }

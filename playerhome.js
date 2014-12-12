@@ -299,9 +299,12 @@ function loadGame()
 	if (resindex == res.games.length) {
 		doUnhide('exprDone');
 		doHide('exprPlay');
+		doHide('exprNotStarted');
 		return;
 	} 
 
+	doHide('exprNotStarted');
+	doHide('exprDone');
 	doUnhide('exprPlay');
 
 	doClearReplace('playGameNum', 

@@ -1280,7 +1280,7 @@ db_roundup_round(struct roundup *r)
 
 	r->avg = kcalloc(r->p1sz * r->p2sz, sizeof(mpq_t));
 	r->avgp1 = kcalloc(r->p1sz, sizeof(mpq_t));
-	r->avgp2 = kcalloc(r->p1sz, sizeof(mpq_t));
+	r->avgp2 = kcalloc(r->p2sz, sizeof(mpq_t));
 
 	for (i = 0; i < r->p1sz * r->p2sz; i++)
 		mpq_init(r->avg[i]);
@@ -1312,15 +1312,9 @@ db_roundup_round(struct roundup *r)
 	for (i = 0; i < r->p2sz; i++) 
 		mpq_div(r->avgp2[i], r->aggrp2[i], sum);
 
-	for (i = k = 0; i < r->p1sz; i++) {
-		mpq_set(tmp, r->avgp1[i]);
-		mpq_div(row, sum, tmp);
-		for (j = 0; j < r->p2sz; j++, k++) {
-			mpq_set(tmp, r->avgp2[j]);
-			mpq_mul(col, div, tmp);
-			mpq_mul(r->avg[k], col, row);
-		}
-	}
+	for (i = k = 0; i < r->p1sz; i++) 
+		for (j = 0; j < r->p2sz; j++, k++)
+			mpq_mul(r->avg[k], r->avgp1[i], r->avgp2[j]);
 
 	mpq_clear(tmp);
 	mpq_clear(div);
@@ -1628,10 +1622,10 @@ db_roundup_get(int64_t round, const struct game *game)
 	db_bind_int(stmt, 2, r->gameid);
 
 	if (SQLITE_ROW == db_step(stmt, 0)) {
-		r->avgp1 = db_str2mpq
+		r->aggrp1 = db_str2mpq
 			(sqlite3_column_text
 			 (stmt, 0), r->p1sz);
-		r->avgp2 = db_str2mpq
+		r->aggrp2 = db_str2mpq
 			(sqlite3_column_text
 			 (stmt, 1), r->p2sz);
 		r->skip = sqlite3_column_int(stmt, 2);
