@@ -1,6 +1,17 @@
 "use strict";
 
-function onNav() 
+function onNavUp()
+{
+	var nav = document.getElementById('nav');
+	var btn = document.getElementById('navButton');
+
+	if ( ! ('' == nav.style.maxHeight || nav.style.maxHeight == '0px')) {
+		nav.style.maxHeight = '0px';
+		btn.style.textShadow = 'none';
+	}
+}
+
+function onNav(event) 
 {
 	var nav = document.getElementById('nav');
 	var btn = document.getElementById('navButton');
@@ -12,6 +23,13 @@ function onNav()
 		nav.style.maxHeight = '0px';
 		btn.style.textShadow = 'none';
 	}
+
+	if (event.stopPropagation)
+		event.stopPropagation();
+	else
+		event.cancelBubble = true;
+
+	return false;
 }
 
 function timerCountdown(head, donefunc, e, value, start)

@@ -375,7 +375,7 @@ function loadGame()
 		input.setAttribute('type', 'text');
 		input.setAttribute('class', 'stratUnselect');
 		input.setAttribute('required', 'required');
-		input.setAttribute('value', '0');
+		input.setAttribute('placeholder', 'Strateg ' + (i + 1));
 		input.setAttribute('id', 'index' + matrix[i].index);
 		input.setAttribute('name', 'index' + matrix[i].index);
 		div.appendChild(ii);

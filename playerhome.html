@@ -12,9 +12,9 @@
 		<script src="@@htdocs@@/script.js"></script>
 		<script src="@@cgibin@@/home.js"></script>
 	</head>
-	<body onload="loadExpr();">
+	<body onload="loadExpr();" onclick="onNavUp();">
 		<header>
-			<a id="navButton" href="#" onclick="onNav(); return false;"><i class="fa fa-navicon"></i></a>
+			<a id="navButton" href="#" onclick="return(onNav(event));"><i class="fa fa-navicon"></i></a>
 			<h1>gamelab</h1>
 			<div id="exprCountdown"><i class="fa fa-spinner fa-spin"></i></div>
 		</header>
