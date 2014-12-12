@@ -159,7 +159,7 @@ function formatCountdown(head, v, e)
 	if (showseconds) {
 		span = document.createElement('span');
 		span.setAttribute('class', 'seconds');
-		p = Math.round(v);
+		p = Math.floor(v);
 		if (p < 10)
 			span.appendChild(document.createTextNode('0'));
 		span.appendChild(document.createTextNode(p));

@@ -1301,14 +1301,18 @@ db_roundup_round(struct roundup *r)
 	mpq_init(row);
 	mpq_init(col);
 
-	for (i = 0; i < r->roundcount; i++) {
-		mpq_set_ui(div, i + 1, r->roundcount);
+	for (j = 1, i = 0; i < r->roundcount; i++, j *= 2) {
+		mpq_set_ui(div, 1, j);
 		mpq_canonicalize(div);
+		gmp_fprintf(stderr, "Adding %Qd\n", div);
 		mpq_summation(sum, div);
 	}
+	gmp_fprintf(stderr, "Sum = %Qd\n", sum);
 
-	for (i = 0; i < r->p1sz; i++) 
+	for (i = 0; i < r->p1sz; i++) {
 		mpq_div(r->avgp1[i], r->aggrp1[i], sum);
+		gmp_fprintf(stderr, "%Qd = %Qd / %Qd\n", r->avgp1[i], r->aggrp1[i], sum);
+	}
 	for (i = 0; i < r->p2sz; i++) 
 		mpq_div(r->avgp2[i], r->aggrp2[i], sum);
 
@@ -1446,8 +1450,7 @@ db_roundup_players(int64_t round,
 	for (i = 0; i < r->roundcount; i++) {
 		mpq_set_ui(div, i + 1, r->roundcount);
 		mpq_canonicalize(div);
-		mpq_set(tmp, sum);
-		mpq_add(sum, div, tmp);
+		mpq_summation(sum, div);
 	}
 
 	stmt = db_stmt("SELECT choice.strats,choice.playerid FROM choice "
@@ -1718,11 +1721,16 @@ db_roundup_game(const struct game *game, void *arg)
 	 */
 	stmt = db_stmt("SELECT strats from choice "
 		"INNER JOIN player ON player.id=choice.playerid "
-		"WHERE round=? AND gameid=? AND player.role=?");
+		"INNER JOIN gameplay ON "
+		"(gameplay.round=choice.round AND "
+		" gameplay.choices=?4) "
+		"WHERE choice.round=?1 AND "
+		"choice.gameid=?2 AND player.role=?3");
 
 	db_bind_int(stmt, 1, r->round);
 	db_bind_int(stmt, 2, game->id);
 	db_bind_int(stmt, 3, 0);
+	db_bind_int(stmt, 4, db_game_count_all());
 
 	for (count = 0; SQLITE_ROW == db_step(stmt, 0); count++)
 		db_str2mpq_add(sqlite3_column_text
@@ -1795,7 +1803,7 @@ aggregate:
 	 * First, we see if we should NOT skip the last round.
 	 * If we should NOT skip it, then divide it by half.
 	 */
-	if (NULL != prev && 0 == prev->skip) {
+	if (NULL != prev && 0 == r->skip) {
 		mpq_set_ui(tmp, 1, 2);
 		mpq_canonicalize(tmp);
 		for (i = 0; i < r->p1sz; i++) {
@@ -1814,14 +1822,10 @@ aggregate:
 	 * own.
 	 */
 	if (NULL != prev) {
-		for (i = 0; i < r->p1sz; i++) {
-			mpq_set(sum, r->aggrp1[i]);
-			mpq_add(r->aggrp1[i], prev->aggrp1[i], sum);
-		}
-		for (i = 0; i < r->p2sz; i++) {
-			mpq_set(sum, r->aggrp2[i]);
-			mpq_add(r->aggrp2[i], prev->aggrp2[i], sum);
-		}
+		for (i = 0; i < r->p1sz; i++)
+			mpq_summation(r->aggrp1[i], prev->aggrp1[i]);
+		for (i = 0; i < r->p2sz; i++)
+			mpq_summation(r->aggrp2[i], prev->aggrp2[i]);
 	}
 
 	aggrsp1 = db_mpq2str((const mpq_t *)r->aggrp1, r->p1sz);
