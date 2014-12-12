@@ -266,6 +266,9 @@ senddoloadgame(const struct game *game, int64_t round, void *arg)
 
 	r = db_roundup_get(round - 1, game);
 
+	assert((size_t)game->p1 == r->p1sz);
+	assert((size_t)game->p2 == r->p2sz);
+
 	kjson_obj_open(req);
 	kjson_putintp(req, "p1", game->p1);
 	kjson_putintp(req, "p2", game->p2);
@@ -313,6 +316,7 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 
 	kjson_putintp(&req, "colour", playerid % 12);
 	kjson_putintp(&req, "ocolour", (playerid + 6) % 12);
+	kjson_putintp(&req, "rseed", player->rseed);
 
 	kjson_putintp(&req, "gamesz", db_game_count_all());
 	if (db_player_lottery(round - 1, playerid, cur, aggr)) {

@@ -88,6 +88,8 @@ json_putroundup(struct kjsonreq *r, const char *name,
 		return;
 	}
 
+	fprintf(stderr, "MOO: %zu, %zu\n", roundup->p1sz, roundup->p2sz);
+
 	kjson_objp_open(r, name);
 	kjson_arrayp_open(r, "avgp1");
 	for (i = 0; i < roundup->p1sz; i++)

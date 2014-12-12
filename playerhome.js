@@ -15,16 +15,24 @@ var res;
  */
 var resindex;
 
+function random(object) {
+	var x = Math.sin(object.seed++) * 10000;
+	return x - Math.floor(x);
+}
+
 /*
  * Use a simple in-place fisher-yates shuffle on an array.
  * (The array can be anything--we use it both for arrays and matrices,
  * which are just arrays of arrays of course.)
  */
-function shuffle(o)
+function shuffle(o, seed)
 {
+	var object = new Object();
+
+	object.seed = seed;
 
 	for (var j, x, i = o.length; i; 
-		j = Math.floor(Math.random() * i), 
+		j = Math.floor(random(object) * i), 
 		x = o[--i], o[i] = o[j], o[j] = x);
         return o;
 };
@@ -328,7 +336,7 @@ function loadGame()
 		hmatrix = null;
 
 	/* Shuffle the presentation of rows. */
-	shuffle(matrix);
+	shuffle(matrix, res.rseed);
 	appendBimatrix(doClear('exprMatrix'), 
 		matrix, res.colour, res.ocolour);
 
@@ -362,7 +370,7 @@ function loadGame()
 		div.setAttribute('class', 'input');
 		ii = document.createElement('span');
 		ii.setAttribute('class', 'strat');
-		ii.appendChild(document.createTextNode((matrix[i].index + 1) + '.'));
+		ii.appendChild(document.createTextNode((i + 1) + '.'));
 		input = document.createElement('input');
 		input.setAttribute('type', 'text');
 		input.setAttribute('class', 'stratUnselect');
@@ -439,7 +447,7 @@ function loadExprSuccess(resp)
 			new Date().getTime());
 
 		doValue('exprPlayRound', expr.round);
-		shuffle(res.games);
+		shuffle(res.games, res.rseed);
 		loadGame();
 	} else {
 		/*

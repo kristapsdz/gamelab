@@ -100,12 +100,10 @@ mpq_str2mpq(const char *v, mpq_t q)
 	if (NULL == (cp = strchr(v, '.'))) {
 		mpq_init(q);
 		if (-1 == mpq_set_str(q, v, 10)) {
-			fprintf(stderr, "MPQ didn't like: %s\n", v);
 			mpq_clear(q);
 			return(0);
 		}
 		mpq_canonicalize(q);
-		fprintf(stderr, "Number clear: %s\n", v);
 		return(1);
 	} 
 	
@@ -120,27 +118,25 @@ mpq_str2mpq(const char *v, mpq_t q)
 		sz--;
 
 	/* Test size. */
-	if (sz > sizeof(buf) - 1) {
-		fprintf(stderr, "Number too long: %zu\n", sz);
+	if (sz > sizeof(buf) - 1)
 		return(0);
-	}
 
-	for (neg = 0, i = 0; i < (size_t)(cp - v); i++) {
+	/*
+	 * Test to make sure the characters are valid.
+	 * We also add a check for negation, here.
+	 */
+	for (neg = 0, i = 0; i < (size_t)(cp - v); i++) 
 		if ( ! isdigit(v[i])) {
 			if (0 == i && '-' == v[i]) {
 				neg = 1;
 				continue;
 			}
-			fprintf(stderr, "Contains non-digits: %s (%c)\n", v, v[i]);
 			return(0);
 		}
-	}
-	for (i = (size_t)(cp - v) + 1; i < sz; i++) {
-		if ( ! isdigit(v[i])) {
-			fprintf(stderr, "Contains non-digits: %s (%c)\n", v, v[i]);
+
+	for (i = (size_t)(cp - v) + 1; i < sz; i++) 
+		if ( ! isdigit(v[i]))
 			return(0);
-		}
-	}
 
 	/* If the dot's at the end, ignore it and MPQ it. */
 	if (cp == v + sz - 1) {
@@ -149,10 +145,8 @@ mpq_str2mpq(const char *v, mpq_t q)
 		mpq_init(q);
 		if (-1 == mpq_set_str(q, buf, 10)) {
 			mpq_clear(q);
-			fprintf(stderr, "MPQ didn't like: %s\n", buf);
 			return(0);
 		}
-		fprintf(stderr, "Number clear: %s\n", buf);
 		mpq_canonicalize(q);
 		return(1);
 	}
@@ -161,53 +155,49 @@ mpq_str2mpq(const char *v, mpq_t q)
 	memcpy(buf, v, cp - v);
 	buf[cp - v] = '\0';
 	mul = strtonum(buf, LONG_MIN, LONG_MAX, &er);
-	if (NULL != er) {
-		fprintf(stderr, "Not a number: %s\n", buf);
+	if (NULL != er)
 		return(0);
-	}
 
 	mpq_init(tmp);
 	if (mpq_set_str(tmp, buf, 10) < 0) {
 		mpq_clear(tmp);
-		fprintf(stderr, "MPQ didn't like: %s\n", buf);
+		return(0);
 	}
+
 	mpq_canonicalize(tmp);
-	gmp_fprintf(stderr, "Mul-check: %Qd\n", tmp);
 
 	/* Copy in the decimal part. */
 	memcpy(buf, cp + 1, sz - (cp - v) - 1);
 	buf[sz - (cp - v) - 1] = '\0';
 	num = strtonum(buf, 0, LONG_MAX, &er);
 	if (NULL != er) {
-		fprintf(stderr, "Not a number: %s\n", buf);
 		mpq_clear(tmp);
 		return(0);
 	}
 
 	/* Maximum precision: 4 (thousandths). */
 	if ((precision = strlen(buf)) > 4) {
-		fprintf(stderr, "Too big precision: %zu\n", precision);
 		mpq_clear(tmp);
 		return(0);
 	}
 
-	den = 1;
-	for (i = 0; i < precision; i++)
+	/* Compute our precision-based denominator. */
+	for (den = 1, i = 0; i < precision; i++)
 		den *= 10;
 
 	mpq_init(q);
-	fprintf(stderr, "Trying: %lu/%lu\n", num, den);
 	mpq_set_ui(q, num, den);
 	mpq_canonicalize(q);
 
 	mpq_init(stor);
 	mpq_set(stor, q);
+
+	/* Negate or accumulate. */
 	if (neg)
 		mpq_sub(q, tmp, stor);
 	else
 		mpq_add(q, stor, tmp);
 
-	gmp_fprintf(stderr, "Check: %Qd\n", q);
 	mpq_clear(tmp);
 	mpq_clear(stor);
 	return(1);

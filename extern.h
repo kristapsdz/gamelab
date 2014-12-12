@@ -52,6 +52,8 @@ struct	game {
 struct	roundup {
 	mpq_t		*avgp1;
 	mpq_t		*avgp2;
+	mpq_t		*curp1;
+	mpq_t		*curp2;
 	mpq_t		*avg;
 	int		 skip;
 	size_t		 roundcount;
@@ -83,6 +85,7 @@ struct	player {
 	enum pstate	 state; /* state of participant */
 	int		 enabled; /* whether can login */
 	int64_t		 role; /* row/column player role */
+	int64_t		 rseed; /* random seed */
 	int64_t		 id;
 };
 

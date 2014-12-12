@@ -96,7 +96,9 @@ function doClearReplace(name, str)
 
 function formatCountdown(head, v, e)
 {
-	var p, span;
+	var p, span, showseconds;
+
+	showseconds = v < 60;
 
 	if (null != head) 
 		e.appendChild(document.createTextNode(head));
@@ -129,18 +131,22 @@ function formatCountdown(head, v, e)
 		if (p < 10)
 			span.appendChild(document.createTextNode('0'));
 		span.appendChild(document.createTextNode(p));
-		span.appendChild(document.createTextNode(':'));
 		v -= p * (60);
 	} else
-		span.appendChild(document.createTextNode('00:'));
+		span.appendChild(document.createTextNode('00'));
 
 	e.appendChild(span);
-	span = document.createElement('span');
-	p = Math.round(v);
-	if (p < 10)
-		span.appendChild(document.createTextNode('0'));
-	span.appendChild(document.createTextNode(p));
-	e.appendChild(span);
+
+	if (showseconds) {
+		e.appendChild(document.createTextNode(':'));
+		span = document.createElement('span');
+		span.setAttribute('class', 'seconds');
+		p = Math.round(v);
+		if (p < 10)
+			span.appendChild(document.createTextNode('0'));
+		span.appendChild(document.createTextNode(p));
+		e.appendChild(span);
+	}
 }
 
 function sendQuery(url, setup, success, error) 
