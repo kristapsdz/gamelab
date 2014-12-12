@@ -122,7 +122,7 @@ function formatCountdown(head, v, e)
 		e.appendChild(document.createTextNode(head));
 
 	span = document.createElement('span');
-	if (v > 24 * 60 * 60) {
+	if (v >= 24 * 60 * 60) {
 		p = Math.floor(v / (24 * 60 * 60));
 		span.appendChild(document.createTextNode(p));
 		span.appendChild(document.createTextNode(':'));
@@ -132,7 +132,7 @@ function formatCountdown(head, v, e)
 
 	e.appendChild(span);
 	span = document.createElement('span');
-	if (v > 60 * 60) {
+	if (v >= 60 * 60) {
 		p = Math.floor(v / (60 * 60));
 		if (p < 10)
 			span.appendChild(document.createTextNode('0'));
@@ -144,7 +144,7 @@ function formatCountdown(head, v, e)
 
 	e.appendChild(span);
 	span = document.createElement('span');
-	if (v > 60) {
+	if (v >= 60) {
 		p = Math.floor(v / 60);
 		if (p < 10)
 			span.appendChild(document.createTextNode('0'));

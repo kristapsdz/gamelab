@@ -1279,8 +1279,15 @@ db_roundup_round(struct roundup *r)
 		"round %" PRId64 "\n", r->round);
 
 	r->avg = kcalloc(r->p1sz * r->p2sz, sizeof(mpq_t));
+	r->avgp1 = kcalloc(r->p1sz, sizeof(mpq_t));
+	r->avgp2 = kcalloc(r->p1sz, sizeof(mpq_t));
+
 	for (i = 0; i < r->p1sz * r->p2sz; i++)
 		mpq_init(r->avg[i]);
+	for (i = 0; i < r->p1sz; i++)
+		mpq_init(r->avgp1[i]);
+	for (i = 0; i < r->p2sz; i++)
+		mpq_init(r->avgp2[i]);
 
 	if (0 == r->roundcount) {
 		fprintf(stderr, "Roundup: roundcount "
@@ -1297,13 +1304,17 @@ db_roundup_round(struct roundup *r)
 	for (i = 0; i < r->roundcount; i++) {
 		mpq_set_ui(div, i + 1, r->roundcount);
 		mpq_canonicalize(div);
-		mpq_set(tmp, sum);
-		mpq_add(sum, div, tmp);
+		mpq_summation(sum, div);
 	}
+
+	for (i = 0; i < r->p1sz; i++) 
+		mpq_div(r->avgp1[i], r->aggrp1[i], sum);
+	for (i = 0; i < r->p2sz; i++) 
+		mpq_div(r->avgp2[i], r->aggrp2[i], sum);
 
 	for (i = k = 0; i < r->p1sz; i++) {
 		mpq_set(tmp, r->avgp1[i]);
-		mpq_mul(row, div, tmp);
+		mpq_div(row, sum, tmp);
 		for (j = 0; j < r->p2sz; j++, k++) {
 			mpq_set(tmp, r->avgp2[j]);
 			mpq_mul(col, div, tmp);
@@ -1647,7 +1658,7 @@ db_roundup_game(const struct game *game, void *arg)
 	size_t		 i, count;
 	sqlite3_stmt	*stmt;
 	mpq_t		 tmp, sum, swap;
-	char		*avgsp1, *avgsp2, *cursp1, *cursp2;
+	char		*aggrsp1, *aggrsp2, *cursp1, *cursp2;
 	int		 rc;
 	struct roundup	*prev;
 	
@@ -1684,17 +1695,17 @@ db_roundup_game(const struct game *game, void *arg)
 
 	/* Allocate and zero our internal structures. */
 
-	r->avgp1 = kcalloc(r->p1sz, sizeof(mpq_t));
-	r->avgp2 = kcalloc(r->p2sz, sizeof(mpq_t));
+	r->aggrp1 = kcalloc(r->p1sz, sizeof(mpq_t));
+	r->aggrp2 = kcalloc(r->p2sz, sizeof(mpq_t));
 	r->curp1 = kcalloc(r->p1sz, sizeof(mpq_t));
 	r->curp2 = kcalloc(r->p2sz, sizeof(mpq_t));
 
 	for (i = 0; i < r->p1sz; i++) {
-		mpq_init(r->avgp1[i]);
+		mpq_init(r->aggrp1[i]);
 		mpq_init(r->curp1[i]);
 	}
 	for (i = 0; i < r->p2sz; i++) {
-		mpq_init(r->avgp2[i]);
+		mpq_init(r->aggrp2[i]);
 		mpq_init(r->curp2[i]);
 	}
 
@@ -1777,12 +1788,13 @@ aggregate:
 	r->roundcount = 0;
 	if (NULL != (prev = db_roundup_get(r->round - 1, game))) 
 		r->roundcount = prev->roundcount;
+
 	r->roundcount += r->skip ? 0 : 1;
 
 	for (i = 0; i < r->p1sz; i++) 
-		mpq_set(r->avgp1[i], r->curp1[i]);
+		mpq_set(r->aggrp1[i], r->curp1[i]);
 	for (i = 0; i < r->p2sz; i++) 
-		mpq_set(r->avgp2[i], r->curp2[i]);
+		mpq_set(r->aggrp2[i], r->curp2[i]);
 
 	/*
 	 * Ok, now we want to make our adjustments for history.
@@ -1793,12 +1805,12 @@ aggregate:
 		mpq_set_ui(tmp, 1, 2);
 		mpq_canonicalize(tmp);
 		for (i = 0; i < r->p1sz; i++) {
-			mpq_set(sum, prev->avgp1[i]);
-			mpq_mul(prev->avgp1[i], tmp, sum);
+			mpq_set(sum, prev->aggrp1[i]);
+			mpq_mul(prev->aggrp1[i], tmp, sum);
 		}
 		for (i = 0; i < r->p2sz; i++) {
-			mpq_set(sum, prev->avgp2[i]);
-			mpq_mul(prev->avgp2[i], tmp, sum);
+			mpq_set(sum, prev->aggrp2[i]);
+			mpq_mul(prev->aggrp2[i], tmp, sum);
 		}
 	}
 
@@ -1809,26 +1821,24 @@ aggregate:
 	 */
 	if (NULL != prev) {
 		for (i = 0; i < r->p1sz; i++) {
-			mpq_set(sum, r->avgp1[i]);
-			mpq_add(r->avgp1[i], 
-				prev->avgp1[i], sum);
+			mpq_set(sum, r->aggrp1[i]);
+			mpq_add(r->aggrp1[i], prev->aggrp1[i], sum);
 		}
 		for (i = 0; i < r->p2sz; i++) {
-			mpq_set(sum, r->avgp2[i]);
-			mpq_add(r->avgp2[i], 
-				prev->avgp2[i], sum);
+			mpq_set(sum, r->aggrp2[i]);
+			mpq_add(r->aggrp2[i], prev->aggrp2[i], sum);
 		}
 	}
 
-	avgsp1 = db_mpq2str((const mpq_t *)r->avgp1, r->p1sz);
-	avgsp2 = db_mpq2str((const mpq_t *)r->avgp2, r->p2sz);
+	aggrsp1 = db_mpq2str((const mpq_t *)r->aggrp1, r->p1sz);
+	aggrsp2 = db_mpq2str((const mpq_t *)r->aggrp2, r->p2sz);
 	cursp1 = db_mpq2str((const mpq_t *)r->curp1, r->p1sz);
 	cursp2 = db_mpq2str((const mpq_t *)r->curp2, r->p2sz);
 
 	fprintf(stderr, "Row player sums for round %" 
-		PRId64 ": %s\n", r->round, avgsp1);
+		PRId64 ": %s\n", r->round, aggrsp1);
 	fprintf(stderr, "Column player sums for round %" 
-		PRId64 ": %s\n", r->round, avgsp2);
+		PRId64 ": %s\n", r->round, aggrsp2);
 	fprintf(stderr, "Row player for round %" 
 		PRId64 ": %s\n", r->round, cursp1);
 	fprintf(stderr, "Column player for round %" 
@@ -1842,8 +1852,8 @@ aggregate:
 		"currentsp2) VALUES (?,?,?,?,?,?,?,?)");
 
 	db_bind_int(stmt, 1, r->round);
-	db_bind_text(stmt, 2, avgsp1);
-	db_bind_text(stmt, 3, avgsp2);
+	db_bind_text(stmt, 2, aggrsp1);
+	db_bind_text(stmt, 3, aggrsp2);
 	db_bind_int(stmt, 4, game->id);
 	db_bind_int(stmt, 5, r->skip);
 	db_bind_int(stmt, 6, r->roundcount);
@@ -1857,8 +1867,8 @@ aggregate:
 	else
 		db_roundup_players(round, r, game);
 
-	free(avgsp1);
-	free(avgsp2);
+	free(aggrsp1);
+	free(aggrsp2);
 	free(cursp1);
 	free(cursp2);
 	mpq_clear(sum);
@@ -1888,12 +1898,18 @@ db_roundup_free(struct roundup *p)
 	if (NULL != p->avgp1)
 		for (i = 0; i < p->p1sz; i++)
 			mpq_clear(p->avgp1[i]);
+	if (NULL != p->aggrp1)
+		for (i = 0; i < p->p1sz; i++)
+			mpq_clear(p->aggrp1[i]);
 	if (NULL != p->curp1)
 		for (i = 0; i < p->p1sz; i++)
 			mpq_clear(p->curp1[i]);
 	if (NULL != p->avgp2)
 		for (i = 0; i < p->p2sz; i++)
 			mpq_clear(p->avgp2[i]);
+	if (NULL != p->aggrp2)
+		for (i = 0; i < p->p2sz; i++)
+			mpq_clear(p->aggrp2[i]);
 	if (NULL != p->curp2)
 		for (i = 0; i < p->p2sz; i++)
 			mpq_clear(p->curp2[i]);
@@ -1904,6 +1920,8 @@ db_roundup_free(struct roundup *p)
 	free(p->avg);
 	free(p->avgp1);
 	free(p->avgp2);
+	free(p->aggrp1);
+	free(p->aggrp2);
 	free(p->curp1);
 	free(p->curp2);
 	free(p);

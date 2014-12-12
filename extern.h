@@ -50,11 +50,13 @@ struct	game {
 };
 
 struct	roundup {
-	mpq_t		*avgp1;
-	mpq_t		*avgp2;
-	mpq_t		*curp1;
-	mpq_t		*curp2;
-	mpq_t		*avg;
+	mpq_t		*curp1; /* current avg. row player */
+	mpq_t		*curp2; /* current avg. column player */
+	mpq_t		*aggrp1; /* aggr. row player */
+	mpq_t		*aggrp2; /* aggr. col player */
+	mpq_t		*avg; /* weighted aggr. avg. matrix */
+	mpq_t		*avgp1; /* weighted aggr. avg. row player */
+	mpq_t		*avgp2; /* weighted aggr. avg. column player */
 	int		 skip;
 	size_t		 roundcount;
 	size_t		 p1sz;
