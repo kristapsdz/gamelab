@@ -12,23 +12,23 @@ STATICS	 = style.css \
 	   script.js
 
 # Mac OSX testing.
-PREFIX	 = /Users/kristaps/Sites
-HTDOCS	 = $(PREFIX)
-HTURI	 = /~kristaps
-CGIBIN	 = $(PREFIX)
-DATADIR	 = $(PREFIX)
-RDATADIR = $(PREFIX)
-LIBS	 = 
-STATIC	 = 
+#PREFIX	 = /Users/kristaps/Sites
+#HTDOCS	 = $(PREFIX)
+#HTURI	 = /~kristaps
+#CGIBIN	 = $(PREFIX)
+#DATADIR	 = $(PREFIX)
+#RDATADIR = $(PREFIX)
+#LIBS	 = 
+#STATIC	 = 
 # OpenBSD production.
-#PREFIX	 = /var/www
-#HTDOCS	 = $(PREFIX)/htdocs/gamelab
-#HTURI	 = /gamelab
-#CGIBIN	 = $(PREFIX)/cgi-bin/gamelab
-#DATADIR = $(PREFIX)/data/gamelab
-#RDATADIR = /data/gamelab
-#LIBS	 = -lintl -liconv
-#STATIC	 = -static
+PREFIX	 = /var/www
+HTDOCS	 = $(PREFIX)/htdocs/gamelab
+HTURI	 = /gamelab
+CGIBIN	 = $(PREFIX)/cgi-bin/gamelab
+DATADIR	 = $(PREFIX)/data/gamelab
+RDATADIR = /data/gamelab
+LIBS	 = -lintl -liconv
+STATIC	 = -static
 
 CFLAGS	+= -DDATADIR=\"$(RDATADIR)\" -DHTDOCS=\"$(HTURI)\"
 

@@ -266,19 +266,23 @@ senddoloadgame(const struct game *game, int64_t round, void *arg)
 
 	r = db_roundup_get(round - 1, game);
 
-	assert((size_t)game->p1 == r->p1sz);
-	assert((size_t)game->p2 == r->p2sz);
-
 	kjson_obj_open(req);
 	kjson_putintp(req, "p1", game->p1);
 	kjson_putintp(req, "p2", game->p2);
 	kjson_putstringp(req, "name", game->name);
 	json_putmpqs(req, "payoffs", 
 		game->payoffs, game->p1, game->p2);
-	json_putroundup(req, "roundup", r);
+
+	if (NULL != r) {
+		assert((size_t)game->p1 == r->p1sz);
+		assert((size_t)game->p2 == r->p2sz);
+		json_putroundup(req, "roundup", r);
+		db_roundup_free(r);
+	} else
+		kjson_putnullp(req, "roundup");
+
 	kjson_putintp(req, "id", game->id);
 	kjson_obj_close(req);
-	db_roundup_free(r);
 }
 
 static void
@@ -307,7 +311,6 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 		goto empty;
 
 	db_roundup(round - 1);
-
 	http_open(r, KHTTP_200);
 	khttp_body(r);
 	kjson_open(&req, r);

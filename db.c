@@ -988,7 +988,7 @@ db_game_alloc(const char *poffs,
 	game->p1 = p1;
 	game->p2 = p2;
 	game->name = kstrdup(name);
-	sv = db_mpq2str(rops, maxcount);
+	sv = db_mpq2str((const mpq_t *)rops, maxcount);
 	stmt = db_stmt("INSERT INTO game "
 		"(payoffs, p1, p2, name) VALUES(?,?,?,?)");
 	db_bind_text(stmt, 1, sv);
@@ -1620,18 +1620,14 @@ db_roundup_get(int64_t round, const struct game *game)
 		r->avgp1 = db_str2mpq
 			(sqlite3_column_text
 			 (stmt, 0), r->p1sz);
-		fprintf(stderr, "Test: %s\n", (char *)sqlite3_column_text(stmt, 0));
 		r->avgp2 = db_str2mpq
 			(sqlite3_column_text
 			 (stmt, 1), r->p2sz);
-		fprintf(stderr, "Test: %s\n", (char *)sqlite3_column_text(stmt, 1));
 		r->skip = sqlite3_column_int(stmt, 2);
 		r->roundcount = sqlite3_column_int(stmt, 3);
-		fprintf(stderr, "Test: %s\n", (char *)sqlite3_column_text(stmt, 4));
 		r->curp1 = db_str2mpq
 			(sqlite3_column_text
 			 (stmt, 4), r->p1sz);
-		fprintf(stderr, "Test: %s\n", (char *)sqlite3_column_text(stmt, 5));
 		r->curp2 = db_str2mpq
 			(sqlite3_column_text
 			 (stmt, 5), r->p2sz);
