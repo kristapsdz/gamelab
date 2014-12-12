@@ -421,6 +421,7 @@ function loadExprSuccess(resp)
 		setTimeout(timerCountdown, 1000, 
 			head, loadExpr, e, v, 
 			new Date().getTime());
+		doUnhide('exprNotStarted');
 	} else if (0 == v) {
 		/*
 		 * Start by setting the countdown til the next

@@ -941,7 +941,7 @@ db_game_alloc(const char *poffs,
 {
 	char		*buf, *tok, *sv;
 	mpq_t		*rops;
-	size_t		 i, count;
+	size_t		 i, count, maxcount;
 	sqlite3_stmt	*stmt;
 	struct game	*game;
 
@@ -953,14 +953,21 @@ db_game_alloc(const char *poffs,
 	}
 
 	sv = buf = kstrdup(poffs);
-	rops = kcalloc(p1 * p2 * 2, sizeof(mpq_t));
-
+	maxcount = p1 * p2 * 2;
+	rops = kcalloc(maxcount, sizeof(mpq_t));
 	count = 0;
+
 	while (NULL != (tok = strsep(&buf, " \t\n\r")))
-		if (count >= (size_t)(p1 * p2 * 2))
+		if (count >= maxcount) {
+			fprintf(stderr, "Game allocated with too "
+				"many strategies: %zu >= %zu\n",
+				count, maxcount);
 			goto err;
-		else if ( ! mpq_str2mpq(tok, rops[count++]))
+		} else if ( ! mpq_str2mpq(tok, rops[count++])) {
+			fprintf(stderr, "Game allocated with "
+				"bad rational %s\n", tok);
 			goto err;
+		}
 
 	free(sv);
 	sv = NULL;
@@ -971,6 +978,7 @@ db_game_alloc(const char *poffs,
 	db_trans_begin();
 	if ( ! db_expr_checkstate(ESTATE_NEW)) {
 		db_trans_rollback();
+		fprintf(stderr, "Game allocated in bad state\n");
 		goto err;
 	}
 
@@ -979,10 +987,10 @@ db_game_alloc(const char *poffs,
 	game->p1 = p1;
 	game->p2 = p2;
 	game->name = kstrdup(name);
-
+	sv = db_mpq2str(rops, maxcount);
 	stmt = db_stmt("INSERT INTO game "
 		"(payoffs, p1, p2, name) VALUES(?,?,?,?)");
-	db_bind_text(stmt, 1, poffs);
+	db_bind_text(stmt, 1, sv);
 	db_bind_int(stmt, 2, game->p1);
 	db_bind_int(stmt, 3, game->p2);
 	db_bind_text(stmt, 4, game->name);
@@ -991,6 +999,7 @@ db_game_alloc(const char *poffs,
 	game->id = sqlite3_last_insert_rowid(db);
 	db_trans_commit();
 
+	free(sv);
 	fprintf(stderr, "Game %" PRId64 " created\n", game->id);
 	return(game);
 err:
