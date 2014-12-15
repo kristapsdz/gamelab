@@ -162,7 +162,7 @@ int		 db_player_valid(int64_t *,
 int		 db_player_sess_valid(int64_t *, int64_t, int64_t);
 void		 db_player_free(struct player *);
 int		 db_player_play(int64_t, int64_t, 
-			int64_t, const mpq_t *, size_t);
+			int64_t, mpq_t *, size_t);
 int		 db_player_lottery(int64_t, int64_t, mpq_t, mpq_t);
 
 void		 db_sess_delete(int64_t);
@@ -187,6 +187,8 @@ int		 mpq_str2mpq(const char *, mpq_t);
 int		 mpq_str2mpqu(const char *, mpq_t);
 void		 mpq_summation(mpq_t, const mpq_t);
 void		 mpq_summation_str(mpq_t, const unsigned char *);
+void		 mpq_summation_strvec(mpq_t *, const unsigned char *, size_t);
+char		*mpq_mpq2str(const mpq_t *, size_t);
 
 __END_DECLS
 

@@ -10,6 +10,13 @@ PAGES 	 = addplayer.eml \
 	   test.eml
 STATICS	 = style.css \
 	   script.js
+OBJS	 = compat-strtonum.o \
+	   compat-strlcat.o \
+	   compat-strlcpy.o \
+	   db.o \
+	   json.o \
+	   mail.o \
+	   mpq.o
 
 # Mac OSX testing.
 PREFIX	 = /Users/kristaps/Sites
@@ -34,13 +41,17 @@ CFLAGS	+= -DDATADIR=\"$(RDATADIR)\" -DHTDOCS=\"$(HTURI)\"
 
 all: admin lab
 
-admin: admin.o db.o mail.o json.o mpq.o
-	$(CC) $(STATIC) -L/usr/local/lib -o $@ admin.o db.o mail.o json.o mpq.o -lsqlite3 -lkcgi -lkcgijson -lz -lgmp `curl-config --libs` $(LIBS)
+admin: admin.o $(OBJS)
+	$(CC) $(STATIC) -L/usr/local/lib -o $@ admin.o $(OBJS) -lsqlite3 -lkcgi -lkcgijson -lz -lgmp `curl-config --libs` $(LIBS)
 
-lab: lab.o db.o mail.o json.o mpq.o
-	$(CC) $(STATIC) -L/usr/local/lib -o $@ lab.o db.o mail.o json.o mpq.o -lsqlite3 -lkcgi -lkcgijson -lz -lgmp `curl-config --libs` $(LIBS)
+lab: lab.o $(OBJS)
+	$(CC) $(STATIC) -L/usr/local/lib -o $@ lab.o $(OBJS) -lsqlite3 -lkcgi -lkcgijson -lz -lgmp `curl-config --libs` $(LIBS)
 
-admin.o lab.o db.o mail.o mpq.o: extern.h
+admin.o lab.o $(OBJS): extern.h config.h
+
+config.h: config.h.pre config.h.post configure $(TESTS)
+	rm -f config.log
+	CC="$(CC)" CFLAGS="$(CFLAGS)" ./configure
 
 installwww: all
 	install -m 0444 $(STATICS) $(HTDOCS)
@@ -58,4 +69,5 @@ gamelab.db: gamelab.sql
 	sqlite3 $@ < gamelab.sql
 
 clean:
-	rm -f admin admin.o gamelab.db lab lab.o db.o mail.o json.o mpq.o
+	rm -f admin admin.o gamelab.db lab lab.o $(OBJS) config.h config.log
+	rm -rf *.dSYM

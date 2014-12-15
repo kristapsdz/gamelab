@@ -2,6 +2,8 @@
 /*
  * Copyright (c) 2014 Kristaps Dzonsons <kristaps@kcons.eu>
  */
+#include "config.h" 
+
 #include <sys/param.h>
 
 #include <assert.h>
@@ -439,7 +441,7 @@ senddoplay(struct kreq *r, int64_t playerid)
 	 */
 	if ( ! db_player_play
 		(player->id, r->fieldmap[KEY_ROUND]->parsed.i,
-		 game->id, (const mpq_t *)mixes, strats))
+		 game->id, mixes, strats))
 		http_open(r, KHTTP_409);
 	else
 		http_open(r, KHTTP_200);

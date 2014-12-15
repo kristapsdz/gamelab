@@ -2,6 +2,8 @@
 /*
  * Copyright (c) 2014 Kristaps Dzonsons <kristaps@kcons.eu>
  */
+#include "config.h" 
+
 #include <sys/param.h>
 #include <sys/wait.h>
 

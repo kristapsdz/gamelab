@@ -2,6 +2,8 @@
 /*
  * Copyright (c) 2014 Kristaps Dzonsons <kristaps@kcons.eu>
  */
+#include "config.h" 
+
 #include <sys/param.h>
 
 #include <assert.h>
@@ -266,67 +268,6 @@ db_count_all(const char *p)
 	count = (size_t)sqlite3_column_int(stmt, 0);
 	db_finalise(stmt);
 	return(count);
-}
-
-static char *
-db_mpq2str(const mpq_t *v, size_t sz)
-{
-	char	*p, *tmp;
-	size_t	 i, psz;
-
-	for (p = NULL, psz = i = 0; i < sz; i++) {
-		gmp_asprintf(&tmp, "%Qd", v[i]);
-		psz += strlen(tmp) + 2;
-		p = krealloc(p, psz);
-		if (i > 0)
-			(void)strlcat(p, " ", psz);
-		else
-			p[0] = '\0';
-		(void)strlcat(p, tmp, psz);
-		free(tmp);
-	}
-
-	return(p);
-}
-
-static void
-db_str2mpq_add(const unsigned char *v, size_t sz, mpq_t *p)
-{
-	size_t	 i;
-	char	*buf, *tok, *sv;
-	int	 rc;
-	mpq_t	 tmp, sum;
-
-	mpq_init(tmp);
-	mpq_init(sum);
-
-	if (1 == sz) {
-		rc = mpq_set_str(tmp, (const char *)v, 10);
-		assert(0 == rc);
-		mpq_canonicalize(tmp);
-		mpq_set(sum, *p);
-		mpq_add(*p, sum, tmp);
-		mpq_clear(tmp);
-		mpq_clear(sum);
-		return;
-	}
-
-	buf = sv = kstrdup((const char *)v);
-
-	i = 0;
-	while (NULL != (tok = strsep(&buf, " \t\n\r"))) {
-		assert(i < sz);
-		rc = mpq_set_str(tmp, tok, 10);
-		assert(0 == rc);
-		mpq_canonicalize(tmp);
-		mpq_set(sum, p[i]);
-		mpq_add(p[i], sum, tmp);
-		i++;
-	}
-
-	free(sv);
-	mpq_clear(tmp);
-	mpq_clear(sum);
 }
 
 /*
@@ -717,7 +658,7 @@ db_player_load_all(playerf fp, void *arg)
  */
 int
 db_player_play(int64_t playerid, int64_t round, 
-	int64_t gameid, const mpq_t *plays, size_t sz)
+	int64_t gameid, mpq_t *plays, size_t sz)
 {
 	struct expr	*expr;
 	time_t		 t;
@@ -752,7 +693,7 @@ db_player_play(int64_t playerid, int64_t round,
 	}
 	db_expr_free(expr);
 
-	buf = db_mpq2str(plays, sz);
+	buf = mpq_mpq2str(plays, sz);
 	stmt = db_stmt("INSERT INTO choice "
 		"(round,playerid,gameid,strats) "
 		"VALUES (?,?,?,?)");
@@ -988,7 +929,7 @@ db_game_alloc(const char *poffs,
 	game->p1 = p1;
 	game->p2 = p2;
 	game->name = kstrdup(name);
-	sv = db_mpq2str((const mpq_t *)rops, maxcount);
+	sv = mpq_mpq2str(rops, maxcount);
 	stmt = db_stmt("INSERT INTO game "
 		"(payoffs, p1, p2, name) VALUES(?,?,?,?)");
 	db_bind_text(stmt, 1, sv);
@@ -1737,8 +1678,8 @@ db_roundup_game(const struct game *game, void *arg)
 	db_bind_int(stmt, 4, db_game_count_all());
 
 	for (count = 0; SQLITE_ROW == db_step(stmt, 0); count++)
-		db_str2mpq_add(sqlite3_column_text
-			(stmt, 0), r->p1sz, r->curp1);
+		mpq_summation_strvec(r->curp1, 
+			sqlite3_column_text(stmt, 0), r->p1sz);
 
 	if (0 == count) {
 		fprintf(stderr, "Roundup round %" PRId64 
@@ -1762,8 +1703,8 @@ db_roundup_game(const struct game *game, void *arg)
 	db_bind_int(stmt, 2, game->id);
 	db_bind_int(stmt, 3, 1);
 	for (count = 0; SQLITE_ROW == db_step(stmt, 0); count++) 
-		db_str2mpq_add(sqlite3_column_text
-			(stmt, 0), r->p2sz, r->curp2);
+		mpq_summation_strvec(r->curp2,
+			sqlite3_column_text(stmt, 0), r->p2sz);
 
 	if (0 == count) {
 		/* Zero out first strategy. */
@@ -1832,10 +1773,10 @@ aggregate:
 			mpq_summation(r->aggrp2[i], prev->aggrp2[i]);
 	}
 
-	aggrsp1 = db_mpq2str((const mpq_t *)r->aggrp1, r->p1sz);
-	aggrsp2 = db_mpq2str((const mpq_t *)r->aggrp2, r->p2sz);
-	cursp1 = db_mpq2str((const mpq_t *)r->curp1, r->p1sz);
-	cursp2 = db_mpq2str((const mpq_t *)r->curp2, r->p2sz);
+	aggrsp1 = mpq_mpq2str(r->aggrp1, r->p1sz);
+	aggrsp2 = mpq_mpq2str(r->aggrp2, r->p2sz);
+	cursp1 = mpq_mpq2str(r->curp1, r->p1sz);
+	cursp2 = mpq_mpq2str(r->curp2, r->p2sz);
 
 	fprintf(stderr, "Row player sums for round %" 
 		PRId64 ": %s\n", r->round, aggrsp1);
