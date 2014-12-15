@@ -622,11 +622,19 @@ function loadExprSetup()
 	doHide('statusExprProg');
 }
 
+function loadExprFailure()
+{
+	var url = document.URL;
+
+	url = url.substring(0, url.lastIndexOf("/"));
+	location.href = url + '/login.html#loggedout';
+}
+
 function loadExpr() 
 {
 
 	sendQuery('@@cgibin@@/dogetexpr.json', 
-		loadExprSetup, loadExprSuccess, null);
+		loadExprSetup, loadExprSuccess, loadExprFailure);
 }
 
 function doStartExprSetup() 

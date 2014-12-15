@@ -1455,7 +1455,10 @@ db_roundup_players(int64_t round,
 
 	stmt = db_stmt("SELECT choice.strats,choice.playerid FROM choice "
 		"INNER JOIN player ON player.id=choice.playerid "
-		"INNER JOIN gameplay ON gameplay.playerid=choice.playerid "
+		"INNER JOIN gameplay ON "
+		"(gameplay.round=choice.round AND "
+		" gameplay.playerid=choice.playerid AND "
+		" gameplay.choices=?4) "
 		"WHERE choice.round=?1 AND choice.gameid=?2 "
 		"AND gameplay.round=?1 AND player.role=?3");
 	stmt2 = db_stmt("INSERT INTO payoff (round,playerid,"
@@ -1723,6 +1726,7 @@ db_roundup_game(const struct game *game, void *arg)
 		"INNER JOIN player ON player.id=choice.playerid "
 		"INNER JOIN gameplay ON "
 		"(gameplay.round=choice.round AND "
+		" gameplay.playerid=choice.playerid AND "
 		" gameplay.choices=?4) "
 		"WHERE choice.round=?1 AND "
 		"choice.gameid=?2 AND player.role=?3");

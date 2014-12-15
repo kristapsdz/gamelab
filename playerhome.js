@@ -133,6 +133,16 @@ function appendMatrix(e, matrix, rowavgs, colavgs)
 	row.appendChild(cell);
 }
 
+function prowClick(id)
+{
+	var e;
+
+	if (null == (e = document.getElementById('index' + id)))
+		return;
+	e.value = '0';
+	e.removeAttribute('readonly');
+}
+
 /*
  * Append an HTML matrix "matrix" to the element "e".
  * This formats everything properly.
@@ -171,7 +181,8 @@ function appendBimatrix(e, matrix, colour, ocolour)
 		cell = document.createElement('div');
 		cell.setAttribute('class', 'labelatop');
 		cell.setAttribute('style', 'width: ' + 
-			(100.0 / (matrix[i].length)) + '%;');
+			(100.0 / (matrix[i].length)) + '%; ' +
+			'color: ' + colours[ocolour] + ';');
 		cell.appendChild(document.createTextNode
 			(String.fromCharCode(97 + i) + '.'));
 		row.appendChild(cell);
@@ -180,9 +191,13 @@ function appendBimatrix(e, matrix, colour, ocolour)
 
 	for (i = 0; i < matrix.length; i++) {
 		row = document.createElement('div');
+		row.setAttribute('class', 'prow');
+		row.setAttribute('onclick', 'prowClick(' + matrix[i].index + ')');
 		table.appendChild(row);
 		cell = document.createElement('div');
 		cell.setAttribute('class', 'labelaside');
+		cell.setAttribute('style', 
+			'color: ' + colours[colour] + ';');
 		cell.appendChild(document.createTextNode
 			((i + 1) + '.'));
 		row.appendChild(cell);
@@ -376,9 +391,9 @@ function loadGame()
 		ii.appendChild(document.createTextNode((i + 1) + '.'));
 		input = document.createElement('input');
 		input.setAttribute('type', 'text');
-		input.setAttribute('class', 'stratUnselect');
+		input.setAttribute('readonly', 'readonly');
+		input.setAttribute('placeholder', 'Not Selected');
 		input.setAttribute('required', 'required');
-		input.setAttribute('placeholder', 'Strateg ' + (i + 1));
 		input.setAttribute('id', 'index' + matrix[i].index);
 		input.setAttribute('name', 'index' + matrix[i].index);
 		div.appendChild(ii);

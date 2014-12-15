@@ -187,19 +187,22 @@ div.payoffs			{ display: table;
 				  margin-left: auto;
 				  margin-right: auto;
 				  border-spacing: 1ex; }
-div.payoffs > div		{ display: table-row; }
+div.payoffs > div		{ display: table-row; 
+				  cursor: pointer; }
 div.payoffs > div > div		{ display: table-cell;  }
-div.payoffs div.pair 		{ background-color: #777; 
+div.payoffs div.pair 		{ border: 2px solid black;
 				  border-radius: 0.5ex; }
 div.payoffs div.pair > div 	{ display: inline-block; 
 				  width: 49%;
 				  padding: 1ex 0;
 				  text-align: center; }
 div.payoffs div.pair > div:first-child
-				{ border-right: 2px solid #ccc; }
+				{ border-right: 2px solid #666; }
 div.payoffs div.labelaside	{ text-align: right;
 				  width: 1%; }
 div.payoffs div.labelatop	{ text-align: center; }
+div.payoffs > div:hover .pair	{ box-shadow: 2px 2px 3px #888; }
+div.payoffs > div:active .pair	{ background-color: #ddd; }
 div.canclose			{ position: relative; 
 				  border: thin solid #ccc;
 				  border-radius: 1ex;
@@ -221,11 +224,16 @@ div.canclose h4			{ position: absolute;
 				  left: 1em; }
 sup				{ font-size: 8pt; 
 				  font-style: italic; }
+div.input input[readonly]	{ background-color: #ddd; }
 .noshow				{ display: none; }
 .tabled 			{ display: table; border-spacing: 1ex; }
 .tabled > div 			{ display: table-row; }
 .tabled > div > * 		{ display: table-cell; }
 @media only screen and (max-width: 400px), only screen and (max-device-width: 400px) {
+	#login h1		{ text-align: center; }
+	#login article > section > form		
+				{ padding: 0; }
+	#login > article	{ padding: 0; }
 	article ul li > span	{ display: block; 
 				  margin: 1ex 0; }
 	article ul li > div	{ margin: 1ex 0; }

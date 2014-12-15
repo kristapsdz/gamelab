@@ -396,22 +396,23 @@ senddoplay(struct kreq *r, int64_t playerid)
 
 	/*
 	 * Look up each strategy array in the field array.
-	 * Then make sure it's a valid number and canonicalise it.
+	 * If we don't find it, or it's empty, then pretend that we've
+	 * just entered zero.
+	 * Otherwise, make sure it's a valid number and canonicalise it.
 	 * If anything goes wrong, punt to KHTTP_400.
-	 * Also set our chosen random number.
 	 */
 	for (i = 0; i < strats; i++) {
 		(void)snprintf(buf, sizeof(buf), "index%zu", i);
 		for (j = 0; j < r->fieldsz; j++)
 			if (0 == strcmp(r->fields[j].key, buf))
 				break;
+
 		if (j == r->fieldsz) {
-			http_open(r, KHTTP_400);
-			goto out;
-		}
-		if ( ! kvalid_stringne(&r->fields[j])) {
-			http_open(r, KHTTP_400);
-			goto out;
+			mpq_init(mixes[i]);
+			continue;
+		} else if ( ! kvalid_stringne(&r->fields[j])) {
+			mpq_init(mixes[i]);
+			continue;
 		}
 		
 		if ( ! mpq_str2mpqu(r->fields[j].val, mixes[i])) {

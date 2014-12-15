@@ -11,33 +11,39 @@
 			h1 { font-family: cursive; text-align: right; font-size: 32pt; margin-bottom: -0.9ex; }
 			section section { margin-top: 0; padding-bottom: 1ex; background-color: #fff; border: 0; box-shadow: 2px 2px 2px darkred; }
 			section section >h3 { background-color: red; color: #fff; }
-			@media only screen and (max-width: 400px), only screen and (max-device-width: 400px) {
-			h1 { text-align: center; }
-			}
+			#loggedout { display: none; }
+			#loggedout:target { display: block; }
 		</style>
 		<script src="@@htdocs@@/script.js"></script>
 		<script>
 			function doError(err) 
 			{
+
+				if ('' != window.location.hash)
+					window.location.hash = '';
 				document.getElementById('loggingIn').value = 'Login';
 				doUnhide(400 == err ? 'loginError' : 'ajaxError');
 			}
 
 			function doSuccess() 
 			{
+
+				if ('' != window.location.hash)
+					window.location.hash = '';
 				document.getElementById('loggingIn').value = 'Success!  Redirecting...';
 				location.href = '@@cgibin@@/home.html';
 			}
 
 			function doSetup() 
 			{
+
 				doHide('loginError');
 				doHide('ajaxError');
 				document.getElementById('loggingIn').value = 'Logging in...';
 			}
 		</script>
 	</head>
-	<body>
+	<body id="login">
 		<article>
 			<section>
 				<h1>gamelab</h1>
@@ -45,6 +51,7 @@
 					<section>
 						<h3>Administrator Login</h3>
 						<div class="error">
+							<div id="loggedout">You have been logged out.</div>
 							<div class="noshow" id="loginError">Incorrect e-mail or password.</div>
 							<div class="noshow" id="ajaxError">A technical error has occured.</div>
 						</div>
