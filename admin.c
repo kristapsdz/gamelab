@@ -77,6 +77,7 @@ enum	key {
 	KEY_EMAIL2,
 	KEY_EMAIL3,
 	KEY_GAMEID,
+	KEY_INSTRUCTIONS,
 	KEY_NAME,
 	KEY_P1,
 	KEY_P2,
@@ -185,6 +186,7 @@ static const struct kvalid keys[KEY__MAX] = {
 	{ kvalid_email, "email2" }, /* KEY_EMAIL2 */
 	{ kvalid_email, "email3" }, /* KEY_EMAIL3 */
 	{ kvalid_int, "gid" }, /* KEY_GAMEID */
+	{ kvalid_stringne, "instructions" }, /* KEY_INSTRUCTIONS */
 	{ kvalid_stringne, "name" }, /* KEY_NAME */
 	{ kvalid_int, "p1" }, /* KEY_P1 */
 	{ kvalid_int, "p2" }, /* KEY_P2 */
@@ -807,6 +809,7 @@ senddostartexpr(struct kreq *r)
 	if (kpairbad(r, KEY_DATE) ||
 		kpairbad(r, KEY_TIME) ||
 		kpairbad(r, KEY_ROUNDS) ||
+		kpairbad(r, KEY_INSTRUCTIONS) ||
 		kpairbad(r, KEY_MINUTES) ||
 		kpairbad(r, KEY_URI) ||
 		r->fieldmap[KEY_DATE]->parsed.i +
@@ -821,6 +824,7 @@ senddostartexpr(struct kreq *r)
 		 r->fieldmap[KEY_TIME]->parsed.i,
 		 r->fieldmap[KEY_ROUNDS]->parsed.i,
 		 r->fieldmap[KEY_MINUTES]->parsed.i,
+		 r->fieldmap[KEY_INSTRUCTIONS]->parsed.s,
 		 r->fieldmap[KEY_URI]->parsed.s)) {
 		http_open(r, KHTTP_409);
 		khttp_body(r);

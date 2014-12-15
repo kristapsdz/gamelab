@@ -49,6 +49,7 @@ json_putexpr(struct kjsonreq *r, const struct expr *expr)
 	}
 
 	kjson_objp_open(r, "expr");
+	kjson_putstringp(r, "instructions", expr->instructions);
 	kjson_putintp(r, "start", (int64_t)expr->start);
 	kjson_putintp(r, "end", (int64_t)expr->end);
 	kjson_putintp(r, "rounds", expr->rounds);

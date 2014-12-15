@@ -25,6 +25,7 @@ struct	expr {
 	int64_t		 rounds; /* number of game plays */
 	int64_t		 minutes; /* minutes per game play */
 	char		*loginuri; /* player login (email click) */
+	char		*instructions; /* instruction markup */
 };
 
 /*
@@ -121,8 +122,8 @@ int		 db_admin_sess_valid(int64_t, int64_t);
 void		 db_close(void);
 
 int		 db_expr_checkstate(enum estate);
-int		 db_expr_start(int64_t, int64_t, 
-			int64_t, const char *);
+int		 db_expr_start(int64_t, int64_t, int64_t, 
+			const char *, const char *);
 void		 db_expr_free(struct expr *);
 struct expr	*db_expr_get(void);
 void		 db_expr_wipe(void);

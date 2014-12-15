@@ -50,6 +50,7 @@ CREATE TABLE experiment (
 	rounds INTEGER DEFAULT(0),
 	minutes INTEGER DEFAULT(0),
 	loginuri TEXT DEFAULT(''),
+	instructions TEXT DEFAULT(''),
 	id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL
 );
 

@@ -229,6 +229,8 @@ div.input input[readonly]	{ background-color: #ddd; }
 .tabled 			{ display: table; border-spacing: 1ex; }
 .tabled > div 			{ display: table-row; }
 .tabled > div > * 		{ display: table-cell; }
+#loggedout 			{ display: none; }
+#loggedout:target 		{ display: block; }
 @media only screen and (max-width: 400px), only screen and (max-device-width: 400px) {
 	#login h1		{ text-align: center; }
 	#login article > section > form		
@@ -242,7 +244,9 @@ div.input input[readonly]	{ background-color: #ddd; }
 	article ul li > span:last-child
 				{ margin-right: 0; }
 	section section >*	{ margin: 1em 0.5em 1em 0.5em; }
-	section section >h3	{ text-align: center; }
+	section section >h3	{ text-align: center; 
+				  font-size: 14pt;
+				  padding: 1ex; }
 	div.payoffs		{ width: 100% !important; }
 	div.history		{ width: 100% !important; }
 	h1			{ font-size: 18pt; }

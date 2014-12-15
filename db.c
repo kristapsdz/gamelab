@@ -999,8 +999,8 @@ db_expr_checkstate(enum estate state)
 }
 
 int
-db_expr_start(int64_t date, int64_t rounds, 
-	int64_t minutes, const char *uri)
+db_expr_start(int64_t date, int64_t rounds, int64_t minutes, 
+	const char *instructions, const char *uri)
 {
 	sqlite3_stmt	*stmt;
 
@@ -1013,11 +1013,13 @@ db_expr_start(int64_t date, int64_t rounds,
 	}
 
 	stmt = db_stmt("UPDATE experiment SET "
-		"state=1,start=?,rounds=?,minutes=?,loginuri=?");
+		"state=1,start=?,rounds=?,minutes=?,"
+		"loginuri=?,instructions=?");
 	db_bind_int(stmt, 1, date);
 	db_bind_int(stmt, 2, rounds);
 	db_bind_int(stmt, 3, minutes);
 	db_bind_text(stmt, 4, uri);
+	db_bind_text(stmt, 5, instructions);
 	db_step(stmt, 0);
 	db_finalise(stmt);
 	db_trans_commit();
@@ -1877,8 +1879,8 @@ db_expr_get(void)
 	struct expr	*expr;
 	int		 rc;
 
-	stmt = db_stmt("SELECT start,rounds,"
-		"minutes,loginuri,state FROM experiment");
+	stmt = db_stmt("SELECT start,rounds,minutes,"
+		"loginuri,state,instructions FROM experiment");
 	rc = db_step(stmt, 0);
 	assert(SQLITE_ROW == rc);
 	if (ESTATE_STARTED != sqlite3_column_int(stmt, 4)) {
@@ -1891,6 +1893,7 @@ db_expr_get(void)
 	expr->rounds = sqlite3_column_int(stmt, 1);
 	expr->minutes = sqlite3_column_int(stmt, 2);
 	expr->loginuri = kstrdup((char *)sqlite3_column_text(stmt, 3));
+	expr->instructions = kstrdup((char *)sqlite3_column_text(stmt, 5));
 	expr->end = expr->start + (expr->rounds * expr->minutes * 60);
 	db_finalise(stmt);
 	return(expr);
@@ -1903,6 +1906,7 @@ db_expr_free(struct expr *expr)
 		return;
 
 	free(expr->loginuri);
+	free(expr->instructions);
 	free(expr);
 }
 
@@ -1919,5 +1923,6 @@ db_expr_wipe(void)
 	db_exec("DELETE FROM lottery");
 	db_exec("DELETE FROM tickets");
 	db_exec("UPDATE player SET state=0,enabled=1");
-	db_exec("UPDATE experiment SET state=0,rounds=0,minutes=0,loginuri=\'\'");
+	db_exec("UPDATE experiment SET state=0,rounds=0,"
+		"minutes=0,loginuri=\'\',instructions=\'\'");
 }

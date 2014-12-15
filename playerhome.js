@@ -61,7 +61,7 @@ function appendMatrix(e, matrix, rowavgs, colavgs)
 	cell.setAttribute('width', '1%;');
 	row.appendChild(cell);
 
-	for (i = 0; i < matrix.length; i++) {
+	for (i = 0; i < matrix[0].length; i++) {
 		cell = document.createElement('div');
 		cell.setAttribute('class', 'labelatop');
 		cell.setAttribute('style', 'width: ' + 
@@ -168,7 +168,7 @@ function appendBimatrix(e, matrix, colour, ocolour)
 	table = document.createElement('div');
 	table.setAttribute('class', 'payoffs');
 	table.setAttribute('style', 
-		'width: ' + (matrix.length * 10) + 'em;');
+		'width: ' + (matrix[0].length * 10) + 'em;');
 
 	row = document.createElement('div');
 	table.appendChild(row);
@@ -177,11 +177,11 @@ function appendBimatrix(e, matrix, colour, ocolour)
 	cell.setAttribute('class', 'labelaside');
 	row.appendChild(cell);
 
-	for (i = 0; i < matrix.length; i++) {
+	for (i = 0; i < matrix[0].length; i++) {
 		cell = document.createElement('div');
 		cell.setAttribute('class', 'labelatop');
 		cell.setAttribute('style', 'width: ' + 
-			(100.0 / (matrix[i].length)) + '%; ' +
+			(100.0 / (matrix[0].length)) + '%; ' +
 			'color: ' + colours[ocolour] + ';');
 		cell.appendChild(document.createTextNode
 			(String.fromCharCode(97 + i) + '.'));
@@ -419,22 +419,29 @@ function loadExprSuccess(resp)
 
 	resindex = 0;
 
-	console.log('Expr response: ' + resp);
-
 	try  { 
 		res = JSON.parse(resp);
 	} catch (error) {
 		doUnhide('exprLoading');
-		doUnhide('exprLoaded');
+		doUnhide('historyLoading');
+		doUnhide('instructionsLoading');
+		doHide('exprLoaded');
+		doHide('historyLoaded');
+		doHide('instructionsLoaded');
 		return;
 	}
 
 	doHide('exprLoading');
-	doUnhide('exprLoaded');
 	doHide('historyLoading');
+	doHide('instructionsLoading');
+	doUnhide('exprLoaded');
 	doUnhide('historyLoaded');
+	doUnhide('instructionsLoaded');
 
 	expr = res.expr;
+
+	e = doClear('instructionsLoaded');
+	e.innerHTML = expr.instructions;
 
 	if ((v = parseInt(expr.tilstart)) > 0) {
 		/*
@@ -484,15 +491,25 @@ function loadExprSetup()
 	doUnhide('exprLoading');
 	doHide('historyLoaded');
 	doUnhide('historyLoading');
+	doHide('instructionsLoaded');
+	doUnhide('instructionsLoading');
 	doHide('exprCountdownTilStart');
 	doHide('exprCountdownTilNext');
+}
+
+function loadExprFailure(err)
+{
+	var url = document.URL;
+
+	url = url.substring(0, url.lastIndexOf("/"));
+	location.href = url + '/login.html#loggedout';
 }
 
 function loadExpr() 
 {
 
 	sendQuery('@@cgibin@@/doloadexpr.json', 
-		loadExprSetup, loadExprSuccess, null);
+		loadExprSetup, loadExprSuccess, loadExprFailure);
 }
 
 function doPlayGameSetup()

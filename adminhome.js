@@ -624,9 +624,11 @@ function loadExprSetup()
 	doHide('exprCountdownTilStart');
 }
 
-function loadExprFailure()
+function loadExprFailure(err)
 {
 	var url = document.URL;
+
+	console.log('err = ' + err);
 
 	url = url.substring(0, url.lastIndexOf("/"));
 	location.href = url + '/login.html#loggedout';
