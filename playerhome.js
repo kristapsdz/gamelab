@@ -484,6 +484,8 @@ function loadExprSetup()
 	doUnhide('exprLoading');
 	doHide('historyLoaded');
 	doUnhide('historyLoading');
+	doHide('exprCountdownTilStart');
+	doHide('exprCountdownTilNext');
 }
 
 function loadExpr() 

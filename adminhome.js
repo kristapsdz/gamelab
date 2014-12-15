@@ -620,6 +620,8 @@ function loadExprSetup()
 	doHide('statusExprWaiting');
 	doHide('statusExprFinished');
 	doHide('statusExprProg');
+	doHide('exprCountdownTilNext');
+	doHide('exprCountdownTilStart');
 }
 
 function loadExprFailure()
