@@ -181,8 +181,7 @@ function appendBimatrix(e, matrix, colour, ocolour)
 		cell = document.createElement('div');
 		cell.setAttribute('class', 'labelatop');
 		cell.setAttribute('style', 'width: ' + 
-			(100.0 / (matrix[0].length)) + '%; ' +
-			'color: ' + colours[ocolour] + ';');
+			(100.0 / (matrix[0].length)) + '%;');
 		cell.appendChild(document.createTextNode
 			(String.fromCharCode(97 + i) + '.'));
 		row.appendChild(cell);
@@ -196,8 +195,6 @@ function appendBimatrix(e, matrix, colour, ocolour)
 		table.appendChild(row);
 		cell = document.createElement('div');
 		cell.setAttribute('class', 'labelaside');
-		cell.setAttribute('style', 
-			'color: ' + colours[colour] + ';');
 		cell.appendChild(document.createTextNode
 			((i + 1) + '.'));
 		row.appendChild(cell);

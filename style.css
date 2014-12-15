@@ -111,6 +111,7 @@ div.input input			{ -webkit-appearance: none;
 				  font-family: inherit;
 				  box-sizing: border-box; }
 div.input textarea		{ height: 10ex; }
+div.input textarea.bigtext	{ height: 30ex; }
 div.input-submit >*		{ background-color: #666; 
 				  color: #fff; 
 				  border-left: thin solid #000;

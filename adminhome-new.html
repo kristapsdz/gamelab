@@ -85,6 +85,14 @@
 								<i id="checkGameLoad" class="fa fa-spinner fa-spin"></i>
 							</li>
 						</ol>
+						<div>
+							You'll need to enter the <i class="fa fa-link"></i> address for logging in (sent in players'
+							welcome email &mdash; you probably don't want to change this), the <i class="fa
+								fa-calendar"></i> start date and <i class="fa fa-clock-o"></i> time in GMT, the
+							number of rounds, and the minutes per round.
+							You can also change the <i class="fa fa-code"></i> instructions (in HTML5 markup) that
+							will be shown to players.
+						</div>
 					</aside>
 					<form action="@@cgibin@@/dostartexpr.json" method="post" id="startExpr" onsubmit="return(startExpr(this));">
 						<div class="error">
@@ -123,7 +131,84 @@
 							</div>
 							<div class="input">
 								<i class="fa fa-fw fa-code"></i>
-								<textarea required="required" name="instructions"><section></section>
+								<textarea class="bigtext" required="required" name="instructions"><p>
+Thank you for participating in this experiment. The aim of the study is to investigate how different theoretical economic predictions perform when subjected to real decisions.
+</p>
+<p>
+On this page you will find all the information you need to participate, feel free to contact @@gamelab-admin-email@@ if you have any additional questions.
+</p>
+<h3>Game Setup</h3>
+<p>
+The experiment will run for five rounds, where each round is 24 hours long. In each round you will play five games. These games will be the same in all rounds. At the end of each round your earnings from that round will be calculated based on your and the other players' actions, and a new round will begin.
+</p>
+<p>
+To get any payoffs from a round you have to finish all five games.
+</p>
+<h3>How to Play</h3>
+<p>
+Each game is represented in a <i>game matrix</i>. This matrix represents the strategies available to players as rows and columns. There are two corresponding player roles, one choosing rows and one choosing columns. In all games you are a row player.
+</p>
+<p>
+In the game matrix outcomes, corresponding to a selection of a row and a column, are represented as cells. Each cell contains two numbers, the first colored in @@gamelab-own-colour@@ represents your payoff and the second colored in @@game-other-colour@@ represents the column player's payoff.
+</p>
+<p>
+You select which strategies to play (rows since you are a row player) and assign a probability to each of them. These probabilities have to sum to 1 since you always have to play some row. The column players select column strategies in the same manner. Just as you will not know what they have chosen in the current round they are not informed of your decision when they choose.
+</p>
+<p>
+To select which strategies to play you click on rows in the game matrix. When you have selected all strategies you want to assign probabilities to you have to do so in the corresponding fields below the matrix. Any strategy you have not selected will be played with probability 0. Note that you can select more than one strategy and assign probabilities between 0 and 1 to them if you should want.
+</p>
+<p>
+When you have selected which strategies to play and assigned probabilities to them you click the <q>Submit Play</q> button to submit your probabilities.
+</p>
+<h3>Payoffs</h3>
+<p>
+After each round has finished the payoffs of each of the five games are calculated by taking the strategy you played and taking the expected payoff against the average of the column players' strategies in the previous round. See the matrix below for an example:
+</p>
+<table>
+ <tr><td></td><td>a.</td><td>b.</td></tr>
+ <tr><td>1.</td><td>1 1</td><td>0 0</td></tr>
+ <tr><td>2.</td><td>0 0</td><td>1 1</td></tr>
+</table>
+<p>
+If you played 1. with probability 0.6 and 2. with probability 0.4 while the column players chose a. with probability 0.8 and b. with probability 0.2 your payoff in this game and round is (from top left to bottom right):
+</p>
+<p style="text-align: center;">
+0.6*0.8*1+0.6*0.2*0+0.4*0.8*0+0.4*0.2*1=0.56
+</p>
+<p>
+All payoffs in this experiment represent lottery tickets. 1 payoff unit equals 1 lottery ticket. When all rounds are finished and your total number of payoff units across games and rounds have been calculated we will round this number up to the closest integer in order to get your total number of tickets.
+</p>
+<p>
+All of your tickets will be represented by a number. If for example a total number of 100 lottery tickets have been awarded to all players and you have earned 10 of them, you might have tickets 41&ndash;50. This information will be given after the final round has ended.
+</p>
+<h3>Lottery Prices</h3>
+<p>
+The prices in the lottery are:
+</p>
+<p>
+1st price: 8 000kr
+<br />
+2<sup>nd</sup>&ndash;5<sup>th</sup> prices: 500kr
+</p>
+<h3>History</h3>
+<p>
+For all rounds but the first you will be presented with a history of how players played in previous rounds. This history is a weighted average of previous play which places more weight on more recent rounds. Note that while the history shows what has happened before, it does not give any information on how players have played in the current round, which is what is used for calculating payoffs.
+</p>
+<p>
+The history is presented in a matrix corresponding to the game. For example, if both your own and the other player roles have two strategies the history matrix will have four cells representing the probabilities that each combination was played. Additionally, probabilities outside the matrix represent the probabilities that each player role chose that strategy. See below for an example:
+</p>
+<table>
+ <tr><td></td><td>a.</td><td>b.</td><td>Sum</td></tr>
+ <tr><td>1.</td><td>1 1</td><td>0 0</td><td>0.5</td></tr>
+ <tr><td>2.</td><td>0 0</td><td>1 1</td><td>0.5</td></tr>
+ <tr><td>Sum</td><td>0.5</td><td>0.5</td></tr>
+</table>
+<p>
+The history in this matrix shows that the probability that any strategy was played is exactly one half, as would happen if all players randomized equally or if half of the players in each role chose one strategy and the other half chose the other. This in turn means that any strategy combination (for example 1. and a.) will be played with probability 0.5*0.5=0.25.
+</p>
+<p>
+You can view the history for each of the five games on the <q>History</q> tab as well as viewing it alongside each game in the round.
+</p>
 								</textarea>
 							</div>
 							<div class="input input-submit">
