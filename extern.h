@@ -189,7 +189,7 @@ int		 mpq_str2mpqu(const char *, mpq_t);
 void		 mpq_summation(mpq_t, const mpq_t);
 void		 mpq_summation_str(mpq_t, const unsigned char *);
 void		 mpq_summation_strvec(mpq_t *, const unsigned char *, size_t);
-char		*mpq_mpq2str(const mpq_t *, size_t);
+char		*mpq_mpq2str(mpq_t *, size_t);
 
 __END_DECLS
 

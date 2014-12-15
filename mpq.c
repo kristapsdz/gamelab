@@ -192,7 +192,7 @@ mpq_summation_str(mpq_t op, const unsigned char *v)
 }
 
 char *
-mpq_mpq2str(const mpq_t *v, size_t sz)
+mpq_mpq2str(mpq_t *v, size_t sz)
 {
 	char	*p, *tmp;
 	size_t	 i, psz;
