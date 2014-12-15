@@ -9,13 +9,22 @@
 		<script src="@@htdocs@@/script.js"></script>
 		<script src="@@cgibin@@/home.js"></script>
 		<script>
+			/*
+			 * Replace the "login URL" identified in the
+			 * experiment start section with the current URL
+			 * having its admin bits replaced with lab bits.
+			 */
 			function onLoad() 
 			{
 				var url = document.URL;
+				var e = document.getElementById('loginURI');
+
+				if (null == e || null == url)
+					return;
 
 				url = url.substring(0, url.lastIndexOf("/"));
 				url = url.replace('admin', 'lab');
-				document.getElementById('loginURI').value = url + '/dologin.html';
+				e.value = url + '/dologin.html';
 			}
 		</script>
 	</head>
@@ -33,27 +42,27 @@
 			</nav>
 		</div>
 		<article>
+			<p>
+				To deploy a <span class="name">gamelab</span> experiment, follow these steps.
+				</p>
+			<ol>
+				<li>
+					Change your <a href="#changePassSection">password</a> and <a href="#changeMailSection">mail</a>.
+				</li>
+				<li>
+					Add your experiment <a href="#addGameSection">games</a>.
+				</li>
+				<li>
+					Add any experiment <a href="#addPlayersSection">participants</a>.
+				</li>
+				<li>
+					Configure your <a href="#changeSmtpSection">SMTP</a> settings.
+				</li>
+				<li>
+					<a href="#startExprSection">Deploy</a> your experiment.
+				</li>
+			</ol>
 			<section>
-				<aside>
-					To deploy a <span class="name">gamelab</span> experiment, follow these steps.
-					<ol>
-						<li>
-							Change your <a href="#changePassSection">password</a> and <a href="#changeMailSection">mail</a>.
-						</li>
-						<li>
-							Add your experiment <a href="#addGameSection">games</a>.
-						</li>
-						<li>
-							Add any experiment <a href="#addPlayersSection">participants</a>.
-						</li>
-						<li>
-							Configure your <a href="#changeSmtpSection">SMTP</a> settings.
-						</li>
-						<li>
-							<a href="#startExprSection">Deploy</a> your experiment.
-						</li>
-					</ol>
-				</aside>
 				<section id="startExprSection">
 					<h3>Experiment Parameters</h3>
 					<aside>

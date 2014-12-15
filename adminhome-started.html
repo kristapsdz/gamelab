@@ -13,7 +13,10 @@
 		<header>
 			<a id="navButton" href="#" onclick="return(onNav(event));"><i class="fa fa-navicon"></i></a>
 			<h1>gamelab</h1>
-			<div id="exprCountdown"><i class="fa fa-spinner fa-spin"></i></div>
+			<span>
+				<span id="exprCountdownTilNext">Next</span><span id="exprCountdownTilStart">Start</span>: 
+				<span id="exprCountdown"><i class="fa fa-spinner fa-spin"></i></span>
+			</span>
 		</header>
 		<div id="navParent">
 			<nav id="nav">
@@ -25,7 +28,7 @@
 		<article>
 			<section>
 				<section id="statusExpr">
-					<h3>Run Status</h3>
+					<h3>Experiment Status</h3>
 					<div id="statusExprProg">
 						<div>
 							Round: <span id="statusExprPRound"></span>/<span id="statusExprPMax"></span>
@@ -48,7 +51,12 @@
 						Waiting for experiment to begin.
 					</div>
 					<div id="statusExprFinished">
-						Experiment has finished.
+						<div>
+							Your experiment has finished.
+							You can now download and analyse the results, and players can still log in and see their
+							play history.
+							If you wipe the database, the database will first be backed up and archived.
+						</div>
 						<fieldset>
 							<div class="input input-submit">
 								<i class="fa fa-recycle"></i>

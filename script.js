@@ -32,7 +32,7 @@ function onNav(event)
 	return false;
 }
 
-function timerCountdown(head, donefunc, e, value, start)
+function timerCountdown(donefunc, e, value, start)
 {
 	var elapsed;
 
@@ -44,8 +44,8 @@ function timerCountdown(head, donefunc, e, value, start)
 	}
 
 	doClearNode(e);
-	formatCountdown(head, value, e);
-	setTimeout(timerCountdown, 1000, head, donefunc, e, value, new Date().getTime());
+	formatCountdown(value, e);
+	setTimeout(timerCountdown, 1000, donefunc, e, value, new Date().getTime());
 }
 
 function doHideNode(e)
@@ -112,14 +112,11 @@ function doClearReplace(name, str)
 		e.appendChild(document.createTextNode(str));
 }
 
-function formatCountdown(head, v, e)
+function formatCountdown(v, e)
 {
 	var p, span, showseconds;
 
 	showseconds = v < 60;
-
-	if (null != head) 
-		e.appendChild(document.createTextNode(head));
 
 	span = document.createElement('span');
 	if (v >= 24 * 60 * 60) {

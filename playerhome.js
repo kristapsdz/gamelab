@@ -400,7 +400,7 @@ function loadGame()
 
 function loadExprSuccess(resp)
 {
-	var e, v, head, i, j, expr;
+	var e, v, i, j, expr;
 
 	resindex = 0;
 
@@ -426,29 +426,26 @@ function loadExprSuccess(resp)
 		 * If we haven't yet started, then simply set our timer
 		 * and exit: we have nothing to show.
 		 */
+		doUnhide('exprCountdownTilStart');
+		doHide('exprCountdownTilNext');
 		e = doClear('exprCountdown');
-		head = 'Begin in ';
-		formatCountdown(head, v, e);
+		formatCountdown(v, e);
 		setTimeout(timerCountdown, 1000, 
-			head, loadExpr, e, v, 
-			new Date().getTime());
+			loadExpr, e, v, new Date().getTime());
 		doUnhide('exprNotStarted');
 	} else if (0 == v) {
 		/*
 		 * Start by setting the countdown til the next
 		 * game-play.
 		 */
+		doHide('exprCountdownTilStart');
+		doUnhide('exprCountdownTilNext');
+
 		e = doClear('exprCountdown');
 		v = parseInt(expr.tilnext);
-		/*head = 'Time Left in Round ' + 
-			(parseInt(expr.round) + 1) + 
-			'/' + expr.rounds;*/
-		head = 'Next in ';
-		formatCountdown(head, v, e);
-		setTimeout(timerCountdown, 1000, head, 
-			loadExpr, e, v, 
-			new Date().getTime());
-
+		formatCountdown(v, e);
+		setTimeout(timerCountdown, 1000, 
+			loadExpr, e, v, new Date().getTime());
 		doValue('exprPlayRound', expr.round);
 		shuffle(res.games, res.rseed);
 		loadGame();
@@ -457,6 +454,9 @@ function loadExprSuccess(resp)
 		 * Case where the game has finished.
 		 */
 		doUnhide('exprPlay');
+		doHide('exprCountdownTilStart');
+		doHide('exprCountdownTilNext');
+		doClearReplace('exprCountdown', 'Finished');
 		doClearReplace('exprPlay', 'Experiment finished.');
 	}
 }

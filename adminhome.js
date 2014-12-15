@@ -532,7 +532,7 @@ function loadGames()
 
 function loadExprSuccess(resp) 
 {
-	var res, e, i, chld, head, expr, li, div;
+	var res, e, i, chld, expr, li, div;
 
 	console.log('Response: ' + resp);
 	try  { 
@@ -549,27 +549,29 @@ function loadExprSuccess(resp)
 		doHide('statusExprLoading');
 		doUnhide('statusExprFinished');
 		doClearReplace('exprCountdown', 'Finished');
+		doHide('exprCountdownTilNext');
+		doHide('exprCountdownTilStart');
 		return;
 	}
 
 	if (expr.tilstart > 0) {
 		doUnhide('statusExprWaiting');
 		doHide('statusExprLoading');
+		doUnhide('exprCountdownTilStart');
+		doHide('exprCountdownTilNext');
 		e = doClear('exprCountdown');
-		head = 'Begin in ';
-		formatCountdown(head, expr.tilstart, e);
-		setTimeout(timerCountdown, 1000, 
-			head, loadExpr, e, 
-			expr.tilstart, new Date().getTime());
+		formatCountdown(expr.tilstart, e);
+		setTimeout(timerCountdown, 1000, loadExpr, 
+			e, expr.tilstart, new Date().getTime());
 	} else {
 		if (0 == expr.tilstart) {
 			e = doClear('exprCountdown');
 			doHide('statusExprLoading');
-			head = 'Next in ';
-			formatCountdown(head, expr.tilnext, e);
-			setTimeout(timerCountdown, 1000, 
-				head, loadExpr, e, 
-				expr.tilnext, new Date().getTime());
+			doHide('exprCountdownTilStart');
+			doUnhide('exprCountdownTilNext');
+			formatCountdown(expr.tilnext, e);
+			setTimeout(timerCountdown, 1000, loadExpr, 
+				e, expr.tilnext, new Date().getTime());
 		}
 
 		doUnhide('statusExprProg');
