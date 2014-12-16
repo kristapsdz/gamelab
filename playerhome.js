@@ -15,6 +15,13 @@ var res;
  */
 var resindex;
 
+var colours = [
+	"#CC0000",
+	"#009900",
+	"#0066CC",
+	"#FF8000",
+];
+
 function random(object) {
 	var x = Math.sin(object.seed++) * 10000;
 	return x - Math.floor(x);
@@ -133,14 +140,43 @@ function appendMatrix(e, matrix, rowavgs, colavgs)
 	row.appendChild(cell);
 }
 
-function prowClick(id)
+function prowOut(source, id)
+{
+	var e;
+
+	if (null != (e = document.getElementById('index' + id))) {
+		source.classList.remove('hover');
+		e.parentNode.classList.remove('ihover');
+	}
+}
+
+function prowOver(source, id)
+{
+	var e;
+
+	if (null != (e = document.getElementById('index' + id))) {
+		source.classList.add('hover');
+		e.parentNode.classList.add('ihover');
+	}
+}
+
+function prowClick(source, id)
 {
 	var e;
 
 	if (null == (e = document.getElementById('index' + id)))
 		return;
-	e.value = '0';
-	e.removeAttribute('readonly');
+
+	if (e.hasAttribute('readonly')) {
+		source.classList.add('active');
+		e.value = '0';
+		e.removeAttribute('readonly');
+	} else {
+		source.classList.remove('active');
+		e.value = '';
+		e.setAttribute('readonly', 'readonly');
+	}
+
 }
 
 /*
@@ -149,21 +185,11 @@ function prowClick(id)
  */
 function appendBimatrix(e, matrix, colour, ocolour)
 {
-	var table, row, cell, i, j, poff;
-	var colours = [
-		"magenta",
-		"#ff00cc",
-		"red",
-		"orange",
-		"yellow",
-		"#99ff00",
-		"green",
-		"#00ff99",
-		"cyan",
-		"azure",
-		"blue",
-		"violet"
-	];
+	var table, row, cell, i, j, poff, inputs;
+
+	inputs = document.getElementById('playGame');
+	inputs.setAttribute('style', 
+		'width: ' + (matrix[0].length * 10) + 'em;');
 
 	table = document.createElement('div');
 	table.setAttribute('class', 'payoffs');
@@ -190,8 +216,9 @@ function appendBimatrix(e, matrix, colour, ocolour)
 
 	for (i = 0; i < matrix.length; i++) {
 		row = document.createElement('div');
-		row.setAttribute('class', 'prow');
-		row.setAttribute('onclick', 'prowClick(' + matrix[i].index + ')');
+		row.setAttribute('onclick', 'prowClick(this, ' + matrix[i].index + ')');
+		row.setAttribute('onmouseover', 'prowOver(this, ' + matrix[i].index + ')');
+		row.setAttribute('onmouseout', 'prowOut(this, ' + matrix[i].index + ')');
 		table.appendChild(row);
 		cell = document.createElement('div');
 		cell.setAttribute('class', 'labelaside');
@@ -306,7 +333,7 @@ function bimatrixCreateTranspose(vector)
  */
 function loadGame()
 {
-	var game, matrix, hmatrix, e, div, ii, i, input;
+	var game, matrix, hmatrix, e, div, ii, i, input, c, oc;
 
 	if (resindex == res.games.length) {
 		doUnhide('exprDone');
@@ -350,10 +377,12 @@ function loadGame()
 	} else
 		hmatrix = null;
 
+	c = res.rseed % colours.length;
+	oc = (0 == c % 2) ? c + 1 : c - 1;
+
 	/* Shuffle the presentation of rows. */
 	shuffle(matrix, res.rseed);
-	appendBimatrix(doClear('exprMatrix'), 
-		matrix, res.colour, res.ocolour);
+	appendBimatrix(doClear('exprMatrix'), matrix, c, oc);
 
 	/* Show the shuffled roundup matrix, if it exists. */
 	if (null != hmatrix) {
@@ -389,7 +418,6 @@ function loadGame()
 		input = document.createElement('input');
 		input.setAttribute('type', 'text');
 		input.setAttribute('readonly', 'readonly');
-		input.setAttribute('placeholder', 'Not Selected');
 		input.setAttribute('required', 'required');
 		input.setAttribute('id', 'index' + matrix[i].index);
 		input.setAttribute('name', 'index' + matrix[i].index);

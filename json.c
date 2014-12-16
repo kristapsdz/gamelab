@@ -5,10 +5,10 @@
 #include "config.h" 
 
 #include <assert.h>
-#include <inttypes.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 #include <unistd.h>
 
@@ -18,12 +18,42 @@
 
 #include "extern.h"
 
+enum	tkey {
+	TKEY_ADMIN_EMAIL,
+	TKEY__MAX
+};
+
+static	const char *const tkeys[TKEY__MAX] = {
+	"gamelab-admin-email"
+};
+
+static int
+json_instructions(size_t key, void *arg)
+{
+	struct kjsonreq	*r = arg;
+	char		*cp = NULL;
+
+	switch (key) {
+	case (TKEY_ADMIN_EMAIL):
+		cp = db_admin_get_mail();
+		kjson_string_puts(r, cp);
+		break;
+	default:
+		abort();
+	}
+
+	free(cp);
+	return(1);
+}
+
+
 void
 json_putexpr(struct kjsonreq *r, const struct expr *expr)
 {
-	double	 frac;
-	time_t	 t, tilstart, tilnext;
-	int64_t	 round;
+	double	 	 frac;
+	time_t	 	 tt, tilstart, tilnext;
+	int64_t	 	 round;
+	struct ktemplate t;
 
 	frac = 0.0;
 	tilstart = tilnext = 0;
@@ -33,23 +63,34 @@ json_putexpr(struct kjsonreq *r, const struct expr *expr)
 	 * time til start (if applicable), and time til next play (if
 	 * applicable).
 	 */
-	if ((t = time(NULL)) > expr->start) {
-		round = (t - expr->start) / (expr->minutes * 60);
-		if (t >= expr->end) {
+	if ((tt = time(NULL)) > expr->start) {
+		round = (tt - expr->start) / (expr->minutes * 60);
+		if (tt >= expr->end) {
 			round = expr->rounds - 1;
 			frac = 1.0;
 			tilstart = tilnext = -1;
 		} else {
-			frac = (t - expr->start) / (double)(expr->end - expr->start);
-			tilnext = ((round + 1) * (expr->minutes * 60)) - (t - expr->start);
+			frac = (tt - expr->start) / 
+				(double)(expr->end - expr->start);
+			tilnext = ((round + 1) * 
+				(expr->minutes * 60)) - 
+				(tt - expr->start);
 		}
 	} else {
 		round = -1;
-		tilnext = tilstart = expr->start - t;
+		tilnext = tilstart = expr->start - tt;
 	}
 
 	kjson_objp_open(r, "expr");
-	kjson_putstringp(r, "instructions", expr->instructions);
+	kjson_stringp_open(r, "instructions");
+	memset(&t, 0, sizeof(struct ktemplate));
+	t.key = tkeys;
+	t.keysz = TKEY__MAX;
+	t.arg = r;
+	t.cb = json_instructions;
+	khttp_templatex_buf(&t, expr->instructions, 
+		strlen(expr->instructions), kjson_string_write, r);
+	kjson_string_close(r);
 	kjson_putintp(r, "start", (int64_t)expr->start);
 	kjson_putintp(r, "end", (int64_t)expr->end);
 	kjson_putintp(r, "rounds", expr->rounds);

@@ -971,7 +971,7 @@ db_player_create(const char *email, size_t role)
 		"(email,role,rseed) VALUES (?,?,?)");
 	db_bind_text(stmt, 1, email);
 	db_bind_int(stmt, 2, role);
-	db_bind_int(stmt, 3, arc4random() + 1);
+	db_bind_int(stmt, 3, arc4random_uniform(INT32_MAX) + 1);
 	rc = db_step(stmt, DB_STEP_CONSTRAINT);
 	db_finalise(stmt);
 

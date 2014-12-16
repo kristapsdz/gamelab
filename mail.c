@@ -4,11 +4,7 @@
  */
 #include "config.h"
 
-#include <sys/mman.h>
-#include <sys/stat.h>
-
 #include <assert.h>
-#include <fcntl.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
@@ -20,6 +16,18 @@
 #include <curl/curl.h>
 
 #include "extern.h"
+
+/*
+ * This is the buffer created when templating a mail message.
+ * We use it to read in and write out the buffer, hence having both "sz"
+ * and "maxsz" (reading) and "cur" (writing).
+ */
+struct 	buf {
+	char		*buf;
+	size_t		 cur;
+	size_t		 sz;
+	size_t		 maxsz;
+};
 
 /*
  * This consists of data that we're going to template into the mail
@@ -34,18 +42,7 @@ struct	mail {
 	char		 date[27]; /* current date string */
 	char		*pass; /* new-user password */
 	char		*login; /* new-user login url */
-};
-
-/*
- * This is the buffer created when templating a mail message.
- * It's intended to be run multiple times, hence that the allocated
- * buffer is saved and re-used in subsequent runs.
- */
-struct 	buf {
-	char		*buf;
-	size_t		 cur;
-	size_t		 sz;
-	size_t		 maxsz;
+	struct buf	 b; /* buffer to read/write */
 };
 
 enum	mailkey {
@@ -89,181 +86,110 @@ dobuf(void *ptr, size_t sz, size_t nm, void *arg)
 	if (rsz > buf->sz - buf->cur)
 		rsz = buf->sz - buf->cur;
 
-	/*fprintf(stderr, "[%.*s]\n", (int)rsz, buf->buf + buf->cur);*/
-
 	memcpy(ptr, buf->buf + buf->cur, rsz);
 	buf->cur += rsz;
 	return(rsz);
 }
 
-static void
-buf_puts(const char *s, struct buf *b)
+/*
+ * Template-driven call to put data into the mail message buffer.
+ * We make sure to nil-terminate this buffer all of the time because
+ * libcurl will work on a nil-terminated buffer.
+ */
+static int
+mail_write(const char *s, size_t sz, void *arg)
 {
-	size_t	 sz;
+	struct mail	*m = arg;
+	struct buf	*b = &m->b;
 
 	if (NULL == s)
-		s = "";
-
-	sz = strlen(s);
+		return(1);
 
 	if (b->sz + sz + 1 > b->maxsz) {
 		b->maxsz = b->sz + sz + 1 + 1024;
 		b->buf = krealloc(b->buf, b->maxsz);
 	}
+
 	memcpy(&b->buf[b->sz], s, sz);
 	b->sz += sz;
 	b->buf[b->sz] = '\0';
+	return(1);
 }
 
+/*
+ * Completely free up the mail context.
+ * Nothing should remain after this call.
+ */
 static void
-buf_putc(char c, struct buf *b)
+mail_free(struct mail *mail, CURL *c, struct curl_slist *r)
 {
 
-	if (b->sz + 2 > b->maxsz) {
-		b->maxsz = b->sz + 2 + 1024;
-		b->buf = krealloc(b->buf, b->maxsz);
-	}
-	b->buf[b->sz++] = c;
-	b->buf[b->sz] = '\0';
-}
-
-static void
-mail_free(struct mail *mail)
-{
-
+	free(mail->b.buf);
 	free(mail->from);
+	free(mail->to);
+	free(mail->pass);
+	free(mail->login);
+	curl_slist_free_all(r);
+	curl_easy_cleanup(c);
+	curl_global_cleanup();
 }
 
+/*
+ * Clear the mail context for the next invocation.
+ * This should only clear the necessary bits.
+ */
 static void
-mail_clear(struct mail *mail)
+mail_clear(struct mail *mail, struct curl_slist **rp)
 {
 
 	free(mail->to);
 	free(mail->pass);
 	free(mail->login);
-}
-
-static void
-mail_template_buf(const char *buf, size_t sz, 
-	const struct mail *mail, struct buf *b)
-{
-	size_t		 i, j, len, start, end;
-
-	for (i = 0; i < sz - 1; i++) {
-		/* Look for the starting "@@" marker. */
-		if ('@' != buf[i]) {
-			buf_putc(buf[i], b);
-			continue;
-		} else if ('@' != buf[i + 1]) {
-			buf_putc(buf[i], b);
-			continue;
-		} 
-
-		/* Seek to find the end "@@" marker. */
-		start = i + 2;
-		for (end = start + 2; end < sz - 1; end++)
-			if ('@' == buf[end] && '@' == buf[end + 1])
-				break;
-
-		/* Continue printing if not found of 0-length. */
-		if (end == sz - 1 || end == start) {
-			buf_putc(buf[i], b);
-			continue;
-		}
-
-		/* Look for a matching key. */
-		for (j = 0; j < MAILKEY__MAX; j++) {
-			len = strlen(mailkeys[j]);
-			if (len != end - start)
-				continue;
-			else if (memcmp(&buf[start], mailkeys[j], len))
-				continue;
-			switch (j) {
-			case (MAILKEY_FROM):
-				assert(NULL != mail->from);
-				buf_puts(mail->from, b);
-				break;
-			case (MAILKEY_TO):
-				assert(NULL != mail->to);
-				buf_puts(mail->to, b);
-				break;
-			case (MAILKEY_DATE):
-				buf_puts(mail->date, b);
-				break;
-			case (MAILKEY_PASS):
-				buf_puts(mail->pass, b);
-				break;
-			case (MAILKEY_LOGIN):
-				buf_puts(mail->login, b);
-				break;
-			default:
-				abort();
-			}
-			break;
-		}
-
-		/* Didn't find it... */
-		if (j == MAILKEY__MAX)
-			buf_putc(buf[i], b);
-		else
-			i = end + 1;
-	}
-
-	if (i < sz)
-		buf_putc(buf[i], b);
+	mail->b.sz = mail->b.cur = 0;
+	mail->to = mail->pass = mail->login = NULL;
+	curl_slist_free_all(*rp);
+	*rp = NULL;
 }
 
 /*
- * Memory-map the file at "fname".
- * This is used as the read-only template source.
- * It must be a real file, obviously.
- */
-static char *
-mail_template_open(const char *fname, int *fd, size_t *sz)
-{
-	struct stat 	 st;
-	char		*buf;
-
-	if (-1 == (*fd = open(fname, O_RDONLY, 0))) {
-		fprintf(stderr, "open: %s\n", fname);
-		return(NULL);
-	} else if (-1 == fstat(*fd, &st)) {
-		fprintf(stderr, "fstat: %s\n", fname);
-		close(*fd);
-		return(NULL);
-	} else if (st.st_size >= (1U << 31)) {
-		fprintf(stderr, "size overflow: %s\n", fname);
-		close(*fd);
-		return(NULL);
-	} else if (0 == st.st_size) {
-		fprintf(stderr, "zero-length: %s\n", fname);
-		close(*fd);
-		return(NULL);
-	}
-
-	*sz = (size_t)st.st_size;
-	buf = mmap(NULL, *sz, PROT_READ, MAP_SHARED, *fd, 0);
-
-	if (MAP_FAILED == buf) {
-		fprintf(stderr, "mmap: %s", fname);
-		close(*fd);
-		buf = NULL;
-	}
-
-	return(buf);
-}
-
-/*
- * Close the mail template source mmap.
+ * String wrapper for mail_write().
  */
 static void
-mail_template_close(char *buf, size_t sz, int fd)
+mail_puts(const char *s, struct mail *m)
 {
 
-	if (NULL == buf)
-		return;
-	munmap(buf, sz);
-	close(fd);
+	mail_write(s, strlen(s), m);
+}
+
+static int
+mail_template_buf(size_t key, void *arg)
+{
+	struct mail	*mail = arg;
+
+	switch (key) {
+	case (MAILKEY_FROM):
+		assert(NULL != mail->from);
+		mail_puts(mail->from, mail);
+		break;
+	case (MAILKEY_TO):
+		assert(NULL != mail->to);
+		mail_puts(mail->to, mail);
+		break;
+	case (MAILKEY_DATE):
+		mail_puts(mail->date, mail);
+		break;
+	case (MAILKEY_PASS):
+		mail_puts(mail->pass, mail);
+		break;
+	case (MAILKEY_LOGIN):
+		mail_puts(mail->login, mail);
+		break;
+	default:
+		abort();
+		/* NOTREACHED */
+	}
+
+	return(1);
 }
 
 /*
@@ -273,11 +199,11 @@ mail_template_close(char *buf, size_t sz, int fd)
  * in our database yet.
  */
 static CURL *
-mail_init(struct mail *mail)
+mail_init(struct mail *mail, struct ktemplate *t)
 {
 	struct smtp	*smtp;
 	CURL		*curl;
-	time_t		 t;
+	time_t		 tt;
 
 	if (NULL == (smtp = db_smtp_get())) {
 		fprintf(stderr, "mail: no smtp configured\n");
@@ -291,8 +217,8 @@ mail_init(struct mail *mail)
 	memset(mail, 0, sizeof(struct mail));
 
 	/* Initialise sending time. */
-	t = time(NULL);
-	asctime_r(gmtime(&t), mail->date);
+	tt = time(NULL);
+	asctime_r(gmtime(&tt), mail->date);
 	mail->date[strlen(mail->date) - 1] = '\0';
 	/* Initialise from address. */
 	mail->from = kstrdup(smtp->from);
@@ -308,6 +234,13 @@ mail_init(struct mail *mail)
 	curl_easy_setopt(curl, CURLOPT_READFUNCTION, dobuf);
 
 	db_smtp_free(smtp);
+
+	/* Initialise the template system itself. */
+	memset(t, 0, sizeof(struct ktemplate));
+	t->key = mailkeys;
+	t->keysz = MAILKEY__MAX;
+	t->arg = mail;
+	t->cb = mail_template_buf;
 	return(curl);
 }
 
@@ -323,71 +256,47 @@ mail_players(const char *uri)
 {
 	CURL		  *curl;
 	CURLcode 	   res;
-	struct curl_slist *recipients = NULL;
-	struct buf	   buf;
-	struct mail	   mail;
+	struct curl_slist *recpts = NULL;
+	struct mail	   m;
 	int64_t		   id;
-	char		  *mbuf, *encto, *encpass;
-	size_t		   mbufsz;
-	int		   mbuffd;
+	char		  *encto, *encpass;
+	struct ktemplate   t;
+	int		   rc;
 
-	mbuf = mail_template_open
-		(DATADIR "/addplayer.eml", &mbuffd, &mbufsz);
-
-	if (NULL == mbuf) {
-		fprintf(stderr, "addplayer.eml: invalid mail\n");
+	if (NULL == (curl = mail_init(&m, &t)))
 		return;
-	}
 
-	/* Initialise mail system. */
-	if (NULL == (curl = mail_init(&mail))) {
-		mail_template_close(mbuf, mbufsz, mbuffd);
-		return;
-	}
-
-	/*
-	 * Hit the database for a new recipient until there are none
-	 * remaining, re-use the same CURL connection as much as we can.
-	 * Each access results in a database update: to set the user as
-	 * having been mailed, or that an error occured.
-	 */
-	memset(&buf, 0, sizeof(struct buf));
-	while (NULL != (mail.to = db_player_next_new(&id, &mail.pass))) {
-		assert(NULL != mail.pass);
-		buf.sz = buf.cur = 0;
-		recipients = NULL;
-
-		encto = kutil_urlencode(mail.to);
-		encpass = kutil_urlencode(mail.pass);
-		kasprintf(&mail.login, "%s?email=%s&password=%s",
+	while (NULL != (m.to = db_player_next_new(&id, &m.pass))) {
+		assert(NULL != m.pass);
+		encto = kutil_urlencode(m.to);
+		encpass = kutil_urlencode(m.pass);
+		kasprintf(&m.login, "%s?email=%s&password=%s", 
 			uri, encto, encpass);
 		free(encto);
 		free(encpass);
 
-		mail_template_buf(mbuf, mbufsz, &mail, &buf);
-		recipients = curl_slist_append(recipients, mail.to);
-		curl_easy_setopt(curl, CURLOPT_MAIL_RCPT, recipients);
-		curl_easy_setopt(curl, CURLOPT_READDATA, &buf);
-
-		/* Set the pstate or loop forever on PSTATE_NEW!! */
-		if (CURLE_OK == (res = curl_easy_perform(curl))) {
-			db_player_set_mailed(id, mail.pass);
-			fprintf(stderr, "%s: mail new\n", mail.to);
-		} else {
-			db_player_set_state(id, PSTATE_ERROR);
-			fprintf(stderr, "%s: mail error: %s\n", 
-				mail.to, curl_easy_strerror(res));
+		rc = khttp_templatex(&t, DATADIR 
+			"/addplayer.eml", mail_write, &m);
+		if (0 == rc) {
+			perror("khttp_templatex");
+			break;
 		}
 
-		curl_slist_free_all(recipients);
-		mail_clear(&mail);
+		recpts = curl_slist_append(NULL, m.to);
+		curl_easy_setopt(curl, CURLOPT_MAIL_RCPT, recpts);
+		curl_easy_setopt(curl, CURLOPT_READDATA, &m.b);
+
+		if (CURLE_OK != (res = curl_easy_perform(curl))) {
+			fprintf(stderr, "%s: mail error: %s\n", 
+				m.to, curl_easy_strerror(res));
+			db_player_set_state(id, PSTATE_ERROR);
+		} else
+			db_player_set_mailed(id, m.pass);
+
+		mail_clear(&m, &recpts);
 	}
 
-	free(buf.buf);
-	mail_template_close(mbuf, mbufsz, mbuffd);
-	curl_easy_cleanup(curl);
-	curl_global_cleanup();
-	mail_free(&mail);
+	mail_free(&m, curl, recpts);
 }
 
 /*
@@ -399,47 +308,35 @@ mail_test(void)
 {
 	CURL		  *curl;
 	CURLcode 	   res;
-	struct curl_slist *recipients = NULL;
-	struct buf	   buf;
-	struct mail	   mail;
-	char		  *mbuf;
-	size_t		   mbufsz;
-	int		   mbuffd;
+	struct curl_slist *recpts = NULL;
+	struct mail	   m;
+	struct ktemplate   t;
+	int		   rc;
 
-	mbuf = mail_template_open
-		(DATADIR "/test.eml", &mbuffd, &mbufsz);
-
-	if (NULL == mbuf) {
-		fprintf(stderr, "test.eml: invalid mail\n");
+	if (NULL == (curl = mail_init(&m, &t)))
 		return;
+
+	m.to = db_admin_get_mail();
+	memset(&t, 0, sizeof(struct ktemplate));
+
+	rc = khttp_templatex(&t, DATADIR 
+		"/test.eml", mail_write, &m);
+
+	if ( ! rc) {
+		perror("khttp_templatex");
+		goto out;
 	}
 
-	if (NULL == (curl = mail_init(&mail))) {
-		mail_template_close(mbuf, mbufsz, mbuffd);
-		return;
-	}
+	recpts = curl_slist_append(NULL, m.to);
+	curl_easy_setopt(curl, CURLOPT_MAIL_RCPT, recpts);
+	curl_easy_setopt(curl, CURLOPT_READDATA, &m.b);
 
-	mail.to = db_admin_get_mail();
-
-	memset(&buf, 0, sizeof(struct buf));
-	mail_template_buf(mbuf, mbufsz, &mail, &buf);
-
-	recipients = curl_slist_append(NULL, mail.to);
-	curl_easy_setopt(curl, CURLOPT_MAIL_RCPT, recipients);
-	curl_easy_setopt(curl, CURLOPT_READDATA, &buf);
-
-	/* TODO: record error somewhere? */
-	if (CURLE_OK == (res = curl_easy_perform(curl)))
-		fprintf(stderr, "%s: mail test\n", mail.to);
+	if (CURLE_OK != (res = curl_easy_perform(curl)))
+		fprintf(stderr, "%s: mail test\n", m.to);
 	else
 		fprintf(stderr, "%s: mail error: %s\n", 
-			mail.to, curl_easy_strerror(res));
+			m.to, curl_easy_strerror(res));
 
-	curl_slist_free_all(recipients);
-	free(buf.buf);
-	mail_template_close(mbuf, mbufsz, mbuffd);
-	curl_easy_cleanup(curl);
-	curl_global_cleanup();
-	mail_clear(&mail);
-	mail_free(&mail);
+out:
+	mail_free(&m, curl, recpts);
 }

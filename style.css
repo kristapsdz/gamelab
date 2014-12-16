@@ -4,7 +4,8 @@
 html, body			{ margin: 0; }
 a				{ text-decoration: none; 
 				  color: blue; }
-body				{ font-size: 14pt; }
+body				{ font-size: 14pt; 
+				  background-color: #eee; }
 body > header			{ background-color: #ccc; 
 				  display: table;
 				  width: 100%;
@@ -41,23 +42,27 @@ body > header a			{ color: #222; }
 #nav li				{ padding: 0.5ex 0; }
 i.fa-warning + span		{ margin-left: 0.5ex; }
 h1				{ margin: 0; }
-h2				{ font-size: 16pt; }
-body > article, 
-body > footer			{ max-width: 1024px;
+h2				{ font-size: 16pt; 
+				  margin: 0; }
+body > article			{ background-color: #fff;
+				  padding: 1em;
+				  margin: 0; }
+#login > article		{ background-color: inherit; 
+				  max-width: 1024px; 
 				  margin-left: auto;
-				  margin-right: auto; }
-body > article			{ padding: 0 0.5ex; }
-footer				{ text-align: center; 
-				  margin-top: 1em;
-				  margin-bottom: 1em;
+		  	  	  margin-right: auto; }
+body > footer			{ text-align: center; 
+				  padding: 1em 0;
+				  border-top: thin solid #bbb;
 				  color: #888;
 				  font-size: smaller; }
-footer a			{ color: #666; 
+#login > footer			{ border-top: none; }
+body > footer a			{ color: #666; 
 				  padding-right: 0.5ex;
 				  border-right: thin solid #888; }
-footer a:last-child		{ border-right: none; 
+body > footer a:last-child	{ border-right: none; 
 				  padding-right: 0; }
-footer a:hover			{ color: #222; }
+body > footer a:hover		{ color: #222; }
 section section			{ border: thin solid #ddd;
 				  margin: 1em 0; }
 section section >*		{ margin: 1em; }
@@ -191,19 +196,19 @@ div.payoffs			{ display: table;
 div.payoffs > div		{ display: table-row; 
 				  cursor: pointer; }
 div.payoffs > div > div		{ display: table-cell;  }
-div.payoffs div.pair 		{ border: 2px solid black;
+div.payoffs div.pair 		{ border: thin solid #ccc;
 				  border-radius: 0.5ex; }
 div.payoffs div.pair > div 	{ display: inline-block; 
-				  width: 49%;
+				  width: 50%;
 				  padding: 1ex 0;
 				  text-align: center; }
-div.payoffs div.pair > div:first-child
-				{ border-right: 2px solid #666; }
 div.payoffs div.labelaside	{ text-align: right;
 				  width: 1%; }
 div.payoffs div.labelatop	{ text-align: center; }
-div.payoffs > div:hover .pair	{ box-shadow: 2px 2px 3px #888; }
-div.payoffs > div:active .pair	{ background-color: #ddd; }
+div.ihover > *,
+div.payoffs > div.hover .pair	{ box-shadow: 2px 2px 3px #088; }
+div.payoffs > div .pair		{ background-color: #ddd; }
+div.payoffs > div.active .pair	{ background-color: #fff; }
 div.canclose			{ position: relative; 
 				  border: thin solid #ccc;
 				  border-radius: 1ex;
@@ -237,6 +242,8 @@ div.input input[readonly]	{ background-color: #ddd; }
 	#login article > section > form		
 				{ padding: 0; }
 	#login > article	{ padding: 0; }
+	h2			{ text-align: center; }
+	h3			{ text-align: center; }
 	article ul li > span	{ display: block; 
 				  margin: 1ex 0; }
 	article ul li > div	{ margin: 1ex 0; }
@@ -248,8 +255,11 @@ div.input input[readonly]	{ background-color: #ddd; }
 	section section >h3	{ text-align: center; 
 				  font-size: 14pt;
 				  padding: 1ex; }
-	div.payoffs		{ width: 100% !important; }
-	div.history		{ width: 100% !important; }
+	body > article		{ padding: 1em 0.5ex; }
+	div.payoffs		{ width: 100%; 
+				  border-spacing: 0.25ex; }
+	div.history		{ width: 100%; 
+				  border-spacing: 0.25ex; }
 	h1			{ font-size: 18pt; }
 	#exprCountdown		{ font-size: 12pt; }
 }

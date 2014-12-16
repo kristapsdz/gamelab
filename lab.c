@@ -33,6 +33,7 @@ enum	page {
 	PAGE_HOME,
 	PAGE_INDEX,
 	PAGE_LOGIN,
+	PAGE_PRIVACY,
 	PAGE__MAX
 };
 
@@ -43,6 +44,7 @@ enum	page {
 enum	cntt {
 	CNTT_HTML_HOME,
 	CNTT_HTML_LOGIN,
+	CNTT_HTML_PRIVACY,
 	CNTT_JS_HOME,
 	CNTT__MAX
 };
@@ -82,6 +84,7 @@ static	unsigned int perms[PAGE__MAX] = {
 	PERM_JS | PERM_HTML | PERM_LOGIN, /* PAGE_HOME */
 	PERM_JS | PERM_HTML | PERM_LOGIN, /* PAGE_INDEX */
 	PERM_HTML, /* PAGE_LOGIN */
+	PERM_HTML, /* PAGE_PRIVACY */
 };
 
 static const char *const pages[PAGE__MAX] = {
@@ -92,6 +95,7 @@ static const char *const pages[PAGE__MAX] = {
 	"home", /* PAGE_HOME */
 	"index", /* PAGE_INDEX */
 	"login", /* PAGE_LOGIN */
+	"privacy", /* PAGE_PRIVACY */
 };
 
 static	const char *const templs[TEMPL__MAX] = {
@@ -102,6 +106,7 @@ static	const char *const templs[TEMPL__MAX] = {
 static const char *const cntts[CNTT__MAX] = {
 	"playerhome.html", /* CNTT_HTML_HOME_NEW */
 	"playerlogin.html", /* CNTT_HTML_LOGIN */
+	"privacy.html", /* CNTT_HTML_PRIVACY */
 	"playerhome.js", /* CNTT_JS_HOME */
 };
 
@@ -538,6 +543,9 @@ main(void)
 		break;
 	case (PAGE_LOGIN):
 		sendcontent(&r, CNTT_HTML_LOGIN);
+		break;
+	case (PAGE_PRIVACY):
+		sendcontent(&r, CNTT_HTML_PRIVACY);
 		break;
 	default:
 		http_open(&r, KHTTP_404);

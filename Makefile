@@ -7,6 +7,7 @@ PAGES 	 = addplayer.eml \
 	   playerhome.html \
 	   playerhome.js \
 	   playerlogin.html \
+	   privacy.html \
 	   test.eml
 STATICS	 = style.css \
 	   script.js
