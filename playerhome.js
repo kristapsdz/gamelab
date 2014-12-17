@@ -159,6 +159,7 @@ function prowClick(source, id)
 		source.classList.add('active');
 		e.value = '0';
 		e.removeAttribute('readonly');
+		e.select();
 	} else {
 		source.classList.remove('active');
 		e.value = '';
@@ -385,6 +386,8 @@ function loadGame()
 		doClearReplace('exprHistoryLottery', res.curlottery);
 		appendMatrix(doClear('exprHistoryMatrix'), matrix);
 	} 
+
+	doClearReplace('historyLottery', res.aggrlottery);
 
 	/*
 	 * Assign an input field per strategy.
