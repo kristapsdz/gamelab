@@ -20,29 +20,49 @@
 
 enum	tkey {
 	TKEY_ADMIN_EMAIL,
+	TKEY_GAMES,
+	TKEY_ROUNDS,
+	TKEY_ROUND_TIME,
 	TKEY__MAX
 };
 
 static	const char *const tkeys[TKEY__MAX] = {
-	"gamelab-admin-email"
+	"gamelab-admin-email",
+	"gamelab-games",
+	"gamelab-rounds",
+	"gamelab-round-time",
+};
+
+struct	jsoncache {
+	char	 	*mail;
+	struct kjsonreq	*r;
+	int64_t		 rounds;
+	int64_t		 games;
+	int64_t		 roundtime;
 };
 
 static int
 json_instructions(size_t key, void *arg)
 {
-	struct kjsonreq	*r = arg;
-	char		*cp = NULL;
+	struct jsoncache *c = arg;
 
 	switch (key) {
 	case (TKEY_ADMIN_EMAIL):
-		cp = db_admin_get_mail();
-		kjson_string_puts(r, cp);
+		kjson_string_puts(c->r, c->mail);
+		break;
+	case (TKEY_GAMES):
+		kjson_string_putint(c->r, c->games);
+		break;
+	case (TKEY_ROUNDS):
+		kjson_string_putint(c->r, c->rounds);
+		break;
+	case (TKEY_ROUND_TIME):
+		kjson_string_putint(c->r, c->roundtime / 60);
 		break;
 	default:
 		abort();
 	}
 
-	free(cp);
 	return(1);
 }
 
@@ -54,6 +74,7 @@ json_putexpr(struct kjsonreq *r, const struct expr *expr)
 	time_t	 	 tt, tilstart, tilnext;
 	int64_t	 	 round;
 	struct ktemplate t;
+	struct jsoncache c;
 
 	frac = 0.0;
 	tilstart = tilnext = 0;
@@ -84,12 +105,19 @@ json_putexpr(struct kjsonreq *r, const struct expr *expr)
 	kjson_objp_open(r, "expr");
 	kjson_stringp_open(r, "instructions");
 	memset(&t, 0, sizeof(struct ktemplate));
+	memset(&c, 0, sizeof(struct jsoncache));
+	c.r = r;
+	c.mail = db_admin_get_mail();
+	c.rounds = expr->rounds;
+	c.roundtime = expr->minutes;
+	c.games = db_game_count_all(); /* FIXME */
 	t.key = tkeys;
 	t.keysz = TKEY__MAX;
-	t.arg = r;
+	t.arg = &c;
 	t.cb = json_instructions;
 	khttp_templatex_buf(&t, expr->instructions, 
 		strlen(expr->instructions), kjson_string_write, r);
+	free(c.mail);
 	kjson_string_close(r);
 	kjson_putintp(r, "start", (int64_t)expr->start);
 	kjson_putintp(r, "end", (int64_t)expr->end);
