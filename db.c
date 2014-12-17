@@ -1216,21 +1216,14 @@ static struct roundup *
 db_roundup_round(struct roundup *r)
 {
 	size_t	 i, j, k;
-	mpq_t	 tmp, div, sum, row, col;
+	mpq_t	 tmp, sum;
 
 	fprintf(stderr, "Roundup for "
 		"round %" PRId64 "\n", r->round);
 
-	r->avg = kcalloc(r->p1sz * r->p2sz, sizeof(mpq_t));
-	r->avgp1 = kcalloc(r->p1sz, sizeof(mpq_t));
-	r->avgp2 = kcalloc(r->p2sz, sizeof(mpq_t));
-
-	for (i = 0; i < r->p1sz * r->p2sz; i++)
-		mpq_init(r->avg[i]);
-	for (i = 0; i < r->p1sz; i++)
-		mpq_init(r->avgp1[i]);
-	for (i = 0; i < r->p2sz; i++)
-		mpq_init(r->avgp2[i]);
+	r->avg = kcalloc(r->p1sz * r->p2sz, sizeof(double));
+	r->avgp1 = kcalloc(r->p1sz, sizeof(double));
+	r->avgp2 = kcalloc(r->p2sz, sizeof(double));
 
 	if (0 == r->roundcount) {
 		fprintf(stderr, "Roundup: roundcount "
@@ -1240,34 +1233,28 @@ db_roundup_round(struct roundup *r)
 
 	mpq_init(tmp);
 	mpq_init(sum);
-	mpq_init(div);
-	mpq_init(row);
-	mpq_init(col);
 
 	for (j = 1, i = 0; i < r->roundcount; i++, j *= 2) {
-		mpq_set_ui(div, 1, j);
-		mpq_canonicalize(div);
-		gmp_fprintf(stderr, "Adding %Qd\n", div);
-		mpq_summation(sum, div);
+		mpq_set_ui(tmp, 1, j);
+		mpq_canonicalize(tmp);
+		mpq_summation(sum, tmp);
 	}
-	gmp_fprintf(stderr, "Sum = %Qd\n", sum);
 
 	for (i = 0; i < r->p1sz; i++) {
-		mpq_div(r->avgp1[i], r->aggrp1[i], sum);
-		gmp_fprintf(stderr, "%Qd = %Qd / %Qd\n", r->avgp1[i], r->aggrp1[i], sum);
+		mpq_div(tmp, r->aggrp1[i], sum);
+		r->avgp1[i] = mpq_get_d(tmp);
 	}
-	for (i = 0; i < r->p2sz; i++) 
-		mpq_div(r->avgp2[i], r->aggrp2[i], sum);
+	for (i = 0; i < r->p2sz; i++)  {
+		mpq_div(tmp, r->aggrp2[i], sum);
+		r->avgp2[i] = mpq_get_d(tmp);
+	}
 
 	for (i = k = 0; i < r->p1sz; i++) 
 		for (j = 0; j < r->p2sz; j++, k++)
-			mpq_mul(r->avg[k], r->avgp1[i], r->avgp2[j]);
+			r->avg[k] = r->avgp1[i] * r->avgp2[j];
 
 	mpq_clear(tmp);
-	mpq_clear(div);
 	mpq_clear(sum);
-	mpq_clear(row);
-	mpq_clear(col);
 
 	fprintf(stderr, "Roundup: complete for "
 		"round %" PRId64 "\n", r->round);
@@ -1843,27 +1830,18 @@ db_roundup_free(struct roundup *p)
 	if (NULL == p)
 		return;
 	
-	if (NULL != p->avgp1)
-		for (i = 0; i < p->p1sz; i++)
-			mpq_clear(p->avgp1[i]);
 	if (NULL != p->aggrp1)
 		for (i = 0; i < p->p1sz; i++)
 			mpq_clear(p->aggrp1[i]);
 	if (NULL != p->curp1)
 		for (i = 0; i < p->p1sz; i++)
 			mpq_clear(p->curp1[i]);
-	if (NULL != p->avgp2)
-		for (i = 0; i < p->p2sz; i++)
-			mpq_clear(p->avgp2[i]);
 	if (NULL != p->aggrp2)
 		for (i = 0; i < p->p2sz; i++)
 			mpq_clear(p->aggrp2[i]);
 	if (NULL != p->curp2)
 		for (i = 0; i < p->p2sz; i++)
 			mpq_clear(p->curp2[i]);
-	if (NULL != p->avg)
-		for (i = 0; i < p->p1sz * p->p2sz; i++)
-			mpq_clear(p->avg[i]);
 
 	free(p->avg);
 	free(p->avgp1);

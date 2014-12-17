@@ -99,12 +99,13 @@ function appendMatrix(e, matrix)
 			row.appendChild(cell);
 			cell.appendChild
 				(document.createTextNode
-				 (matrix[i].hmatrix[j]));
+				 (matrix[i].hmatrix[j].toFixed(2)));
 		}
 
 		cell = document.createElement('div');
 		cell.setAttribute('class', 'sumaside sum');
-		cell.appendChild(document.createTextNode(matrix[i].ravg));
+		cell.appendChild(document.createTextNode
+			(matrix[i].ravg.toFixed(2)));
 		row.appendChild(cell);
 	}
 
@@ -120,7 +121,8 @@ function appendMatrix(e, matrix)
 		cell = document.createElement('div');
 		cell.setAttribute('class', 'sumbelow sum');
 		row.appendChild(cell);
-		cell.appendChild(document.createTextNode(matrix[0][i].cavg));
+		cell.appendChild(document.createTextNode
+			(matrix[0][i].cavg.toFixed(2)));
 	}
 
 	cell = document.createElement('div');
