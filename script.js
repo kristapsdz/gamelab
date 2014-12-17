@@ -104,6 +104,14 @@ function doClear(name)
 	return(doClearNode(document.getElementById(name)));
 }
 
+function doClearReplaceMarkup(name, str) 
+{
+	var e;
+
+	if (null != (e = doClearNode(document.getElementById(name))))
+		e.innerHTML = str;
+}
+
 function doClearReplace(name, str) 
 {
 	var e;

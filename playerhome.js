@@ -91,17 +91,11 @@ function appendMatrix(e, matrix, rowavgs, colavgs)
 
 		cell = document.createElement('div');
 		cell.setAttribute('class', 'labelaside');
-		cell.setAttribute('width', '1%;');
-		cell.appendChild(document.createTextNode
-			((i + 1) + '.'));
 		row.appendChild(cell);
 
 		for (j = 0; j < matrix[i].length; j++) {
 			cell = document.createElement('div');
 			cell.setAttribute('class', 'mix');
-			cell.setAttribute('style', 'width: ' + 
-				((100.0 / 
-				  (matrix[i].length + 1)) - 1) + '%;');
 			row.appendChild(cell);
 			cell.appendChild
 				(document.createTextNode
@@ -110,8 +104,6 @@ function appendMatrix(e, matrix, rowavgs, colavgs)
 
 		cell = document.createElement('div');
 		cell.setAttribute('class', 'sumaside sum');
-		cell.setAttribute('style', 'width: ' + 
-			((100.0 / (matrix[i].length + 1)) - 1) + '%;');
 		cell.appendChild(document.createTextNode(rowavgs[i]));
 		row.appendChild(cell);
 	}
@@ -127,16 +119,12 @@ function appendMatrix(e, matrix, rowavgs, colavgs)
 	for (i = 0; i < matrix[0].hmatrix.length; i++) {
 		cell = document.createElement('div');
 		cell.setAttribute('class', 'sumbelow sum');
-		cell.setAttribute('style', 'width: ' + 
-			((100.0 / (matrix[0].length + 1)) - 1) + '%;');
 		row.appendChild(cell);
 		cell.appendChild(document.createTextNode(colavgs[i]));
 	}
 
 	cell = document.createElement('div');
 	cell.setAttribute('class', 'sumaside');
-	cell.setAttribute('style', 'width: ' + 
-		((100.0 / (matrix[0].length + 1)) - 1) + '%;');
 	row.appendChild(cell);
 }
 
@@ -216,9 +204,12 @@ function appendBimatrix(e, matrix, colour, ocolour)
 
 	for (i = 0; i < matrix.length; i++) {
 		row = document.createElement('div');
-		row.setAttribute('onclick', 'prowClick(this, ' + matrix[i].index + ')');
-		row.setAttribute('onmouseover', 'prowOver(this, ' + matrix[i].index + ')');
-		row.setAttribute('onmouseout', 'prowOut(this, ' + matrix[i].index + ')');
+		row.setAttribute('onclick', 
+			'prowClick(this, ' + matrix[i].index + ')');
+		row.setAttribute('onmouseover', 
+			'prowOver(this, ' + matrix[i].index + ')');
+		row.setAttribute('onmouseout', 
+			'prowOut(this, ' + matrix[i].index + ')');
 		table.appendChild(row);
 		cell = document.createElement('div');
 		cell.setAttribute('class', 'labelaside');
@@ -228,8 +219,6 @@ function appendBimatrix(e, matrix, colour, ocolour)
 		for (j = 0; j < matrix[i].length; j++) {
 			cell = document.createElement('div');
 			cell.setAttribute('class', 'pair');
-			cell.setAttribute('style', 'width: ' + 
-				(100.0 / (matrix[i].length)) + '%;');
 			row.appendChild(cell);
 			poff = document.createElement('div');
 			poff.setAttribute('style', 
@@ -418,7 +407,6 @@ function loadGame()
 		input = document.createElement('input');
 		input.setAttribute('type', 'text');
 		input.setAttribute('readonly', 'readonly');
-		input.setAttribute('required', 'required');
 		input.setAttribute('id', 'index' + matrix[i].index);
 		input.setAttribute('name', 'index' + matrix[i].index);
 		div.appendChild(ii);
@@ -440,9 +428,10 @@ function loadGame()
 
 function loadExprSuccess(resp)
 {
-	var e, v, i, j, expr;
+	var e, expr;
 
 	resindex = 0;
+	res = null;
 
 	try  { 
 		res = JSON.parse(resp);
@@ -456,19 +445,17 @@ function loadExprSuccess(resp)
 		return;
 	}
 
+	expr = res.expr;
+
 	doHide('exprLoading');
 	doHide('historyLoading');
 	doHide('instructionsLoading');
 	doUnhide('exprLoaded');
 	doUnhide('historyLoaded');
 	doUnhide('instructionsLoaded');
+	doClearReplaceMarkup('instructionsLoaded', expr.instructions);
 
-	expr = res.expr;
-
-	e = doClear('instructionsLoaded');
-	e.innerHTML = expr.instructions;
-
-	if ((v = parseInt(expr.tilstart)) > 0) {
+	if (expr.tilstart > 0) {
 		/*
 		 * If we haven't yet started, then simply set our timer
 		 * and exit: we have nothing to show.
@@ -476,11 +463,11 @@ function loadExprSuccess(resp)
 		doUnhide('exprCountdownTilStart');
 		doHide('exprCountdownTilNext');
 		e = doClear('exprCountdown');
-		formatCountdown(v, e);
-		setTimeout(timerCountdown, 1000, 
-			loadExpr, e, v, new Date().getTime());
+		formatCountdown(expr.tilstart, e);
+		setTimeout(timerCountdown, 1000, loadExpr, 
+			e, expr.tilstart, new Date().getTime());
 		doUnhide('exprNotStarted');
-	} else if (0 == v) {
+	} else if (0 == expr.tilstart) {
 		/*
 		 * Start by setting the countdown til the next
 		 * game-play.
@@ -489,10 +476,9 @@ function loadExprSuccess(resp)
 		doUnhide('exprCountdownTilNext');
 
 		e = doClear('exprCountdown');
-		v = parseInt(expr.tilnext);
-		formatCountdown(v, e);
-		setTimeout(timerCountdown, 1000, 
-			loadExpr, e, v, new Date().getTime());
+		formatCountdown(expr.tilnext, e);
+		setTimeout(timerCountdown, 1000, loadExpr, 
+			e, expr.tilnext, new Date().getTime());
 		doValue('exprPlayRound', expr.round);
 		shuffle(res.games, res.rseed);
 		loadGame();
