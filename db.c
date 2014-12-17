@@ -1364,7 +1364,7 @@ db_player_lottery(int64_t round, int64_t pid, mpq_t cur, mpq_t aggr)
 static void
 db_roundup_players(int64_t round, 
 	const struct roundup *r, 
-	const struct game *game)
+	size_t gamesz, const struct game *game)
 {
 	mpq_t		*qs, *opponent;
 	sqlite3_stmt	*stmt, *stmt2;
@@ -1412,6 +1412,7 @@ db_roundup_players(int64_t round,
 	db_bind_int(stmt, 1, r->round);
 	db_bind_int(stmt, 2, game->id);
 	db_bind_int(stmt, 3, 0);
+	db_bind_int(stmt, 4, gamesz);
 
 	for (i = 0; i < r->p1sz; i++) {
 		mpq_set_ui(opponent[i], 0, 1);
@@ -1477,6 +1478,7 @@ db_roundup_players(int64_t round,
 	db_bind_int(stmt, 1, r->round);
 	db_bind_int(stmt, 2, game->id);
 	db_bind_int(stmt, 3, 1);
+	db_bind_int(stmt, 4, gamesz);
 
 	for (i = 0; i < r->p2sz; i++) {
 		mpq_set_ui(opponent[i], 0, 1);
@@ -1598,7 +1600,7 @@ db_roundup_game(const struct game *game, void *arg)
 {
 	int64_t		 round;
 	struct roundup	*r;
-	size_t		 i, count;
+	size_t		 i, count, gamesz;
 	sqlite3_stmt	*stmt;
 	mpq_t		 tmp, sum, swap;
 	char		*aggrsp1, *aggrsp2, *cursp1, *cursp2;
@@ -1657,6 +1659,7 @@ db_roundup_game(const struct game *game, void *arg)
 	mpq_init(tmp);
 
 	r->skip = 1;
+	gamesz = db_game_count_all(); /* XXX */
 
 	/*
 	 * Accumulate all the mixtures from all players.
@@ -1677,7 +1680,7 @@ db_roundup_game(const struct game *game, void *arg)
 	db_bind_int(stmt, 1, r->round);
 	db_bind_int(stmt, 2, game->id);
 	db_bind_int(stmt, 3, 0);
-	db_bind_int(stmt, 4, db_game_count_all());
+	db_bind_int(stmt, 4, gamesz);
 
 	for (count = 0; SQLITE_ROW == db_step(stmt, 0); count++)
 		mpq_summation_strvec(r->curp1, 
@@ -1810,7 +1813,7 @@ aggregate:
 	if (SQLITE_CONSTRAINT == rc)
 		fprintf(stderr, "Roundup during build!?\n");
 	else
-		db_roundup_players(round, r, game);
+		db_roundup_players(round, r, gamesz, game);
 
 	free(aggrsp1);
 	free(aggrsp2);

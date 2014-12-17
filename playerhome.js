@@ -49,7 +49,7 @@ function shuffle(o, seed)
  * attribute per row that points to the roundup matrix row.
  * This lets us show the shuffled matrix's corresponding rows.
  */
-function appendMatrix(e, matrix, rowavgs, colavgs)
+function appendMatrix(e, matrix)
 {
 	var table, row, cell, i, j, poff, rowinner;
 
@@ -104,7 +104,7 @@ function appendMatrix(e, matrix, rowavgs, colavgs)
 
 		cell = document.createElement('div');
 		cell.setAttribute('class', 'sumaside sum');
-		cell.appendChild(document.createTextNode(rowavgs[i]));
+		cell.appendChild(document.createTextNode(matrix[i].ravg));
 		row.appendChild(cell);
 	}
 
@@ -120,7 +120,7 @@ function appendMatrix(e, matrix, rowavgs, colavgs)
 		cell = document.createElement('div');
 		cell.setAttribute('class', 'sumbelow sum');
 		row.appendChild(cell);
-		cell.appendChild(document.createTextNode(colavgs[i]));
+		cell.appendChild(document.createTextNode(matrix[0][i].cavg));
 	}
 
 	cell = document.createElement('div');
@@ -322,7 +322,7 @@ function bimatrixCreateTranspose(vector)
  */
 function loadGame()
 {
-	var game, matrix, hmatrix, e, div, ii, i, input, c, oc;
+	var game, matrix, hmatrix, e, div, ii, i, j, input, c, oc, ravg, cavg;
 
 	if (resindex == res.games.length) {
 		doUnhide('exprDone');
@@ -343,29 +343,35 @@ function loadGame()
 	doClearReplace('playRoundMax', res.expr.rounds);
 
 	game = res.games[resindex];
-	/*
-	 * Transpose the matrix so that we always appear to be the row
-	 * player (for consistency).
-	 */
+
+	/* Transpose the matrix, if necessary. */
 	matrix = 0 == res.role ? 
 		bimatrixCreate(game.payoffs) : 
 		bimatrixCreateTranspose(game.payoffs);
+	hmatrix = null;
 
-	/*
-	 * If we have roundup information, first transpose it in the
-	 * same way as above.
-	 * Then assign each matrix row to a row in the roundup; this
-	 * will allow us to shuffle both in tandem.
-	 */
 	if (null != game.roundup) {
+		/* Transpose vectors and matrix. */
+		ravg = 0 == res.role ? 
+			game.roundup.avgp1 : game.roundup.avgp2;
+		cavg = 0 == res.role ? 
+			game.roundup.avgp2 : game.roundup.avgp1;
 		hmatrix = 0 == res.role ? 
 			matrixCreate(game.roundup.avgs) : 
 			matrixCreateTranspose(game.roundup.avgs);
-		for (i = 0; i < matrix.length; i++)
+		/* 
+		 * Attach values to the matrix so that they persist
+		 * after we shuffle the matrix rows.
+		 */
+		for (i = 0; i < matrix.length; i++) {
 			matrix[i].hmatrix = hmatrix[i];
-	} else
-		hmatrix = null;
+			matrix[i].ravg = ravg[i];
+			for (j = 0; j < matrix[i].length; j++)
+				matrix[i][j].cavg = cavg[j];
+		}
+	} 
 
+	/* Assign colours. */
 	c = res.rseed % colours.length;
 	oc = (0 == c % 2) ? c + 1 : c - 1;
 
@@ -374,21 +380,11 @@ function loadGame()
 	appendBimatrix(doClear('exprMatrix'), matrix, c, oc);
 
 	/* Show the shuffled roundup matrix, if it exists. */
+	e = doClear('exprHistory');
 	if (null != hmatrix) {
-		e = doClear('exprHistory');
-		div = document.createElement('div');
-		div.setAttribute('class', 'lottery');
-		div.appendChild
-			(document.createTextNode
-			 ('Lottery tickets: ' + res.curlottery));
-		e.appendChild(div);
-		appendMatrix(e, matrix,
-			0 == res.role ? game.roundup.avgp1 : 
-				game.roundup.avgp2,
-			0 == res.role ? game.roundup.avgp2 : 
-				game.roundup.avgp1);
-	} else
-		doClear('exprHistory');
+		doClearReplace('exprHistoryLottery', res.curlottery);
+		appendMatrix(doClear('exprHistoryMatrix'), matrix);
+	} 
 
 	/*
 	 * Assign an input field per strategy.
@@ -407,6 +403,7 @@ function loadGame()
 		input = document.createElement('input');
 		input.setAttribute('type', 'text');
 		input.setAttribute('readonly', 'readonly');
+		input.setAttribute('placeholder', 'Real index: ' + matrix[i].index);
 		input.setAttribute('id', 'index' + matrix[i].index);
 		input.setAttribute('name', 'index' + matrix[i].index);
 		div.appendChild(ii);
