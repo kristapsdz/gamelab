@@ -161,6 +161,7 @@ json_putroundup(struct kjsonreq *r, const char *name,
 	}
 
 	kjson_objp_open(r, name);
+	kjson_putintp(r, "skip", roundup->skip);
 	kjson_arrayp_open(r, "avgp1");
 	for (i = 0; i < roundup->p1sz; i++)
 		kjson_putdouble(r, roundup->avgp1[i]);

@@ -383,11 +383,16 @@ function loadGame()
 	appendBimatrix(doClear('exprMatrix'), matrix, c, oc);
 
 	/* Show the shuffled roundup matrix, if it exists. */
-	e = doClear('exprHistory');
 	if (null != hmatrix) {
+		doUnhide('exprHistory');
+		if (game.roundup.skip)
+			doUnhide('exprHistoryLotterySkip');
+		else
+			doHide('exprHistoryLotterySkip');
 		doClearReplace('exprHistoryLottery', res.curlottery);
 		appendMatrix(doClear('exprHistoryMatrix'), matrix);
-	} 
+	} else
+		doHide('exprHistory');
 
 	doClearReplace('historyLottery', res.aggrlottery);
 
