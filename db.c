@@ -338,7 +338,9 @@ db_player_sess_valid(int64_t *playerid, int64_t id, int64_t cookie)
 
 	stmt = db_stmt
 		("SELECT playerid FROM sess "
-		 "WHERE id=? AND cookie=? AND playerid IS NOT NULL");
+		 "INNER JOIN player ON player.id=sess.playerid "
+		 "WHERE sess.id=? AND sess.cookie=? AND "
+		 "sess.playerid IS NOT NULL AND player.enabled=1");
 	db_bind_int(stmt, 1, id);
 	db_bind_int(stmt, 2, cookie);
 	if (SQLITE_ROW == (rc = db_step(stmt, 0))) {

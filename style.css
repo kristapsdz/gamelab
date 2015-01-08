@@ -44,6 +44,7 @@ i.fa-warning + span		{ margin-left: 0.5ex; }
 h1				{ margin: 0; }
 h2				{ font-size: 16pt; 
 				  margin: 0; }
+h3				{ font-size: 14pt; }
 body > article			{ background-color: #fff;
 				  padding: 1em;
 				  margin: 0; }

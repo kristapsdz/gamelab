@@ -159,6 +159,9 @@ function prowClick(source, id)
 	if (null == (e = document.getElementById('index' + id)))
 		return;
 
+	if (e.hasAttribute('disabled'))
+		return;
+
 	if (e.hasAttribute('readonly')) {
 		source.classList.add('active');
 		e.value = '0';
@@ -328,7 +331,6 @@ function bimatrixCreateTranspose(vector)
 function loadGame()
 {
 	var game, matrix, hmatrix, e, div, ii, i, j, input, c, oc, ravg, cavg;
-
 
 	if (resindex == res.games.length) {
 		doUnhide('exprDone');
@@ -519,12 +521,18 @@ function loadExprSetup()
 	doHide('exprCountdownTilNext');
 }
 
-function loadExprFailure(err)
+function sendLoggedOut()
 {
 	var url = document.URL;
 
 	url = url.substring(0, url.lastIndexOf("/"));
 	location.href = url + '/login.html#loggedout';
+}
+
+function loadExprFailure(err)
+{
+
+	sendLoggedOut();
 }
 
 function loadExpr() 
@@ -551,6 +559,9 @@ function doPlayGameError(err)
 	case 400:
 		doUnhide('playGameErrorForm');
 		break;
+	case 404:
+		sendLoggedOut();
+		break;
 	case 409:
 		doUnhide('playGameErrorState');
 		break;
@@ -572,7 +583,7 @@ function doPlayGameSuccess(resp)
 		e = document.getElementById('index' + i);
 		if (null == e)
 			break;
-		e.setAttribute('readonly', 'readonly');
+		e.setAttribute('disabled', 'disabled');
 	}
 
 	resindex++;

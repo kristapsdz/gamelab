@@ -165,6 +165,8 @@ http_open(struct kreq *r, enum khttp http)
 		"%s", khttps[http]);
 	khttp_head(r, kresps[KRESP_CONTENT_TYPE], 
 		"%s", kmimetypes[r->mime]);
+	khttp_head(r, kresps[KRESP_CACHE_CONTROL], 
+		"%s", "no-cache");
 }
 
 static void
@@ -253,7 +255,6 @@ senddologin(struct kreq *r)
 			khttp_body(r);
 		db_sess_free(sess);
 	} else {
-		http_open(r, KHTTP_400);
 		if (KMIME_TEXT_HTML == r->mime) {
 			http_open(r, KHTTP_303);
 			send303(r, PAGE_LOGIN, 0);
