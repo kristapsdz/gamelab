@@ -74,7 +74,7 @@ function appendMatrix(e, matrix)
 		cell.setAttribute('style', 'width: ' + 
 			((100.0 / (matrix[0].length + 1)) - 1) + '%;');
 		cell.appendChild(document.createTextNode
-			(String.fromCharCode(97 + i) + '.'));
+			(String.fromCharCode(65 + i)));
 		row.appendChild(cell);
 	}
 
@@ -91,6 +91,8 @@ function appendMatrix(e, matrix)
 
 		cell = document.createElement('div');
 		cell.setAttribute('class', 'labelaside');
+		cell.appendChild(document.createTextNode
+			(String.fromCharCode(97 + i)));
 		row.appendChild(cell);
 
 		for (j = 0; j < matrix[i].length; j++) {
@@ -200,7 +202,7 @@ function appendBimatrix(e, matrix, colour, ocolour)
 		cell.setAttribute('style', 'width: ' + 
 			(100.0 / (matrix[0].length)) + '%;');
 		cell.appendChild(document.createTextNode
-			(String.fromCharCode(97 + i) + '.'));
+			(String.fromCharCode(65 + i)));
 		row.appendChild(cell);
 	}
 
@@ -217,7 +219,7 @@ function appendBimatrix(e, matrix, colour, ocolour)
 		cell = document.createElement('div');
 		cell.setAttribute('class', 'labelaside');
 		cell.appendChild(document.createTextNode
-			((i + 1) + '.'));
+			(String.fromCharCode(97 + i)));
 		row.appendChild(cell);
 		for (j = 0; j < matrix[i].length; j++) {
 			cell = document.createElement('div');
@@ -327,15 +329,18 @@ function loadGame()
 {
 	var game, matrix, hmatrix, e, div, ii, i, j, input, c, oc, ravg, cavg;
 
+
 	if (resindex == res.games.length) {
 		doUnhide('exprDone');
 		doHide('exprPlay');
+		doHide('exprFinished');
 		doHide('exprNotStarted');
 		return;
 	} 
 
 	doHide('exprNotStarted');
 	doHide('exprDone');
+	doHide('exprFinished');
 	doUnhide('exprPlay');
 
 	doClearReplace('playGameNum', 
@@ -394,8 +399,6 @@ function loadGame()
 	} else
 		doHide('exprHistory');
 
-	doClearReplace('historyLottery', res.aggrlottery);
-
 	/*
 	 * Assign an input field per strategy.
 	 * These will correspond to the input fields that are in our
@@ -409,7 +412,8 @@ function loadGame()
 		div.setAttribute('class', 'input');
 		ii = document.createElement('span');
 		ii.setAttribute('class', 'strat');
-		ii.appendChild(document.createTextNode((i + 1) + '.'));
+		ii.appendChild(document.createTextNode
+			(String.fromCharCode(97 + i)));
 		input = document.createElement('input');
 		input.setAttribute('type', 'text');
 		input.setAttribute('readonly', 'readonly');
@@ -460,6 +464,7 @@ function loadExprSuccess(resp)
 	doUnhide('historyLoaded');
 	doUnhide('instructionsLoaded');
 	doClearReplaceMarkup('instructionsLoaded', expr.instructions);
+	doClearReplace('historyLottery', res.aggrlottery);
 
 	if (expr.tilstart > 0) {
 		/*
@@ -492,11 +497,11 @@ function loadExprSuccess(resp)
 		/*
 		 * Case where the game has finished.
 		 */
-		doUnhide('exprPlay');
+		doHide('exprPlay');
 		doHide('exprCountdownTilStart');
 		doHide('exprCountdownTilNext');
+		doUnhide('exprFinished');
 		doClearReplace('exprCountdown', 'Finished');
-		doClearReplace('exprPlay', 'Experiment finished.');
 	}
 }
 
