@@ -166,6 +166,8 @@ http_open(struct kreq *r, enum khttp http)
 	khttp_head(r, kresps[KRESP_CONTENT_TYPE], 
 		"%s", kmimetypes[r->mime]);
 	khttp_head(r, kresps[KRESP_CACHE_CONTROL], 
+		"%s", "no-cache, no-store");
+	khttp_head(r, kresps[KRESP_PRAGMA], 
 		"%s", "no-cache");
 }
 
