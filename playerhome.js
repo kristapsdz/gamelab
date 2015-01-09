@@ -58,7 +58,7 @@ function appendMatrix(e, matrix)
 
 	table.setAttribute('class', 'history');
 	table.setAttribute('style', 
-		'width: ' + (matrix[0].length * 10) + 'em;');
+		'max-width: ' + (matrix[0].length * 10) + 'em;');
 
 	row = document.createElement('div');
 	table.appendChild(row);
@@ -184,13 +184,11 @@ function appendBimatrix(e, matrix, colour, ocolour)
 	var table, row, cell, i, j, poff, inputs;
 
 	inputs = document.getElementById('playGame');
-	inputs.setAttribute('style', 
-		'width: ' + (matrix[0].length * 10) + 'em;');
 
 	table = document.createElement('div');
 	table.setAttribute('class', 'payoffs');
 	table.setAttribute('style', 
-		'width: ' + (matrix[0].length * 10) + 'em;');
+		'max-width: ' + (matrix[0].length * 10) + 'em;');
 
 	row = document.createElement('div');
 	table.appendChild(row);
@@ -341,9 +339,11 @@ function loadGame()
 	} 
 
 	doHide('exprNotStarted');
+	doHide('historyNotStarted');
 	doHide('exprDone');
 	doHide('exprFinished');
 	doUnhide('exprPlay');
+	doUnhide('historyPlay');
 
 	doClearReplace('playGameNum', 
 		((res.gamesz - res.games.length) + 
@@ -398,8 +398,9 @@ function loadGame()
 			doHide('exprHistoryLotterySkip');
 		doClearReplace('exprHistoryLottery', res.curlottery);
 		appendMatrix(doClear('exprHistoryMatrix'), matrix);
-	} else
+	} else {
 		doHide('exprHistory');
+	}
 
 	/*
 	 * Assign an input field per strategy.

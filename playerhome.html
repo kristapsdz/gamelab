@@ -41,9 +41,16 @@
 			<h2>Play History</h2>
 			<div id="historyLoading"><i class="fa fa-spinner fa-spin"></i></div>
 			<div id="historyLoaded" class="noshow">
-				<p>
-					You have <span id="historyLottery"></span> tickets.
-				</p>
+				<section id="historyPlay" class="noshow">
+					<p>
+						You have <span id="historyLottery"></span> tickets.
+					</p>
+				</section>
+				<section id="historyNotStarted" class="noshow">
+					<p>
+						Waiting for game to start...
+					</p>
+				</section>
 			</div>
 		</article>
 		<article id="defaultTab" class="tab">
@@ -71,12 +78,12 @@
 						Game <span id="playGameNum"></span> of <span id="playGameMax"></span>,
 						round <span id="playRoundNum"></span> of <span id="playRoundMax"></span>
 					</h3>
-					<p id="exprHistory">
+					<div id="exprHistory">
 						<div>
 							Lottery tickets: <span id="exprHistoryLottery"></span> <span id="exprHistoryLotterySkip">(not enough plays in last round)</span>
 						</div>
 						<div id="exprHistoryMatrix"></div>
-					</p>
+					</div>
 					<aside>
 						<div>
 							Select strategies from the matrix below.
@@ -84,7 +91,7 @@
 							These must be fractions or decimal numbers with no greater than four digits following the decimal.
 						</div>
 					</aside>
-					<p id="exprMatrix"></p>
+					<div id="exprMatrix"></div>
 					<form method="post" action="@@cgibin@@/doplay.json" id="playGame" onsubmit="return(playGame(this));">
 						<div class="error">
 							<div id="playGameErrorState" class="noshow">

@@ -168,7 +168,7 @@ article ul li > span:last-child { margin-right: 0; }
 span.waiting			{ background-color: #aaa; }
 div.lottery			{ text-align: center; }
 div.history			{ display: table;
-				  max-width: 100%;
+				  width: 100%;
 				  margin-left: auto;
 				  margin-right: auto;
 				  background-color: #eee;
@@ -190,7 +190,7 @@ div.history div.labelatop	{ text-align: center; }
 div.history div.sumbelow	{ text-align: center; }
 div.history div.sumaside	{ text-align: center; }
 div.payoffs			{ display: table; 
-				  max-width: 100%; 
+				  width: 100%; 
 				  margin-left: auto;
 				  margin-right: auto;
 				  border-spacing: 1ex; }
