@@ -343,7 +343,6 @@ function loadGame()
 	doHide('exprDone');
 	doHide('exprFinished');
 	doUnhide('exprPlay');
-	doUnhide('historyPlay');
 
 	doClearReplace('playGameNum', 
 		((res.gamesz - res.games.length) + 
@@ -467,13 +466,13 @@ function loadExprSuccess(resp)
 	doUnhide('historyLoaded');
 	doUnhide('instructionsLoaded');
 	doClearReplaceMarkup('instructionsLoaded', expr.instructions);
-	doClearReplace('historyLottery', res.aggrlottery);
 
 	if (expr.tilstart > 0) {
 		/*
 		 * If we haven't yet started, then simply set our timer
 		 * and exit: we have nothing to show.
 		 */
+		doUnhide('historyNotStarted');
 		doUnhide('exprCountdownTilStart');
 		doHide('exprCountdownTilNext');
 		e = doClear('exprCountdown');
@@ -489,11 +488,17 @@ function loadExprSuccess(resp)
 		doHide('exprCountdownTilStart');
 		doUnhide('exprCountdownTilNext');
 
+
 		e = doClear('exprCountdown');
 		formatCountdown(expr.tilnext, e);
 		setTimeout(timerCountdown, 1000, loadExpr, 
 			e, expr.tilnext, new Date().getTime());
 		doValue('exprPlayRound', expr.round);
+		if (expr.round > 0) {
+			doUnhide('historyPlay');
+			doClearReplace('historyLottery', res.aggrlottery);
+		} else
+			doUnhide('historyNotYet');
 		shuffle(res.games, res.rseed);
 		loadGame();
 	} else {
