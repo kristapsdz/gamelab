@@ -8,6 +8,7 @@
 
 #include <assert.h>
 #include <inttypes.h>
+#include <math.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -1000,11 +1001,40 @@ db_expr_checkstate(enum estate state)
 	return(rc == SQLITE_ROW);
 }
 
+int64_t
+db_expr_winner(double winval, int64_t round)
+{
+	mpq_t	 	 mpq;
+	double		 v;
+	int64_t	 	 id;
+	sqlite3_stmt	*stmt;
+
+	assert(winval >= 0.0);
+	assert(winval <= 1.0);
+
+	stmt = db_stmt("SELECT player.id,lottery.aggrpayoff FROM "
+		"lottery INNER JOIN player ON lottery.playerid=player.id "
+		"WHERE lottery.round=? ORDER BY player.rank ASC");
+	db_bind_int(stmt, 1, round);
+	mpq_init(mpq);
+	while (SQLITE_ROW == db_step(stmt, 0)) {
+		id = sqlite3_column_int(stmt, 0);
+		mpq_summation_str(mpq, sqlite3_column_text(stmt, 1));
+		v = mpq_get_d(mpq);
+		assert(0.0 == v || isnormal(v));
+		/* TODO... */
+	}
+	db_finalise(stmt);
+	mpq_clear(mpq);
+	return(id);
+}
+
 int
 db_expr_start(int64_t date, int64_t rounds, int64_t minutes, 
 	const char *instructions, const char *uri)
 {
-	sqlite3_stmt	*stmt;
+	sqlite3_stmt	*stmt, *stmt2;
+	size_t		 i;
 
 	db_trans_begin();
 	if ( ! db_expr_checkstate(ESTATE_NEW)) {
@@ -1026,6 +1056,17 @@ db_expr_start(int64_t date, int64_t rounds, int64_t minutes,
 	db_finalise(stmt);
 	db_trans_commit();
 	fprintf(stderr, "Experiment started!\n");
+
+	i = 0;
+	stmt = db_stmt("SELECT id from player ORDER BY rseed ASC, id ASC");
+	stmt2 = db_stmt("UPDATE player SET rank=? WHERE id=?");
+	while (SQLITE_ROW == db_step(stmt, 0)) {
+		db_bind_int(stmt2, 1, i++);
+		db_bind_int(stmt2, 2, sqlite3_column_int(stmt, 0));
+		sqlite3_reset(stmt2);
+	}
+	db_finalise(stmt);
+	db_finalise(stmt2);
 	return(1);
 }
 
@@ -1896,6 +1937,7 @@ db_expr_free(struct expr *expr)
 void
 db_expr_wipe(void)
 {
+	sqlite3_stmt	*stmt, *stmt2;
 
 	fprintf(stderr, "Database being wiped!\n");
 	db_exec("DELETE FROM gameplay");
@@ -1908,4 +1950,14 @@ db_expr_wipe(void)
 	db_exec("UPDATE player SET state=0,enabled=1");
 	db_exec("UPDATE experiment SET state=0,rounds=0,"
 		"minutes=0,loginuri=\'\',instructions=\'\'");
+	stmt = db_stmt("SELECT id FROM player");
+	stmt2 = db_stmt("UPDATE player SET rseed=? WHERE id=?");
+	while (SQLITE_ROW == db_step(stmt, 0)) {
+		db_bind_int(stmt2, 1, arc4random_uniform(INT32_MAX) + 1);
+		db_bind_int(stmt2, 2, sqlite3_column_int(stmt, 0));
+		db_step(stmt2, 0);
+		sqlite3_reset(stmt2);
+	}
+	db_finalise(stmt);
+	db_finalise(stmt2);
 }
