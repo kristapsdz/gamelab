@@ -257,6 +257,7 @@ div.input input[readonly]	{ background-color: #ddd; }
 				  border: thin solid #333;
 				  border-bottom-right-radius: 1ex;
 				  border-left: 0; }
+.warning > div > :last-child a	{ color: #ccc; }
 @media only screen and (max-width: 400px), only screen and (max-device-width: 400px) {
 	#login h1		{ text-align: center; }
 	#login article > section > form		

@@ -106,18 +106,31 @@
 					</aside>
 					<div id="exprMatrix"></div>
 					<form method="post" action="@@cgibin@@/doplay.json" id="playGame" onsubmit="return(playGame(this));">
-						<div class="error">
-							<div id="playGameErrorState" class="noshow">
-								<i class="fa fa-warning"></i>
-								<span>You've already played this game.  (Did you play twice?)</span>
+						<div id="playGameErrorState" class="noshow">
+							<div class="warning">
+								<div>
+									<i class="fa fa-exclamation-circle"></i>
+									<span>
+										You've already played this game.  (Did you play twice?) 
+										<a href="#" onclick="window.location.reload(true);">Reload</a> to refresh the game view.
+									</span>
+								</div>
 							</div>
-							<div id="playGameErrorJson" class="noshow">
-								<i class="fa fa-warning"></i>
-								<span>A system error occured.</span>
+						</div>
+						<div id="playGameErrorForm" class="noshow">
+							<div class="warning">
+								<div>
+									<i class="fa fa-exclamation-circle"></i>
+									<span>Form not correctly filled out.</span>
+								</div>
 							</div>
-							<div id="playGameErrorForm" class="noshow">
-								<i class="fa fa-warning"></i>
-								<span>Form not correctly filled out.</span>
+						</div>
+						<div id="playGameErrorJson" class="noshow">
+							<div class="warning">
+								<div>
+									<i class="fa fa-warning"></i>
+									<span>A system error occured.</span>
+								</div>
 							</div>
 						</div>
 						<input type="hidden" id="exprPlayGid" name="gid" />
