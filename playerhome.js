@@ -173,6 +173,11 @@ function prowClick(source, id)
 		e.setAttribute('readonly', 'readonly');
 	}
 
+	if (source.classList.contains('hover'))
+		source.classList.remove('hover');
+	if (e.parentNode.classList.contains('ihover'))
+		e.parentNode.classList.remove('ihover');
+
 }
 
 /*
