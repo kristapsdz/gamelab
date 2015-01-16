@@ -188,6 +188,7 @@ div.history div.sum		{ border-radius: 0.5ex;
 div.history div.mix		{ text-align: center; 
 				  padding: 0.5ex; 
 				  border-radius: 0.5ex;
+				  background-color: #fff;
 				  border: thin solid #555; }
 div.history div.labelatop	{ text-align: center; }
 div.history div.sumbelow	{ text-align: center; }
@@ -210,9 +211,11 @@ div.payoffs div.labelaside	{ text-align: right;
 				  width: 1%; }
 div.payoffs div.labelatop	{ text-align: center; }
 div.ihover > *,
-div.payoffs > div.hover .pair	{ box-shadow: 2px 2px 3px #088; }
+div.payoffs > div.hover .pair	{ box-shadow: 2px 2px 2px #000; }
 div.payoffs > div .pair		{ background-color: #ddd; }
-div.payoffs > div.active .pair	{ background-color: #fff; }
+div.payoffs > div.active .pair	{ background-color: #fff; 
+				  box-shadow: 1px 1px 1px #444; }
+div.iactive > *			{ box-shadow: 1px 1px 1px #444; }
 div.canclose			{ position: relative; 
 				  border: thin solid #ccc;
 				  border-radius: 1ex;

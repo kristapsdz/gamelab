@@ -167,17 +167,18 @@ function prowClick(source, id)
 		e.value = '0';
 		e.removeAttribute('readonly');
 		e.select();
+		e.parentNode.classList.add('iactive');
 	} else {
 		source.classList.remove('active');
 		e.value = '';
 		e.setAttribute('readonly', 'readonly');
+		e.parentNode.classList.remove('iactive');
 	}
 
 	if (source.classList.contains('hover'))
 		source.classList.remove('hover');
 	if (e.parentNode.classList.contains('ihover'))
 		e.parentNode.classList.remove('ihover');
-
 }
 
 /*
@@ -392,6 +393,7 @@ function loadGame()
 	/* Shuffle the presentation of rows. */
 	shuffle(matrix, res.rseed);
 	appendBimatrix(doClear('exprMatrix'), matrix, c, oc);
+	document.getElementById('playerColour').setAttribute('style', 'color: ' + colours[c] + ';');
 
 	/* Show the shuffled roundup matrix, if it exists. */
 	if (null != hmatrix) {
