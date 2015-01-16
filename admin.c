@@ -656,7 +656,6 @@ static void
 senddoaddplayers(struct kreq *r)
 {
 	char	*tok, *buf, *mail, *sv;
-	size_t	 count = 0;
 
 	/* 
 	 * FIXME: send the KHTTP_200 (or whatever) after the
@@ -669,16 +668,14 @@ senddoaddplayers(struct kreq *r)
 	if (NULL == r->fieldmap[KEY_PLAYERS])
 		return;
 
-	count = 0;
 	buf = sv = kstrdup(r->fieldmap[KEY_PLAYERS]->parsed.s);
 	while (NULL != (tok = strsep(&buf, " \t\n\r"))) {
 		if (*tok == '\0')
 			continue;
 		if (NULL == (mail = valid_email(tok)))
 			continue;
-		if ( ! db_player_create(mail, count % 2))
+		if ( ! db_player_create(mail))
 			break;
-		count++;
 	}
 	free(sv);
 }

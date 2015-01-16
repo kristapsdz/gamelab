@@ -150,7 +150,7 @@ void		 db_player_reset_error(void);
 void		 db_player_set_mailed(int64_t, const char *);
 void		 db_player_set_state(int64_t, enum pstate);
 size_t		 db_player_count_all(void);
-int		 db_player_create(const char *, size_t);
+int		 db_player_create(const char *);
 void		 db_player_enable(int64_t);
 int		 db_player_delete(int64_t);
 void		 db_player_disable(int64_t);

@@ -956,7 +956,7 @@ err:
 }
 
 int
-db_player_create(const char *email, size_t role)
+db_player_create(const char *email)
 {
 	sqlite3_stmt	*stmt;
 	int		 rc;
@@ -971,19 +971,16 @@ db_player_create(const char *email, size_t role)
 	}
 
 	stmt = db_stmt("INSERT INTO player "
-		"(email,role,rseed) VALUES (?,?,?)");
+		"(email,rseed) VALUES (?,?)");
 	db_bind_text(stmt, 1, email);
-	db_bind_int(stmt, 2, role);
-	db_bind_int(stmt, 3, arc4random_uniform(INT32_MAX) + 1);
+	db_bind_int(stmt, 2, arc4random_uniform(INT32_MAX) + 1);
 	rc = db_step(stmt, DB_STEP_CONSTRAINT);
 	db_finalise(stmt);
-
 	if (SQLITE_DONE == rc) {
 		id = sqlite3_last_insert_rowid(db);
 		fprintf(stderr, "Player %" PRId64 " "
 			"created: %s\n", id, email);
 	}
-
 	db_trans_commit();
 	return(1);
 }
@@ -1034,6 +1031,7 @@ db_expr_start(int64_t date, int64_t rounds, int64_t minutes,
 	const char *instructions, const char *uri)
 {
 	sqlite3_stmt	*stmt, *stmt2;
+	int64_t		 id;
 	size_t		 i;
 
 	db_trans_begin();
@@ -1059,10 +1057,13 @@ db_expr_start(int64_t date, int64_t rounds, int64_t minutes,
 
 	i = 0;
 	stmt = db_stmt("SELECT id from player ORDER BY rseed ASC, id ASC");
-	stmt2 = db_stmt("UPDATE player SET rank=? WHERE id=?");
+	stmt2 = db_stmt("UPDATE player SET role=?,rank=? WHERE id=?");
 	while (SQLITE_ROW == db_step(stmt, 0)) {
-		db_bind_int(stmt2, 1, i++);
-		db_bind_int(stmt2, 2, sqlite3_column_int(stmt, 0));
+		id = sqlite3_column_int(stmt, 0);
+		db_bind_int(stmt2, 1, i % 2);
+		db_bind_int(stmt2, 2, i++);
+		db_bind_int(stmt2, 3, id);
+		db_step(stmt2, 0);
 		sqlite3_reset(stmt2);
 	}
 	db_finalise(stmt);
