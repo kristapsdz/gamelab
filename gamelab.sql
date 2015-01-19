@@ -1,3 +1,6 @@
+/*
+ * This consists of a unique participant in the experiment.
+ */
 CREATE TABLE player (
 	email TEXT NOT NULL,
 	state INTEGER NOT NULL DEFAULT(0),
@@ -10,6 +13,10 @@ CREATE TABLE player (
 	UNIQUE (email)
 );
 
+/*
+ * A lottery is created for an individual player when that player has
+ * all payoffs for all games.
+ */
 CREATE TABLE lottery (
 	round INTEGER NOT NULL,
 	playerid INTEGER REFERENCES player(id) NOT NULL,
@@ -19,6 +26,10 @@ CREATE TABLE lottery (
 	UNIQUE (round, playerid)
 );
 
+/*
+ * During a given round, the gameplay shows a player's status in terms
+ * of number of choices (plays) made, i.e., how many games.
+ */
 CREATE TABLE gameplay (
 	round INTEGER NOT NULL,
 	choices INTEGER NOT NULL DEFAULT(0),
@@ -27,6 +38,10 @@ CREATE TABLE gameplay (
 	UNIQUE (round, playerid)
 );
 
+/*
+ * A payoff is created when a round has been marked as complete.
+ * It marks a player's play against the average play.
+ */
 CREATE TABLE payoff (
 	round INTEGER NOT NULL,
 	playerid INTEGER REFERENCES player(id) NOT NULL,
@@ -36,6 +51,9 @@ CREATE TABLE payoff (
 	UNIQUE (round, playerid, gameid)
 );
 
+/*
+ * A choice is the strategies a player assigns to a particular game.
+ */
 CREATE TABLE choice (
 	round INTEGER NOT NULL,
 	strats TEXT NOT NULL,

@@ -394,11 +394,13 @@ function loadGame()
 	shuffle(matrix, res.rseed);
 	appendBimatrix(doClear('exprMatrix'), matrix, c, oc);
 	document.getElementById('playerColour').setAttribute('style', 'color: ' + colours[c] + ';');
+	document.getElementById('playerColour2').setAttribute('style', 'color: ' + colours[c] + ';');
+	document.getElementById('playerOColour2').setAttribute('style', 'color: ' + colours[oc] + ';');
 
 	/* Show the shuffled roundup matrix, if it exists. */
 	if (null != hmatrix) {
 		doUnhide('exprHistory');
-		if (game.roundup.skip) {
+		if (0 != game.roundup.skip) {
 			doUnhide('skipExplain');
 		} else {
 			doHide('skipExplain');
@@ -520,8 +522,21 @@ function loadExprSuccess(resp)
 		doHide('exprCountdownTilStart');
 		doHide('exprCountdownTilNext');
 		doUnhide('exprFinished');
+		if (expr.round > 0) {
+			doUnhide('historyPlay');
+			doHide('historyNotYet');
+			doClearReplace('historyLottery', res.aggrlottery);
+			doValue('computeRankTickets', res.aggrlottery);
+		} else {
+			doHide('historyPlay');
+			doUnhide('historyNotYet');
+		}
 		doClearReplace('exprCountdown', 'Finished');
 	}
+}
+
+function computeLottery()
+{
 }
 
 function loadExprSetup()

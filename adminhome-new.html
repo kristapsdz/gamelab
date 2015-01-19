@@ -129,116 +129,110 @@
 							</div>
 							<div class="input">
 								<i class="fa fa-fw fa-code"></i>
-								<textarea class="bigtext" required="required" name="instructions"><p>
-Thank you for participating in this experiment. The aim of the study is to investigate how different theoretical economic predictions perform when subjected to real decisions.
-</p>
-<p>
-On this page you will find all the information you need to participate, feel free to contact <a href="mailto:@@gamelab-admin-email@@">@@gamelab-admin-email@@</a> if you have any additional questions.
-</p>
-<h3>Game Setup</h3>
-<p>
-The experiment will run for @@gamelab-rounds@@ rounds, where each round is @@gamelab-round-time@@ hours long. In each round you will play @@gamelab-games@@ games. These games will be the same in all rounds. At the end of each round your earnings from that round will be calculated based on your and the other players' actions, and a new round will begin.
-</p>
-<p>
-To get any payoffs from a round you have to finish all @@gamelab-games@@ games.
-</p>
-<h3>How to Play</h3>
-<p>
-Each game is represented in a <i>game matrix</i>. This matrix represents the strategies available to players as rows and columns. There are two corresponding player roles, one choosing rows and one choosing columns. In all games you are a row player.
-</p>
-<p>
-In the game matrix outcomes, corresponding to a selection of a row and a column, are represented as cells. Each cell contains two numbers, the first representing your payoff and the second representing the column player's payoff.
-</p>
-<p>
-You select which strategies to play (rows since you are a row player) and assign a probability to each of them. These probabilities have to sum to 1 since you always have to play some row. The column players select column strategies in the same manner. Just as you will not know what they have chosen in the current round they are not informed of your decision when they choose.
-</p>
-<p>
-To select which strategies to play you click on rows in the game matrix. When you have selected all strategies you want to assign probabilities to you have to do so in the corresponding fields below the matrix. Any strategy you have not selected will be played with probability 0. Note that you can select more than one strategy and assign probabilities between 0 and 1 to them if you should want.
-</p>
-<p>
-When you have selected which strategies to play and assigned probabilities to them you click the <q>Submit Play</q> button to submit your probabilities.
-</p>
+								<textarea class="bigtext" required="required" name="instructions"><p>Welcome to the experiment!</p>
+
+<p>You are participating in an economics experiment in which you’ll use this webpage to play a number of games. Depending on your own and
+others' choices you can earn a substantial amount of money through winning a lottery at the end of the experiment. Your chances to win the
+lottery depends on how well you understand these instructions, so read them carefully.</p>
+ 
+<p>On this page you will find all the information you need to participate, feel free to contact <a
+	href="mailto:@@gamelab-admin-email@@">@@gamelab-admin-email@@</a> if you have any additional questions.</p>
+
+<h3>Game setup</h3>
+<p>The experiment will run for @@gamelab-rounds@@ rounds and each round lasts for @@gamelab-round-time@@ hours. In each of these rounds you will
+play @@gamelab-games@@ games. The games will be the same in all rounds.</p>
+
+<p>If you played all @@gamelab-games@@ games in a round your payoffs from that round are calculated as soon as the round is over. For each game
+you can view your payoffs from the previous round directly on the play page where you play the games. A more detailed summary of your payoffs
+for each game from all rounds along with the total sum of your payoffs is available on the <q>History</q> tab.
+
+<h3>How to play</h3>
+
+<p>Each game is represented in a <i>game bimatrix</i> where one player chooses row and the other column. The first number in each cell is your
+payoffs and the second number is the other player’s payoffs. You will always be the row player and your payoffs will always be <span
+	id="playerColour2">uniquely coloured</span>.  The other player's payoffs will always be <span id="playerOColour2">coloured</span>.</p>
+
+<p>When you play you may either select a pure strategy (one row) or a mixed strategy (a probability distribution over the rows). In the first
+case you assign probability 1 to the row you want to play. In the second case you can select any probabilities you like, as long as they sum to
+one. Your choice of strategies is your private information and will not be shared with any other participants.</p>
+
+<p>When you have chosen a strategy (pure or mixed) to play, click on each row that is included in the strategy and assign the corresponding
+probabilities in the input fields below. Any row which is not selected will not be played at all (played with probability 0).</p>
+
+<p>When you have selected which strategy to play and assigned the corresponding probabilities to the rows click the <q>Submit Play</q> button to
+proceed to the next game.</p>
+
 <h3>Payoffs</h3>
-<p>
-After each round has finished the payoffs of each of the five games are calculated by taking the strategy you played and taking the expected payoff against the average of the column players' strategies in the previous round. See the matrix below for an example:
-</p>
-<div class="payoffs" style="max-width: 20em;">
+
+<p>After each round your payoffs from each of the @@gamelab-games@@ games will be calculated.  For each game this is done by calculating the
+average of the expected payoff of your strategy against each column player’s strategy. Your final payoff from the round is simply the sum of
+your expected payoff from each game. Your total payoff is the sum of your final payoff from all rounds. You can view this information at the
+<q>History</q> tab at any time.</p>
+
+<h3>Lottery tickets and prices</h3>
+
+<p>All payoffs in this experiment represent lottery tickets. 1 payoff unit equals 1 lottery ticket. When all rounds are finished and your total
+number of payoff units across games and rounds have been calculated we will round this number up to the closest integer in order to get your
+total number of tickets.</p>
+
+<p>All of your tickets will be represented by a number. If for example a total number of 100 lottery tickets have been awarded to all players
+and you have earned 10 of them, you might have tickets 41-50. This information will be given after the final round has ended.</p>
+
+<p>In order to decide the winning tickets we will use a quasi-random process in which the initial seed exactly determines the winning number.
+The seed will however be the additional number from the first Lotto 1 draw after the final round (this number can be found at
+https://svenskaspel.se/?pageid=/resultat/lottolordag). Since this number is completely random and out of our control the winning lottery ticket
+is also truly random.</p>
+
+<p>The calculator for drawing the winning lottery ticket can be tested below and will be able to use after the final round. After the final
+round has ended you will be told which sequence of lottery tickets you have along with the total number of tickets that were awarded during the
+experiment. As soon as the additional number from the Lotto 1 draw is announced you can check for yourself if you have the winning ticket. We
+will also contact the winner shortly after the draw is announced.</p>
+
+<p>The winner of the lottery will be awarded 10 000kr</p>
+
+<h3>Weighted history of play</h3>
+
+<p>For all rounds but the first you will be presented with a weighted history of how players in your own role (row players) and in the other
+role (column players) played in previous rounds (more weight on more recent rounds). This information is presented as a frequency table which is
+available to all players. This table is a summary of past play and does not incorporate play in the current round.</p>
+
+<p>The weighted history is presented in a table corresponding to the game. For example, if both your own and the other player roles have two
+strategies the frequency table will have four cells representing the probabilities that each combination was played. Additionally, probabilities
+at the edge the frequency table represent the probabilities that each player role has chosen that row or column. See below for an example:</p>
+
+<div class="history" style="width: 20em; margin-left: auto; margin-right: auto;">
   <div>
     <div style="width: 1%;" class="labelaside"></div>
     <div style="width: 49%;" class="labelatop">A</div>
     <div style="width: 49%;" class="labelatop">B</div>
+    <div style="width: 1%;" class="sumaside">∑</div>
   </div>
   <div>
     <div class="labelatop">a</div>
-    <div class="pair"><div>1</div><div>1</div></div>
-    <div class="pair"><div>0</div><div>0</div></div>
+    <div class="mix">0.315</div>
+    <div class="mix">0.585</div>
+    <div class="sumaside sum">0.900</div>
   </div>
   <div>
     <div class="labelatop">b</div>
-    <div class="pair"><div>0</div><div>0</div></div>
-    <div class="pair"><div>1</div><div>1</div></div>
-  </div>
-</div>
-<p>
-If you played 1. with probability 0.6 and 2. with probability 0.4 while the column players chose a. with probability 0.8 and b. with probability 0.2 your payoff in this game and round is (from top left to bottom right):
-</p>
-<p style="text-align: center;">
-0.6 * 0.8 * 1 + 0.6 * 0.2 * 0 + 0.4 * 0.8 * 0 + 0.4 * 0.2 * 1 = 0.56
-</p>
-<p>
-All payoffs in this experiment represent lottery tickets. 1 payoff unit equals 1 lottery ticket. When all rounds are finished and your total number of payoff units across games and rounds have been calculated we will round this number up to the closest integer in order to get your total number of tickets.
-</p>
-<p>
-All of your tickets will be represented by a number. If for example a total number of 100 lottery tickets have been awarded to all players and you have earned 10 of them, you might have tickets 41&ndash;50. This information will be given after the final round has ended.
-</p>
-<h3>Lottery Prices</h3>
-<p>
-The prices in the lottery are:
-</p>
-<p>
-1st price: 8 000kr
-<br />
-2<sup>nd</sup>&ndash;5<sup>th</sup> prices: 500kr
-</p>
-<h3>History</h3>
-<p>
-For all rounds but the first you will be presented with a history of how players played in previous rounds. This history is a weighted average of previous play which places more weight on more recent rounds. Note that while the history shows what has happened before, it does not give any information on how players have played in the current round, which is what is used for calculating payoffs.
-</p>
-<p>
-The history is presented in a matrix corresponding to the game. For example, if both your own and the other player roles have two strategies the history matrix will have four cells representing the probabilities that each combination was played. Additionally, probabilities outside the matrix represent the probabilities that each player role chose that strategy. See below for an example:
-</p>
-<div class="history" style="max-width: 20em;">
-  <div>
-    <div style="width: 1%;" class="labelaside"></div>
-    <div style="width: 49%;" class="labelatop">A</div>
-    <div style="width: 49%;" class="labelatop">B</div>
-    <div style="width: 1%;" class="sumaside">&#x2211;</div>
+    <div class="mix">0.035</div>
+    <div class="mix">0.065</div>
+    <div class="sumaside sum">0.100</div>
   </div>
   <div>
-    <div class="labelatop">a</div>
-    <div class="mix">0.25</div>
-    <div class="mix">0.25</div>
-    <div class="sumaside sum">0.5</div>
-  </div>
-  <div>
-    <div class="labelatop">b</div>
-    <div class="mix">0.25</div>
-    <div class="mix">0.25</div>
-    <div class="sumaside sum">0.5</div>
-  </div>
-  <div>
-    <div class="labelaside">&#x2211;</div>
-    <div class="sumbelow sum">0.5</div>
-    <div class="sumbelow sum">0.5</div>
+    <div class="labelaside">∑</div>
+    <div class="sumbelow sum">0.350</div>
+    <div class="sumbelow sum">0.650</div>
     <div class="sumaside"></div>
   </div>
 </div>
-<p>
-The history in this matrix shows that the probability that any strategy was played is exactly one half, as would happen if all players randomized equally or if half of the players in each role chose one strategy and the other half chose the other. This in turn means that any strategy combination (for example 1. and a.) will be played with probability 0.5 * 0.5 = 0.25.
-</p>
-<p>
-You can view the history for each of the five games on the <q>History</q> tab as well as viewing it alongside each game in the round.
-</p>
+
+<p>From the frequency table we can conclude that, after weighting recent rounds more, the combination 1. and a. has been played 31.5% of the
+times in the past while 2. and a. has been played 3.5% of the times. By looking at the sums at the edge of the table we see that players in your
+player role (row) have played 1. 90% of the time and 2. 10% of the time, on average.</p>
+
+<p>You can view current and past frequency tables for each of the five games on the <q>History</q> tab as well as viewing the current ones on
+the play pages where you play the games.</p>
 								</textarea>
 							</div>
 							<div class="input input-submit">

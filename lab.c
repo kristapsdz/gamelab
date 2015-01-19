@@ -314,10 +314,14 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 	 * Check both, in case rounding error.
 	 */
 	t = time(NULL);
-	if (t >= expr->end || t < expr->start)
+	if (t < expr->start)
 		goto empty;
-	round = (t - expr->start) / (expr->minutes * 60);
-	if (round >= expr->rounds)
+	else if (t >= expr->end)
+		round = expr->rounds;
+	else
+		round = (t - expr->start) / (expr->minutes * 60);
+
+	if (round > expr->rounds)
 		goto empty;
 
 	db_roundup(round - 1);

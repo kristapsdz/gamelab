@@ -70,7 +70,7 @@ db_tryopen(void)
 
 	attempt = 0;
 again:
-	if (500 == attempt) {
+	if (50 == attempt) {
 		fprintf(stderr, "sqlite3_open: busy database\n");
 		exit(EXIT_FAILURE);
 	}
@@ -79,17 +79,17 @@ again:
 	if (SQLITE_BUSY == rc) {
 		fprintf(stderr, "sqlite3_open: "
 			"busy database (%zu)\n", attempt);
-		usleep(arc4random_uniform(10000));
+		usleep(arc4random_uniform(100000));
 		attempt++;
 		goto again;
 	} else if (SQLITE_LOCKED == rc) {
 		fprintf(stderr, "sqlite3_open: "
 			"locked database (%zu)\n", attempt);
-		usleep(arc4random_uniform(10000));
+		usleep(arc4random_uniform(100000));
 		attempt++;
 		goto again;
 	} else if (SQLITE_OK == rc) {
-		sqlite3_busy_timeout(db, 500);
+		sqlite3_busy_timeout(db, 50);
 		return;
 	} 
 
@@ -108,7 +108,7 @@ db_step(sqlite3_stmt *stmt, unsigned int flags)
 	assert(NULL != stmt);
 	assert(NULL != db);
 again:
-	if (500 == attempt) {
+	if (50 == attempt) {
 		fprintf(stderr, "sqlite3_step: busy database\n");
 		exit(EXIT_FAILURE);
 	}
@@ -117,13 +117,13 @@ again:
 	if (SQLITE_BUSY == rc) {
 		fprintf(stderr, "sqlite3_step: "
 			"busy database (%zu)\n", attempt);
-		usleep(arc4random_uniform(10000));
+		usleep(arc4random_uniform(100000));
 		attempt++;
 		goto again;
 	} else if (SQLITE_LOCKED == rc) {
 		fprintf(stderr, "sqlite3_step: "
 			"locked database (%zu)\n", attempt);
-		usleep(arc4random_uniform(10000));
+		usleep(arc4random_uniform(100000));
 		attempt++;
 		goto again;
 	}
@@ -147,7 +147,7 @@ db_stmt(const char *sql)
 
 	db_tryopen();
 again:
-	if (500 == attempt) {
+	if (50 == attempt) {
 		fprintf(stderr, "sqlite3_stmt: busy database\n");
 		exit(EXIT_FAILURE);
 	}
@@ -157,13 +157,13 @@ again:
 	if (SQLITE_BUSY == rc) {
 		fprintf(stderr, "sqlite3_stmt: "
 			"busy database (%zu)\n", attempt);
-		usleep(arc4random_uniform(10000));
+		usleep(arc4random_uniform(100000));
 		attempt++;
 		goto again;
 	} else if (SQLITE_LOCKED == rc) {
 		fprintf(stderr, "sqlite3_stmt: "
 			"locked database (%zu)\n", attempt);
-		usleep(arc4random_uniform(10000));
+		usleep(arc4random_uniform(100000));
 		attempt++;
 		goto again;
 	} else if (SQLITE_OK == rc)
@@ -206,7 +206,7 @@ db_exec(const char *sql)
 	int	rc;
 
 again:
-	if (500 == attempt) {
+	if (50 == attempt) {
 		fprintf(stderr, "sqlite3_exec: busy database\n");
 		exit(EXIT_FAILURE);
 	}
@@ -217,13 +217,13 @@ again:
 	if (SQLITE_BUSY == rc) {
 		fprintf(stderr, "sqlite3_exec: "
 			"busy database (%zu)\n", attempt);
-		usleep(arc4random_uniform(10000));
+		usleep(arc4random_uniform(100000));
 		attempt++;
 		goto again;
 	} else if (SQLITE_LOCKED == rc) {
 		fprintf(stderr, "sqlite3_exec: "
 			"locked database (%zu)\n", attempt);
-		usleep(arc4random_uniform(10000));
+		usleep(arc4random_uniform(100000));
 		attempt++;
 		goto again;
 	} else if (SQLITE_OK == rc)
@@ -1262,18 +1262,12 @@ db_roundup_round(struct roundup *r)
 	size_t	 i, j, k;
 	mpq_t	 tmp, sum;
 
-	fprintf(stderr, "Roundup for "
-		"round %" PRId64 "\n", r->round);
-
 	r->avg = kcalloc(r->p1sz * r->p2sz, sizeof(double));
 	r->avgp1 = kcalloc(r->p1sz, sizeof(double));
 	r->avgp2 = kcalloc(r->p2sz, sizeof(double));
 
-	if (0 == r->roundcount) {
-		fprintf(stderr, "Roundup: roundcount "
-			"zero for round %" PRId64 "\n", r->round);
+	if (0 == r->roundcount)
 		return(r);
-	}
 
 	mpq_init(tmp);
 	mpq_init(sum);
@@ -1459,9 +1453,6 @@ db_roundup_players(int64_t round,
 			mpq_set(tmp, opponent[i]);
 			/* Add to current row total. */
 			mpq_add(opponent[i], tmp, sum);
-			gmp_fprintf(stderr, "Row player "
-				"opponent[%zu] %zu = %Qd\n", 
-				i, j, opponent[i]);
 		}
 	}
 
@@ -1483,8 +1474,6 @@ db_roundup_players(int64_t round,
 			mpq_mul(mul, tmp, opponent[i]);
 			mpq_set(tmp, sum);
 			mpq_add(sum, tmp, mul);
-			gmp_fprintf(stderr, "Player %" PRId64 
-				" aggregate: %Qd\n", playerid, sum);
 		}
 		gmp_asprintf(&buf, "%Qd", sum);
 		sqlite3_reset(stmt2);
@@ -1525,9 +1514,6 @@ db_roundup_players(int64_t round,
 			mpq_set(tmp, opponent[i]);
 			/* Add to current row total. */
 			mpq_add(opponent[i], tmp, sum);
-			gmp_fprintf(stderr, "Column player "
-				"opponent[%zu] %zu = %Qd\n", 
-				i, j, opponent[i]);
 		}
 	}
 
@@ -1549,8 +1535,6 @@ db_roundup_players(int64_t round,
 			mpq_mul(mul, tmp, opponent[i]);
 			mpq_set(tmp, sum);
 			mpq_add(sum, tmp, mul);
-			gmp_fprintf(stderr, "Player %" PRId64 
-				" aggregate: %Qd\n", playerid, sum);
 		}
 		gmp_asprintf(&buf, "%Qd", sum);
 		sqlite3_reset(stmt2);
@@ -1626,6 +1610,10 @@ db_roundup_get(int64_t round, const struct game *game)
 	return(NULL);
 }
 
+/*
+ * Round up for a given game.
+ * All of this occurs in a 
+ */
 static void
 db_roundup_game(const struct game *game, void *arg)
 {
@@ -1645,16 +1633,18 @@ db_roundup_game(const struct game *game, void *arg)
 	 * the game and round.
 	 * If we find it, we're good: just exit.
 	 */
-	stmt = db_stmt("SELECT * FROM past "
-		"WHERE round=? AND gameid=?");
+	stmt = db_stmt("SELECT * FROM past WHERE round=? AND gameid=?");
 
 	db_bind_int(stmt, 1, round);
 	db_bind_int(stmt, 2, game->id);
 	rc = db_step(stmt, 0);
 	db_finalise(stmt);
 
-	if (SQLITE_ROW == rc)
+	if (SQLITE_ROW == rc) {
+		fprintf(stderr, "Roundup cached: game %" PRId64 
+			", round %" PRId64 "\n", game->id, round);
 		return;
+	}
 
 	/* Recursively make sure all priors rounds are accounted. */
 
@@ -1668,6 +1658,8 @@ db_roundup_game(const struct game *game, void *arg)
 
 	fprintf(stderr, "Roundup: game %" PRId64 
 		", round %" PRId64 "\n", game->id, round);
+
+	sleep(4);
 
 	/* Allocate and zero our internal structures. */
 
@@ -1717,14 +1709,8 @@ db_roundup_game(const struct game *game, void *arg)
 		mpq_summation_strvec(r->curp1, 
 			sqlite3_column_text(stmt, 0), r->p1sz);
 
-	if (0 == count) {
-		fprintf(stderr, "Roundup round %" PRId64 
-			": no plays for row player\n", r->round);
+	if (0 == count)
 		goto aggregate;
-	}
-
-	fprintf(stderr, "Roundup round %" PRId64 
-		": %zu plays for column player\n", r->round, count);
 
 	for (i = 0; i < r->p1sz; i++) {
 		mpq_set_ui(tmp, count, 1);
@@ -1748,13 +1734,8 @@ db_roundup_game(const struct game *game, void *arg)
 		mpq_canonicalize(tmp);
 		for (i = 0; i < r->p1sz; i++)
 			mpq_set(r->curp1[i], tmp);
-		fprintf(stderr, "Roundup round %" PRId64 
-			": no plays for column player\n", r->round);
 		goto aggregate;
 	}
-
-	fprintf(stderr, "Roundup round %" PRId64 
-		": %zu plays for column player\n", r->round, count);
 
 	for (i = 0; i < r->p2sz; i++) {
 		mpq_set_ui(tmp, count, 1);
@@ -1813,18 +1794,6 @@ aggregate:
 	aggrsp2 = mpq_mpq2str(r->aggrp2, r->p2sz);
 	cursp1 = mpq_mpq2str(r->curp1, r->p1sz);
 	cursp2 = mpq_mpq2str(r->curp2, r->p2sz);
-
-	fprintf(stderr, "Row player sums for round %" 
-		PRId64 ": %s\n", r->round, aggrsp1);
-	fprintf(stderr, "Column player sums for round %" 
-		PRId64 ": %s\n", r->round, aggrsp2);
-	fprintf(stderr, "Row player for round %" 
-		PRId64 ": %s\n", r->round, cursp1);
-	fprintf(stderr, "Column player for round %" 
-		PRId64 ": %s\n", r->round, cursp2);
-	fprintf(stderr, "Round-count for round %" 
-		PRId64 ": %zu (skip=%d)\n", r->round, 
-		r->roundcount, r->skip);
 
 	stmt = db_stmt("INSERT INTO past (round,averagesp1,"
 		"averagesp2,gameid,skip,roundcount,currentsp1,"
