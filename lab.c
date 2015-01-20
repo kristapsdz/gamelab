@@ -268,13 +268,17 @@ senddologin(struct kreq *r)
 
 }
 
+struct	intvstor {
+	struct interval	*intv;
+	struct kjsonreq	*req;
+};
+
 static void
 senddoloadgame(const struct game *game, int64_t round, void *arg)
 {
-	struct kjsonreq	*req = arg;
-	struct roundup	*r;
-
-	r = db_roundup_get(round - 1, game);
+	struct intvstor	*p = arg;
+	struct kjsonreq	*req = p->req;
+	size_t		 i;
 
 	kjson_obj_open(req);
 	kjson_putintp(req, "p1", game->p1);
@@ -282,16 +286,18 @@ senddoloadgame(const struct game *game, int64_t round, void *arg)
 	kjson_putstringp(req, "name", game->name);
 	json_putmpqs(req, "payoffs", 
 		game->payoffs, game->p1, game->p2);
+	kjson_putintp(req, "id", game->id);
 
-	if (NULL != r) {
-		assert((size_t)game->p1 == r->p1sz);
-		assert((size_t)game->p2 == r->p2sz);
-		json_putroundup(req, "roundup", r);
-		db_roundup_free(r);
+	if (NULL != p->intv) {
+		for (i = 0; i < p->intv->periodsz; i++) 
+			if (game->id == p->intv->periods[i].gameid)
+				break;
+		assert(i < p->intv->periodsz);
+		json_putroundup(req, "roundup", 
+			p->intv->periods[i].roundups[round - 1]);
 	} else
 		kjson_putnullp(req, "roundup");
 
-	kjson_putintp(req, "id", game->id);
 	kjson_obj_close(req);
 }
 
@@ -300,43 +306,44 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 {
 	struct expr	*expr;
 	struct player	*player;
+	struct intvstor	 stor;
 	mpq_t		 cur, aggr;
 	time_t		 t;
 	int64_t	 	 round;
+	size_t		 gamesz;
 	struct kjsonreq	 req;
 
 	expr = db_expr_get();
 	assert(NULL != expr);
-
-	/* 
-	 * Make sure we fall within the rounds and time specified by the
-	 * system.
-	 * Check both, in case rounding error.
-	 */
-	t = time(NULL);
-	if (t < expr->start)
-		goto empty;
-	else if (t >= expr->end)
-		round = expr->rounds;
-	else
-		round = (t - expr->start) / (expr->minutes * 60);
-
-	if (round > expr->rounds)
-		goto empty;
-
-	db_roundup(round - 1);
 	http_open(r, KHTTP_200);
 	khttp_body(r);
 	kjson_open(&req, r);
 	kjson_obj_open(&req);
+	json_putexpr(&req, expr);
+
+	if ((t = time(NULL)) < expr->start) {
+		kjson_obj_close(&req);
+		kjson_close(&req);
+		db_expr_free(expr);
+		return;
+	} 
+
+	round = t >= expr->end ?  expr->rounds :
+		(t - expr->start) / (expr->minutes * 60);
 	player = db_player_load(playerid);
+	if (NULL != (stor.intv = db_interval_get(round - 1)))
+		gamesz = stor.intv->periodsz;
+	else
+		gamesz = db_game_count_all();
+	stor.req = &req;
 
 	kjson_putintp(&req, "colour", playerid % 12);
 	kjson_putintp(&req, "ocolour", (playerid + 6) % 12);
 	kjson_putintp(&req, "rseed", player->rseed);
+	kjson_putintp(&req, "gamesz", gamesz);
+	kjson_putintp(&req, "role", player->role);
 
-	kjson_putintp(&req, "gamesz", db_game_count_all());
-	if (db_player_lottery(round - 1, playerid, cur, aggr)) {
+	if (db_player_lottery(round - 1, playerid, cur, aggr, gamesz)) {
 		json_putmpqp(&req, "curlottery", cur);
 		json_putmpqp(&req, "aggrlottery", aggr);
 		mpq_clear(cur);
@@ -345,27 +352,17 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 		kjson_putnullp(&req, "curlottery");
 		kjson_putnullp(&req, "aggrlottery");
 	}
-	kjson_putintp(&req, "gamesz", db_game_count_all());
-	kjson_putintp(&req, "role", player->role);
+
 	kjson_arrayp_open(&req, "games");
 	db_game_load_player(playerid, 
-		round, senddoloadgame, &req);
+		round, senddoloadgame, &stor);
 	kjson_array_close(&req);
+
 	db_player_free(player);
-	json_putexpr(&req, expr);
 	kjson_obj_close(&req);
 	kjson_close(&req);
 	db_expr_free(expr);
-	return;
-empty:
-	http_open(r, KHTTP_200);
-	khttp_body(r);
-	kjson_open(&req, r);
-	kjson_obj_open(&req);
-	json_putexpr(&req, expr);
-	kjson_obj_close(&req);
-	kjson_close(&req);
-	db_expr_free(expr);
+	db_interval_free(stor.intv);
 }
 
 static void

@@ -45,6 +45,7 @@ h1				{ margin: 0; }
 h2				{ font-size: 16pt; 
 				  margin: 0; }
 h3				{ font-size: 14pt; }
+h4				{ font-size: inherit; }
 body > article			{ background-color: #fff;
 				  max-width: 1024px;
 				  padding: 1em;

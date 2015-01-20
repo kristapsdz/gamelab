@@ -58,12 +58,23 @@ struct	roundup {
 	double		*avg; /* weighted aggr. avg. matrix */
 	double		*avgp1; /* weighted aggr. avg. row player */
 	double		*avgp2; /* weighted aggr. avg. column player */
-	int		 skip;
-	size_t		 roundcount;
-	size_t		 p1sz;
-	size_t		 p2sz;
-	int64_t		 gameid;
-	int64_t		 round;
+	int		 skip; /* insufficient plays? */
+	size_t		 roundcount; /* for denominator */
+	size_t		 p1sz; /* row player strategy size */
+	size_t		 p2sz; /* column player strategy size */
+	int64_t		 gameid; /* game identifier */
+	int64_t		 round; /* round identifier */
+};
+
+struct	period {
+	struct roundup	**roundups;
+	size_t		  roundupsz;
+	int64_t		  gameid;
+};
+
+struct	interval {
+	struct period	 *periods;
+	size_t		  periodsz;
 };
 
 /*
@@ -128,9 +139,8 @@ void		 db_expr_free(struct expr *);
 struct expr	*db_expr_get(void);
 void		 db_expr_wipe(void);
 
-void		 db_roundup(int64_t);
-struct roundup	*db_roundup_get(int64_t round, const struct game *);
-void		 db_roundup_free(struct roundup *);
+struct interval	*db_interval_get(int64_t);
+void		 db_interval_free(struct interval *);
 
 struct game	*db_game_alloc(const char *,
 			const char *, int64_t, int64_t);
@@ -164,7 +174,7 @@ int		 db_player_sess_valid(int64_t *, int64_t, int64_t);
 void		 db_player_free(struct player *);
 int		 db_player_play(int64_t, int64_t, 
 			int64_t, mpq_t *, size_t);
-int		 db_player_lottery(int64_t, int64_t, mpq_t, mpq_t);
+int		 db_player_lottery(int64_t, int64_t, mpq_t, mpq_t, size_t);
 
 void		 db_sess_delete(int64_t);
 void		 db_sess_free(struct sess *);

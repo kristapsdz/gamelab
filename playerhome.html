@@ -25,18 +25,13 @@
 		<div id="navParent">
 			<nav id="nav">
 				<ul>
-					<li><a href="#defaultTab"><i class="fa fa-fw fa-play"></i> Play</a></li>
+					<li><a href="#defaultTab"><i class="fa fa-fw fa-info"></i> Instructions</a></li>
+					<li><a href="#play"><i class="fa fa-fw fa-play"></i> Play</a></li>
 					<li><a href="#history"><i class="fa fa-fw fa-history"></i> History</a></li>
-					<li><a href="#instructions"><i class="fa fa-fw fa-info"></i> Instructions</a></li>
 					<li><a href="@@cgibin@@/dologout.html"><i class="fa fa-fw fa-sign-out"></i> Logout</a></li>
 				</ul>
 			</nav>
 		</div>
-		<article id="instructions" class="tab">
-			<h2>Instructions</h2>
-			<div id="instructionsLoading"><i class="fa fa-spinner fa-spin"></i></div>
-			<div id="instructionsLoaded"></div>
-		</article>
 		<article id="history" class="tab">
 			<h2>Play History</h2>
 			<div id="historyLoading"><i class="fa fa-spinner fa-spin"></i></div>
@@ -58,7 +53,7 @@
 				</section>
 			</div>
 		</article>
-		<article id="defaultTab" class="tab">
+		<article id="play" class="tab">
 			<h2>Play Game</h2>
 			<div id="exprLoading"><i class="fa fa-spinner fa-spin"></i></div>
 			<div id="exprLoaded" class="noshow">
@@ -119,7 +114,8 @@
 					</h3>
 					<div id="exprHistory">
 						<div>
-							Lottery tickets: <span id="exprHistoryLottery"></span> 
+							Your payoff from this game in the previous round:
+							<span id="exprHistoryLottery"></span> 
 						</div>
 						<div id="skipExplain">
 							<div class="warning">
@@ -131,6 +127,7 @@
 								</div>
 							</div>
 						</div>
+						<h4>Play in the Last Round</h4>
 						<div id="exprHistoryMatrix"></div>
 					</div>
 					<aside>
@@ -176,6 +173,11 @@
 					</form>
 				</section>
 			</div>
+		</article>
+		<article id="defaultTab" class="tab">
+			<h2>Instructions</h2>
+			<div id="instructionsLoading"><i class="fa fa-spinner fa-spin"></i></div>
+			<div id="instructionsLoaded"></div>
 		</article>
 		<footer>
 			&copy; 2014, 
