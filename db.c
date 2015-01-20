@@ -989,34 +989,6 @@ db_expr_checkstate(enum estate state)
 	return(rc == SQLITE_ROW);
 }
 
-int64_t
-db_expr_winner(double winval, int64_t round)
-{
-	mpq_t	 	 mpq;
-	double		 v;
-	int64_t	 	 id;
-	sqlite3_stmt	*stmt;
-
-	assert(winval >= 0.0);
-	assert(winval <= 1.0);
-
-	stmt = db_stmt("SELECT player.id,lottery.aggrpayoff FROM "
-		"lottery INNER JOIN player ON lottery.playerid=player.id "
-		"WHERE lottery.round=? ORDER BY player.rank ASC");
-	db_bind_int(stmt, 1, round);
-	mpq_init(mpq);
-	while (SQLITE_ROW == db_step(stmt, 0)) {
-		id = sqlite3_column_int(stmt, 0);
-		mpq_summation_str(mpq, sqlite3_column_text(stmt, 1));
-		v = mpq_get_d(mpq);
-		assert(0.0 == v || isnormal(v));
-		/* TODO... */
-	}
-	sqlite3_finalize(stmt);
-	mpq_clear(mpq);
-	return(id);
-}
-
 int
 db_expr_start(int64_t date, int64_t rounds, int64_t minutes, 
 	const char *instructions, const char *uri)

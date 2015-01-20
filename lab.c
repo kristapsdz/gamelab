@@ -291,6 +291,7 @@ senddoloadhistory(const struct game *game, void *arg)
 	kjson_arrayp_open(req, "roundups");
 	if (NULL == p->intv) {
 		kjson_array_close(req);
+		kjson_obj_close(req);
 		return;
 	}
 	for (i = 0; i < p->intv->periodsz; i++) 
