@@ -40,6 +40,7 @@
 					<p>
 						You have <span id="historyLottery"></span> tickets.
 					</p>
+					<select id="historyPlaySelect"></select>
 				</section>
 				<section id="historyNotYet" class="noshow">
 					<p>
@@ -72,40 +73,6 @@
 					<p>
 						Experiment is finished.
 					</p>
-					<fieldset>
-						<div class="input">
-							<i class="fa fa-fw fa-money"></i>
-							<input readonly="readonly" type="text" required="required" id="computeRankTickets" />
-						</div>
-						<div class="input">
-							<i class="fa fa-fw fa-line-chart"></i>
-							<input type="text" placeholder="Maximum Tickets" required="required" id="computeMaxTickets" />
-						</div>
-						<div class="input">
-							<i class="fa fa-fw fa-random"></i>
-							<input type="text" placeholder="Random Seed" required="required" />
-						</div>
-						<div class="input input-submit">
-							<i class="fa fa-fw fa-cog"></i>
-							<button onclick="computeLottery(); return false;">Compute</button>
-						</div>
-					</fieldset>
-					<div class="computeWin">
-						<div class="warning">
-							<div>
-								<div><i class="fa fa-fw fa-exclamation-circle"></i></div>
-								<div>Winning.</div>
-							</div>
-						</div>
-					</div>
-					<div class="computeNoWin">
-						<div class="warning">
-							<div>
-								<div><i class="fa fa-fw"></i></div>
-								<div>Not winning.</div>
-							</div>
-						</div>
-					</div>
 				</section>
 				<section id="exprPlay" class="noshow">
 					<h3>

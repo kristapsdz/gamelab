@@ -22,6 +22,11 @@
 
 #include "extern.h"
 
+struct	intvstor {
+	struct interval	*intv;
+	struct kjsonreq	*req;
+};
+
 /*
  * Unique pages under the CGI "directory".
  */
@@ -268,10 +273,36 @@ senddologin(struct kreq *r)
 
 }
 
-struct	intvstor {
-	struct interval	*intv;
-	struct kjsonreq	*req;
-};
+static void
+senddoloadhistory(const struct game *game, void *arg)
+{
+	struct intvstor	*p = arg;
+	struct period	*per;
+	struct kjsonreq	*req = p->req;
+	size_t		 i;
+
+	kjson_obj_open(req);
+	kjson_putintp(req, "p1", game->p1);
+	kjson_putintp(req, "p2", game->p2);
+	kjson_putstringp(req, "name", game->name);
+	json_putmpqs(req, "payoffs", 
+		game->payoffs, game->p1, game->p2);
+	kjson_putintp(req, "id", game->id);
+	kjson_arrayp_open(req, "roundups");
+	if (NULL == p->intv) {
+		kjson_array_close(req);
+		return;
+	}
+	for (i = 0; i < p->intv->periodsz; i++) 
+		if (game->id == p->intv->periods[i].gameid)
+			break;
+	assert(i < p->intv->periodsz);
+	per = &p->intv->periods[i];
+	for (i = 0; i < per->roundupsz; i++)
+		json_putroundup(req, NULL, per->roundups[i]);
+	kjson_array_close(req);
+	kjson_obj_close(req);
+}
 
 static void
 senddoloadgame(const struct game *game, int64_t round, void *arg)
@@ -313,36 +344,47 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 	size_t		 gamesz;
 	struct kjsonreq	 req;
 
+	/* All response have at least the following. */
 	expr = db_expr_get();
 	assert(NULL != expr);
+	player = db_player_load(playerid);
+	assert(NULL != player);
+	memset(&stor, 0, sizeof(struct intvstor));
+
 	http_open(r, KHTTP_200);
 	khttp_body(r);
 	kjson_open(&req, r);
 	kjson_obj_open(&req);
 	json_putexpr(&req, expr);
+	kjson_putintp(&req, "colour", playerid % 12);
+	kjson_putintp(&req, "ocolour", (playerid + 6) % 12);
+	kjson_putintp(&req, "rseed", player->rseed);
+	kjson_putintp(&req, "role", player->role);
 
-	if ((t = time(NULL)) < expr->start) {
-		kjson_obj_close(&req);
-		kjson_close(&req);
-		db_expr_free(expr);
-		return;
-	} 
+	/*
+	 * If the experiment hasn't started yet, have it contain nothing
+	 * other than the experiment data itself.
+	 */
+	if ((t = time(NULL)) < expr->start)
+		goto out;
 
+	/* Compute current round. */
 	round = t >= expr->end ?  expr->rounds :
 		(t - expr->start) / (expr->minutes * 60);
-	player = db_player_load(playerid);
+
+	/*
+	 * This invokes the underlying "roundup" machinery.
+	 * When it completes, we'll have computed the payoffs for all
+	 * prior games.
+	 * It returns NULL if and only if we have no history.
+	 */
+	stor.req = &req;
 	if (NULL != (stor.intv = db_interval_get(round - 1)))
 		gamesz = stor.intv->periodsz;
 	else
 		gamesz = db_game_count_all();
-	stor.req = &req;
 
-	kjson_putintp(&req, "colour", playerid % 12);
-	kjson_putintp(&req, "ocolour", (playerid + 6) % 12);
-	kjson_putintp(&req, "rseed", player->rseed);
 	kjson_putintp(&req, "gamesz", gamesz);
-	kjson_putintp(&req, "role", player->role);
-
 	if (db_player_lottery(round - 1, playerid, cur, aggr, gamesz)) {
 		json_putmpqp(&req, "curlottery", cur);
 		json_putmpqp(&req, "aggrlottery", aggr);
@@ -358,9 +400,13 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 		round, senddoloadgame, &stor);
 	kjson_array_close(&req);
 
-	db_player_free(player);
+	kjson_arrayp_open(&req, "history");
+	db_game_load_all(senddoloadhistory, &stor);
+	kjson_array_close(&req);
+out:
 	kjson_obj_close(&req);
 	kjson_close(&req);
+	db_player_free(player);
 	db_expr_free(expr);
 	db_interval_free(stor.intv);
 }

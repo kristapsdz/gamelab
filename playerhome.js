@@ -400,11 +400,10 @@ function loadGame()
 	/* Show the shuffled roundup matrix, if it exists. */
 	if (null != hmatrix) {
 		doUnhide('exprHistory');
-		if (0 != game.roundup.skip) {
+		if (0 != game.roundup.skip) 
 			doUnhide('skipExplain');
-		} else {
+		else
 			doHide('skipExplain');
-		}
 		doClearReplace('exprHistoryLottery', res.curlottery);
 		appendMatrix(doClear('exprHistoryMatrix'), matrix);
 	} else {
@@ -526,17 +525,12 @@ function loadExprSuccess(resp)
 			doUnhide('historyPlay');
 			doHide('historyNotYet');
 			doClearReplace('historyLottery', res.aggrlottery);
-			doValue('computeRankTickets', res.aggrlottery);
 		} else {
 			doHide('historyPlay');
 			doUnhide('historyNotYet');
 		}
 		doClearReplace('exprCountdown', 'Finished');
 	}
-}
-
-function computeLottery()
-{
 }
 
 function loadExprSetup()
