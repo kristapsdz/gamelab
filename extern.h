@@ -132,6 +132,8 @@ int		 db_admin_sess_valid(int64_t, int64_t);
 
 void		 db_close(void);
 
+mpq_t		*db_choices_get(int64_t, int64_t, int64_t, size_t *);
+
 int		 db_expr_checkstate(enum estate);
 int		 db_expr_start(int64_t, int64_t, int64_t, 
 			const char *, const char *);
@@ -155,6 +157,8 @@ size_t		 db_game_round_count_done(int64_t, int64_t, size_t);
 void		 db_game_load_all(gamef fp, void *);
 void		 db_game_load_player(int64_t, 
 			int64_t, gameroundf, void *);
+
+int		 db_payoff_get(int64_t, int64_t, int64_t, mpq_t);
 
 void		 db_player_reset_error(void);
 void		 db_player_set_mailed(int64_t, const char *);
@@ -188,6 +192,7 @@ void		 mail_players(const char *);
 void		 mail_test(void);
 
 void		 json_putmpqp(struct kjsonreq *, const char *, mpq_t);
+void		 json_putmpq(struct kjsonreq *, mpq_t);
 void		 json_putmpqs(struct kjsonreq *, 
 			const char *, mpq_t *, int64_t, int64_t);
 void		 json_putroundup(struct kjsonreq *, 

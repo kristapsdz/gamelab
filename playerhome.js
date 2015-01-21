@@ -458,7 +458,7 @@ function showHistory()
 
 function loadHistory(res)
 {
-	var e, i, j, child, matrix, ravg, cavg, tbl, game;
+	var e, i, j, k, child, matrix, ravg, cavg, tbl, game, par;
 
 	doClearReplace('historyLottery', res.aggrlottery);
 
@@ -493,7 +493,9 @@ function loadHistory(res)
 			tbl = document.createElement('div');
 			tbl.setAttribute('id', 'game' + 
 				res.gameorders[i] + 'round' + j);
+			doHideNode(tbl);
 			e.appendChild(tbl);
+
 			ravg = 0 == res.role ? 
 				game.roundups[j].avgp1 : 
 				game.roundups[j].avgp2;
@@ -507,7 +509,20 @@ function loadHistory(res)
 			appendMatrix(tbl, matrix, 
 				res.roworders[res.gameorders[i]], 
 				ravg, cavg);
-			doHideNode(tbl);
+
+			par = document.createElement('p');
+			tbl.appendChild(par);
+
+			if (null == (res.lotteries[j].plays[res.gameorders[i]])) {
+				par.appendChild(document.createTextNode('No plays for this game.'));
+				continue;
+			}
+			par.appendChild(document.createTextNode('Your strategy mix: '));
+			for (k = 0; k < res.lotteries[j].plays[res.gameorders[i]].length; k++) {
+				if (k > 0)
+					par.appendChild(document.createTextNode(', '));
+				par.appendChild(document.createTextNode(res.lotteries[j].plays[res.gameorders[i]][k]));
+			}
 		}
 	}
 

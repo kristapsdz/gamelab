@@ -139,7 +139,7 @@ json_putmpqp(struct kjsonreq *r, const char *key, mpq_t val)
 	free(buf);
 }
 
-static void
+void
 json_putmpq(struct kjsonreq *r, mpq_t val)
 {
 	char	*buf;

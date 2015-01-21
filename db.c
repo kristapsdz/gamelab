@@ -689,12 +689,13 @@ db_player_play(int64_t playerid, int64_t round,
 
 	buf = mpq_mpq2str(plays, sz);
 	stmt = db_stmt("INSERT INTO choice "
-		"(round,playerid,gameid,strats) "
-		"VALUES (?,?,?,?)");
+		"(round,playerid,gameid,strats,stratsz) "
+		"VALUES (?,?,?,?,?)");
 	db_bind_int(stmt, 1, round);
 	db_bind_int(stmt, 2, playerid);
 	db_bind_int(stmt, 3, gameid);
 	db_bind_text(stmt, 4, buf);
+	db_bind_int(stmt, 5, sz);
 	rc = db_step(stmt, DB_STEP_CONSTRAINT);
 	sqlite3_finalize(stmt);
 	free(buf);
@@ -1359,6 +1360,44 @@ again:
 	fprintf(stderr, "Lottery complete: player %" 
 		PRId64 ", round %" PRId64 "\n", pid, round);
 	return(1);
+}
+
+int
+db_payoff_get(int64_t round, 
+	int64_t playerid, int64_t gameid, mpq_t mpq)
+{
+	sqlite3_stmt	*stmt;
+	int		 rc;
+
+	stmt = db_stmt("SELECT payoff FROM payoff "
+		"WHERE playerid=? AND round=? AND gameid=?");
+	db_bind_int(stmt, 1, playerid);
+	db_bind_int(stmt, 2, round);
+	db_bind_int(stmt, 3, gameid);
+	if (SQLITE_ROW == (rc = db_step(stmt, 0)))
+		db_str2mpq_single(sqlite3_column_text(stmt, 0), mpq);
+	sqlite3_finalize(stmt);
+	return(SQLITE_ROW == rc);
+}
+
+mpq_t *
+db_choices_get(int64_t round, 
+	int64_t playerid, int64_t gameid, size_t *sz)
+{
+	sqlite3_stmt	*stmt;
+	mpq_t		*mpq = NULL;
+
+	stmt = db_stmt("SELECT stratsz,strats FROM choice "
+		"WHERE round=? AND playerid=? AND gameid=?");
+	db_bind_int(stmt, 1, round);
+	db_bind_int(stmt, 2, playerid);
+	db_bind_int(stmt, 3, gameid);
+	if (SQLITE_ROW == db_step(stmt, 0)) {
+		*sz = sqlite3_column_int(stmt, 0);
+		mpq = db_str2mpq(sqlite3_column_text(stmt, 1), *sz);
+	}
+	sqlite3_finalize(stmt);
+	return(mpq);
 }
 
 static void

@@ -27,6 +27,12 @@ struct	intvstor {
 	struct kjsonreq	*req;
 };
 
+struct	poffstor {
+	int64_t		 playerid;
+	int64_t		 round;
+	struct kjsonreq	*req;
+};
+
 /*
  * Unique pages under the CGI "directory".
  */
@@ -274,6 +280,28 @@ senddologin(struct kreq *r)
 }
 
 static void
+senddoloadplays(const struct game *game, void *arg)
+{
+	struct poffstor	*p = arg;
+	struct kjsonreq	*req = p->req;
+	mpq_t		*mpq;
+	size_t		 i, sz;
+	
+	mpq = db_choices_get(p->round, p->playerid, game->id, &sz);
+	if (NULL == mpq) {
+		kjson_putnull(req);
+		return;
+	}
+	kjson_array_open(req);
+	for (i = 0; i < sz; i++) {
+		json_putmpq(req, mpq[i]);
+		mpq_clear(mpq[i]);
+	}
+	kjson_array_close(req);
+	free(mpq);
+}
+
+static void
 senddoloadhistory(const struct game *game, void *arg)
 {
 	struct intvstor	*p = arg;
@@ -350,6 +378,7 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 	struct expr	*expr;
 	struct player	*player;
 	struct intvstor	 stor;
+	struct poffstor	 pstor;
 	mpq_t		 cur, aggr;
 	time_t		 t;
 	int64_t	 	 i, round;
@@ -362,6 +391,7 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 	player = db_player_load(playerid);
 	assert(NULL != player);
 	memset(&stor, 0, sizeof(struct intvstor));
+	memset(&pstor, 0, sizeof(struct poffstor));
 
 	http_open(r, KHTTP_200);
 	khttp_body(r);
@@ -431,6 +461,8 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 	db_game_load_all(senddoloadhistory, &stor);
 	kjson_array_close(&req);
 
+	pstor.playerid = playerid;
+	pstor.req = &req;
 	kjson_arrayp_open(&req, "lotteries");
 	for (i = 0; i < round; i++) {
 		db_player_lottery(i, playerid, cur, aggr, gamesz);
@@ -439,6 +471,10 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 		json_putmpqp(&req, "aggrlottery", aggr);
 		mpq_clear(cur);
 		mpq_clear(aggr);
+		kjson_arrayp_open(&req, "plays");
+		pstor.round = i;
+		db_game_load_all(senddoloadplays, &pstor);
+		kjson_array_close(&req);
 		kjson_obj_close(&req);
 	}
 	kjson_array_close(&req);

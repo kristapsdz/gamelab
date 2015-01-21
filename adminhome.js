@@ -65,11 +65,9 @@ function loadNewPlayersSuccess(resp)
 	if (null == e)
 		return;
 
-	console.log('Response: ' + resp);
 	try  { 
 		results = JSON.parse(resp);
 	} catch (error) {
-		console.log('Error: ' + error);
 		li = document.createElement('li');
 		li.appendChild(document.createTextNode('Parse error.'));
 		e.appendChild(li);
@@ -172,11 +170,9 @@ function loadPlayersSuccess(resp)
 	if (null == e)
 		return;
 
-	console.log('Response: ' + resp);
 	try  { 
 		results = JSON.parse(resp);
 	} catch (error) {
-		console.log('Error: ' + error);
 		li = document.createElement('li');
 		li.appendChild(document.createTextNode('Parse error.'));
 		e.appendChild(li);
@@ -259,11 +255,9 @@ function loadGamesSuccessInner(resp, code)
 	if (null == e)
 		return;
 
-	console.log('Response: ' + resp);
 	try  { 
 		results = JSON.parse(resp);
 	} catch (error) {
-		console.log('Error: ' + error);
 		li = document.createElement('li');
 		li.appendChild(document.createTextNode('Parse error.'));
 		e.appendChild(li);
@@ -453,11 +447,9 @@ function loadSmtpSuccess(resp)
 
 	doClassOk('checkSmtpLoad');
 
-	console.log('SMTP Response: ' + resp);
 	try {
 		results = JSON.parse(resp);
 	} catch (error) {
-		console.log('Error: ' + error);
 		return;
 	}
 
@@ -534,11 +526,9 @@ function loadExprSuccess(resp)
 {
 	var res, e, i, chld, expr, li, div;
 
-	console.log('Response: ' + resp);
 	try  { 
 		res = JSON.parse(resp);
 	} catch (error) {
-		console.log('Error: ' + error);
 		return;
 	}
 
@@ -619,8 +609,6 @@ function loadExprSetup()
 function loadExprFailure(err)
 {
 	var url = document.URL;
-
-	console.log('err = ' + err);
 
 	url = url.substring(0, url.lastIndexOf("/"));
 	location.href = url + '/login.html#loggedout';
@@ -751,12 +739,10 @@ function doTestSmtpSuccess(resp)
 {
 	var results, mail;
 
-	console.log('Response: ' + resp);
 	try  { 
 		results = JSON.parse(resp);
 		mail = results.mail;
 	} catch (error) {
-		console.log('Error: ' + error);
 		mail = 'unknown';
 	}
 
