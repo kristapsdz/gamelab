@@ -37,15 +37,17 @@
 			<div id="historyLoading"><i class="fa fa-spinner fa-spin"></i></div>
 			<div id="historyLoaded" class="noshow">
 				<section id="historyPlay" class="noshow">
+					<h3>History by Game and Round</h3>
 					<p>
-						You have <span id="historyLottery"></span> tickets.
-					</p>
-					<p>
-						History for Game <select id="historySelectGame" onchange="showHistory();"></select>,
-						Round <select id="historySelectRound" onchange="showHistory();"></select>.
+						Game <select id="historySelectGame" onchange="showHistory();"></select>,
+						Round <select id="historySelectRound" onchange="showHistory();"></select>
 					</p>
 					<div id="historyRoundups"></div>
 					<div id="lotteryRoundups"></div>
+					<h3>Summary</h3>
+					<p>
+						Your total payoff (all games and rounds): <span id="historyLottery"></span>
+					</p>
 				</section>
 				<section id="historyNotYet" class="noshow">
 					<p>

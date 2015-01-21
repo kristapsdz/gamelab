@@ -513,12 +513,14 @@ function loadHistory(res)
 
 	e = doClear('lotteryRoundups');
 	for (i = 0; i < res.lotteries.length; i++) {
-		tbl = document.createElement('div');
+		tbl = document.createElement('p');
 		e.appendChild(tbl);
 		tbl.setAttribute('id', 'lottery' + i);
 		tbl.appendChild(document.createTextNode
 			('Your payoff in round ' + (i + 1) + 
-			 ': ' + res.lotteries[i].curlottery));
+			 ': ' + res.lotteries[i].curlottery + '; ' +
+			 'as of this round: ' +
+			 res.lotteries[i].aggrlottery + '.'));
 		doHideNode(tbl);
 	}
 
