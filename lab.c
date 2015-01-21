@@ -284,7 +284,7 @@ senddoloadplays(const struct game *game, void *arg)
 {
 	struct poffstor	*p = arg;
 	struct kjsonreq	*req = p->req;
-	mpq_t		*mpq;
+	mpq_t		*mpq,  poff;
 	size_t		 i, sz;
 	
 	mpq = db_choices_get(p->round, p->playerid, game->id, &sz);
@@ -292,12 +292,19 @@ senddoloadplays(const struct game *game, void *arg)
 		kjson_putnull(req);
 		return;
 	}
-	kjson_array_open(req);
+
+	kjson_obj_open(req);
+	db_payoff_get(p->round, p->playerid, game->id, poff);
+	json_putmpqp(req, "poff", poff);
+	mpq_clear(poff);
+
+	kjson_arrayp_open(req, "strats");
 	for (i = 0; i < sz; i++) {
 		json_putmpq(req, mpq[i]);
 		mpq_clear(mpq[i]);
 	}
 	kjson_array_close(req);
+	kjson_obj_close(req);
 	free(mpq);
 }
 

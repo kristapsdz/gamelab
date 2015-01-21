@@ -458,7 +458,7 @@ function showHistory()
 
 function loadHistory(res)
 {
-	var e, i, j, k, child, matrix, ravg, cavg, tbl, game, par;
+	var e, i, j, k, child, matrix, ravg, cavg, tbl, game, par, lot;
 
 	doClearReplace('historyLottery', res.aggrlottery);
 
@@ -512,17 +512,25 @@ function loadHistory(res)
 
 			par = document.createElement('p');
 			tbl.appendChild(par);
-
-			if (null == (res.lotteries[j].plays[res.gameorders[i]])) {
-				par.appendChild(document.createTextNode('No plays for this game.'));
+			lot = res.lotteries[j].plays[res.gameorders[i]];
+			if (null == lot) {
+				par.appendChild(document.createTextNode
+					('No plays for this round and game.'));
 				continue;
 			}
-			par.appendChild(document.createTextNode('Your strategy mix: '));
-			for (k = 0; k < res.lotteries[j].plays[res.gameorders[i]].length; k++) {
+			par.appendChild(document.createTextNode
+				('Your game and round strategy mix: '));
+			for (k = 0; k < lot.strats.length; k++) {
 				if (k > 0)
 					par.appendChild(document.createTextNode(', '));
-				par.appendChild(document.createTextNode(res.lotteries[j].plays[res.gameorders[i]][k]));
+				par.appendChild(document.createTextNode(lot.strats[k]));
 			}
+
+			par = document.createElement('p');
+			tbl.appendChild(par);
+			par.appendChild(document.createTextNode
+				('Your game and round payoff: '));
+			par.appendChild(document.createTextNode(lot.poff));
 		}
 	}
 
@@ -532,9 +540,9 @@ function loadHistory(res)
 		e.appendChild(tbl);
 		tbl.setAttribute('id', 'lottery' + i);
 		tbl.appendChild(document.createTextNode
-			('Your payoff in round ' + (i + 1) + 
+			('Your payoff in all games of round ' + (i + 1) + 
 			 ': ' + res.lotteries[i].curlottery + '; ' +
-			 'as of this round: ' +
+			 'cumulatively as of this round: ' +
 			 res.lotteries[i].aggrlottery + '.'));
 		doHideNode(tbl);
 	}
