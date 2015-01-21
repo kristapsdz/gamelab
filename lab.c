@@ -310,26 +310,37 @@ senddoloadgame(const struct game *game, int64_t round, void *arg)
 {
 	struct intvstor	*p = arg;
 	struct kjsonreq	*req = p->req;
+	struct period	*per;
 	size_t		 i;
 
+	if (NULL == game) {
+		kjson_putnull(req);
+		return;
+	}
 	kjson_obj_open(req);
 	kjson_putintp(req, "p1", game->p1);
 	kjson_putintp(req, "p2", game->p2);
+
 	kjson_putstringp(req, "name", game->name);
 	json_putmpqs(req, "payoffs", 
 		game->payoffs, game->p1, game->p2);
 	kjson_putintp(req, "id", game->id);
 
-	if (NULL != p->intv) {
-		for (i = 0; i < p->intv->periodsz; i++) 
-			if (game->id == p->intv->periods[i].gameid)
-				break;
-		assert(i < p->intv->periodsz);
-		json_putroundup(req, "roundup", 
-			p->intv->periods[i].roundups[round - 1]);
-	} else
-		kjson_putnullp(req, "roundup");
+	kjson_arrayp_open(req, "p1order");
+	kjson_array_close(req);
 
+	if (NULL == p->intv) {
+		kjson_putnullp(req, "roundup");
+		kjson_obj_close(req);
+		return;
+	}
+
+	for (i = 0; i < p->intv->periodsz; i++) 
+		if (game->id == p->intv->periods[i].gameid)
+			break;
+	assert(i < p->intv->periodsz);
+	per = &p->intv->periods[i];
+	json_putroundup(req, "roundup", per->roundups[round - 1]);
 	kjson_obj_close(req);
 }
 
@@ -385,6 +396,11 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 	else
 		gamesz = db_game_count_all();
 
+	/*
+	 * This invokes the underlying lottery computation.
+	 * This will compute the lottery for (right now) only the last
+	 * lottery sequence.
+	 */
 	kjson_putintp(&req, "gamesz", gamesz);
 	if (db_player_lottery(round - 1, playerid, cur, aggr, gamesz)) {
 		json_putmpqp(&req, "curlottery", cur);
@@ -396,11 +412,20 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 		kjson_putnullp(&req, "aggrlottery");
 	}
 
+	/* 
+	 * Send the remaining games.
+	 * This will not reference the games that we've already played.
+	 * We use the games computed during roundup.
+	 */
 	kjson_arrayp_open(&req, "games");
 	db_game_load_player(playerid, 
 		round, senddoloadgame, &stor);
 	kjson_array_close(&req);
 
+	/*
+	 * Send all games and all game histories.
+	 * This exhaustively catalogues the game sequence.
+	 */
 	kjson_arrayp_open(&req, "history");
 	db_game_load_all(senddoloadhistory, &stor);
 	kjson_array_close(&req);

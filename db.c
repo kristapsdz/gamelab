@@ -755,8 +755,10 @@ db_game_load_player(int64_t playerid,
 	stmt = db_stmt("SELECT payoffs,p1,p2,name,id FROM game");
 	while (SQLITE_ROW == db_step(stmt, 0)) {
 		id = sqlite3_column_int(stmt, 4);
-		if (db_game_check_player(playerid, round, id))
+		if (db_game_check_player(playerid, round, id)) {
+			(*fp)(NULL, round, arg);
 			continue;
+		}
 		memset(&game, 0, sizeof(struct game));
 		game.p1 = sqlite3_column_int(stmt, 1);
 		game.p2 = sqlite3_column_int(stmt, 2);
