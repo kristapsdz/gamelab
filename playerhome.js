@@ -94,7 +94,7 @@ function appendMatrix(e, matrix, order, ravg, cavg)
 			(String.fromCharCode(97 + i)));
 		row.appendChild(cell);
 
-		for (j = 0; j < matrix[i].length; j++) {
+		for (j = 0; j < matrix[order[i]].length; j++) {
 			cell = document.createElement('div');
 			cell.setAttribute('class', 'mix');
 			row.appendChild(cell);
@@ -398,7 +398,7 @@ function loadGame()
 
 	/* Shuffle the presentation of rows. */
 	appendBimatrix(doClear('exprMatrix'), 
-		matrix, c, oc, res.roworders[resindex]);
+		matrix, c, oc, res.roworders[res.gameorders[resindex]]);
 
 	document.getElementById('playerColour').setAttribute('style', 'color: ' + colours[c] + ';');
 	document.getElementById('playerColour2').setAttribute('style', 'color: ' + colours[c] + ';');
@@ -411,8 +411,8 @@ function loadGame()
 		else
 			doHide('skipExplain');
 		doClearReplace('exprHistoryLottery', res.curlottery);
-		appendMatrix(doClear('exprHistoryMatrix'), 
-			hmatrix, res.roworders[resindex], ravg, cavg);
+		appendMatrix(doClear('exprHistoryMatrix'), hmatrix, 
+			res.roworders[res.gameorders[resindex]], ravg, cavg);
 	} else {
 		doHide('exprHistory');
 	}
@@ -435,9 +435,10 @@ function loadGame()
 		input = document.createElement('input');
 		input.setAttribute('type', 'text');
 		input.setAttribute('readonly', 'readonly');
-		input.setAttribute('id', 'index' + res.roworders[resindex][i]);
-		input.setAttribute('name', 'index' + res.roworders[resindex][i]);
-		input.setAttribute('name', 'index' + res.roworders[resindex][i]);
+		input.setAttribute('id', 'index' + 
+			res.roworders[res.gameorders[resindex]][i]);
+		input.setAttribute('name', 'index' + 
+			res.roworders[res.gameorders[resindex]][i]);
 		input.setAttribute('onkeypress', 'return(disableEnter(event));');
 		div.appendChild(ii);
 		div.appendChild(input);
