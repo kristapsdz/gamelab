@@ -544,7 +544,8 @@ function loadHistory(res)
 			for (k = 0; k < lot.strats.length; k++) {
 				if (k > 0)
 					par.appendChild(document.createTextNode(', '));
-				par.appendChild(document.createTextNode(lot.strats[k]));
+				par.appendChild(document.createTextNode
+					(lot.strats[res.roworders[res.gameorders[i]][k]]));
 			}
 
 			par = document.createElement('p');
