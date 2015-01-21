@@ -10,6 +10,7 @@ var res;
 
 /* Yech... */
 var shownHistory;
+var shownLottery;
 
 /*
  * When we play games, we go through the [shuffled] array in "res".
@@ -450,6 +451,9 @@ function showHistory()
 	if (null != shownHistory)
 		doHideNode(shownHistory);
 	shownHistory = doUnhide('game' + game + 'round' + round);
+	if (null != shownLottery)
+		doHideNode(shownLottery);
+	shownLottery = doUnhide('lottery' + round);
 }
 
 function loadHistory(res)
@@ -505,6 +509,17 @@ function loadHistory(res)
 				ravg, cavg);
 			doHideNode(tbl);
 		}
+	}
+
+	e = doClear('lotteryRoundups');
+	for (i = 0; i < res.lotteries.length; i++) {
+		tbl = document.createElement('div');
+		e.appendChild(tbl);
+		tbl.setAttribute('id', 'lottery' + i);
+		tbl.appendChild(document.createTextNode
+			('Your payoff in round ' + (i + 1) + 
+			 ': ' + res.lotteries[i].curlottery));
+		doHideNode(tbl);
 	}
 
 	showHistory();

@@ -352,7 +352,7 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 	struct intvstor	 stor;
 	mpq_t		 cur, aggr;
 	time_t		 t;
-	int64_t	 	 round;
+	int64_t	 	 i, round;
 	size_t		 gamesz;
 	struct kjsonreq	 req;
 
@@ -380,6 +380,7 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 	if ((t = time(NULL)) < expr->start)
 		goto out;
 
+	/* FIXME: if finished, show all rounds (not "-1"). */
 	/* Compute current round. */
 	round = t >= expr->end ?  expr->rounds :
 		(t - expr->start) / (expr->minutes * 60);
@@ -429,6 +430,19 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 	kjson_arrayp_open(&req, "history");
 	db_game_load_all(senddoloadhistory, &stor);
 	kjson_array_close(&req);
+
+	kjson_arrayp_open(&req, "lotteries");
+	for (i = 0; i < round; i++) {
+		db_player_lottery(i, playerid, cur, aggr, gamesz);
+		kjson_obj_open(&req);
+		json_putmpqp(&req, "curlottery", cur);
+		json_putmpqp(&req, "aggrlottery", aggr);
+		mpq_clear(cur);
+		mpq_clear(aggr);
+		kjson_obj_close(&req);
+	}
+	kjson_array_close(&req);
+
 out:
 	kjson_obj_close(&req);
 	kjson_close(&req);
