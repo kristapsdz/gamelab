@@ -132,8 +132,7 @@ function formatCountdown(v, e)
 		span.appendChild(document.createTextNode(p));
 		span.appendChild(document.createTextNode('d'));
 		v -= p * (24 * 60 * 60);
-	} else
-		span.appendChild(document.createTextNode('00d'));
+	} 
 
 	e.appendChild(span);
 	span = document.createElement('span');
@@ -144,8 +143,7 @@ function formatCountdown(v, e)
 		span.appendChild(document.createTextNode(p));
 		span.appendChild(document.createTextNode('h'));
 		v -= p * (60 * 60);
-	} else
-		span.appendChild(document.createTextNode('00h'));
+	} 
 
 	e.appendChild(span);
 	span = document.createElement('span');
@@ -156,8 +154,7 @@ function formatCountdown(v, e)
 		span.appendChild(document.createTextNode(p));
 		span.appendChild(document.createTextNode('m'));
 		v -= p * (60);
-	} else
-		span.appendChild(document.createTextNode('00m'));
+	} 
 
 	e.appendChild(span);
 

@@ -548,17 +548,13 @@ function loadExprSuccess(resp)
 		doHide('statusExprProg');
 		doHide('statusExprLoading');
 		doUnhide('statusExprFinished');
-		doClearReplace('exprCountdown', 'Finished');
-		doHide('exprCountdownTilNext');
-		doHide('exprCountdownTilStart');
+		doClearReplace('exprCountdown', 'finished');
 		return;
 	}
 
 	if (expr.tilstart > 0) {
 		doUnhide('statusExprWaiting');
 		doHide('statusExprLoading');
-		doUnhide('exprCountdownTilStart');
-		doHide('exprCountdownTilNext');
 		e = doClear('exprCountdown');
 		formatCountdown(expr.tilstart, e);
 		setTimeout(timerCountdown, 1000, loadExpr, 
@@ -567,8 +563,6 @@ function loadExprSuccess(resp)
 		if (0 == expr.tilstart) {
 			e = doClear('exprCountdown');
 			doHide('statusExprLoading');
-			doHide('exprCountdownTilStart');
-			doUnhide('exprCountdownTilNext');
 			formatCountdown(expr.tilnext, e);
 			setTimeout(timerCountdown, 1000, loadExpr, 
 				e, expr.tilnext, new Date().getTime());
@@ -620,8 +614,6 @@ function loadExprSetup()
 	doHide('statusExprWaiting');
 	doHide('statusExprFinished');
 	doHide('statusExprProg');
-	doHide('exprCountdownTilNext');
-	doHide('exprCountdownTilStart');
 }
 
 function loadExprFailure(err)

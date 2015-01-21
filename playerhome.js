@@ -593,8 +593,6 @@ function loadExprSuccess(resp)
 		 * and exit: we have nothing to show.
 		 */
 		doUnhide('historyNotStarted');
-		doUnhide('exprCountdownTilStart');
-		doHide('exprCountdownTilNext');
 		e = doClear('exprCountdown');
 		formatCountdown(expr.tilstart, e);
 		setTimeout(timerCountdown, 1000, loadExpr, 
@@ -605,8 +603,6 @@ function loadExprSuccess(resp)
 		 * Start by setting the countdown til the next
 		 * game-play.
 		 */
-		doHide('exprCountdownTilStart');
-		doUnhide('exprCountdownTilNext');
 		e = doClear('exprCountdown');
 		formatCountdown(expr.tilnext, e);
 		setTimeout(timerCountdown, 1000, loadExpr, 
@@ -627,8 +623,6 @@ function loadExprSuccess(resp)
 		 */
 		doHide('exprPlay');
 		doHide('exprDone');
-		doHide('exprCountdownTilStart');
-		doHide('exprCountdownTilNext');
 		doUnhide('exprFinished');
 		if (expr.round > 0) {
 			doUnhide('historyPlay');
@@ -638,7 +632,7 @@ function loadExprSuccess(resp)
 			doHide('historyPlay');
 			doUnhide('historyNotYet');
 		}
-		doClearReplace('exprCountdown', 'Finished');
+		doClearReplace('exprCountdown', 'finished');
 	}
 }
 
@@ -652,8 +646,6 @@ function loadExprSetup()
 	doUnhide('historyLoading');
 	doHide('instructionsLoaded');
 	doUnhide('instructionsLoading');
-	doHide('exprCountdownTilStart');
-	doHide('exprCountdownTilNext');
 }
 
 function sendLoggedOut()

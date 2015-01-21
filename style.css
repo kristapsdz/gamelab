@@ -286,5 +286,5 @@ div.input input[readonly]	{ background-color: #ddd; }
 	div.history		{ width: 100%; 
 				  border-spacing: 0.25ex; }
 	h1			{ font-size: 18pt; }
-	#exprCountdown		{ font-size: 12pt; }
+	body > header span	{ font-size: 12pt; }
 }

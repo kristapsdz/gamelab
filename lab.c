@@ -402,7 +402,6 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 	 * This will compute the lottery for (right now) only the last
 	 * lottery sequence.
 	 */
-	kjson_putintp(&req, "gamesz", gamesz);
 	if (db_player_lottery(round - 1, playerid, cur, aggr, gamesz)) {
 		json_putmpqp(&req, "curlottery", cur);
 		json_putmpqp(&req, "aggrlottery", aggr);
@@ -418,6 +417,7 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 	 * This will not reference the games that we've already played.
 	 * We use the games computed during roundup.
 	 */
+	kjson_putintp(&req, "gamesz", gamesz);
 	kjson_arrayp_open(&req, "games");
 	db_game_load_player(playerid, 
 		round, senddoloadgame, &stor);
