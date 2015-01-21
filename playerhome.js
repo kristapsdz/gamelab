@@ -323,6 +323,24 @@ function bimatrixCreateTranspose(vector)
 	return(matrix);
 }
 
+function disableEnter(e) {
+	e = e || window.event;
+	var keycode = e.which || e.keyCode;
+	if (keycode == 13) {
+		if (e.preventDefault) { 
+			e.preventDefault();
+		} else { 
+			e.returnValue = false;
+		}
+		if (e.stopPropagation) {
+			e.stopPropagation();
+		} else { 
+			e.cancelBubble = true;
+		}
+		return (false);
+	}
+}
+
 /*
  * Given that we've already loaded the experiment via loadGameSuccess(),
  * take the existing game and lay out our inputs.
@@ -419,6 +437,8 @@ function loadGame()
 		input.setAttribute('readonly', 'readonly');
 		input.setAttribute('id', 'index' + res.roworders[resindex][i]);
 		input.setAttribute('name', 'index' + res.roworders[resindex][i]);
+		input.setAttribute('name', 'index' + res.roworders[resindex][i]);
+		input.setAttribute('onkeypress', 'return(disableEnter(event));');
 		div.appendChild(ii);
 		div.appendChild(input);
 		e.appendChild(div);
