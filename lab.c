@@ -294,9 +294,11 @@ senddoloadplays(const struct game *game, void *arg)
 	}
 
 	kjson_obj_open(req);
-	db_payoff_get(p->round, p->playerid, game->id, poff);
-	json_putmpqp(req, "poff", poff);
-	mpq_clear(poff);
+	if (db_payoff_get(p->round, p->playerid, game->id, poff)) {
+		json_putmpqp(req, "poff", poff);
+		mpq_clear(poff);
+	} else
+		kjson_putintp(req, "poff", 0);
 
 	kjson_arrayp_open(req, "strats");
 	for (i = 0; i < sz; i++) {
