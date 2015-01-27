@@ -447,6 +447,141 @@ db_admin_set_pass(const char *pass)
 	fprintf(stderr, "Administrator set password\n");
 }
 
+void
+db_winners(int64_t round, size_t winnersz, int64_t seed, size_t count)
+{
+	enum estate	 state;
+	sqlite3_stmt	*stmt;
+	size_t		 i, j, players;
+	int64_t		 id;
+	int64_t		*pids, *winners;
+	long		 top;
+	mpq_t		 total, sum, div, cmp, zero;
+
+	pids = winners = NULL;
+	mpq_init(total);
+	mpq_init(sum);
+	mpq_init(div);
+	mpq_init(cmp);
+	mpq_init(zero);
+
+	fprintf(stderr, "Rounding up player lotteries...\n");
+
+	players = db_player_count_all();
+	pids = kcalloc(players, sizeof(int64_t));
+	winners = kcalloc(players, sizeof(int64_t));
+	stmt = db_stmt("SELECT id FROM player");
+	i = 0;
+	while (SQLITE_ROW == db_step(stmt, 0)) {
+		assert(i < players);
+		pids[i++] = sqlite3_column_int(stmt, 0);
+	}
+	sqlite3_finalize(stmt);
+	assert(i == players);
+
+	/* Disallow more winners than players. */
+	if (winnersz > players)
+		winnersz = players;
+
+	for (i = 0; i < players; i++) {
+		mpq_clear(cmp);
+		mpq_clear(sum);
+		db_player_lottery(round, pids[i], cmp, sum, count);
+		gmp_fprintf(stderr, "Adding ticket[%zu]: %Qd\n", i, sum);
+		mpq_summation(total, sum);
+	}
+
+	gmp_fprintf(stderr, "Total lottery tickets: %Qd\n", total);
+
+	if (mpq_equal(total, zero)) {
+		fprintf(stderr, "No lottery tickets!\n");
+		goto out;
+	}
+
+	db_trans_begin(0);
+
+	stmt = db_stmt("SELECT state FROM experiment");
+	db_step(stmt, 0);
+	state = sqlite3_column_int(stmt, 0);
+	sqlite3_finalize(stmt);
+
+	if (ESTATE_POSTWIN == state) {
+		fprintf(stderr, "Experiment already winnered.\n");
+		goto out;
+	}
+
+	stmt = db_stmt("SELECT player.id,aggrpayoff FROM lottery "
+		"INNER JOIN player ON lottery.playerid = player.id "
+		"WHERE round=? "
+		"ORDER BY player.rseed ASC, player.id ASC");
+	srandom(seed);
+	for (i = 0; i < winnersz; i++) {
+		do 
+			top = random();
+		while (0 == top);
+		mpq_set_ui(cmp, random() % top, top);
+		mpq_canonicalize(cmp);
+		gmp_fprintf(stderr, "Winning probability: %Qd\n", cmp);
+		db_bind_int(stmt, 1, round);
+		mpq_set_ui(sum, 0, 1);
+		mpq_canonicalize(sum);
+		id = 0;
+		while (SQLITE_ROW == db_step(stmt, 0)) {
+			id = sqlite3_column_int(stmt, 0);
+			mpq_summation_str(sum, sqlite3_column_text(stmt, 1));
+			mpq_div(div, sum, total);
+			gmp_fprintf(stderr, "Checking: %Qd <= %Qd\n", div, cmp);
+			if (mpq_cmp(div, cmp) <= 0)
+				break;
+		}
+		sqlite3_reset(stmt);
+		assert(0 != id);
+		for (j = 0; j < i; j++)
+			if (winners[j] == id)
+				break;
+		if (j < i) {
+			fprintf(stderr, "Winner already chosen: %" PRId64 "\n", id);
+			i--;
+		} else {
+			winners[i] = id;
+			fprintf(stderr, "Winner: %" PRId64 "\n", id);
+		}
+	}
+	sqlite3_finalize(stmt);
+
+	stmt = db_stmt("INSERT INTO winner "
+		"(playerid,winner,winrank) VALUES (?,?,?)");
+	for (i = 0; i < players; i++) {
+		db_bind_int(stmt, 1, pids[i]);
+		for (j = 0; j < winnersz; j++)
+			if (winners[j] == pids[i])
+				break;
+		if (j < winnersz) {
+			db_bind_int(stmt, 2, 1);
+			db_bind_int(stmt, 3, j);
+		} else {
+			db_bind_int(stmt, 2, 0);
+			db_bind_int(stmt, 3, 0);
+		}
+		db_step(stmt, 0);
+		sqlite3_reset(stmt);
+	}
+	sqlite3_finalize(stmt);
+
+	stmt = db_stmt("UPDATE experiment SET state=2");
+	db_step(stmt, 0);
+	sqlite3_finalize(stmt);
+out:
+	db_trans_commit();
+	mpq_clear(total);
+	mpq_clear(sum);
+	mpq_clear(div);
+	mpq_clear(cmp);
+	mpq_clear(zero);
+	free(pids);
+	free(winners);
+}
+
 char *
 db_admin_get_mail(void)
 {
@@ -1927,10 +2062,10 @@ db_expr_get(void)
 	int		 rc;
 
 	stmt = db_stmt("SELECT start,rounds,minutes,"
-		"loginuri,state,instructions FROM experiment");
+		"loginuri,state,instructions,state FROM experiment");
 	rc = db_step(stmt, 0);
 	assert(SQLITE_ROW == rc);
-	if (ESTATE_STARTED != sqlite3_column_int(stmt, 4)) {
+	if (ESTATE_NEW == sqlite3_column_int(stmt, 4)) {
 		sqlite3_finalize(stmt);
 		return(NULL);
 	}
@@ -1941,6 +2076,7 @@ db_expr_get(void)
 	expr->minutes = sqlite3_column_int(stmt, 2);
 	expr->loginuri = kstrdup((char *)sqlite3_column_text(stmt, 3));
 	expr->instructions = kstrdup((char *)sqlite3_column_text(stmt, 5));
+	expr->state = (time_t)sqlite3_column_int(stmt, 6);
 	expr->end = expr->start + (expr->rounds * expr->minutes * 60);
 	sqlite3_finalize(stmt);
 	return(expr);

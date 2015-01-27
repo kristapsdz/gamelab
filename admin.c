@@ -45,6 +45,7 @@ enum	page {
 	PAGE_DORESENDEMAIL,
 	PAGE_DOSTARTEXPR,
 	PAGE_DOTESTSMTP,
+	PAGE_DOWINNERS,
 	PAGE_DOWIPE,
 	PAGE_HOME,
 	PAGE_INDEX,
@@ -129,6 +130,7 @@ static	unsigned int perms[PAGE__MAX] = {
 	PERM_JSON | PERM_LOGIN, /* PAGE_DORESENDEMAIL */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOSTARTEXPR */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOTESTSMTP */
+	PERM_JSON | PERM_LOGIN, /* PAGE_DOWINNERS */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOWIPE */
 	PERM_JS | PERM_HTML | PERM_LOGIN, /* PAGE_HOME */
 	PERM_JS | PERM_HTML | PERM_LOGIN, /* PAGE_INDEX */
@@ -154,6 +156,7 @@ static const char *const pages[PAGE__MAX] = {
 	"doresendemail", /* PAGE_DORESENDEMAIL */
 	"dostartexpr", /* PAGE_DOSTARTEXPR */
 	"dotestsmtp", /* PAGE_DOTESTSMTP */
+	"dowinners", /* PAGE_DOWINNERS */
 	"dowipe", /* PAGE_DOWIPE */
 	"home", /* PAGE_HOME */
 	"index", /* PAGE_INDEX */
@@ -867,6 +870,22 @@ senddologout(struct kreq *r)
 }
 
 static void
+senddowinners(struct kreq *r)
+{
+	struct expr	*expr;
+
+	if (NULL == (expr = db_expr_get())) {
+		http_open(r, KHTTP_409);
+		khttp_body(r);
+		return;
+	}
+
+	db_winners(expr->rounds - 1, 2, arc4random(), db_game_count_all());
+	http_open(r, KHTTP_200);
+	khttp_body(r);
+}
+
+static void
 senddowipe(struct kreq *r)
 {
 
@@ -1030,6 +1049,9 @@ main(void)
 		break;
 	case (PAGE_DOTESTSMTP):
 		senddotestsmtp(&r);
+		break;
+	case (PAGE_DOWINNERS):
+		senddowinners(&r);
 		break;
 	case (PAGE_DOWIPE):
 		senddowipe(&r);

@@ -11,6 +11,7 @@
 enum	estate {
 	ESTATE_NEW = 0,
 	ESTATE_STARTED = 1,
+	ESTATE_POSTWIN = 2
 };
 
 /*
@@ -20,6 +21,7 @@ enum	estate {
  * ESTATE_NEW) are undefined or NULL.
  */
 struct	expr {
+	enum estate	 state; /* state of play */
 	time_t		 start; /* game-play begins */
 	time_t		 end; /* game-play ends (computed) */
 	int64_t		 rounds; /* number of game plays */
@@ -187,6 +189,8 @@ struct smtp	*db_smtp_get(void);
 void		 db_smtp_free(struct smtp *);
 void		 db_smtp_set(const char *, const char *, 
 			const char *, const char *);
+
+void		 db_winners(int64_t, size_t, int64_t, size_t);
 
 void		 mail_players(const char *);
 void		 mail_test(void);

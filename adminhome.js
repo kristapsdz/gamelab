@@ -702,6 +702,12 @@ function addPlayers(form)
 		doAddPlayersError, doAddPlayersSuccess));
 }
 
+function doWinnersSetup()
+{
+
+	doClearReplace('winnersButton', 'Computing...');
+}
+
 function doWipeExprSetup()
 {
 
@@ -719,6 +725,12 @@ function doTestSmtpSetup()
 
 	doHide('testSmtpResults');
 	doClearReplace('checkSmtpButton', 'Mailing test...');
+}
+
+function doWinnersSuccess(resp)
+{
+
+	doClearReplace('winnersButton', 'Compute Winners');
 }
 
 function doWipeExprSuccess(resp)
@@ -751,13 +763,19 @@ function doTestSmtpSuccess(resp)
 	doUnhide('testSmtpResults');
 }
 
+function winners() 
+{
+
+	sendQuery('@@cgibin@@/dowinners.json', 
+		doWinnersSetup, doWinnersSuccess, null);
+}
+
 function wipeExpr() 
 {
 
 	sendQuery('@@cgibin@@/dowipe.json', 
 		doWipeExprSetup, doWipeExprSuccess, null);
 }
-
 
 function reTestSmtp() 
 {
