@@ -748,6 +748,18 @@ db_player_free(struct player *player)
 	free(player);
 }
 
+void
+db_player_set_instr(int64_t player, int64_t instr)
+{
+	sqlite3_stmt	*stmt;
+
+	stmt = db_stmt("UPDATE player SET instr=? WHERE id=?");
+	db_bind_int(stmt, 1, instr);
+	db_bind_int(stmt, 2, player);
+	db_step(stmt, 0);
+	sqlite3_finalize(stmt);
+}
+
 struct player *
 db_player_load(int64_t id)
 {
@@ -755,7 +767,7 @@ db_player_load(int64_t id)
 	struct player	*player = NULL;
 
 	stmt = db_stmt("SELECT email,state,id,enabled,"
-		"role,rseed FROM player WHERE id=?");
+		"role,rseed,instr FROM player WHERE id=?");
 	db_bind_int(stmt, 1, id);
 
 	if (SQLITE_ROW == db_step(stmt, 0)) {
@@ -767,6 +779,7 @@ db_player_load(int64_t id)
 		player->enabled = sqlite3_column_int(stmt, 3);
 		player->role = sqlite3_column_int(stmt, 4);
 		player->rseed = sqlite3_column_int(stmt, 5);
+		player->instr = sqlite3_column_int(stmt, 6);
 	} 
 
 	sqlite3_finalize(stmt);
@@ -780,7 +793,7 @@ db_player_load_all(playerf fp, void *arg)
 	struct player	 player;
 
 	stmt = db_stmt("SELECT email,state,id,"
-		"enabled,role FROM player");
+		"enabled,role,rseed,instr FROM player");
 	while (SQLITE_ROW == db_step(stmt, 0)) {
 		memset(&player, 0, sizeof(struct player));
 		player.mail = kstrdup
@@ -789,6 +802,8 @@ db_player_load_all(playerf fp, void *arg)
 		player.id = sqlite3_column_int(stmt, 2);
 		player.enabled = sqlite3_column_int(stmt, 3);
 		player.role = sqlite3_column_int(stmt, 4);
+		player.rseed = sqlite3_column_int(stmt, 5);
+		player.instr = sqlite3_column_int(stmt, 6);
 		(*fp)(&player, arg);
 		free(player.mail);
 	}

@@ -37,6 +37,7 @@ struct	poffstor {
  * Unique pages under the CGI "directory".
  */
 enum	page {
+	PAGE_DOINSTR,
 	PAGE_DOLOADEXPR,
 	PAGE_DOLOGIN,
 	PAGE_DOLOGOUT,
@@ -66,6 +67,7 @@ enum	cntt {
 enum	key {
 	KEY_EMAIL,
 	KEY_GAMEID,
+	KEY_INSTR,
 	KEY_PASSWORD,
 	KEY_ROUND,
 	KEY_SESSCOOKIE,
@@ -88,6 +90,7 @@ enum	templ {
 #define	PERM_JS		0x40
 
 static	unsigned int perms[PAGE__MAX] = {
+	PERM_JSON | PERM_LOGIN, /* PAGE_DOINSTR */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOLOADEXPR */
 	PERM_JSON | PERM_HTML, /* PAGE_DOLOGIN */
 	PERM_HTML | PERM_LOGIN, /* PAGE_DOLOGOUT */
@@ -99,6 +102,7 @@ static	unsigned int perms[PAGE__MAX] = {
 };
 
 static const char *const pages[PAGE__MAX] = {
+	"doinstr", /* PAGE_DOINSTR */
 	"doloadexpr", /* PAGE_DOLOADEXPR */
 	"dologin", /* PAGE_DOLOGIN */
 	"dologout", /* PAGE_DOLOGOUT */
@@ -124,6 +128,7 @@ static const char *const cntts[CNTT__MAX] = {
 static const struct kvalid keys[KEY__MAX] = {
 	{ kvalid_email, "email" }, /* KEY_EMAIL */
 	{ kvalid_int, "gid" }, /* KEY_GAMEID */
+	{ NULL, "instr" }, /* KEY_INSTR */
 	{ kvalid_stringne, "password" }, /* KEY_PASSWORD */
 	{ kvalid_uint, "round" }, /* KEY_ROUND */
 	{ kvalid_int, "sesscookie" }, /* KEY_SESSCOOKIE */
@@ -382,6 +387,16 @@ senddoloadgame(const struct game *game, int64_t round, void *arg)
 }
 
 static void
+senddoinstr(struct kreq *r, int64_t playerid)
+{
+
+	db_player_set_instr(playerid, 
+		NULL != r->fieldmap[KEY_INSTR]);
+	http_open(r, KHTTP_200);
+	khttp_body(r);
+}
+
+static void
 senddoloadexpr(struct kreq *r, int64_t playerid)
 {
 	struct expr	*expr;
@@ -416,6 +431,7 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 	kjson_putintp(&req, "ocolour", (playerid + 6) % 12);
 	kjson_putintp(&req, "rseed", player->rseed);
 	kjson_putintp(&req, "role", player->role);
+	kjson_putintp(&req, "instr", player->instr);
 
 	/*
 	 * If the experiment hasn't started yet, have it contain nothing
@@ -660,6 +676,9 @@ main(void)
 	}
 
 	switch (r.page) {
+	case (PAGE_DOINSTR):
+		senddoinstr(&r, id);
+		break;
 	case (PAGE_DOLOADEXPR):
 		senddoloadexpr(&r, id);
 		break;

@@ -666,8 +666,12 @@ function loadExprSuccess(resp)
 		return;
 	}
 
-	console.log(resp);
 	expr = res.expr;
+
+	document.getElementById('instructionsPromptYes').checked = 
+		res.instr ? 'checked' : '';
+	if (0 == res.instr && '' == window.location.hash)
+		window.location.hash = '#play';
 
 	doHide('exprLoading');
 	doHide('historyLoading');
@@ -862,6 +866,24 @@ function doPlayGameSuccess(resp)
 	div.appendChild(ii);
 	div.appendChild(input);
 	e.appendChild(div);
+}
+
+function updateInstrSetup(resp)
+{
+
+}
+
+function updateInstrSuccess(resp)
+{
+
+	window.location.reload(true);
+}
+
+function updateInstr(form)
+{
+
+	return(sendForm(form, updateInstrSetup,
+		null, updateInstrSuccess));
 }
 
 function playGame(form)

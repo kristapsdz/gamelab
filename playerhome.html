@@ -165,6 +165,11 @@
 			<h2>Instructions</h2>
 			<div id="instructionsLoading"><i class="fa fa-spinner fa-spin"></i></div>
 			<div id="instructionsLoaded"></div>
+			<form id="instructionsPrompt" action="@@cgibin@@/doinstr.json" method="post" onsubmit="return(updateInstr(this));">
+				<input type="checkbox" name="instr" id="instructionsPromptYes" value="1" />
+				Show me these instructions when I log in.
+				<input type="submit" value="Update" />
+			</form>
 		</article>
 		<footer>
 			&copy; 2014, 

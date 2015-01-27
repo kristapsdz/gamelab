@@ -102,6 +102,7 @@ struct	player {
 	int		 enabled; /* whether can login */
 	int64_t		 role; /* row/column player role */
 	int64_t		 rseed; /* random seed */
+	int64_t		 instr; /* show instructions? */
 	int64_t		 id;
 };
 
@@ -163,6 +164,7 @@ void		 db_game_load_player(int64_t,
 int		 db_payoff_get(int64_t, int64_t, int64_t, mpq_t);
 
 void		 db_player_reset_error(void);
+void		 db_player_set_instr(int64_t, int64_t);
 void		 db_player_set_mailed(int64_t, const char *);
 void		 db_player_set_state(int64_t, enum pstate);
 size_t		 db_player_count_all(void);
