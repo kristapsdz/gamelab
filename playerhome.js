@@ -11,6 +11,7 @@ var res;
 /* Yech... */
 var shownHistory;
 var shownLottery;
+var shownBimatrix;
 
 /*
  * When we play games, we go through the [shuffled] array in "res".
@@ -181,7 +182,7 @@ function prowClick(source, id)
 		e.parentNode.classList.remove('ihover');
 }
 
-function appendBimatrix(e, matrix, colour, ocolour, order)
+function appendBimatrix(e, active, matrix, colour, ocolour, order)
 {
 	var table, row, cell, i, j, poff, inputs;
 
@@ -211,12 +212,14 @@ function appendBimatrix(e, matrix, colour, ocolour, order)
 
 	for (i = 0; i < matrix.length; i++) {
 		row = document.createElement('div');
-		row.setAttribute('onclick', 
-			'prowClick(this, ' + order[i] + ')');
-		row.setAttribute('onmouseover', 
-			'prowOver(this, ' + order[i] + ')');
-		row.setAttribute('onmouseout', 
-			'prowOut(this, ' + order[i] + ')');
+		if (active) {
+			row.setAttribute('onclick', 
+				'prowClick(this, ' + order[i] + ')');
+			row.setAttribute('onmouseover', 
+				'prowOver(this, ' + order[i] + ')');
+			row.setAttribute('onmouseout', 
+				'prowOut(this, ' + order[i] + ')');
+		}
 		table.appendChild(row);
 		cell = document.createElement('div');
 		cell.setAttribute('class', 'labelaside');
@@ -397,7 +400,7 @@ function loadGame()
 	oc = (0 == c % 2) ? c + 1 : c - 1;
 
 	/* Shuffle the presentation of rows. */
-	appendBimatrix(doClear('exprMatrix'), 
+	appendBimatrix(doClear('exprMatrix'), 1,
 		matrix, c, oc, res.roworders[res.gameorders[resindex]]);
 
 	document.getElementById('playerColour').setAttribute('style', 'color: ' + colours[c] + ';');
@@ -457,6 +460,58 @@ function loadGame()
 	e.appendChild(div);
 }
 
+function showHistoryRoundPrev()
+{
+	var e;
+
+	e = document.getElementById('historySelectRound');
+	if (null == e)
+		return;
+	if (0 == e.selectedIndex)
+		return;
+	e.selectedIndex--;
+	showHistory();
+}
+
+function showHistoryRoundNext()
+{
+	var e;
+
+	e = document.getElementById('historySelectRound');
+	if (null == e)
+		return;
+	if (e.selectedIndex == e.options.length - 1)
+		return;
+	e.selectedIndex++;
+	showHistory();
+}
+
+function showHistoryGamePrev()
+{
+	var e;
+
+	e = document.getElementById('historySelectGame');
+	if (null == e)
+		return;
+	if (0 == e.selectedIndex)
+		return;
+	e.selectedIndex--;
+	showHistory();
+}
+
+function showHistoryGameNext()
+{
+	var e;
+
+	e = document.getElementById('historySelectGame');
+	if (null == e)
+		return;
+	if (e.selectedIndex == e.options.length - 1)
+		return;
+	e.selectedIndex++;
+	showHistory();
+}
+
 function showHistory()
 {
 	var e, round, game;
@@ -475,11 +530,15 @@ function showHistory()
 	if (null != shownLottery)
 		doHideNode(shownLottery);
 	shownLottery = doUnhide('lottery' + round);
+	if (null != shownBimatrix)
+		doHideNode(shownBimatrix);
+	shownBimatrix = doUnhide('bimatrix' + game);
 }
 
 function loadHistory(res)
 {
-	var e, i, j, k, child, matrix, ravg, cavg, tbl, game, par, lot;
+	var e, i, j, k, child, matrix, bmatrix, c, oc, 
+	    ravg, cavg, tbl, game, par, lot;
 
 	doClearReplace('historyLottery', res.aggrlottery);
 
@@ -516,7 +575,6 @@ function loadHistory(res)
 				res.gameorders[i] + 'round' + j);
 			doHideNode(tbl);
 			e.appendChild(tbl);
-
 			ravg = 0 == res.role ? 
 				game.roundups[j].avgp1 : 
 				game.roundups[j].avgp2;
@@ -554,6 +612,23 @@ function loadHistory(res)
 				('Your game and round payoff: '));
 			par.appendChild(document.createTextNode(lot.poff));
 		}
+	}
+
+	c = res.rseed % colours.length;
+	oc = (0 == c % 2) ? c + 1 : c - 1;
+	e = doClear('bimatrixRoundups');
+	for (i = 0; i < res.history.length; i++) {
+		tbl = document.createElement('div');
+		e.appendChild(tbl);
+		tbl.setAttribute('id', 'bimatrix' + i);
+		game = res.history[res.gameorders[i]];
+		bmatrix = 0 == res.role ? 
+			bimatrixCreate(game.payoffs) : 
+			bimatrixCreateTranspose(game.payoffs);
+		appendBimatrix(tbl, 0,
+			bmatrix, c, oc, 
+			res.roworders[res.gameorders[i]]);
+		doHideNode(tbl);
 	}
 
 	e = doClear('lotteryRoundups');

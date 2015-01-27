@@ -37,13 +37,21 @@
 			<div id="historyLoaded" class="noshow">
 				<section id="historyPlay" class="noshow">
 					<h3>History by Game and Round</h3>
-					<p>
-						Game <select id="historySelectGame" onchange="showHistory();"></select>,
-						Round <select id="historySelectRound" onchange="showHistory();"></select>
-					</p>
+					<nav id="historyNav">
+						Game 
+						<a href="#" onclick='showHistoryGamePrev(); return false;'><i class="fa fa-arrow-circle-left"></i></a>
+						<select id="historySelectGame" onchange="showHistory();"></select>
+						<a href="#" onclick='showHistoryGameNext(); return false;'><i class="fa fa-arrow-circle-right"></i></a>,
+						Round 
+						<a href="#" onclick='showHistoryRoundPrev(); return false;'><i class="fa fa-toggle-left"></i></a>
+						<select id="historySelectRound" onchange="showHistory();"></select>
+						<a href="#" onclick='showHistoryRoundNext(); return false;'><i class="fa fa-toggle-right"></i></a>
+					</nav>
 					<div id="historyRoundups"></div>
+					<div id="bimatrixRoundups"></div>
+					<h3>Round Summary</h3>
 					<div id="lotteryRoundups"></div>
-					<h3>Summary</h3>
+					<h3>Total Summary</h3>
 					<p>
 						Your total payoff (all games and rounds): <span id="historyLottery"></span>
 					</p>

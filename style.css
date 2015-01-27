@@ -40,6 +40,9 @@ body > header a			{ color: #222; }
 				  padding: 1ex 0 0 0; 
 				  margin: 0; }
 #nav li				{ padding: 0.5ex 0; }
+#historyNav			{ margin: 1em auto; }
+#historyNav a			{ color: #333; }
+#historyNav a:hover		{ text-shadow: 1px 1px #ccc; }
 i.fa-warning + span		{ margin-left: 0.5ex; }
 h1				{ margin: 0; }
 h2				{ font-size: 16pt; 
@@ -196,8 +199,7 @@ div.history div.sumbelow	{ text-align: center; }
 div.history div.sumaside	{ text-align: center; }
 div.payoffs			{ display: table; 
 				  width: 100%; 
-				  margin-left: auto;
-				  margin-right: auto;
+				  margin: 1.2em auto;
 				  border-spacing: 1ex; }
 div.payoffs > div		{ display: table-row; 
 				  cursor: pointer; }
@@ -287,4 +289,5 @@ div.input input[readonly]	{ background-color: #ddd; }
 				  border-spacing: 0.25ex; }
 	h1			{ font-size: 18pt; }
 	body > header span	{ font-size: 12pt; }
+	#historyNav		{ text-align: center; }
 }
