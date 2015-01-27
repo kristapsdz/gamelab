@@ -50,19 +50,46 @@
 						Waiting for experiment to begin.
 					</div>
 					<div id="statusExprFinished">
-						<div>
+						<p>
 							Your experiment has finished.
+						</p>
+						<form id="statusExprFinishedWin" action="@@cgibin@@/dowinners.json" method="post" onsubmit="return(sendWinners(this));">
+							<aside>
+								<div>
+									You may now compute winnings.
+								</div>
+							</aside>
+							<div class="error">
+								<div class="noshow" id="statusExprFinishedWinError">
+									An unexpected error occurred.
+								</div>
+								<div class="noshow" id="statusExprFinishedWinForm">
+									Malformed input: try again.
+								</div>
+							</div>
+							<fieldset>
+								<div class="input">
+									<i class="fa fa-fw fa-cubes"></i>
+									<input type="text" name="winseed" placeholder="Random Seed" required="required" />
+								</div>
+								<div class="input">
+									<i class="fa fa-fw fa-users"></i>
+									<input type="number" min="1" name="winners" value="4" required="required" />
+								</div>
+								<div class="input input-submit">
+									<i class="fa fa-fw fa-trophy"></i>
+									<input type="submit" id="winnersButton" value="Compute Winners" />
+								</div>
+							</fieldset>
+						</form>
+						<div>
 							You can now download and analyse the results, and players can still log in and see their
 							play history.
 							If you wipe the database, the database will first be backed up and archived.
 						</div>
 						<fieldset>
 							<div class="input input-submit">
-								<i class="fa fa-trophy"></i>
-								<button type="button" id="winnersButton" onclick="winners();">Compute Winners</button>
-							</div>
-							<div class="input input-submit">
-								<i class="fa fa-recycle"></i>
+								<i class="fa fa-fw fa-recycle"></i>
 								<button type="button" id="wipeExprButton" onclick="wipeExpr();">Wipe Experiment</button>
 							</div>
 						</fieldset>

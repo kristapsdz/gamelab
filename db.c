@@ -447,6 +447,21 @@ db_admin_set_pass(const char *pass)
 	fprintf(stderr, "Administrator set password\n");
 }
 
+int64_t
+db_winners_get(int64_t playerid)
+{
+	sqlite3_stmt	*stmt;
+	int64_t		 rc = -1;
+
+	stmt = db_stmt("SELECT winrank FROM "
+		"winner WHERE playerid=? AND winner=1");
+	db_bind_int(stmt, 1, playerid);
+	if (SQLITE_ROW == db_step(stmt, 0)) 
+		rc = sqlite3_column_int(stmt, 0);
+	sqlite3_finalize(stmt);
+	return(rc);
+}
+
 void
 db_winners(int64_t round, size_t winnersz, int64_t seed, size_t count)
 {
@@ -563,7 +578,7 @@ db_winners(int64_t round, size_t winnersz, int64_t seed, size_t count)
 			db_bind_int(stmt, 2, 0);
 			db_bind_int(stmt, 3, 0);
 		}
-		db_step(stmt, 0);
+		db_step(stmt, DB_STEP_CONSTRAINT);
 		sqlite3_reset(stmt);
 	}
 	sqlite3_finalize(stmt);

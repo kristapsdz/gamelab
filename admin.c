@@ -94,6 +94,8 @@ enum	key {
 	KEY_SESSID,
 	KEY_URI,
 	KEY_USER,
+	KEY_WINNERS,
+	KEY_WINSEED,
 	KEY__MAX
 };
 
@@ -205,6 +207,8 @@ static const struct kvalid keys[KEY__MAX] = {
 	{ kvalid_int, "sessid" }, /* KEY_SESSID */
 	{ kvalid_stringne, "uri" }, /* KEY_URI */
 	{ kvalid_stringne, "user" }, /* KEY_USER */
+	{ kvalid_uint, "winners" }, /* KEY_WINNERS */
+	{ kvalid_int, "winseed" }, /* KEY_WINSEED */
 };
 
 static int
@@ -874,15 +878,23 @@ senddowinners(struct kreq *r)
 {
 	struct expr	*expr;
 
-	if (NULL == (expr = db_expr_get())) {
+	if (kpairbad(r, KEY_WINNERS) || kpairbad(r, KEY_WINSEED)) {
+		http_open(r, KHTTP_400);
+		khttp_body(r);
+		return;
+	} else if (NULL == (expr = db_expr_get())) {
 		http_open(r, KHTTP_409);
 		khttp_body(r);
 		return;
 	}
 
-	db_winners(expr->rounds - 1, 2, arc4random(), db_game_count_all());
+	db_winners(expr->rounds - 1, 
+		r->fieldmap[KEY_WINNERS]->parsed.i, 
+		r->fieldmap[KEY_WINSEED]->parsed.i, 
+		db_game_count_all());
 	http_open(r, KHTTP_200);
 	khttp_body(r);
+	db_expr_free(expr);
 }
 
 static void

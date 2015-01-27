@@ -538,6 +538,10 @@ function loadExprSuccess(resp)
 		doHide('statusExprProg');
 		doHide('statusExprLoading');
 		doUnhide('statusExprFinished');
+		if (expr.postwin) 
+			doHide('statusExprFinishedWin');
+		else
+			doUnhide('statusExprFinishedWin');
 		doClearReplace('exprCountdown', 'finished');
 		return;
 	}
@@ -705,7 +709,9 @@ function addPlayers(form)
 function doWinnersSetup()
 {
 
-	doClearReplace('winnersButton', 'Computing...');
+	doHide('statusExprFinishedWinError');
+	doHide('statusExprFinishedWinForm');
+	doValue('winnersButton', 'Computing...');
 }
 
 function doWipeExprSetup()
@@ -727,10 +733,21 @@ function doTestSmtpSetup()
 	doClearReplace('checkSmtpButton', 'Mailing test...');
 }
 
+function doWinnersError(code)
+{
+
+	doValue('winnersButton', 'Compute Winners');
+	if (400 == code)
+		doUnhide('statusExprFinishedWinForm');
+	else
+		doUnhide('statusExprFinishedWinError');
+}
+
 function doWinnersSuccess(resp)
 {
 
-	doClearReplace('winnersButton', 'Compute Winners');
+	doValue('winnersButton', 'Compute Winners');
+	window.location.reload(true);
 }
 
 function doWipeExprSuccess(resp)
@@ -763,11 +780,11 @@ function doTestSmtpSuccess(resp)
 	doUnhide('testSmtpResults');
 }
 
-function winners() 
+function sendWinners(form) 
 {
 
-	sendQuery('@@cgibin@@/dowinners.json', 
-		doWinnersSetup, doWinnersSuccess, null);
+	return(sendForm(form, doWinnersSetup, 
+		doWinnersError, doWinnersSuccess));
 }
 
 function wipeExpr() 
@@ -812,6 +829,7 @@ function doChangeMailSuccess(resp)
 
 function changeMail(form)
 {
+
 	return(sendForm(form, doChangeMailSetup, 
 		doChangeMailError, doChangeMailSuccess));
 }

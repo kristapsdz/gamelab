@@ -555,7 +555,7 @@ function loadHistory(res)
 	} 
 
 	if (null != (e = doClear('historySelectRound'))) {
-		for (i = 0; i < res.expr.round; i++) {
+		for (i = 0; i < res.history[0].roundups.length; i++) {
 			child = document.createElement('option');
 			child.appendChild
 				(document.createTextNode((i + 1)));
@@ -666,6 +666,7 @@ function loadExprSuccess(resp)
 		return;
 	}
 
+	console.log(resp);
 	expr = res.expr;
 
 	doHide('exprLoading');
@@ -753,6 +754,14 @@ function loadExprSuccess(resp)
 			doUnhide('historyNotYet');
 		}
 		doClearReplace('exprCountdown', 'finished');
+		if (null == res.winner) {
+			doUnhide('exprFinishedWinWait');
+			doHide('exprFinishedWin');
+		} else {
+			doHide('exprFinishedWinWait');
+			doUnhide('exprFinishedWin');
+			doClearReplace('exprFinishedWinRank', (res.winner + 1));
+		}
 	}
 }
 

@@ -407,6 +407,11 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 	kjson_open(&req, r);
 	kjson_obj_open(&req);
 	json_putexpr(&req, expr);
+	if (ESTATE_POSTWIN == expr->state)
+		kjson_putintp(&req, "winner", 
+			db_winners_get(playerid));
+	else
+		kjson_putnullp(&req, "winner");
 	kjson_putintp(&req, "colour", playerid % 12);
 	kjson_putintp(&req, "ocolour", (playerid + 6) % 12);
 	kjson_putintp(&req, "rseed", player->rseed);
