@@ -58,9 +58,12 @@ struct	roundup {
 	mpq_t		*curp2; /* current avg. column player */
 	mpq_t		*aggrp1; /* aggr. row player */
 	mpq_t		*aggrp2; /* aggr. col player */
-	double		*avg; /* weighted aggr. avg. matrix */
+	double		*navgp1; 
+	double		*navgp2; 
+	double		*navg; 
 	double		*avgp1; /* weighted aggr. avg. row player */
 	double		*avgp2; /* weighted aggr. avg. column player */
+	double		*avg; /* weighted aggr. avg. matrix */
 	int		 skip; /* insufficient plays? */
 	size_t		 roundcount; /* for denominator */
 	size_t		 p1sz; /* row player strategy size */

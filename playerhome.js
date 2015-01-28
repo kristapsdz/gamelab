@@ -394,12 +394,12 @@ function loadGame()
 	if (null != game.roundup) {
 		/* Transpose vectors and matrix. */
 		ravg = 0 == res.role ? 
-			game.roundup.avgp1 : game.roundup.avgp2;
+			game.roundup.navgp1 : game.roundup.navgp2;
 		cavg = 0 == res.role ? 
-			game.roundup.avgp2 : game.roundup.avgp1;
+			game.roundup.navgp2 : game.roundup.navgp1;
 		hmatrix = 0 == res.role ? 
-			matrixCreate(game.roundup.avgs) : 
-			matrixCreateTranspose(game.roundup.avgs);
+			matrixCreate(game.roundup.navgs) : 
+			matrixCreateTranspose(game.roundup.navgs);
 	} 
 
 	c = res.rseed % colours.length;
@@ -584,15 +584,15 @@ function loadHistory(res)
 			doHideNode(tbl);
 			e.appendChild(tbl);
 			ravg = 0 == res.role ? 
-				game.roundups[j].avgp1 : 
-				game.roundups[j].avgp2;
+				game.roundups[j].navgp1 : 
+				game.roundups[j].navgp2;
 			cavg = 0 == res.role ? 
-				game.roundups[j].avgp2 : 
-				game.roundups[j].avgp1;
+				game.roundups[j].navgp2 : 
+				game.roundups[j].navgp1;
 			matrix = 0 == res.role ?
-				matrixCreate(game.roundups[j].avgs) :
+				matrixCreate(game.roundups[j].navgs) :
 				matrixCreateTranspose
-				(game.roundups[j].avgs);
+				(game.roundups[j].navgs);
 			appendMatrix(tbl, matrix, 
 				res.roworders[res.gameorders[i]], 
 				res.colorders[res.gameorders[i]], 

@@ -168,17 +168,31 @@ json_putroundup(struct kjsonreq *r, const char *name,
 	for (i = 0; i < roundup->p1sz; i++)
 		kjson_putdouble(r, roundup->avgp1[i]);
 	kjson_array_close(r);
-
+	kjson_arrayp_open(r, "navgp1");
+	for (i = 0; i < roundup->p1sz; i++)
+		kjson_putdouble(r, roundup->navgp1[i]);
+	kjson_array_close(r);
 	kjson_arrayp_open(r, "avgp2");
 	for (i = 0; i < roundup->p2sz; i++)
 		kjson_putdouble(r, roundup->avgp2[i]);
 	kjson_array_close(r);
-
+	kjson_arrayp_open(r, "navgp2");
+	for (i = 0; i < roundup->p2sz; i++)
+		kjson_putdouble(r, roundup->navgp2[i]);
+	kjson_array_close(r);
 	kjson_arrayp_open(r, "avgs");
 	for (k = i = 0; i < roundup->p1sz; i++) {
 		kjson_array_open(r);
 		for (j = 0; j < roundup->p2sz; j++, k++)
 			kjson_putdouble(r, roundup->avg[k]);
+		kjson_array_close(r);
+	}
+	kjson_array_close(r);
+	kjson_arrayp_open(r, "navgs");
+	for (k = i = 0; i < roundup->p1sz; i++) {
+		kjson_array_open(r);
+		for (j = 0; j < roundup->p2sz; j++, k++)
+			kjson_putdouble(r, roundup->navg[k]);
 		kjson_array_close(r);
 	}
 	kjson_array_close(r);

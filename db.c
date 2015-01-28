@@ -1410,6 +1410,9 @@ db_roundup_round(struct roundup *r)
 	size_t	 i, j, k;
 	mpq_t	 tmp, sum;
 
+	r->navg = kcalloc(r->p1sz * r->p2sz, sizeof(double));
+	r->navgp1 = kcalloc(r->p1sz, sizeof(double));
+	r->navgp2 = kcalloc(r->p2sz, sizeof(double));
 	r->avg = kcalloc(r->p1sz * r->p2sz, sizeof(double));
 	r->avgp1 = kcalloc(r->p1sz, sizeof(double));
 	r->avgp2 = kcalloc(r->p2sz, sizeof(double));
@@ -1429,15 +1432,21 @@ db_roundup_round(struct roundup *r)
 	for (i = 0; i < r->p1sz; i++) {
 		mpq_div(tmp, r->aggrp1[i], sum);
 		r->avgp1[i] = mpq_get_d(tmp);
+		r->navgp1[i] = mpq_get_d(r->curp1[i]);
 	}
 	for (i = 0; i < r->p2sz; i++)  {
 		mpq_div(tmp, r->aggrp2[i], sum);
 		r->avgp2[i] = mpq_get_d(tmp);
+		r->navgp2[i] = mpq_get_d(r->curp2[i]);
 	}
 
 	for (i = k = 0; i < r->p1sz; i++) 
 		for (j = 0; j < r->p2sz; j++, k++)
 			r->avg[k] = r->avgp1[i] * r->avgp2[j];
+
+	for (i = k = 0; i < r->p1sz; i++) 
+		for (j = 0; j < r->p2sz; j++, k++)
+			r->navg[k] = r->navgp1[i] * r->navgp2[j];
 
 	mpq_clear(tmp);
 	mpq_clear(sum);
@@ -1768,6 +1777,9 @@ db_roundup_free(struct roundup *p)
 		for (i = 0; i < p->p2sz; i++)
 			mpq_clear(p->curp2[i]);
 
+	free(p->navg);
+	free(p->navgp1);
+	free(p->navgp2);
 	free(p->avg);
 	free(p->avgp1);
 	free(p->avgp2);
