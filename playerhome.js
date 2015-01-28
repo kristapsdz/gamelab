@@ -49,7 +49,7 @@ function shuffle(o, seed)
         return o;
 };
 
-function appendMatrix(e, matrix, order, ravg, cavg)
+function appendMatrix(e, matrix, rorder, corder, ravg, cavg)
 {
 	var table, row, cell, i, j, poff, rowinner;
 
@@ -95,19 +95,19 @@ function appendMatrix(e, matrix, order, ravg, cavg)
 			(String.fromCharCode(97 + i)));
 		row.appendChild(cell);
 
-		for (j = 0; j < matrix[order[i]].length; j++) {
+		for (j = 0; j < matrix[rorder[i]].length; j++) {
 			cell = document.createElement('div');
 			cell.setAttribute('class', 'mix');
 			row.appendChild(cell);
 			cell.appendChild
 				(document.createTextNode
-				 (matrix[order[i]][j].toFixed(2)));
+				 (matrix[rorder[i]][corder[j]].toFixed(2)));
 		}
 
 		cell = document.createElement('div');
 		cell.setAttribute('class', 'sumaside sum');
 		cell.appendChild(document.createTextNode
-			(ravg[order[i]].toFixed(2)));
+			(ravg[rorder[i]].toFixed(2)));
 		row.appendChild(cell);
 	}
 
@@ -124,7 +124,7 @@ function appendMatrix(e, matrix, order, ravg, cavg)
 		cell.setAttribute('class', 'sumbelow sum');
 		row.appendChild(cell);
 		cell.appendChild(document.createTextNode
-			(cavg[i].toFixed(2)));
+			(cavg[corder[i]].toFixed(2)));
 	}
 
 	cell = document.createElement('div');
@@ -182,7 +182,7 @@ function prowClick(source, id)
 		e.parentNode.classList.remove('ihover');
 }
 
-function appendBimatrix(e, active, matrix, colour, ocolour, order)
+function appendBimatrix(e, active, matrix, colour, ocolour, rorder, corder)
 {
 	var table, row, cell, i, j, poff, inputs;
 
@@ -214,11 +214,11 @@ function appendBimatrix(e, active, matrix, colour, ocolour, order)
 		row = document.createElement('div');
 		if (active) {
 			row.setAttribute('onclick', 
-				'prowClick(this, ' + order[i] + ')');
+				'prowClick(this, ' + rorder[i] + ')');
 			row.setAttribute('onmouseover', 
-				'prowOver(this, ' + order[i] + ')');
+				'prowOver(this, ' + rorder[i] + ')');
 			row.setAttribute('onmouseout', 
-				'prowOut(this, ' + order[i] + ')');
+				'prowOut(this, ' + rorder[i] + ')');
 		}
 		table.appendChild(row);
 		cell = document.createElement('div');
@@ -235,14 +235,14 @@ function appendBimatrix(e, active, matrix, colour, ocolour, order)
 				'color: ' + colours[colour]);
 			poff.appendChild
 				(document.createTextNode
-				 (matrix[order[i]][j][0]));
+				 (matrix[rorder[i]][corder[j]][0]));
 			cell.appendChild(poff);
 			poff = document.createElement('div');
 			poff.setAttribute('style', 
 				'color: ' + colours[ocolour]);
 			poff.appendChild
 				(document.createTextNode
-				 (matrix[order[i]][j][1]));
+				 (matrix[rorder[i]][corder[j]][1]));
 			cell.appendChild(poff);
 		}
 	}
@@ -395,13 +395,12 @@ function loadGame()
 			matrixCreateTranspose(game.roundup.avgs);
 	} 
 
-	/* Assign colours. */
 	c = res.rseed % colours.length;
 	oc = (0 == c % 2) ? c + 1 : c - 1;
 
-	/* Shuffle the presentation of rows. */
-	appendBimatrix(doClear('exprMatrix'), 1,
-		matrix, c, oc, res.roworders[res.gameorders[resindex]]);
+	appendBimatrix(doClear('exprMatrix'), 1, matrix, c, oc, 
+		res.roworders[res.gameorders[resindex]],
+		res.colorders[res.gameorders[resindex]]);
 
 	document.getElementById('playerColour').setAttribute('style', 'color: ' + colours[c] + ';');
 	document.getElementById('playerColour2').setAttribute('style', 'color: ' + colours[c] + ';');
@@ -415,7 +414,9 @@ function loadGame()
 			doHide('skipExplain');
 		doClearReplace('exprHistoryLottery', res.curlottery);
 		appendMatrix(doClear('exprHistoryMatrix'), hmatrix, 
-			res.roworders[res.gameorders[resindex]], ravg, cavg);
+			res.roworders[res.gameorders[resindex]], 
+			res.colorders[res.gameorders[resindex]], 
+			ravg, cavg);
 	} else {
 		doHide('exprHistory');
 	}
@@ -587,6 +588,7 @@ function loadHistory(res)
 				(game.roundups[j].avgs);
 			appendMatrix(tbl, matrix, 
 				res.roworders[res.gameorders[i]], 
+				res.colorders[res.gameorders[i]], 
 				ravg, cavg);
 
 			par = document.createElement('p');
@@ -627,7 +629,8 @@ function loadHistory(res)
 			bimatrixCreateTranspose(game.payoffs);
 		appendBimatrix(tbl, 0,
 			bmatrix, c, oc, 
-			res.roworders[res.gameorders[i]]);
+			res.roworders[res.gameorders[i]],
+			res.colorders[res.gameorders[i]]);
 		doHideNode(tbl);
 	}
 
@@ -698,17 +701,26 @@ function loadExprSuccess(resp)
 			res.gameorders[j] = j;
 		shuffle(res.gameorders, res.rseed);
 		res.roworders = new Array(res.history.length);
+		res.colorders = new Array(res.history.length);
 		for (i = 0; i < res.roworders.length; i++) {
 			res.roworders[i] = new Array
 				(0 == res.role ?  
 				 res.history[i].p1 : 
 				 res.history[i].p2);
+			res.colorders[i] = new Array
+				(0 == res.role ?  
+				 res.history[i].p2 : 
+				 res.history[i].p1);
 			for (j = 0; j < res.roworders[i].length; j++)
 				res.roworders[i][j] = j;
+			for (j = 0; j < res.colorders[i].length; j++)
+				res.colorders[i][j] = j;
 			shuffle(res.roworders[i], res.rseed);
+			shuffle(res.colorders[i], res.rseed);
 		}
 	} else {
 		res.roworders = null;
+		res.colorders = null;
 		res.gameorders = null;
 	}
 

@@ -8,6 +8,9 @@ body				{ font-size: 14pt;
 				  background-color: #eee; }
 body > header			{ background-color: #ccc; 
 				  display: table;
+				  position: fixed;
+				  left: 0;
+				  top: 0;
 				  width: 100%;
 				  border-bottom: thin solid #aaa; }
 body > header > *		{ display: table-cell; 
@@ -16,13 +19,17 @@ body > header > *		{ display: table-cell;
 				  width: 1%;
 				  white-space: nowrap;
 				  border-right: thin solid #eee; }
-body > header > *:last-child	{ border-right: none; 
+body > header > span		{ border-right: none; 
 				  text-align: left; 
 				  width: 98%; }
 body > header a			{ color: #222; }
 .tab, .tab:target ~ #defaultTab	{ display: none; }
 #defaultTab, .tab:target 	{ display: block; }
-#navParent			{ position: relative; }
+#navParent			{ position: absolute; 
+				  display: block;
+				  text-align: left;
+				  top: 100%; 
+				  left: 0;}
 #nav a				{ font-size: 12pt; 
 			  	  color: #222; }
 #nav				{ padding: 0 2ex; 
