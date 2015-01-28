@@ -757,11 +757,19 @@ function loadExprSuccess(resp)
 			doHide('historyPlay');
 			doUnhide('historyNotYet');
 		}
+		doClearReplace('exprFinishedTicketsMax', expr.maxtickets);
+		doClearReplace('exprFinishedTickets', res.aggrlottery);
 		doClearReplace('exprCountdown', 'finished');
 		if (null == res.winner) {
+			doHide('exprFinishedResults');
 			doUnhide('exprFinishedWinWait');
 			doHide('exprFinishedWin');
+		} else if (res.winner < 0) {
+			doUnhide('exprFinishedResults');
+			doHide('exprFinishedWinWait');
+			doHide('exprFinishedWin');
 		} else {
+			doUnhide('exprFinishedResults');
 			doHide('exprFinishedWinWait');
 			doUnhide('exprFinishedWin');
 			doClearReplace('exprFinishedWinRank', (res.winner + 1));

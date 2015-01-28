@@ -119,6 +119,7 @@ json_putexpr(struct kjsonreq *r, const struct expr *expr)
 		strlen(expr->instructions), kjson_string_write, r);
 	free(c.mail);
 	kjson_string_close(r);
+	json_putmpqp(r, "maxtickets", expr->total);
 	kjson_putintp(r, "start", (int64_t)expr->start);
 	kjson_putintp(r, "end", (int64_t)expr->end);
 	kjson_putintp(r, "rounds", expr->rounds);
@@ -131,7 +132,7 @@ json_putexpr(struct kjsonreq *r, const struct expr *expr)
 }
 
 void
-json_putmpqp(struct kjsonreq *r, const char *key, mpq_t val)
+json_putmpqp(struct kjsonreq *r, const char *key, const mpq_t val)
 {
 	char	*buf;
 

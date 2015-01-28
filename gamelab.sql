@@ -79,6 +79,7 @@ CREATE TABLE experiment (
 	minutes INTEGER DEFAULT(0),
 	loginuri TEXT DEFAULT(''),
 	instructions TEXT DEFAULT(''),
+	total TEXT DEFAULT('0/1'),
 	id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL
 );
 

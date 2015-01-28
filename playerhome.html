@@ -13,7 +13,7 @@
 		<script src="@@htdocs@@/script.js"></script>
 		<script src="@@cgibin@@/home.js"></script>
 	</head>
-	<body onload="loadExpr();" onclick="onNavUp();">
+	<body onload="loadExpr();" onclick="onNavUp();" id="playerHomeBase">
 		<header>
 			<a id="navButton" href="#" onclick="return(onNav(event));"><i class="fa fa-navicon"></i></a>
 			<h1>gamelab</h1>
@@ -86,6 +86,9 @@
 				<section id="exprFinished" class="noshow">
 					<p>
 						Experiment is finished.
+					</p>
+					<p id="exprFinishedResults">
+						You were awarded <span id="exprFinishedTickets"></span> tickets out of <span id="exprFinishedTicketsMax"></span>.
 					</p>
 					<p id="exprFinishedWin">
 						You have WON.  Rank <span id="exprFinishedWinRank">foo</span>.

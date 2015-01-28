@@ -28,6 +28,7 @@ struct	expr {
 	int64_t		 minutes; /* minutes per game play */
 	char		*loginuri; /* player login (email click) */
 	char		*instructions; /* instruction markup */
+	mpq_t		 total;
 };
 
 /*
@@ -199,7 +200,7 @@ int64_t		 db_winners_get(int64_t);
 void		 mail_players(const char *);
 void		 mail_test(void);
 
-void		 json_putmpqp(struct kjsonreq *, const char *, mpq_t);
+void		 json_putmpqp(struct kjsonreq *, const char *, const mpq_t);
 void		 json_putmpq(struct kjsonreq *, mpq_t);
 void		 json_putmpqs(struct kjsonreq *, 
 			const char *, mpq_t *, int64_t, int64_t);
