@@ -129,7 +129,7 @@
 							</div>
 							<div class="input">
 								<i class="fa fa-fw fa-code"></i>
-								<textarea class="bigtext" required="required" name="instructions"><p>Welcome to the experiment!</p>
+								<textarea id="instrText" class="bigtext" required="required" name="instructions"><p>Welcome to the experiment!</p>
 
 <p>You are participating in an economics experiment in which you’ll use this webpage to play a number of games. Depending on your own and
 others' choices you can earn a substantial amount of money through winning a lottery at the end of the experiment. Your chances to win the
@@ -239,6 +239,16 @@ the play pages where you play the games.</p>
 							<div class="input input-submit">
 								<i class="fa fa-check"></i>
 								<input id="startExprSubmit" type="submit" value="Start" />
+							</div>
+							<div class="input input-submit">
+								<i class="fa fa-check"></i>
+								<button type="button" onclick="previewInstr();">Preview Instructions</button>
+							</div>
+							<div id="previewInstr" class="canclose noshow">
+								<h4>Preview Instructions</h4>
+								<a href="#" class="close" onclick="doHideNode(this.parentNode); return false;"><i class="fa fa-minus-square"></i></a>
+								<div id="previewInstrInner">
+								</div>
 							</div>
 						</fieldset>
 					</form>

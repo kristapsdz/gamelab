@@ -928,3 +928,14 @@ function resetPass(form)
 	return(sendForm(form, doResetPassSetup, 
 		null, doResetPassSuccess));
 }
+
+function
+previewInstr()
+{
+	var e;
+
+	if (null == (e = document.getElementById('instrText')))
+		return;
+	doClearReplaceMarkup('previewInstrInner', e.value);
+	doUnhide('previewInstr');
+}
