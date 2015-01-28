@@ -1215,6 +1215,17 @@ db_player_enable(int64_t id)
 }
 
 void
+db_player_reset_all(void)
+{
+	sqlite3_stmt	*stmt;
+
+	stmt = db_stmt("UPDATE player SET state=0");
+	db_step(stmt, 0);
+	sqlite3_finalize(stmt);
+	fprintf(stderr, "Updated all players\' error states\n");
+}
+
+void
 db_player_reset_error(void)
 {
 	sqlite3_stmt	*stmt;
@@ -1222,7 +1233,7 @@ db_player_reset_error(void)
 	stmt = db_stmt("UPDATE player SET state=0 WHERE state=3");
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);
-	fprintf(stderr, "Updated player error states\n");
+	fprintf(stderr, "Updated error\'d players\' error states\n");
 }
 
 void
@@ -2129,12 +2140,14 @@ db_expr_wipe(void)
 	sqlite3_stmt	*stmt, *stmt2;
 
 	fprintf(stderr, "Database being wiped!\n");
+	db_trans_begin(1);
 	db_exec("DELETE FROM gameplay");
 	db_exec("DELETE FROM sess WHERE playerid IS NOT NULL");
 	db_exec("DELETE FROM payoff");
 	db_exec("DELETE FROM choice");
 	db_exec("DELETE FROM past");
 	db_exec("DELETE FROM lottery");
+	db_exec("DELETE FROM winner");
 	db_exec("DELETE FROM tickets");
 	db_exec("UPDATE player SET state=0,enabled=1");
 	db_exec("UPDATE experiment SET state=0,rounds=0,"
@@ -2149,4 +2162,5 @@ db_expr_wipe(void)
 	}
 	sqlite3_finalize(stmt);
 	sqlite3_finalize(stmt2);
+	db_trans_commit();
 }

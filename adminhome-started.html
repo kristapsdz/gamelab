@@ -85,7 +85,7 @@
 						<div>
 							You can now download and analyse the results, and players can still log in and see their
 							play history.
-							If you wipe the database, the database will first be backed up and archived.
+							If you wipe the database, all but the SMTP configuration, list of players, nad 
 						</div>
 						<fieldset>
 							<div class="input input-submit">
@@ -108,6 +108,7 @@
 					<h3>Experiment Players</h3>
 					<aside>
 						Players in your experiment.
+						Click on a player to see their status.
 						Enable or disable a player by toggling the icon.
 						Row players are noted with <i class="fa fa-bars"></i>, column players with
 						<i class="fa fa-columns"></i>.
@@ -121,11 +122,24 @@
 						<span id="playerInfoEmail"></span>: 
 						<span id="playerInfoStatus"></span>, 
 						<span id="playerInfoEnabled"></span>
+						<form action="@@cgibin@@/doresetpasswords.json" method="post" onsubmit="return(resetPass(this));">
+							<input type="hidden" id="playerInfoId" name="pid" />
+							<fieldset>
+								<div class="input input-submit">
+									<i class="fa fa-send"></i>
+									<input type="submit" id="resetPasswordButton" value="Reset Password" />
+								</div>
+							</fieldset>
+						</form>
 					</div>
 					<fieldset>
 						<div class="input input-submit">
 							<i class="fa fa-send"></i>
-							<button type="button" id="recheckSmtpButton" onclick="reTestSmtp();">Resend Mails</button>
+							<button type="button" id="resetPasswordButton" onclick="resetPasswords();">Reset All Passwords</button>
+						</div>
+						<div class="input input-submit">
+							<i class="fa fa-send"></i>
+							<button type="button" id="recheckSmtpButton" onclick="reTestSmtp();">Resend Error Mails</button>
 						</div>
 					</fieldset>
 				</section>

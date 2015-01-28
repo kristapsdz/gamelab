@@ -163,6 +163,7 @@ void		 db_game_load_player(int64_t,
 
 int		 db_payoff_get(int64_t, int64_t, int64_t, mpq_t);
 
+void		 db_player_reset_all(void);
 void		 db_player_reset_error(void);
 void		 db_player_set_instr(int64_t, int64_t);
 void		 db_player_set_mailed(int64_t, const char *);

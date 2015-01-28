@@ -43,6 +43,7 @@ enum	page {
 	PAGE_DOLOGIN,
 	PAGE_DOLOGOUT,
 	PAGE_DORESENDEMAIL,
+	PAGE_DORESETPASSWORDS,
 	PAGE_DOSTARTEXPR,
 	PAGE_DOTESTSMTP,
 	PAGE_DOWINNERS,
@@ -130,6 +131,7 @@ static	unsigned int perms[PAGE__MAX] = {
 	PERM_JSON, /* PAGE_DOLOGIN */
 	PERM_HTML | PERM_LOGIN, /* PAGE_DOLOGOUT */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DORESENDEMAIL */
+	PERM_JSON | PERM_LOGIN, /* PAGE_DORESETPASSWORDS */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOSTARTEXPR */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOTESTSMTP */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOWINNERS */
@@ -156,6 +158,7 @@ static const char *const pages[PAGE__MAX] = {
 	"dologin", /* PAGE_DOLOGIN */
 	"dologout", /* PAGE_DOLOGOUT */
 	"doresendemail", /* PAGE_DORESENDEMAIL */
+	"doresetpasswords", /* PAGE_DORESETPASSWORDS */
 	"dostartexpr", /* PAGE_DOSTARTEXPR */
 	"dotestsmtp", /* PAGE_DOTESTSMTP */
 	"dowinners", /* PAGE_DOWINNERS */
@@ -767,6 +770,49 @@ senddologin(struct kreq *r)
 }
 
 static void
+senddoresetpasswordss(struct kreq *r)
+{
+	pid_t		 pid;
+	char		*sv;
+	struct expr	*expr;
+
+	if (NULL == (expr = db_expr_get())) {
+		http_open(r, KHTTP_409);
+		khttp_body(r);
+		return;
+	}
+
+	if (NULL != r->fieldmap[KEY_PLAYERID])
+		db_player_set_state
+			(r->fieldmap[KEY_PLAYERID]->parsed.i, 
+			 PSTATE_NEW);
+	else
+		db_player_reset_all();
+
+	http_open(r, KHTTP_200);
+	khttp_body(r);
+	sv = kstrdup(expr->loginuri);
+	db_expr_free(expr);
+	db_close();
+
+	if (-1 == (pid = fork())) {
+		perror(NULL);
+	} else if (0 == pid) {
+		khttp_child_free(r);
+		if (0 == (pid = fork())) {
+			mail_players(sv);
+			db_close();
+		} else if (pid < 0) 
+			perror(NULL);
+		free(sv);
+		_exit(EXIT_SUCCESS);
+	} else 
+		waitpid(pid, NULL, 0);
+
+	free(sv);
+}
+
+static void
 senddoresendmail(struct kreq *r)
 {
 	pid_t		 pid;
@@ -1058,6 +1104,9 @@ main(void)
 		break;
 	case (PAGE_DORESENDEMAIL):
 		senddoresendmail(&r);
+		break;
+	case (PAGE_DORESETPASSWORDS):
+		senddoresetpasswordss(&r);
 		break;
 	case (PAGE_DOTESTSMTP):
 		senddotestsmtp(&r);

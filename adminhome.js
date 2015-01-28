@@ -129,7 +129,10 @@ function doShowPlayer(name)
 		return;
 	if ( ! e.hasAttribute('data-gamelab-enabled'))
 		return;
+	if ( ! e.hasAttribute('data-gamelab-playerid'))
+		return;
 
+	doValue('playerInfoId', e.getAttribute('data-gamelab-playerid'));
 	doClearReplace('playerInfoEmail', e.getAttribute('data-gamelab-mail'));
 
 	switch (parseInt(e.getAttribute('data-gamelab-status'))) {
@@ -217,6 +220,7 @@ function loadPlayersSuccess(resp)
 		span.setAttribute('data-gamelab-status', results[i].status);
 		span.setAttribute('data-gamelab-mail', results[i].mail);
 		span.setAttribute('data-gamelab-enabled', results[i].enabled);
+		span.setAttribute('data-gamelab-playerid', results[i].id);
 
 		link = document.createElement('a');
 		link.setAttribute('href', '#');
@@ -720,6 +724,12 @@ function doWipeExprSetup()
 	doClearReplace('wipeExprButton', 'Wiping...');
 }
 
+function doResetPasswordsSetup()
+{
+
+	doClearReplace('resetPasswordsButton', 'Resetting All Passwords...');
+}
+
 function doReTestSmtpSetup()
 {
 
@@ -757,10 +767,17 @@ function doWipeExprSuccess(resp)
 	window.location.reload(true);
 }
 
+function doResetPasswordsSuccess(resp)
+{
+
+	doClearReplace('resetPasswordsButton', 'Reset All Password');
+	loadPlayers();
+}
+
 function doReTestSmtpSuccess(resp)
 {
 
-	doClearReplace('recheckSmtpButton', 'Resend Mails');
+	doClearReplace('recheckSmtpButton', 'Resend Error Mails');
 	loadPlayers();
 }
 
@@ -792,6 +809,13 @@ function wipeExpr()
 
 	sendQuery('@@cgibin@@/dowipe.json', 
 		doWipeExprSetup, doWipeExprSuccess, null);
+}
+
+function resetPasswords() 
+{
+
+	sendQuery('@@cgibin@@/doresetpasswords', 
+		doResetPasswordsSetup, doResetPasswordsSuccess, null);
 }
 
 function reTestSmtp() 
@@ -859,6 +883,12 @@ function changePass(form)
 		doChangePassError, doChangePassSuccess));
 }
 
+function doResetPassSetup() 
+{
+
+	doValue('resetPasswordButton', 'Resetting Password...');
+}
+
 function doChangeSmtpSetup() 
 {
 
@@ -869,6 +899,13 @@ function doChangeSmtpError(err)
 {
 
 	doError(err, 'changeSmtpSubmit', 'changeSmtpErr');
+}
+
+function doResetPassSuccess(resp) 
+{
+
+	doValue('resetPasswordButton', 'Reset Password');
+	loadPlayers();
 }
 
 function doChangeSmtpSuccess(resp) 
@@ -883,4 +920,11 @@ function changeSmtp(form)
 
 	return(sendForm(form, doChangeSmtpSetup, 
 		doChangeSmtpError, doChangeSmtpSuccess));
+}
+
+function resetPass(form)
+{
+
+	return(sendForm(form, doResetPassSetup, 
+		null, doResetPassSuccess));
 }
