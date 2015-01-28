@@ -85,18 +85,23 @@
 						<div>
 							You can now download and analyse the results, and players can still log in and see their
 							play history.
-							If you wipe the database, all but the SMTP configuration, list of players, nad 
 						</div>
-						<fieldset>
-							<div class="input input-submit">
-								<i class="fa fa-fw fa-recycle"></i>
-								<button type="button" id="wipeExprButton" onclick="wipeExpr();">Wipe Experiment</button>
-							</div>
-						</fieldset>
 					</div>
 					<div id="statusExprLoading">
 						<i class="fa fa-spinner fa-spin"></i>
 					</div>
+					<aside>
+						You may wipe the database by clicking the button below.
+						This will delete all but the SMTP configuration, list of players, and list of games.
+						However, you must indicate that you really, really want to do this by clicking the
+						<input type="checkbox" onclick="document.getElementById('wipeExprButton').disabled='';"/> checkbox.
+					</aside>
+					<fieldset>
+						<div class="input input-submit">
+							<i class="fa fa-fw fa-recycle"></i>
+							<button type="button" id="wipeExprButton" onclick="wipeExpr();" disabled="disabled">Wipe Experiment</button>
+						</div>
+					</fieldset>
 				</section>
 				<section>
 					<h3>Experiment Games</h3>

@@ -273,6 +273,11 @@ div.input input[readonly]	{ background-color: #ddd; }
 				  border-left: 0; }
 .warning > div > :last-child a	{ color: #ccc; }
 #previewInstr			{ margin: 1em 0; }
+#instructionsPrompt		{ border: thin solid #666;
+			  	  margin-top: 2em;
+				  box-shadow: 1px 1px 3px #ccc;
+				  padding: 0.5ex;
+				  border-radius: 1ex; }
 @media only screen and (max-width: 400px), only screen and (max-device-width: 400px) {
 	#login h1		{ text-align: center; }
 	#login article > section > form		

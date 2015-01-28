@@ -49,9 +49,9 @@ function shuffle(o, seed)
         return o;
 };
 
-function appendMatrix(e, matrix, rorder, corder, ravg, cavg)
+function appendMatrix(e, matrix, rorder, corder, ravg, cavg, payoffs)
 {
-	var table, row, cell, i, j, poff, rowinner;
+	var table, row, cell, i, j, poff, rowinner, sum;
 
 	table = document.createElement('div');
 	e.appendChild(table);
@@ -95,6 +95,7 @@ function appendMatrix(e, matrix, rorder, corder, ravg, cavg)
 			(String.fromCharCode(97 + i)));
 		row.appendChild(cell);
 
+		sum = 0;
 		for (j = 0; j < matrix[rorder[i]].length; j++) {
 			cell = document.createElement('div');
 			cell.setAttribute('class', 'mix');
@@ -102,12 +103,18 @@ function appendMatrix(e, matrix, rorder, corder, ravg, cavg)
 			cell.appendChild
 				(document.createTextNode
 				 (matrix[rorder[i]][corder[j]].toFixed(2)));
+			if (null != payoffs)
+				sum += cavg[corder[j]] * 
+					payoffs[rorder[i]][corder[j]][0];
 		}
 
 		cell = document.createElement('div');
 		cell.setAttribute('class', 'sumaside sum');
 		cell.appendChild(document.createTextNode
 			(ravg[rorder[i]].toFixed(2)));
+		if (null != payoffs) 
+			cell.appendChild(document.createTextNode
+				(': ' + sum.toFixed(2)));
 		row.appendChild(cell);
 	}
 
@@ -416,7 +423,7 @@ function loadGame()
 		appendMatrix(doClear('exprHistoryMatrix'), hmatrix, 
 			res.roworders[res.gameorders[resindex]], 
 			res.colorders[res.gameorders[resindex]], 
-			ravg, cavg);
+			ravg, cavg, matrix);
 	} else {
 		doHide('exprHistory');
 	}
@@ -589,7 +596,7 @@ function loadHistory(res)
 			appendMatrix(tbl, matrix, 
 				res.roworders[res.gameorders[i]], 
 				res.colorders[res.gameorders[i]], 
-				ravg, cavg);
+				ravg, cavg, null);
 
 			par = document.createElement('p');
 			tbl.appendChild(par);
