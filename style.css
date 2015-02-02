@@ -295,8 +295,7 @@ div.input input[readonly]	{ background-color: #ddd; }
 	#login article > section > form		
 				{ padding: 0; }
 	#login > article	{ padding: 0; }
-	h2			{ text-align: center; }
-	h3			{ text-align: center; }
+	h2, h3, h4		{ text-align: center; }
 	article ul li > span	{ display: block; 
 				  margin: 1ex 0; }
 	article ul li > div	{ margin: 1ex 0; }
