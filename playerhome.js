@@ -85,15 +85,17 @@ function appendMatrix(e, matrix, rorder, corder, ravg, cavg, payoffs, colour)
 	span = document.createElement('span');
 	span.appendChild(document.createTextNode('\u2211'));
 	cell.appendChild(span);
-	span = document.createElement('span');
-	span.appendChild(document.createTextNode(': E\u27e6'));
-	cell.appendChild(span);
-	span = document.createElement('var');
-	span.appendChild(document.createTextNode('X'));
-	cell.appendChild(span);
-	span = document.createElement('span');
-	span.appendChild(document.createTextNode('\u27e7'));
-	cell.appendChild(span);
+	if (null != payoffs) {
+		span = document.createElement('span');
+		span.appendChild(document.createTextNode(': E\u27e6'));
+		cell.appendChild(span);
+		span = document.createElement('var');
+		span.appendChild(document.createTextNode('X'));
+		cell.appendChild(span);
+		span = document.createElement('span');
+		span.appendChild(document.createTextNode('\u27e7'));
+		cell.appendChild(span);
+	}
 	row.appendChild(cell);
 
 	for (i = 0; i < matrix.length; i++) {
@@ -496,7 +498,7 @@ function loadGame()
 	input = document.createElement('input');
 	input.setAttribute('type', 'submit');
 	input.setAttribute('id', 'playGameSubmit');
-	input.setAttribute('value', 'Submit Play');
+	input.setAttribute('value', 'Submit play');
 	div.appendChild(ii);
 	div.appendChild(input);
 	e.appendChild(div);
@@ -840,6 +842,9 @@ function loadExprSetup()
 	doUnhide('historyLoading');
 	doHide('instructionsLoaded');
 	doUnhide('instructionsLoading');
+	doHide('playGameErrorJson');
+	doHide('playGameErrorForm');
+	doHide('playGameErrorState');
 }
 
 function sendLoggedOut()
@@ -922,7 +927,7 @@ function doPlayGameSuccess(resp)
 
 	input.appendChild(document.createTextNode
 		(resindex < res.games.length ?
-		 'Load Next Game' : 'Wait for Next Game'));
+		 'Go to next game' : 'Finish round'));
 
 	div.appendChild(ii);
 	div.appendChild(input);

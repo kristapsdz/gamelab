@@ -54,7 +54,9 @@ i.fa-warning + span		{ margin-left: 0.5ex; }
 h1				{ margin: 0; }
 h2				{ font-size: 16pt; 
 				  margin: 0; }
-h3				{ font-size: 14pt; }
+h3				{ font-size: 14pt; 
+				  margin-top: 2em;
+				  margin-bottom: 1em; }
 h4				{ font-size: inherit; }
 body > article			{ background-color: #fff;
 				  max-width: 1024px;
@@ -274,6 +276,7 @@ div.input input[readonly]	{ background-color: #ddd; }
 .warning > div > :last-child a	{ color: #ccc; }
 #previewInstr			{ margin: 1em 0; }
 #instructionsPrompt		{ border: thin solid #666;
+				  display: inline-block;
 			  	  margin-top: 2em;
 				  box-shadow: 1px 1px 3px #ccc;
 				  padding: 0.5ex;

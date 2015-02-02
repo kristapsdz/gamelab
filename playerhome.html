@@ -69,7 +69,7 @@
 			</div>
 		</article>
 		<article id="play" class="tab">
-			<h2>Play Game</h2>
+			<h2>Play game</h2>
 			<div id="exprLoading"><i class="fa fa-spinner fa-spin"></i></div>
 			<div id="exprLoaded" class="noshow">
 				<section id="exprNotStarted" class="noshow">
@@ -122,11 +122,12 @@
 					</div>
 					<aside>
 						<div>
-							You are the <span id="playerColour">row player</span>: select your strategies.
-						</div>
-						<div>
-							Once selected, you must enter probabilities for all strategies.
-							These must be fractions or decimal numbers with no greater than four digits following the decimal.
+							You are the <span id="playerColour">row player</span>. 
+							Click on each row that is included in the strategy you want to play and assign the
+							corresponding probability in the input field. 
+							Probabilities must be given as fractions or decimal numbers with no greater accuracy
+							than four digits following the decimal. 
+							Any row that you don't select will be assigned probability zero.
 						</div>
 					</aside>
 					<div id="exprMatrix"></div>
@@ -146,7 +147,11 @@
 							<div class="warning">
 								<div>
 									<i class="fa fa-exclamation-circle"></i>
-									<span>Form not correctly filled out.</span>
+									<span>
+										Probabilities must be fractions or decimal numbers with no
+										greater than four digits following the decimal. 
+										They must sum to one.
+									</span>
 								</div>
 							</div>
 						</div>
@@ -169,10 +174,12 @@
 			<h2>Instructions</h2>
 			<div id="instructionsLoading"><i class="fa fa-spinner fa-spin"></i></div>
 			<div id="instructionsLoaded"></div>
-			<form id="instructionsPrompt" action="@@cgibin@@/doinstr.json" method="post" onsubmit="return(updateInstr(this));">
-				<input type="checkbox" name="instr" id="instructionsPromptYes" value="1" />
-				<label for="instructionsPromptYes">Show me these instructions when I log in.</label>
-				<input type="submit" value="Update" />
+			<form action="@@cgibin@@/doinstr.json" method="post" onsubmit="return(updateInstr(this));">
+				<div id="instructionsPrompt">
+					<input type="checkbox" name="instr" id="instructionsPromptYes" value="1" />
+					<label for="instructionsPromptYes">Show me these instructions when I log in.</label>
+					<input type="submit" value="Update" />
+				</div>
 			</form>
 		</article>
 		<footer>
