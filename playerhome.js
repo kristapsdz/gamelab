@@ -49,9 +49,9 @@ function shuffle(o, seed)
         return o;
 };
 
-function appendMatrix(e, matrix, rorder, corder, ravg, cavg, payoffs)
+function appendMatrix(e, matrix, rorder, corder, ravg, cavg, payoffs, colour)
 {
-	var table, row, cell, i, j, poff, rowinner, sum;
+	var table, row, cell, i, j, poff, rowinner, sum, span;
 
 	table = document.createElement('div');
 	e.appendChild(table);
@@ -82,7 +82,18 @@ function appendMatrix(e, matrix, rorder, corder, ravg, cavg, payoffs)
 	cell.setAttribute('class', 'sumaside');
 	cell.setAttribute('style', 'width: ' + 
 		((100.0 / (matrix[0].length + 1)) - 1) + '%;');
-	cell.appendChild(document.createTextNode('\u2211'));
+	span = document.createElement('span');
+	span.appendChild(document.createTextNode('\u2211'));
+	cell.appendChild(span);
+	span = document.createElement('span');
+	span.appendChild(document.createTextNode(': E\u27e6'));
+	cell.appendChild(span);
+	span = document.createElement('var');
+	span.appendChild(document.createTextNode('X'));
+	cell.appendChild(span);
+	span = document.createElement('span');
+	span.appendChild(document.createTextNode('\u27e7'));
+	cell.appendChild(span);
 	row.appendChild(cell);
 
 	for (i = 0; i < matrix.length; i++) {
@@ -110,11 +121,20 @@ function appendMatrix(e, matrix, rorder, corder, ravg, cavg, payoffs)
 
 		cell = document.createElement('div');
 		cell.setAttribute('class', 'sumaside sum');
-		cell.appendChild(document.createTextNode
+
+		span = document.createElement('span');
+		span.appendChild(document.createTextNode
 			(ravg[rorder[i]].toFixed(2)));
-		if (null != payoffs) 
-			cell.appendChild(document.createTextNode
-				(': ' + sum.toFixed(2)));
+		cell.appendChild(span);
+		if (null != payoffs) {
+			span = document.createElement('span');
+			span.appendChild(document.createTextNode(': '));
+			cell.appendChild(span);
+			span = document.createElement('span');
+			span.setAttribute('style', 'color: ' + colours[colour]);
+			span.appendChild(document.createTextNode(sum.toFixed(2)));
+			cell.appendChild(span);
+		}
 		row.appendChild(cell);
 	}
 
@@ -357,7 +377,7 @@ function disableEnter(e) {
  */
 function loadGame()
 {
-	var game, matrix, hmatrix, e, div, ii, i, j, input, c, oc, ravg, cavg;
+	var game, matrix, hmatrix, e, div, ii, i, j, input, c, oc, ravg, cavg, lot, par;
 
 	if (resindex == res.games.length) {
 		doUnhide('exprDone');
@@ -423,7 +443,21 @@ function loadGame()
 		appendMatrix(doClear('exprHistoryMatrix'), hmatrix, 
 			res.roworders[res.gameorders[resindex]], 
 			res.colorders[res.gameorders[resindex]], 
-			ravg, cavg, matrix);
+			ravg, cavg, matrix, c);
+		par = doClear('exprHistoryPlays');
+		lot = res.lotteries[res.expr.round - 1].plays[res.gameorders[resindex]];
+		if (null != lot) {
+			par.appendChild(document.createTextNode
+				(', strategy mix: '));
+			for (i = 0; i < lot.strats.length; i++) {
+				if (i > 0)
+					par.appendChild(document.createTextNode(', '));
+				par.appendChild(document.createTextNode
+					(String.fromCharCode(97 + i) + '-'));
+				par.appendChild(document.createTextNode
+					(lot.strats[res.roworders[res.gameorders[resindex]][i]]));
+			}
+		}
 	} else {
 		doHide('exprHistory');
 	}
@@ -548,6 +582,9 @@ function loadHistory(res)
 	var e, i, j, k, child, matrix, bmatrix, c, oc, 
 	    ravg, cavg, tbl, game, par, lot;
 
+	c = res.rseed % colours.length;
+	oc = (0 == c % 2) ? c + 1 : c - 1;
+
 	doClearReplace('historyLottery', res.aggrlottery);
 
 	if (null != (e = doClear('historySelectGame'))) {
@@ -596,7 +633,7 @@ function loadHistory(res)
 			appendMatrix(tbl, matrix, 
 				res.roworders[res.gameorders[i]], 
 				res.colorders[res.gameorders[i]], 
-				ravg, cavg, null);
+				ravg, cavg, null, c);
 
 			par = document.createElement('p');
 			tbl.appendChild(par);
@@ -607,10 +644,12 @@ function loadHistory(res)
 				continue;
 			}
 			par.appendChild(document.createTextNode
-				('Your game and round strategy mix: '));
+				('Your strategy mix: '));
 			for (k = 0; k < lot.strats.length; k++) {
 				if (k > 0)
 					par.appendChild(document.createTextNode(', '));
+				par.appendChild(document.createTextNode
+					(String.fromCharCode(97 + k) + '-'));
 				par.appendChild(document.createTextNode
 					(lot.strats[res.roworders[res.gameorders[i]][k]]));
 			}
@@ -618,13 +657,11 @@ function loadHistory(res)
 			par = document.createElement('p');
 			tbl.appendChild(par);
 			par.appendChild(document.createTextNode
-				('Your game and round payoff: '));
+				('Your payoff: '));
 			par.appendChild(document.createTextNode(lot.poff));
 		}
 	}
 
-	c = res.rseed % colours.length;
-	oc = (0 == c % 2) ? c + 1 : c - 1;
 	e = doClear('bimatrixRoundups');
 	for (i = 0; i < res.history.length; i++) {
 		tbl = document.createElement('div');
@@ -647,10 +684,7 @@ function loadHistory(res)
 		e.appendChild(tbl);
 		tbl.setAttribute('id', 'lottery' + i);
 		tbl.appendChild(document.createTextNode
-			('Your payoff in all games of round ' + (i + 1) + 
-			 ': ' + res.lotteries[i].curlottery + '; ' +
-			 'cumulatively as of this round: ' +
-			 res.lotteries[i].aggrlottery + '.'));
+			('Round payoff: ' + res.lotteries[i].curlottery));
 		doHideNode(tbl);
 	}
 

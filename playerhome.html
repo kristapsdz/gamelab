@@ -32,11 +32,10 @@
 			</div>
 		</header>
 		<article id="history" class="tab">
-			<h2>Play History</h2>
+			<h2>History of play</h2>
 			<div id="historyLoading"><i class="fa fa-spinner fa-spin"></i></div>
 			<div id="historyLoaded" class="noshow">
 				<section id="historyPlay" class="noshow">
-					<h3>History by Game and Round</h3>
 					<nav id="historyNav">
 						Game 
 						<a href="#" onclick='showHistoryGamePrev(); return false;'><i class="fa fa-arrow-circle-left"></i></a>
@@ -47,18 +46,19 @@
 						<select id="historySelectRound" onchange="showHistory();"></select>
 						<a href="#" onclick='showHistoryRoundNext(); return false;'><i class="fa fa-toggle-right"></i></a>
 					</nav>
+					<h3>Game and round specifics</h3>
 					<div id="historyRoundups"></div>
 					<div id="bimatrixRoundups"></div>
-					<h3>Round Summary</h3>
+					<h3>Round specifics</h3>
 					<div id="lotteryRoundups"></div>
-					<h3>Total Summary</h3>
+					<h2>Total payoffs</h2>
 					<p>
-						Your total payoff (all games and rounds): <span id="historyLottery"></span>
+						Your total payoff from all rounds and games: <span id="historyLottery"></span>
 					</p>
 				</section>
 				<section id="historyNotYet" class="noshow">
 					<p>
-						No history to report yet.
+						This is the first round: there is no history to report yet.
 					</p>
 				</section>
 				<section id="historyNotStarted" class="noshow">
@@ -105,7 +105,7 @@
 					<div id="exprHistory">
 						<div>
 							Your payoff from this game in the previous round:
-							<span id="exprHistoryLottery"></span> 
+							<span id="exprHistoryLottery"></span><span id="exprHistoryPlays"></span>
 						</div>
 						<div id="skipExplain">
 							<div class="warning">
@@ -117,13 +117,14 @@
 								</div>
 							</div>
 						</div>
-						<h4>Play in the Last Round</h4>
+						<h4>Play in the last round</h4>
 						<div id="exprHistoryMatrix"></div>
 					</div>
 					<aside>
 						<div>
-							You are the <span id="playerColour">row player</span>:
-							select strategies from the matrix below.
+							You are the <span id="playerColour">row player</span>: select your strategies.
+						</div>
+						<div>
 							Once selected, you must enter probabilities for all strategies.
 							These must be fractions or decimal numbers with no greater than four digits following the decimal.
 						</div>

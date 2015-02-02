@@ -939,3 +939,13 @@ previewInstr()
 	doClearReplaceMarkup('previewInstrInner', e.value);
 	doUnhide('previewInstr');
 }
+
+function
+checkWipeButton(e)
+{
+
+	if (e.checked)
+		document.getElementById('wipeExprButton').disabled='';
+	else
+		document.getElementById('wipeExprButton').disabled='disabled';
+}

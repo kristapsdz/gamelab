@@ -94,7 +94,7 @@
 						You may wipe the database by clicking the button below.
 						This will delete all but the SMTP configuration, list of players, and list of games.
 						However, you must indicate that you really, really want to do this by clicking the
-						<input type="checkbox" onclick="document.getElementById('wipeExprButton').disabled='';"/> checkbox.
+						<div id="wipeExprCheckbox"><input type="checkbox" onclick="checkWipeButton(this);" /> checkbox</div>.
 					</aside>
 					<fieldset>
 						<div class="input input-submit">

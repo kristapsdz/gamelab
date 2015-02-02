@@ -278,6 +278,11 @@ div.input input[readonly]	{ background-color: #ddd; }
 				  box-shadow: 1px 1px 3px #ccc;
 				  padding: 0.5ex;
 				  border-radius: 1ex; }
+#wipeExprCheckbox		{ background-color: red; 
+				  color: #ddd;
+				  padding: 0 1ex;
+				  border-radius: 0.5ex;
+				  display: inline; }
 @media only screen and (max-width: 400px), only screen and (max-device-width: 400px) {
 	#login h1		{ text-align: center; }
 	#login article > section > form		
