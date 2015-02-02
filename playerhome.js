@@ -398,7 +398,9 @@ function loadGame()
 	doClearReplace('playGameNum', (resindex + 1));
 	doClearReplace('playGameMax', res.gamesz);
 	doClearReplace('playRoundNum', res.expr.round + 1);
+	doClearReplace('playRoundNum2', res.expr.round + 1);
 	doClearReplace('playRoundMax', res.expr.rounds);
+	doClearReplace('playRoundMax2', res.expr.rounds);
 
 	game = res.games[res.gameorders[resindex]];
 	if (null == game) {

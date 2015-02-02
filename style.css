@@ -186,6 +186,7 @@ div.history			{ display: table;
 				  width: 100%;
 				  margin-left: auto;
 				  margin-right: auto;
+				  margin-bottom: 2em;
 				  background-color: #eee;
 				  border-radius: 0.5ex;
 				  border: thin solid #ddd;
@@ -209,7 +210,10 @@ div.history div.sumbelow	{ text-align: center; }
 div.history div.sumaside	{ text-align: center; }
 div.payoffs			{ display: table; 
 				  width: 100%; 
-				  margin: 1.2em auto;
+				  margin-left: auto;
+				  margin-right: auto;
+				  margin-top: 0.6em;
+				  margin-bottom: 1.2em;
 				  border-spacing: 1ex; }
 div.payoffs > div		{ display: table-row; 
 				  cursor: pointer; }
