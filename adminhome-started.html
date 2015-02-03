@@ -150,6 +150,38 @@
 						</div>
 					</fieldset>
 				</section>
+				<section id="changeInstrSection">
+					<h3>Change Instructions</h3>
+					<aside>
+						You may change the experiment instructions here.
+						<b>Warning</b>: this means that you've already messed up.
+						Be very, very careful about what you do here: you are changing a live experiment!
+					</aside>
+					<form action="@@cgibin@@/dosetinstr.json" method="post" id="changeInstr" onsubmit="return(changeInstr(this));">
+						<div class="error">
+							<div class="noshow" id="changeInstrErrSystem">
+								An unexpected error occurred.
+							</div>
+							<div class="noshow" id="changeInstrErrForm">
+								Invalid instructions.
+							</div>
+						</div>
+						<fieldset>
+							<div class="input">
+								<i class="fa fa-fw fa-code"></i>
+								<textarea id="instr" class="bigtext" required="required" name="instr"></textarea>
+							</div>
+							<div class="input">
+								<i class="fa fa-fw fa-code"></i>
+								<textarea id="instrWin" required="required" name="instrWin"></textarea>
+							</div>
+							<div class="input input-submit">
+								<i class="fa fa-fw fa-check"></i>
+								<input id="changeInstrSubmit" type="submit" value="Submit" />
+							</div>
+						</fieldset>
+					</form>
+				</section>
 				<section id="changeMailSection">
 					<h3>Change E-mail</h3>
 					<aside>

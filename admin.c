@@ -44,6 +44,7 @@ enum	page {
 	PAGE_DOLOGOUT,
 	PAGE_DORESENDEMAIL,
 	PAGE_DORESETPASSWORDS,
+	PAGE_DOSETINSTR,
 	PAGE_DOSTARTEXPR,
 	PAGE_DOTESTSMTP,
 	PAGE_DOWINNERS,
@@ -79,8 +80,8 @@ enum	key {
 	KEY_EMAIL2,
 	KEY_EMAIL3,
 	KEY_GAMEID,
-	KEY_INSTRUCTIONS,
-	KEY_INSTRUCTIONSWIN,
+	KEY_INSTR,
+	KEY_INSTRWIN,
 	KEY_NAME,
 	KEY_P1,
 	KEY_P2,
@@ -133,6 +134,7 @@ static	unsigned int perms[PAGE__MAX] = {
 	PERM_HTML | PERM_LOGIN, /* PAGE_DOLOGOUT */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DORESENDEMAIL */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DORESETPASSWORDS */
+	PERM_JSON | PERM_LOGIN, /* PAGE_DOSETINSTR */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOSTARTEXPR */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOTESTSMTP */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOWINNERS */
@@ -160,6 +162,7 @@ static const char *const pages[PAGE__MAX] = {
 	"dologout", /* PAGE_DOLOGOUT */
 	"doresendemail", /* PAGE_DORESENDEMAIL */
 	"doresetpasswords", /* PAGE_DORESETPASSWORDS */
+	"dosetinstr", /* PAGE_DOSETINSTR */
 	"dostartexpr", /* PAGE_DOSTARTEXPR */
 	"dotestsmtp", /* PAGE_DOTESTSMTP */
 	"dowinners", /* PAGE_DOWINNERS */
@@ -195,8 +198,8 @@ static const struct kvalid keys[KEY__MAX] = {
 	{ kvalid_email, "email2" }, /* KEY_EMAIL2 */
 	{ kvalid_email, "email3" }, /* KEY_EMAIL3 */
 	{ kvalid_int, "gid" }, /* KEY_GAMEID */
-	{ kvalid_stringne, "instr" }, /* KEY_INSTRUCTIONS */
-	{ kvalid_stringne, "instrWin" }, /* KEY_INSTRUCTIONSWIN */
+	{ kvalid_stringne, "instr" }, /* KEY_INSTR */
+	{ kvalid_stringne, "instrWin" }, /* KEY_INSTRWIN */
 	{ kvalid_stringne, "name" }, /* KEY_NAME */
 	{ kvalid_int, "p1" }, /* KEY_P1 */
 	{ kvalid_int, "p2" }, /* KEY_P2 */
@@ -790,6 +793,22 @@ senddologin(struct kreq *r)
 }
 
 static void
+senddosetinstr(struct kreq *r)
+{
+
+	if (kpairbad(r, KEY_INSTR) || kpairbad(r, KEY_INSTRWIN)) {
+		http_open(r, KHTTP_400);
+		khttp_body(r);
+		return;
+	}
+
+	db_expr_setinstr(r->fieldmap[KEY_INSTR]->parsed.s,
+		r->fieldmap[KEY_INSTRWIN]->parsed.s);
+	http_open(r, KHTTP_200);
+	khttp_body(r);
+}
+
+static void
 senddoresetpasswordss(struct kreq *r)
 {
 	pid_t		 pid;
@@ -879,8 +898,8 @@ senddostartexpr(struct kreq *r)
 	if (kpairbad(r, KEY_DATE) ||
 		kpairbad(r, KEY_TIME) ||
 		kpairbad(r, KEY_ROUNDS) ||
-		kpairbad(r, KEY_INSTRUCTIONS) ||
-		kpairbad(r, KEY_INSTRUCTIONSWIN) ||
+		kpairbad(r, KEY_INSTR) ||
+		kpairbad(r, KEY_INSTRWIN) ||
 		kpairbad(r, KEY_MINUTES) ||
 		kpairbad(r, KEY_URI) ||
 		r->fieldmap[KEY_DATE]->parsed.i +
@@ -895,8 +914,8 @@ senddostartexpr(struct kreq *r)
 		 r->fieldmap[KEY_TIME]->parsed.i,
 		 r->fieldmap[KEY_ROUNDS]->parsed.i,
 		 r->fieldmap[KEY_MINUTES]->parsed.i,
-		 r->fieldmap[KEY_INSTRUCTIONS]->parsed.s,
-		 r->fieldmap[KEY_INSTRUCTIONSWIN]->parsed.s,
+		 r->fieldmap[KEY_INSTR]->parsed.s,
+		 r->fieldmap[KEY_INSTRWIN]->parsed.s,
 		 r->fieldmap[KEY_URI]->parsed.s)) {
 		http_open(r, KHTTP_409);
 		khttp_body(r);
@@ -1129,6 +1148,9 @@ main(void)
 		break;
 	case (PAGE_DORESETPASSWORDS):
 		senddoresetpasswordss(&r);
+		break;
+	case (PAGE_DOSETINSTR):
+		senddosetinstr(&r);
 		break;
 	case (PAGE_DOTESTSMTP):
 		senddotestsmtp(&r);

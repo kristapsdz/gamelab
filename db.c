@@ -1182,6 +1182,19 @@ db_expr_checkstate(enum estate state)
 	return(rc == SQLITE_ROW);
 }
 
+void
+db_expr_setinstr(const char *instr, const char *instrWin)
+{
+	sqlite3_stmt	*stmt;
+
+	stmt = db_stmt("UPDATE experiment SET instr=?,instrWin=?");
+	db_bind_text(stmt, 1, instr);
+	db_bind_text(stmt, 2, instrWin);
+	db_step(stmt, 0);
+	sqlite3_finalize(stmt);
+	fprintf(stderr, "Administrator changed instructions\n");
+}
+
 int
 db_expr_start(int64_t date, int64_t rounds, int64_t minutes, 
 	const char *instr, const char *instrWin, const char *uri)

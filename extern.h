@@ -149,6 +149,7 @@ int		 db_expr_start(int64_t, int64_t, int64_t,
 void		 db_expr_free(struct expr *);
 struct expr	*db_expr_get(void);
 void		 db_expr_wipe(void);
+void		 db_expr_setinstr(const char *, const char *);
 
 struct interval	*db_interval_get(int64_t);
 void		 db_interval_free(struct interval *);

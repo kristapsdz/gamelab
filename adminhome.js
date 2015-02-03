@@ -538,6 +538,9 @@ function loadExprSuccess(resp)
 
 	expr = res.expr;
 
+	doClearReplace('instr', expr.instr);
+	doClearReplace('instrWin', expr.instrWin);
+
 	if (expr.tilstart < 0 && expr.tilnext < 0) {
 		doHide('statusExprProg');
 		doHide('statusExprLoading');
@@ -555,7 +558,7 @@ function loadExprSuccess(resp)
 				href.appendChild(document.createTextNode(res.winners[i].email));
 				div.appendChild(href);
 				div.appendChild(document.createTextNode(': '));
-				div.appendChild(document.createTextNode(res.winners[i].rank));
+				div.appendChild(document.createTextNode((res.winners[i].rank + 1)));
 			}
 		} else
 			doUnhide('statusExprFinishedWin');
@@ -845,10 +848,23 @@ function testSmtp()
 		doTestSmtpSetup, doTestSmtpSuccess, null);
 }
 
+function doChangeInstrSetup() 
+{
+
+	doSetup('changeInstrSubmit', 'changeInstrErr');
+}
+
+
 function doChangeMailSetup() 
 {
 
 	doSetup('changeMailSubmit', 'changeMailErr');
+}
+
+function doChangeInstrError(err) 
+{
+
+	doError(err, 'changeInstrSubmit', 'changeInstrErr');
 }
 
 function doChangeMailError(err) 
@@ -857,12 +873,28 @@ function doChangeMailError(err)
 	doError(err, 'changeMailSubmit', 'changeMailErr');
 }
 
+function doChangeInstrSuccess(resp) 
+{
+
+	doSuccess('changeInstrSubmit', 'changeInstr');
+	location.href = '@@cgibin@@';
+}
+
+
 function doChangeMailSuccess(resp) 
 {
 
 	doSuccess('changeMailSubmit', 'changeMail');
-	location.href = '@@cgibin@@';
+	loadExpr();
 }
+
+function changeInstr(form)
+{
+
+	return(sendForm(form, doChangeInstrSetup, 
+		doChangeInstrError, doChangeInstrSuccess));
+}
+
 
 function changeMail(form)
 {
