@@ -52,7 +52,9 @@
 					<div id="statusExprFinished">
 						<p>
 							Your experiment has finished.
+							What follows are the winners and their rankings.
 						</p>
+						<ul id="statusExprFinishedWinners"></ul>
 						<form id="statusExprFinishedWin" action="@@cgibin@@/dowinners.json" method="post" onsubmit="return(sendWinners(this));">
 							<aside>
 								<div>

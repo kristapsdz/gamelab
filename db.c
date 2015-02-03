@@ -463,6 +463,27 @@ db_winners_get(int64_t playerid)
 }
 
 void
+db_winners_load_all(void *arg, winnerf fp)
+{
+	sqlite3_stmt	*stmt;
+	int64_t		 id, rank;
+	struct player	*p;
+
+	stmt = db_stmt("SELECT playerid,winrank "
+		"FROM winner WHERE winner=1");
+
+	while (SQLITE_ROW == db_step(stmt, 0)) {
+		id = sqlite3_column_int(stmt, 0);
+		rank = sqlite3_column_int(stmt, 1);
+		p = db_player_load(id);
+		assert(NULL != p);
+		fp(p, rank, arg);
+		db_player_free(p);
+	}
+	sqlite3_finalize(stmt);
+}
+
+void
 db_winners(int64_t round, size_t winnersz, int64_t seed, size_t count)
 {
 	enum estate	 state;
@@ -1163,7 +1184,7 @@ db_expr_checkstate(enum estate state)
 
 int
 db_expr_start(int64_t date, int64_t rounds, int64_t minutes, 
-	const char *instructions, const char *uri)
+	const char *instr, const char *instrWin, const char *uri)
 {
 	sqlite3_stmt	*stmt, *stmt2;
 	int64_t		 id;
@@ -1179,12 +1200,13 @@ db_expr_start(int64_t date, int64_t rounds, int64_t minutes,
 
 	stmt = db_stmt("UPDATE experiment SET "
 		"state=1,start=?,rounds=?,minutes=?,"
-		"loginuri=?,instructions=?");
+		"loginuri=?,instr=?,instrWin=?");
 	db_bind_int(stmt, 1, date);
 	db_bind_int(stmt, 2, rounds);
 	db_bind_int(stmt, 3, minutes);
 	db_bind_text(stmt, 4, uri);
-	db_bind_text(stmt, 5, instructions);
+	db_bind_text(stmt, 5, instr);
+	db_bind_text(stmt, 6, instrWin);
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);
 	db_trans_commit();
@@ -2119,7 +2141,7 @@ db_expr_get(void)
 	int		 rc;
 
 	stmt = db_stmt("SELECT start,rounds,minutes,loginuri,"
-		"state,instructions,state,total FROM experiment");
+		"state,instr,state,total,instrWin FROM experiment");
 	rc = db_step(stmt, 0);
 	assert(SQLITE_ROW == rc);
 	if (ESTATE_NEW == sqlite3_column_int(stmt, 4)) {
@@ -2132,10 +2154,11 @@ db_expr_get(void)
 	expr->rounds = sqlite3_column_int(stmt, 1);
 	expr->minutes = sqlite3_column_int(stmt, 2);
 	expr->loginuri = kstrdup((char *)sqlite3_column_text(stmt, 3));
-	expr->instructions = kstrdup((char *)sqlite3_column_text(stmt, 5));
+	expr->instr = kstrdup((char *)sqlite3_column_text(stmt, 5));
 	expr->state = (time_t)sqlite3_column_int(stmt, 6);
 	expr->end = expr->start + (expr->rounds * expr->minutes * 60);
 	db_str2mpq_single(sqlite3_column_text(stmt, 7), expr->total);
+	expr->instrWin = kstrdup((char *)sqlite3_column_text(stmt, 8));
 
 	sqlite3_finalize(stmt);
 	return(expr);
@@ -2149,7 +2172,8 @@ db_expr_free(struct expr *expr)
 
 	mpq_clear(expr->total);
 	free(expr->loginuri);
-	free(expr->instructions);
+	free(expr->instr);
+	free(expr->instrWin);
 	free(expr);
 }
 
@@ -2170,7 +2194,7 @@ db_expr_wipe(void)
 	db_exec("DELETE FROM tickets");
 	db_exec("UPDATE player SET state=0,enabled=1");
 	db_exec("UPDATE experiment SET state=0,rounds=0,total='0/1',"
-		"minutes=0,loginuri=\'\',instructions=\'\'");
+		"minutes=0,loginuri=\'\',instr=\'\',instrWin=\'\'");
 	stmt = db_stmt("SELECT id FROM player");
 	stmt2 = db_stmt("UPDATE player SET rseed=? WHERE id=?");
 	while (SQLITE_ROW == db_step(stmt, 0)) {

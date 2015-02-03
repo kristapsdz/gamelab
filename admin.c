@@ -80,6 +80,7 @@ enum	key {
 	KEY_EMAIL3,
 	KEY_GAMEID,
 	KEY_INSTRUCTIONS,
+	KEY_INSTRUCTIONSWIN,
 	KEY_NAME,
 	KEY_P1,
 	KEY_P2,
@@ -194,7 +195,8 @@ static const struct kvalid keys[KEY__MAX] = {
 	{ kvalid_email, "email2" }, /* KEY_EMAIL2 */
 	{ kvalid_email, "email3" }, /* KEY_EMAIL3 */
 	{ kvalid_int, "gid" }, /* KEY_GAMEID */
-	{ kvalid_stringne, "instructions" }, /* KEY_INSTRUCTIONS */
+	{ kvalid_stringne, "instr" }, /* KEY_INSTRUCTIONS */
+	{ kvalid_stringne, "instrWin" }, /* KEY_INSTRUCTIONSWIN */
 	{ kvalid_stringne, "name" }, /* KEY_NAME */
 	{ kvalid_int, "p1" }, /* KEY_P1 */
 	{ kvalid_int, "p2" }, /* KEY_P2 */
@@ -322,6 +324,17 @@ struct	exprget {
 };
 
 static void
+sendwinners(const struct player *p, int64_t rank, void *arg)
+{
+	struct kjsonreq	*req = arg;
+
+	kjson_obj_open(req);
+	kjson_putstringp(req, "email", p->mail);
+	kjson_putintp(req, "rank", rank);
+	kjson_obj_close(req);
+}
+
+static void
 senddogetexprgame(const struct game *game, void *arg)
 {
 	struct exprget	*get = arg;
@@ -357,14 +370,14 @@ senddogetexpr(struct kreq *r)
 	kjson_obj_open(&req);
 	json_putexpr(&req, expr);
 	kjson_arrayp_open(&req, "games");
-	if ((t = time(NULL)) > expr->start && t < expr->end) {
+	if ((t = time(NULL)) >= expr->start && t < expr->end) {
 		get.round = (t - expr->start) / (expr->minutes * 60);
 		get.req = &req;
 		db_game_load_all(senddogetexprgame, &get);
 	} 
 	kjson_array_close(&req);
 
-	if ((t = time(NULL)) > expr->start && t < expr->end) {
+	if (t >= expr->start && t < expr->end) {
 		gamesz = db_game_count_all();
 		round = (t - expr->start) / (expr->minutes * 60);
 		kjson_putintp(&req, "frow",
@@ -372,6 +385,13 @@ senddogetexpr(struct kreq *r)
 		kjson_putintp(&req, "fcol",
 			db_game_round_count_done(round, 1, gamesz));
 	}
+
+	if (ESTATE_POSTWIN == expr->state) {
+		kjson_arrayp_open(&req, "winners");
+		db_winners_load_all(&req, sendwinners);
+		kjson_array_close(&req);
+	} else
+		kjson_putnullp(&req, "winners");
 
 	kjson_obj_close(&req);
 	kjson_close(&req);
@@ -860,6 +880,7 @@ senddostartexpr(struct kreq *r)
 		kpairbad(r, KEY_TIME) ||
 		kpairbad(r, KEY_ROUNDS) ||
 		kpairbad(r, KEY_INSTRUCTIONS) ||
+		kpairbad(r, KEY_INSTRUCTIONSWIN) ||
 		kpairbad(r, KEY_MINUTES) ||
 		kpairbad(r, KEY_URI) ||
 		r->fieldmap[KEY_DATE]->parsed.i +
@@ -875,6 +896,7 @@ senddostartexpr(struct kreq *r)
 		 r->fieldmap[KEY_ROUNDS]->parsed.i,
 		 r->fieldmap[KEY_MINUTES]->parsed.i,
 		 r->fieldmap[KEY_INSTRUCTIONS]->parsed.s,
+		 r->fieldmap[KEY_INSTRUCTIONSWIN]->parsed.s,
 		 r->fieldmap[KEY_URI]->parsed.s)) {
 		http_open(r, KHTTP_409);
 		khttp_body(r);

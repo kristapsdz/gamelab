@@ -78,7 +78,8 @@ CREATE TABLE experiment (
 	rounds INTEGER DEFAULT(0),
 	minutes INTEGER DEFAULT(0),
 	loginuri TEXT DEFAULT(''),
-	instructions TEXT DEFAULT(''),
+	instr TEXT DEFAULT(''),
+	instrWin TEXT DEFAULT(''),
 	total TEXT DEFAULT('0/1'),
 	id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL
 );

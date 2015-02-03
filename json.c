@@ -103,7 +103,7 @@ json_putexpr(struct kjsonreq *r, const struct expr *expr)
 	}
 
 	kjson_objp_open(r, "expr");
-	kjson_stringp_open(r, "instructions");
+	kjson_stringp_open(r, "instr");
 	memset(&t, 0, sizeof(struct ktemplate));
 	memset(&c, 0, sizeof(struct jsoncache));
 	c.r = r;
@@ -115,14 +115,16 @@ json_putexpr(struct kjsonreq *r, const struct expr *expr)
 	t.keysz = TKEY__MAX;
 	t.arg = &c;
 	t.cb = json_instructions;
-	khttp_templatex_buf(&t, expr->instructions, 
-		strlen(expr->instructions), kjson_string_write, r);
+	khttp_templatex_buf(&t, expr->instr, 
+		strlen(expr->instr), 
+		kjson_string_write, r);
 	free(c.mail);
 	kjson_string_close(r);
 	json_putmpqp(r, "maxtickets", expr->total);
 	kjson_putintp(r, "start", (int64_t)expr->start);
 	kjson_putintp(r, "end", (int64_t)expr->end);
 	kjson_putintp(r, "rounds", expr->rounds);
+	kjson_putstringp(r, "instrWin", expr->instrWin);
 	kjson_putdoublep(r, "progress", frac);
 	kjson_putintp(r, "tilstart", (int64_t)tilstart);
 	kjson_putintp(r, "tilnext", (int64_t)tilnext);

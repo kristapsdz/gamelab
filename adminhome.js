@@ -528,7 +528,7 @@ function loadGames()
 
 function loadExprSuccess(resp) 
 {
-	var res, e, i, chld, expr, li, div;
+	var res, e, i, chld, expr, li, div, href, span;
 
 	try  { 
 		res = JSON.parse(resp);
@@ -542,9 +542,22 @@ function loadExprSuccess(resp)
 		doHide('statusExprProg');
 		doHide('statusExprLoading');
 		doUnhide('statusExprFinished');
-		if (expr.postwin) 
+		if (expr.postwin) {
 			doHide('statusExprFinishedWin');
-		else
+			e = doClear('statusExprFinishedWinners');
+			for (i = 0; i < res.winners.length; i++) {
+				chld = document.createElement('li');
+				e.appendChild(chld);
+				div = document.createElement('div');
+				chld.appendChild(div);
+				href = document.createElement('a');
+				href.setAttribute('href', 'mailto:' + res.winners[i].email);
+				href.appendChild(document.createTextNode(res.winners[i].email));
+				div.appendChild(href);
+				div.appendChild(document.createTextNode(': '));
+				div.appendChild(document.createTextNode(res.winners[i].rank));
+			}
+		} else
 			doUnhide('statusExprFinishedWin');
 		doClearReplace('exprCountdown', 'finished');
 		return;

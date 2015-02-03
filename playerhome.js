@@ -727,7 +727,8 @@ function loadExprSuccess(resp)
 	doUnhide('exprLoaded');
 	doUnhide('historyLoaded');
 	doUnhide('instructionsLoaded');
-	doClearReplaceMarkup('instructionsLoaded', expr.instructions);
+	doClearReplaceMarkup('instructionsLoaded', expr.instr);
+	doClearReplaceMarkup('exprFinishedWin', expr.instrWin);
 
 	c = res.rseed % colours.length;
 	oc = (0 == c % 2) ? c + 1 : c - 1;

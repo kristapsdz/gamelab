@@ -27,7 +27,8 @@ struct	expr {
 	int64_t		 rounds; /* number of game plays */
 	int64_t		 minutes; /* minutes per game play */
 	char		*loginuri; /* player login (email click) */
-	char		*instructions; /* instruction markup */
+	char		*instr; /* instruction markup */
+	char		*instrWin; 
 	mpq_t		 total;
 };
 
@@ -126,6 +127,7 @@ __BEGIN_DECLS
 
 typedef void	(*gamef)(const struct game *, void *);
 typedef void	(*gameroundf)(const struct game *, int64_t, void *);
+typedef void	(*winnerf)(const struct player *, int64_t, void *);
 typedef void	(*playerf)(const struct player *, void *);
 
 char		*db_admin_get_mail(void);
@@ -143,7 +145,7 @@ mpq_t		*db_choices_get(int64_t, int64_t, int64_t, size_t *);
 
 int		 db_expr_checkstate(enum estate);
 int		 db_expr_start(int64_t, int64_t, int64_t, 
-			const char *, const char *);
+			const char *, const char *, const char *);
 void		 db_expr_free(struct expr *);
 struct expr	*db_expr_get(void);
 void		 db_expr_wipe(void);
@@ -197,6 +199,7 @@ void		 db_smtp_free(struct smtp *);
 void		 db_smtp_set(const char *, const char *, 
 			const char *, const char *);
 
+void		 db_winners_load_all(void *, winnerf);
 void		 db_winners(int64_t, size_t, int64_t, size_t);
 int64_t		 db_winners_get(int64_t);
 
