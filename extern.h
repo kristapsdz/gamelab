@@ -207,6 +207,7 @@ int64_t		 db_winners_get(int64_t);
 
 void		 mail_players(const char *);
 void		 mail_backup(void);
+void		 mail_wipe(void);
 void		 mail_test(void);
 
 void		 json_putmpqp(struct kjsonreq *, const char *, const mpq_t);

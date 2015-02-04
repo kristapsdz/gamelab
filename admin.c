@@ -1013,10 +1013,24 @@ senddowinners(struct kreq *r)
 static void
 senddowipe(struct kreq *r)
 {
+	pid_t		 pid;
 
-	db_expr_wipe();
 	http_open(r, KHTTP_200);
 	khttp_body(r);
+	db_close();
+
+	if (-1 == (pid = fork())) {
+		perror(NULL);
+	} else if (0 == pid) {
+		khttp_child_free(r);
+		if (0 == (pid = fork())) {
+			mail_wipe();
+			db_close();
+		} else if (pid < 0) 
+			perror(NULL);
+		_exit(EXIT_SUCCESS);
+	} else 
+		waitpid(pid, NULL, 0);
 }
 
 static int

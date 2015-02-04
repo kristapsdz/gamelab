@@ -744,6 +744,7 @@ function doBackupSetup()
 function doWipeExprSetup()
 {
 
+	doHide('wipeExprResults');
 	doClearReplace('wipeExprButton', 'Wiping...');
 }
 
@@ -793,7 +794,7 @@ function doWipeExprSuccess(resp)
 {
 
 	doClearReplace('wipeExprButton', 'Wipe Experiment');
-	window.location.reload(true);
+	doUnhide('wipeExprResults');
 }
 
 function doResetPasswordsSuccess(resp)

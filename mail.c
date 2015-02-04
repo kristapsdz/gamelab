@@ -3,12 +3,15 @@
  * Copyright (c) 2014 Kristaps Dzonsons <kristaps@kcons.eu>
  */
 #include "config.h"
+#include <sys/stat.h>
 
 #include <assert.h>
+#include <ctype.h>
 #include <fcntl.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include <unistd.h>
 
 #include <kcgi.h>
@@ -43,6 +46,7 @@ struct	mail {
 	char		 date[27]; /* current date string */
 	char		*pass; /* new-user password */
 	char		*login; /* new-user login url */
+	char		*fname; /* backup fname (or NULL) */
 	struct buf	 b; /* buffer to read/write */
 };
 
@@ -257,7 +261,8 @@ mail_template_buf(size_t key, void *arg)
 		mail_puts(mail->login, mail);
 		break;
 	case (MAILKEY_BACKUP):
-		mail_putfile(DATADIR "/foo.db", mail);
+		assert(NULL != mail->fname);
+		mail_putfile(mail->fname, mail);
 		break;
 	default:
 		abort();
@@ -459,21 +464,41 @@ mail_backup(void)
 	struct mail	   m;
 	struct ktemplate   t;
 	int		   rc;
+	char		   fname[PATH_MAX], date[27];
+	char	   	  *cp;
+	time_t		   tt;
 
-	if ( ! db_backup(DATADIR "/foo.db")) {
+	tt = time(NULL);
+	asctime_r(gmtime(&tt), date);
+	date[strlen(date) - 1] = '\0';
+	for (cp = date; '\0' != *cp; cp++) {
+		if (isspace(*cp) || ',' == *cp)
+			*cp = '_';
+		else if (*cp == ':')
+			*cp = '-';
+	}
+
+	(void)snprintf(fname, sizeof(fname), 
+		"%s/backup-%s.db", DATADIR, date);
+
+	if ( ! db_backup(fname)) {
 		mail_backupfail();
 		return;
 	} 
 
-	if (NULL == (curl = mail_init(&m, &t)))
+	if (NULL == (curl = mail_init(&m, &t))) {
+		remove(fname);
 		return;
+	}
 
+	m.fname = fname;
 	m.to = db_admin_get_mail();
 	rc = khttp_templatex(&t, DATADIR 
 		"/backupsuccess.eml", mail_write, &m);
 
 	if ( ! rc) {
 		perror("khttp_templatex");
+		remove(fname);
 		goto out;
 	}
 
@@ -487,6 +512,15 @@ mail_backup(void)
 		fprintf(stderr, "%s: mail backup: %s\n", 
 			m.to, curl_easy_strerror(res));
 
+	chmod(fname, 0);
 out:
 	mail_free(&m, curl, recpts);
+}
+
+void
+mail_wipe(void)
+{
+
+	mail_backup();
+	db_expr_wipe();
 }

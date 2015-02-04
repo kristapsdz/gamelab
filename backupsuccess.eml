@@ -1,0 +1,33 @@
+Date: @@date@@ GMT
+To: @@to@@
+From: @@from@@
+Content-Type: multipart/mixed; boundary="pj+EhsWuSQJxx7pr"
+Mime-Version: 1.0
+Subject: Gamelab Backup Succcess
+
+This is a multi-part message in MIME format.
+
+--pj+EhsWuSQJxx7pr
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+Hello!
+
+Enclosed is a password-redacted copy of the SQLite database.
+
+Please, please back this up somewhere; don't assume I'm doing it
+magically.
+
+Byeeeeeee,
+
+Gamelab Genie
+
+--pj+EhsWuSQJxx7pr
+Content-Type: application/x-sqlite3
+Content-Transfer-Encoding: base64
+Content-Description: gamelab.db
+Content-Disposition: attachment; filename="gamelab.db"
+
+@@backup@@
+
+--pj+EhsWuSQJxx7pr--

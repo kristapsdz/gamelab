@@ -93,9 +93,11 @@
 						<i class="fa fa-spinner fa-spin"></i>
 					</div>
 					<aside>
-						You may wipe the database by clicking the button below.
-						This will delete all but the SMTP configuration, list of players, and list of games.
-						However, you must indicate that you really, really want to do this by clicking the
+						You may backup or wipe the database by clicking the button below.
+						When you back up, the <a href="#changeMailSection">administrator</a> is mailed a redacted copy of the database.
+						Wiping will delete all but the SMTP configuration, list of players, and list of games.
+						(Wiping will trigger the backup as well.)
+						You must verify that you really, really want to wipe by clicking the
 						<div id="wipeExprCheckbox"><input type="checkbox" onclick="checkWipeButton(this);" /> checkbox</div>.
 					</aside>
 					<fieldset>
@@ -108,6 +110,12 @@
 							<button type="button" id="backupButton" onclick="backup();">Backup Experiment</button>
 						</div>
 					</fieldset>
+					<div id="wipeExprResults" class="noshow canclose">
+						<h4>Results</h4>
+						<a href="#" class="close" onclick="doHideNode(this.parentNode); return false;"><i class="fa fa-minus-square"></i></a>
+						The database is being backed up and wiped.
+						Please wait a little bit, then <a href="#" onclick="window.location.reload(true);">reload</a>.
+					</div>
 				</section>
 				<section>
 					<h3>Experiment Games</h3>
