@@ -443,7 +443,7 @@ function loadGame()
 			doUnhide('skipExplain');
 		else
 			doHide('skipExplain');
-		doClearReplace('exprHistoryLottery', res.curlottery);
+		doClearReplace('exprHistoryLottery', res.curlottery.toFixed(2));
 		appendMatrix(doClear('exprHistoryMatrix'), hmatrix, 
 			res.roworders[res.gameorders[resindex]], 
 			res.colorders[res.gameorders[resindex]], 
@@ -583,13 +583,13 @@ function showHistory()
 
 function loadHistory(res)
 {
-	var e, i, j, k, child, matrix, bmatrix, c, oc, 
+	var histe, gamee, e, i, j, k, child, matrix, bmatrix, c, oc, 
 	    ravg, cavg, tbl, game, par, lot;
 
 	c = res.rseed % colours.length;
 	oc = (0 == c % 2) ? c + 1 : c - 1;
 
-	doClearReplace('historyLottery', res.aggrlottery);
+	doClearReplace('historyLottery', res.aggrlottery.toFixed(2));
 
 	if (null != (e = doClear('historySelectGame'))) {
 		for (i = 0; i < res.gamesz; i++) {
@@ -615,15 +615,35 @@ function loadHistory(res)
 			child.setAttribute('selected', 'selected');
 	} 
 
-	e = doClear('historyRoundups');
+	histe = doClear('historyRoundups');
+	gamee = doClear('bimatrixRoundups');
+
 	for (i = 0; i < res.history.length; i++) {
 		game = res.history[res.gameorders[i]];
+
+		tbl = document.createElement('div');
+		gamee.appendChild(tbl);
+		tbl.setAttribute('id', 'bimatrix' + i);
+		bmatrix = 0 == res.role ? 
+			bimatrixCreate(game.payoffs) : 
+			bimatrixCreateTranspose(game.payoffs);
+		child = document.createElement('div');
+		child.setAttribute('class', 'caption');
+		child.appendChild(document.createTextNode
+			('Payoff bimatrix'));
+		tbl.appendChild(child);
+		appendBimatrix(tbl, 0,
+			bmatrix, c, oc, 
+			res.roworders[res.gameorders[i]],
+			res.colorders[res.gameorders[i]]);
+		doHideNode(tbl);
+
 		for (j = 0; j < game.roundups.length; j++) {
 			tbl = document.createElement('div');
 			tbl.setAttribute('id', 'game' + 
 				res.gameorders[i] + 'round' + j);
 			doHideNode(tbl);
-			e.appendChild(tbl);
+			histe.appendChild(tbl);
 			ravg = 0 == res.role ? 
 				game.roundups[j].navgp1 : 
 				game.roundups[j].navgp2;
@@ -634,10 +654,15 @@ function loadHistory(res)
 				matrixCreate(game.roundups[j].navgs) :
 				matrixCreateTranspose
 				(game.roundups[j].navgs);
+			child = document.createElement('div');
+			child.setAttribute('class', 'caption');
+			child.appendChild(document.createTextNode
+				('Play in the last round'));
+			tbl.appendChild(child);
 			appendMatrix(tbl, matrix, 
 				res.roworders[res.gameorders[i]], 
 				res.colorders[res.gameorders[i]], 
-				ravg, cavg, null, c);
+				ravg, cavg, bmatrix, c);
 
 			par = document.createElement('p');
 			tbl.appendChild(par);
@@ -662,24 +687,8 @@ function loadHistory(res)
 			tbl.appendChild(par);
 			par.appendChild(document.createTextNode
 				('Your payoff: '));
-			par.appendChild(document.createTextNode(lot.poff));
+			par.appendChild(document.createTextNode(lot.poff.toFixed(2)));
 		}
-	}
-
-	e = doClear('bimatrixRoundups');
-	for (i = 0; i < res.history.length; i++) {
-		tbl = document.createElement('div');
-		e.appendChild(tbl);
-		tbl.setAttribute('id', 'bimatrix' + i);
-		game = res.history[res.gameorders[i]];
-		bmatrix = 0 == res.role ? 
-			bimatrixCreate(game.payoffs) : 
-			bimatrixCreateTranspose(game.payoffs);
-		appendBimatrix(tbl, 0,
-			bmatrix, c, oc, 
-			res.roworders[res.gameorders[i]],
-			res.colorders[res.gameorders[i]]);
-		doHideNode(tbl);
 	}
 
 	e = doClear('lotteryRoundups');
@@ -688,7 +697,7 @@ function loadHistory(res)
 		e.appendChild(tbl);
 		tbl.setAttribute('id', 'lottery' + i);
 		tbl.appendChild(document.createTextNode
-			('Round payoff: ' + res.lotteries[i].curlottery));
+			('Round payoff: ' + res.lotteries[i].curlottery.toFixed(2)));
 		doHideNode(tbl);
 	}
 
@@ -816,7 +825,7 @@ function loadExprSuccess(resp)
 			doUnhide('historyNotYet');
 		}
 		doClearReplace('exprFinishedTicketsMax', expr.maxtickets);
-		doClearReplace('exprFinishedTickets', res.aggrlottery);
+		doClearReplace('exprFinishedTickets', res.aggrlottery.toFixed(2));
 		doClearReplace('exprCountdown', 'finished');
 		if (null == res.winner) {
 			doHide('exprFinishedResults');

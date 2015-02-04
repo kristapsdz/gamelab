@@ -300,7 +300,7 @@ senddoloadplays(const struct game *game, void *arg)
 
 	kjson_obj_open(req);
 	if (db_payoff_get(p->round, p->playerid, game->id, poff)) {
-		json_putmpqp(req, "poff", poff);
+		kjson_putdoublep(req, "poff", mpq_get_d(poff));
 		mpq_clear(poff);
 	} else
 		kjson_putintp(req, "poff", 0);
@@ -463,8 +463,8 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 	 * lottery sequence.
 	 */
 	if (db_player_lottery(round - 1, playerid, cur, aggr, gamesz)) {
-		json_putmpqp(&req, "curlottery", cur);
-		json_putmpqp(&req, "aggrlottery", aggr);
+		kjson_putdoublep(&req, "curlottery", mpq_get_d(cur));
+		kjson_putdoublep(&req, "aggrlottery", mpq_get_d(aggr));
 		mpq_clear(cur);
 		mpq_clear(aggr);
 	} else {
@@ -497,8 +497,8 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 	for (i = 0; i < round; i++) {
 		db_player_lottery(i, playerid, cur, aggr, gamesz);
 		kjson_obj_open(&req);
-		json_putmpqp(&req, "curlottery", cur);
-		json_putmpqp(&req, "aggrlottery", aggr);
+		kjson_putdoublep(&req, "curlottery", mpq_get_d(cur));
+		kjson_putdoublep(&req, "aggrlottery", mpq_get_d(aggr));
 		mpq_clear(cur);
 		mpq_clear(aggr);
 		kjson_arrayp_open(&req, "plays");

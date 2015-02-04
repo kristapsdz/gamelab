@@ -53,15 +53,17 @@ body > header a			{ color: #222; }
 i.fa-warning + span		{ margin-left: 0.5ex; }
 h1				{ margin: 0; }
 h2				{ font-size: 16pt; 
-				  margin: 0; }
+				  margin: 0; 
+				  margin-top: 1em; }
 h3				{ font-size: 14pt; 
 				  margin-top: 2em;
-				  margin-bottom: 1em; }
+				  margin-bottom: 0; }
+h3 + div, h3 + p		{ margin-top: 1ex; }
 h4				{ font-size: inherit; }
 body > article			{ background-color: #fff;
 				  max-width: 1024px;
 				  padding: 1em;
-				  padding-top: 4em;
+				  padding-top: 3em;
 				  margin: 0 auto 0 auto; }
 #login > article		{ background-color: inherit; 
 				  max-width: 1024px; 
@@ -181,6 +183,9 @@ article ul li > span:first-child
 				{ margin-left: 0; }
 article ul li > span:last-child { margin-right: 0; }
 span.waiting			{ background-color: #aaa; }
+div.caption			{ text-align: center; 
+				  color: #444;
+				  width: 100%; }
 div.lottery			{ text-align: center; }
 div.history			{ display: table;
 				  width: 100%;
@@ -308,7 +313,7 @@ div.input input[readonly]	{ background-color: #ddd; }
 				  font-size: 14pt;
 				  padding: 1ex; }
 	body > article		{ padding: 1em 0.5ex;
-			 	  padding-top: 3em; }
+			 	  padding-top: 2em; }
 	div.payoffs		{ width: 100%; 
 				  border-spacing: 0.25ex; }
 	div.history		{ width: 100%; 
