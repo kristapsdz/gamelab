@@ -4,6 +4,8 @@ PAGES 	 = addplayer.eml \
 	   adminhome-started.html \
 	   adminhome.js \
 	   adminlogin.html \
+	   backupfail.eml \
+	   backupsuccess.eml \
 	   playerhome.html \
 	   playerhome.js \
 	   playerlogin.html \

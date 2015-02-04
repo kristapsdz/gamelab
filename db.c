@@ -2222,51 +2222,94 @@ db_expr_wipe(void)
 	db_trans_commit();
 }
 
-#if 0
 int 
-b_backup(const char *zFilename)
+db_backup(const char *zFilename)
 {
 	int		 rc;
 	sqlite3		*pFile;
-	sqlite3_backup	*pBackup;    /* Backup handle used to copy data */
+	sqlite3_backup	*pBackup;
+	sqlite3_stmt	*stmt;
+
+	fprintf(stderr, "Backing up database: %s\n", zFilename);
+
+	db_tryopen();
 
 	rc = sqlite3_open(zFilename, &pFile);
 	if (SQLITE_OK != rc) {
 		fprintf(stderr, "sqlite3_open: %s\n", 
 			sqlite3_errmsg(pFile));
-		return(0);
-
-
-	if( rc==SQLITE_OK ){
-
-		/* Open the sqlite3_backup object used to accomplish the transfer */
-		pBackup = sqlite3_backup_init(pFile, "main", pDb, "main");
-		if( pBackup ){
-
-			/* Each iteration of this loop copies 5 database pages from database
-			 ** pDb to the backup database. If the return value of backup_step()
-			 ** indicates that there are still further pages to copy, sleep for
-			 ** 250 ms before repeating. */
-			do {
-				rc = sqlite3_backup_step(pBackup, 5);
-				xProgress(
-						sqlite3_backup_remaining(pBackup),
-						sqlite3_backup_pagecount(pBackup)
-					 );
-				if( rc==SQLITE_OK || rc==SQLITE_BUSY || rc==SQLITE_LOCKED ){
-					sqlite3_sleep(250);
-				}
-			} while( rc==SQLITE_OK || rc==SQLITE_BUSY || rc==SQLITE_LOCKED );
-
-			/* Release resources allocated by backup_init(). */
-			(void)sqlite3_backup_finish(pBackup);
-		}
-		rc = sqlite3_errcode(pFile);
+		goto err;
 	}
 
-	/* Close the database connection opened on database file zFilename
-	 ** and return the result of this function. */
-	(void)sqlite3_close(pFile);
-	return rc;
+	pBackup = sqlite3_backup_init(pFile, "main", db, "main");
+	if (NULL == pBackup) {
+		fprintf(stderr, "sqlite3_backup_init: %s\n", 
+			sqlite3_errmsg(pFile));
+		goto err;
+	}
+
+	do {
+		rc = sqlite3_backup_step(pBackup, 5);
+		switch (rc) {
+		case (SQLITE_OK):
+		case (SQLITE_BUSY):
+		case (SQLITE_LOCKED):
+			sqlite3_sleep(250);
+			break;
+		default:
+			break;
+		}
+	} while (rc == SQLITE_OK || 
+		 rc == SQLITE_BUSY || 
+		 rc == SQLITE_LOCKED);
+
+	if (SQLITE_DONE != rc) {
+		fprintf(stderr, "sqlite3_backup_step: %s\n", 
+			sqlite3_errmsg(pFile));
+		goto err;
+	}
+
+	if (SQLITE_OK != sqlite3_backup_finish(pBackup)) {
+		fprintf(stderr, "sqlite3_backup_finish: %s\n", 
+			sqlite3_errmsg(pFile));
+		goto err;
+	}
+
+	rc = sqlite3_prepare_v2(pFile, 
+		"UPDATE player SET hash=''", -1, &stmt, NULL);
+	if (SQLITE_OK != rc) {
+		fprintf(stderr, "sqlite3_prepare_v2: %s\n", 
+			sqlite3_errmsg(pFile));
+		sqlite3_finalize(stmt);
+		goto err;
+	} else if (SQLITE_DONE != sqlite3_step(stmt)) {
+		fprintf(stderr, "sqlite3_prepare_v2: %s\n", 
+			sqlite3_errmsg(pFile));
+		sqlite3_finalize(stmt);
+		goto err;
+	}
+	sqlite3_finalize(stmt);
+
+	rc = sqlite3_prepare_v2(pFile, 
+		"UPDATE smtp SET pass=''", -1, &stmt, NULL);
+	if (SQLITE_OK != rc) {
+		fprintf(stderr, "sqlite3_prepare_v2: %s\n", 
+			sqlite3_errmsg(pFile));
+		sqlite3_finalize(stmt);
+		goto err;
+	} else if (SQLITE_DONE != sqlite3_step(stmt)) {
+		fprintf(stderr, "sqlite3_prepare_v2: %s\n", 
+			sqlite3_errmsg(pFile));
+		sqlite3_finalize(stmt);
+		goto err;
+	}
+	sqlite3_finalize(stmt);
+
+	sqlite3_close(pFile);
+	fprintf(stderr, "Backed up database: %s\n", zFilename);
+	return(1);
+err:
+	sqlite3_close(pFile);
+	remove(zFilename);
+	return(0);
 }
-#endif

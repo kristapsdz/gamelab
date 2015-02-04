@@ -149,6 +149,7 @@ int		 db_expr_start(int64_t, int64_t, int64_t,
 void		 db_expr_free(struct expr *);
 struct expr	*db_expr_get(void);
 void		 db_expr_wipe(void);
+int		 db_backup(const char *);
 void		 db_expr_setinstr(const char *, const char *);
 
 struct interval	*db_interval_get(int64_t);
@@ -205,6 +206,7 @@ void		 db_winners(int64_t, size_t, int64_t, size_t);
 int64_t		 db_winners_get(int64_t);
 
 void		 mail_players(const char *);
+void		 mail_backup(void);
 void		 mail_test(void);
 
 void		 json_putmpqp(struct kjsonreq *, const char *, const mpq_t);

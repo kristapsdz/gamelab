@@ -734,6 +734,13 @@ function doWinnersSetup()
 	doValue('winnersButton', 'Computing...');
 }
 
+function doBackupSetup()
+{
+
+	doClearReplace('backupButton', 'Backing up...');
+}
+
+
 function doWipeExprSetup()
 {
 
@@ -774,6 +781,12 @@ function doWinnersSuccess(resp)
 
 	doValue('winnersButton', 'Compute Winners');
 	window.location.reload(true);
+}
+
+function doBackupSuccess(resp)
+{
+
+	doClearReplace('backupButton', 'Backup Experiment');
 }
 
 function doWipeExprSuccess(resp)
@@ -819,6 +832,14 @@ function sendWinners(form)
 	return(sendForm(form, doWinnersSetup, 
 		doWinnersError, doWinnersSuccess));
 }
+
+function backup() 
+{
+
+	sendQuery('@@cgibin@@/dobackup.json', 
+		doBackupSetup, doBackupSuccess, null);
+}
+
 
 function wipeExpr() 
 {

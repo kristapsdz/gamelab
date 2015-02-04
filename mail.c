@@ -5,6 +5,7 @@
 #include "config.h"
 
 #include <assert.h>
+#include <fcntl.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
@@ -51,6 +52,7 @@ enum	mailkey {
 	MAILKEY_DATE, /* date (GMT) */
 	MAILKEY_PASS, /* password (or NULL) */
 	MAILKEY_LOGIN, /* login URL (or NULL) */
+	MAILKEY_BACKUP,
 	MAILKEY__MAX
 };
 
@@ -59,7 +61,8 @@ static	const char *const mailkeys[MAILKEY__MAX] = {
 	"to", /* MAILKEY_TO */
 	"date", /* MAILKEY_DATE */
 	"pass", /* MAILKEY_PASS */
-	"login" /* MAILKEY_LOGIN */
+	"login", /* MAILKEY_LOGIN */
+	"backup", /* MAILKEY_LOGIN */
 };
 
 /*
@@ -161,6 +164,75 @@ mail_puts(const char *s, struct mail *m)
 	mail_write(s, strlen(s), m);
 }
 
+static const char cb64[] =
+	"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	"abcdefghijklmnopqrstuvwxyz0123456789+/";
+
+static void
+encodeblock(unsigned char *in, unsigned char *out, int len)
+{
+
+	out[0] = (unsigned char) cb64[ (int)(in[0] >> 2) ];
+	out[1] = (unsigned char) cb64[ (int)(((in[0] & 0x03) << 4) | ((in[1] & 0xf0) >> 4)) ];
+	out[2] = (unsigned char) (len > 1 ? cb64[ (int)(((in[1] & 0x0f) << 2) | ((in[2] & 0xc0) >> 6)) ] : '=');
+	out[3] = (unsigned char) (len > 2 ? cb64[ (int)(in[2] & 0x3f) ] : '=');
+}
+
+static int 
+encode(FILE *infile, int linesize, struct mail *m)
+{
+	unsigned char in[3];
+	unsigned char out[4];
+	int i, len, blocksout = 0;
+	int retcode = 0;
+
+	*in = (unsigned char) 0;
+	*out = (unsigned char) 0;
+
+	while( feof( infile ) == 0 ) {
+		len = 0;
+		for( i = 0; i < 3; i++ ) {
+			in[i] = (unsigned char) getc( infile );
+
+			if( feof( infile ) == 0 ) {
+				len++;
+			}
+			else {
+				in[i] = (unsigned char) 0;
+			}
+		}
+		if( len > 0 ) {
+			encodeblock( in, out, len );
+			for( i = 0; i < 4; i++ ) {
+				mail_write( (char *)&out[i], 1, m);
+			}
+			blocksout++;
+		}
+		if( blocksout >= (linesize/4) || feof( infile ) != 0 ) {
+			if( blocksout > 0 ) {
+				mail_write( "\r\n", 2, m);
+			}
+			blocksout = 0;
+		}
+	}
+	return( retcode );
+}
+
+static void
+mail_putfile(const char *s, struct mail *m)
+{
+	FILE	*f;
+
+	if (NULL == (f = fopen(s, "r"))) {
+		perror(s);
+		return;
+	}
+
+	encode(f, 72, m);
+
+	fclose(f);
+}
+
 static int
 mail_template_buf(size_t key, void *arg)
 {
@@ -183,6 +255,9 @@ mail_template_buf(size_t key, void *arg)
 		break;
 	case (MAILKEY_LOGIN):
 		mail_puts(mail->login, mail);
+		break;
+	case (MAILKEY_BACKUP):
+		mail_putfile(DATADIR "/foo.db", mail);
 		break;
 	default:
 		abort();
@@ -317,8 +392,6 @@ mail_test(void)
 		return;
 
 	m.to = db_admin_get_mail();
-	memset(&t, 0, sizeof(struct ktemplate));
-
 	rc = khttp_templatex(&t, DATADIR 
 		"/test.eml", mail_write, &m);
 
@@ -331,7 +404,7 @@ mail_test(void)
 	curl_easy_setopt(curl, CURLOPT_MAIL_RCPT, recpts);
 	curl_easy_setopt(curl, CURLOPT_READDATA, &m.b);
 
-	if (CURLE_OK != (res = curl_easy_perform(curl)))
+	if (CURLE_OK == (res = curl_easy_perform(curl)))
 		fprintf(stderr, "%s: mail test\n", m.to);
 	else
 		fprintf(stderr, "%s: mail error: %s\n", 
@@ -341,3 +414,79 @@ out:
 	mail_free(&m, curl, recpts);
 }
 
+static void 
+mail_backupfail(void)
+{
+	CURL		  *curl;
+	CURLcode 	   res;
+	struct curl_slist *recpts = NULL;
+	struct mail	   m;
+	struct ktemplate   t;
+	int		   rc;
+
+	if (NULL == (curl = mail_init(&m, &t)))
+		return;
+
+	m.to = db_admin_get_mail();
+	rc = khttp_templatex(&t, DATADIR 
+		"/backupfail.eml", mail_write, &m);
+
+	if ( ! rc) {
+		perror("khttp_templatex");
+		goto out;
+	}
+
+	recpts = curl_slist_append(NULL, m.to);
+	curl_easy_setopt(curl, CURLOPT_MAIL_RCPT, recpts);
+	curl_easy_setopt(curl, CURLOPT_READDATA, &m.b);
+
+	if (CURLE_OK == (res = curl_easy_perform(curl)))
+		fprintf(stderr, "%s: mail backpufail\n", m.to);
+	else
+		fprintf(stderr, "%s: mail backpufail: %s\n", 
+			m.to, curl_easy_strerror(res));
+
+out:
+	mail_free(&m, curl, recpts);
+}
+
+void
+mail_backup(void)
+{
+	CURL		  *curl;
+	CURLcode 	   res;
+	struct curl_slist *recpts = NULL;
+	struct mail	   m;
+	struct ktemplate   t;
+	int		   rc;
+
+	if ( ! db_backup(DATADIR "/foo.db")) {
+		mail_backupfail();
+		return;
+	} 
+
+	if (NULL == (curl = mail_init(&m, &t)))
+		return;
+
+	m.to = db_admin_get_mail();
+	rc = khttp_templatex(&t, DATADIR 
+		"/backupsuccess.eml", mail_write, &m);
+
+	if ( ! rc) {
+		perror("khttp_templatex");
+		goto out;
+	}
+
+	recpts = curl_slist_append(NULL, m.to);
+	curl_easy_setopt(curl, CURLOPT_MAIL_RCPT, recpts);
+	curl_easy_setopt(curl, CURLOPT_READDATA, &m.b);
+
+	if (CURLE_OK == (res = curl_easy_perform(curl)))
+		fprintf(stderr, "%s: mail backup\n", m.to);
+	else
+		fprintf(stderr, "%s: mail backup: %s\n", 
+			m.to, curl_easy_strerror(res));
+
+out:
+	mail_free(&m, curl, recpts);
+}
