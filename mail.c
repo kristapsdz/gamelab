@@ -340,3 +340,4 @@ mail_test(void)
 out:
 	mail_free(&m, curl, recpts);
 }
+

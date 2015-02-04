@@ -1509,6 +1509,7 @@ db_player_lottery(int64_t round,
 	if (round < 0)
 		return(0);
 
+again:
 	stmt = db_stmt("SELECT aggrpayoff,curpayoff FROM "
 		"lottery WHERE playerid=? AND round=?");
 	db_bind_int(stmt, 1, pid);
@@ -1521,7 +1522,7 @@ db_player_lottery(int64_t round,
 
 	if (SQLITE_ROW == rc)
 		return(1);
-again:
+
 	fprintf(stderr, "Lottery: player %" 
 		PRId64 ", round %" PRId64 "\n", pid, round);
 
@@ -2220,3 +2221,52 @@ db_expr_wipe(void)
 	sqlite3_finalize(stmt2);
 	db_trans_commit();
 }
+
+#if 0
+int 
+b_backup(const char *zFilename)
+{
+	int		 rc;
+	sqlite3		*pFile;
+	sqlite3_backup	*pBackup;    /* Backup handle used to copy data */
+
+	rc = sqlite3_open(zFilename, &pFile);
+	if (SQLITE_OK != rc) {
+		fprintf(stderr, "sqlite3_open: %s\n", 
+			sqlite3_errmsg(pFile));
+		return(0);
+
+
+	if( rc==SQLITE_OK ){
+
+		/* Open the sqlite3_backup object used to accomplish the transfer */
+		pBackup = sqlite3_backup_init(pFile, "main", pDb, "main");
+		if( pBackup ){
+
+			/* Each iteration of this loop copies 5 database pages from database
+			 ** pDb to the backup database. If the return value of backup_step()
+			 ** indicates that there are still further pages to copy, sleep for
+			 ** 250 ms before repeating. */
+			do {
+				rc = sqlite3_backup_step(pBackup, 5);
+				xProgress(
+						sqlite3_backup_remaining(pBackup),
+						sqlite3_backup_pagecount(pBackup)
+					 );
+				if( rc==SQLITE_OK || rc==SQLITE_BUSY || rc==SQLITE_LOCKED ){
+					sqlite3_sleep(250);
+				}
+			} while( rc==SQLITE_OK || rc==SQLITE_BUSY || rc==SQLITE_LOCKED );
+
+			/* Release resources allocated by backup_init(). */
+			(void)sqlite3_backup_finish(pBackup);
+		}
+		rc = sqlite3_errcode(pFile);
+	}
+
+	/* Close the database connection opened on database file zFilename
+	 ** and return the result of this function. */
+	(void)sqlite3_close(pFile);
+	return rc;
+}
+#endif
