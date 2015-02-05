@@ -433,7 +433,6 @@ function loadGame()
 		res.roworders[res.gameorders[resindex]],
 		res.colorders[res.gameorders[resindex]]);
 
-	document.getElementById('playerColour').setAttribute('style', 'color: ' + colours[c] + ';');
 	document.getElementById('playerColour2').setAttribute('style', 'color: ' + colours[c] + ';');
 	document.getElementById('playerOColour2').setAttribute('style', 'color: ' + colours[oc] + ';');
 
@@ -627,11 +626,6 @@ function loadHistory(res)
 		bmatrix = 0 == res.role ? 
 			bimatrixCreate(game.payoffs) : 
 			bimatrixCreateTranspose(game.payoffs);
-		child = document.createElement('div');
-		child.setAttribute('class', 'caption');
-		child.appendChild(document.createTextNode
-			('Payoff bimatrix'));
-		tbl.appendChild(child);
 		appendBimatrix(tbl, 0,
 			bmatrix, c, oc, 
 			res.roworders[res.gameorders[i]],
@@ -654,11 +648,6 @@ function loadHistory(res)
 				matrixCreate(game.roundups[j].navgs) :
 				matrixCreateTranspose
 				(game.roundups[j].navgs);
-			child = document.createElement('div');
-			child.setAttribute('class', 'caption');
-			child.appendChild(document.createTextNode
-				('Play in the last round'));
-			tbl.appendChild(child);
 			appendMatrix(tbl, matrix, 
 				res.roworders[res.gameorders[i]], 
 				res.colorders[res.gameorders[i]], 
@@ -742,8 +731,6 @@ function loadExprSuccess(resp)
 	c = res.rseed % colours.length;
 	oc = (0 == c % 2) ? c + 1 : c - 1;
 
-	document.getElementById('playerColour').setAttribute
-		('style', 'color: ' + colours[c] + ';');
 	document.getElementById('playerColour2').setAttribute
 		('style', 'color: ' + colours[c] + ';');
 	document.getElementById('playerOColour2').setAttribute

@@ -186,6 +186,7 @@ span.waiting			{ background-color: #aaa; }
 div.caption			{ text-align: center; 
 				  color: #444;
 				  width: 100%; }
+div.caption a			{ color: #336699; }
 div.lottery			{ text-align: center; }
 div.history			{ display: table;
 				  width: 100%;
@@ -215,10 +216,7 @@ div.history div.sumbelow	{ text-align: center; }
 div.history div.sumaside	{ text-align: center; }
 div.payoffs			{ display: table; 
 				  width: 100%; 
-				  margin-left: auto;
-				  margin-right: auto;
-				  margin-top: 0.6em;
-				  margin-bottom: 1.2em;
+				  margin: 0 auto;
 				  border-spacing: 1ex; }
 div.payoffs > div		{ display: table-row; 
 				  cursor: pointer; }
@@ -238,25 +236,15 @@ div.payoffs > div .pair		{ background-color: #ddd; }
 div.payoffs > div.active .pair	{ background-color: #fff; 
 				  box-shadow: 1px 1px 1px #444; }
 div.iactive > *			{ box-shadow: 1px 1px 1px #444; }
-div.canclose			{ position: relative; 
-				  border: thin solid #ccc;
+div.canclose			{ border: thin solid blue;
 				  border-radius: 1ex;
-				  padding: 1.5em 1ex 0.5em 1ex; 
-				  background-color: #eee; }
-div.canclose a.close		{ position: absolute;
-				  color: #000;
-				  top: -8px;
-				  cursor: pointer;
-				  right: -8px; }
-div.canclose h4			{ position: absolute;
-				  margin: 0;
-				  background-color: #5555aa;
-				  font-weight: normal;
-				  padding: 0.5ex 2ex;
-				  border-radius: 1ex;
+				  margin: 1ex auto;
+				  padding: 1ex; 
 				  color: #eee;
-				  top: -8px;
-				  left: 1em; }
+				  background-color: #336699; }
+div.canclose a:hover	 	{ color: #ccc; }
+div.canclose a 		 	{ text-align: right;
+				  color: #00eeee; }
 sup				{ font-size: 8pt; 
 				  font-style: italic; }
 div.input input[readonly]	{ background-color: #ddd; }
@@ -295,6 +283,7 @@ div.input input[readonly]	{ background-color: #ddd; }
 				  padding: 0 1ex;
 				  border-radius: 0.5ex;
 				  display: inline; }
+#bimatrixRoundups		{ margin-bottom: 1em; }
 @media only screen and (max-width: 400px), only screen and (max-device-width: 400px) {
 	#login h1		{ text-align: center; }
 	#login article > section > form		

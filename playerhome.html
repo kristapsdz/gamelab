@@ -46,9 +46,27 @@
 						<select id="historySelectRound" onchange="showHistory();"></select>
 						<a href="#" onclick='showHistoryRoundNext(); return false;'><i class="fa fa-toggle-right"></i></a>
 					</nav>
-					<h3>Game and round specifics</h3>
-					<div id="historyRoundups"></div>
-					<div id="bimatrixRoundups"></div>
+					<div>
+						<h3>Game and round specifics</h3>
+						<div class="caption">
+							Payoff bimatrix:
+						</div>
+						<div id="bimatrixRoundups"></div>
+						<div class="caption">
+							Play in the last round:
+							<a href="#" onclick="doUnhide('historyHelp'); return false;"><i class="fa fa-question-circle"></i></a>
+						</div>
+						<div id="historyHelp" class="noshow canclose">
+							<a href="#" class="close" onclick="doHideNode(this.parentNode); return false;"><i class="fa fa-times"></i></a>
+							The numbers in the white cells in the matrix show the share of games that ended in that
+							cell in the last round. The first numbers in the cells below and immediately to the
+							right of the white cells show the share of column and row players who chose each
+							strategy. The second, colored, numbers in the cells to the right of the white cells show
+							your expected payoff, E&#x27e6;<var>X</var>&#x27e7;, should you have played the pure strategy associated with
+							each row.
+						</div>
+						<div id="historyRoundups"></div>
+					</div>
 					<h3>Round specifics</h3>
 					<div id="lotteryRoundups"></div>
 					<h2>Total payoffs</h2>
@@ -118,19 +136,33 @@
 								</div>
 							</div>
 						</div>
-						<h4>Play in the last round</h4>
+						<div class="caption">
+							Play in the last round:
+							<a href="#" onclick="doUnhide('historyHelp2'); return false;"><i class="fa fa-question-circle"></i></a>
+						</div>
+						<div id="historyHelp2" class="noshow canclose">
+							<a href="#" class="close" onclick="doHideNode(this.parentNode); return false;"><i class="fa fa-times"></i></a>
+							The numbers in the white cells in the matrix show the share of games that ended in that
+							cell in the last round. The first numbers in the cells below and immediately to the
+							right of the white cells show the share of column and row players who chose each
+							strategy. The second, colored, numbers in the cells to the right of the white cells show
+							your expected payoff, E&#x27e6;<var>X</var>&#x27e7;, should you have played the pure strategy associated with
+							each row.
+						</div>
 						<div id="exprHistoryMatrix"></div>
 					</div>
-					<aside>
-						<div>
-							You are the <span id="playerColour">row player</span>. 
-							Click on each row that is included in the strategy you want to play and assign the
-							corresponding probability in the input field. 
-							Probabilities must be given as fractions or decimal numbers with no greater accuracy
-							than four digits following the decimal. 
-							Any row that you don't select will be assigned probability zero.
-						</div>
 					</aside>
+					<div class="caption">
+						Payoff bimatrix:
+						<a href="#" onclick="doUnhide('bimatrixHelp'); return false;"><i class="fa fa-question-circle"></i></a>
+					</div>
+					<div id="bimatrixHelp" class="noshow canclose">
+						<a href="#" class="close" onclick="doHideNode(this.parentNode); return false;"><i class="fa fa-times"></i></a>
+						You are the row player. Click on each row that is included in the strategy you want to
+						play and assign the corresponding probability in the input field. Probabilities must be
+						given as fractions or decimal numbers with no greater accuracy than four digits
+						following the decimal. Any row that you don't select will be assigned probability zero.
+					</div>
 					<div id="exprMatrix"></div>
 					<form method="post" action="@@cgibin@@/doplay.json" id="playGame" onsubmit="return(playGame(this));">
 						<div id="playGameErrorState" class="noshow">
