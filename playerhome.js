@@ -379,7 +379,8 @@ function disableEnter(e) {
  */
 function loadGame()
 {
-	var game, matrix, hmatrix, e, div, ii, i, j, input, c, oc, ravg, cavg, lot, par;
+	var game, matrix, hmatrix, e, div, ii, i, 
+	    j, input, c, oc, ravg, cavg, lot, par, list, listitem;
 
 	if (resindex == res.games.length) {
 		doUnhide('exprDone');
@@ -452,13 +453,16 @@ function loadGame()
 		if (null != lot) {
 			par.appendChild(document.createTextNode
 				(', strategy mix: '));
+			list = document.createElement('ul');
+			list.setAttribute('class', 'stratplays');
+			par.appendChild(list);
 			for (i = 0; i < lot.strats.length; i++) {
-				if (i > 0)
-					par.appendChild(document.createTextNode(', '));
-				par.appendChild(document.createTextNode
-					(String.fromCharCode(97 + i) + '-'));
-				par.appendChild(document.createTextNode
+				listitem = document.createElement('li');
+				listitem.appendChild(document.createTextNode
+					(String.fromCharCode(97 + i) + ' \u2013 '));
+				listitem.appendChild(document.createTextNode
 					(lot.strats[res.roworders[res.gameorders[resindex]][i]]));
+				list.appendChild(listitem);
 			}
 		}
 	} else {
@@ -583,7 +587,7 @@ function showHistory()
 function loadHistory(res)
 {
 	var histe, gamee, e, i, j, k, child, matrix, bmatrix, c, oc, 
-	    ravg, cavg, tbl, game, par, lot;
+	    ravg, cavg, tbl, game, par, lot, list, listitem;
 
 	c = res.rseed % colours.length;
 	oc = (0 == c % 2) ? c + 1 : c - 1;
@@ -663,13 +667,16 @@ function loadHistory(res)
 			}
 			par.appendChild(document.createTextNode
 				('Your strategy mix: '));
+			list = document.createElement('ul');
+			list.setAttribute('class', 'stratplays');
+			par.appendChild(list);
 			for (k = 0; k < lot.strats.length; k++) {
-				if (k > 0)
-					par.appendChild(document.createTextNode(', '));
-				par.appendChild(document.createTextNode
-					(String.fromCharCode(97 + k) + '-'));
-				par.appendChild(document.createTextNode
+				listitem = document.createElement('li');
+				listitem.appendChild(document.createTextNode
+					(String.fromCharCode(97 + k) + ' \u2013 '));
+				listitem.appendChild(document.createTextNode
 					(lot.strats[res.roworders[res.gameorders[i]][k]]));
+				list.appendChild(listitem);
 			}
 
 			par = document.createElement('p');
@@ -812,6 +819,7 @@ function loadExprSuccess(resp)
 			doUnhide('historyNotYet');
 		}
 		doClearReplace('exprFinishedTicketsMax', expr.maxtickets);
+		doClearReplace('exprFinishedAggr', res.aggrlottery.toFixed(2));
 		doClearReplace('exprFinishedTickets', res.aggrlottery.toFixed(2));
 		doClearReplace('exprCountdown', 'finished');
 		if (null == res.winner) {

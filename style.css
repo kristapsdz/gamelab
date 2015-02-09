@@ -61,10 +61,10 @@ h3				{ font-size: 14pt;
 h3 + div, h3 + p		{ margin-top: 1ex; }
 h4				{ font-size: inherit; }
 body > article			{ background-color: #fff;
-				  max-width: 1024px;
-				  padding: 1em;
+				  padding-bottom: 1em;
 				  padding-top: 3em;
-				  margin: 0 auto 0 auto; }
+				  padding-left: 20%;
+				  padding-right: 20%; }
 #login > article		{ background-color: inherit; 
 				  max-width: 1024px; 
 				  margin-left: auto;
@@ -169,6 +169,8 @@ article ol			{ padding: 0 3ex;
 article ol li			{ margin: 0.25em 0; }
 article ul			{ list-style-type: none; 
 			   	  padding: 0; }
+article ul.stratplays		{ list-style-type: circle; 
+				  padding-left: 1em; }
 article ul li > span,
 article ul li > div		{ background-color: #eee; 
 			   	  padding: 1ex;
@@ -301,7 +303,9 @@ div.input input[readonly]	{ background-color: #ddd; }
 	section section >h3	{ text-align: center; 
 				  font-size: 14pt;
 				  padding: 1ex; }
-	body > article		{ padding: 1em 0.5ex;
+	body > article		{ padding-bottom: 1em;
+				  padding-left: 0.5ex;
+				  padding-right: 0.5ex;
 			 	  padding-top: 2em; }
 	div.payoffs		{ width: 100%; 
 				  border-spacing: 0.25ex; }
