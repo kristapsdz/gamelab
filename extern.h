@@ -204,7 +204,7 @@ void		 db_smtp_set(const char *, const char *,
 			const char *, const char *);
 
 void		 db_winners_load_all(void *, winnerf);
-void		 db_winners(int64_t, size_t, int64_t, size_t);
+void		 db_winners(struct expr **, size_t, int64_t, size_t);
 int64_t		 db_winners_get(int64_t);
 
 void		 mail_players(const char *);

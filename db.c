@@ -488,17 +488,23 @@ db_expr_finish(struct expr **expr, size_t count)
 {
 	sqlite3_stmt	*stmt;
 	size_t		 i, players;
-	int64_t		*pids, *winners;
+	int64_t		*pids;
 	mpq_t		 sum, div, cmp, total;
 	char		*totalstr;
 
 again:
+	/* Reload the experiment and see if we've already tallied. */
 	db_expr_free(*expr);
 	*expr = db_expr_get();
 	assert(NULL != *expr);
 	if ((*expr)->state >= ESTATE_PREWIN)
 		return;
 
+	/* 
+	 * No tally: do so now.
+	 * Don't worry about simultaneous updates because the tally will
+	 * be the same in each one.
+	 */
 	fprintf(stderr, "Computing total lottery tickets...\n");
 
 	mpq_init(total);
@@ -508,7 +514,6 @@ again:
 
 	players = db_player_count_all();
 	pids = kcalloc(players, sizeof(int64_t));
-	winners = kcalloc(players, sizeof(int64_t));
 
 	stmt = db_stmt("SELECT id FROM player");
 	for (i = 0; SQLITE_ROW == db_step(stmt, 0); i++) {
@@ -539,13 +544,12 @@ again:
 	mpq_clear(div);
 	mpq_clear(cmp);
 	free(pids);
-	free(winners);
 	free(totalstr);
 	goto again;
 }
 
 void
-db_winners(int64_t round, size_t winnersz, int64_t seed, size_t count)
+db_winners(struct expr **expr, size_t winnersz, int64_t seed, size_t count)
 {
 	enum estate	 state;
 	sqlite3_stmt	*stmt;
@@ -553,65 +557,46 @@ db_winners(int64_t round, size_t winnersz, int64_t seed, size_t count)
 	int64_t		 id;
 	int64_t		*pids, *winners;
 	long		 top;
-	mpq_t		 total, sum, div, cmp, zero;
-	char		*totalstr;
+	mpq_t		 sum, div, cmp;
 
-	pids = winners = NULL;
-	mpq_init(total);
-	mpq_init(sum);
-	mpq_init(div);
-	mpq_init(cmp);
-	mpq_init(zero);
+	/* Compute the total count of players. */
+	db_expr_finish(expr, count);
 
-	fprintf(stderr, "Rounding up player lotteries...\n");
-
-	players = db_player_count_all();
-	pids = kcalloc(players, sizeof(int64_t));
-	winners = kcalloc(players, sizeof(int64_t));
-	stmt = db_stmt("SELECT id FROM player");
-	i = 0;
-	while (SQLITE_ROW == db_step(stmt, 0)) {
-		assert(i < players);
-		pids[i++] = sqlite3_column_int(stmt, 0);
-	}
-	sqlite3_finalize(stmt);
-	assert(i == players);
-
-	/* Disallow more winners than players. */
-	if (winnersz > players)
-		winnersz = players;
-
-	for (i = 0; i < players; i++) {
-		mpq_clear(cmp);
-		mpq_clear(sum);
-		db_player_lottery(round, pids[i], cmp, sum, count);
-		gmp_fprintf(stderr, "Adding ticket[%zu]: %Qd\n", i, sum);
-		mpq_summation(total, sum);
-	}
-
-	gmp_fprintf(stderr, "Total lottery tickets: %Qd\n", total);
-
-	if (mpq_equal(total, zero)) {
-		fprintf(stderr, "No lottery tickets!\n");
-		goto out;
-	}
-
+	/* See if we already have winners computed. */
 	db_trans_begin(0);
 
 	stmt = db_stmt("SELECT state FROM experiment");
 	db_step(stmt, 0);
 	state = sqlite3_column_int(stmt, 0);
 	sqlite3_finalize(stmt);
-
 	if (ESTATE_POSTWIN == state) {
 		fprintf(stderr, "Experiment already winnered.\n");
-		goto out;
+		db_trans_rollback();
+		return;
 	}
+
+	/* Disallow more winners than players. */
+	if (winnersz > (players = db_player_count_all()))
+		winnersz = players;
+
+	winners = kcalloc(players, sizeof(int64_t));
+	pids = kcalloc(players, sizeof(int64_t));
+	mpq_init(sum);
+	mpq_init(div);
+	mpq_init(cmp);
+
+	/* Assign player identifiers. */
+	stmt = db_stmt("SELECT id FROM player");
+	for (i = 0; SQLITE_ROW == db_step(stmt, 0); i++) {
+		assert(i < players);
+		pids[i] = sqlite3_column_int(stmt, 0);
+	}
+	sqlite3_finalize(stmt);
 
 	stmt = db_stmt("SELECT player.id,aggrpayoff FROM lottery "
 		"INNER JOIN player ON lottery.playerid = player.id "
-		"WHERE round=? "
-		"ORDER BY player.rseed ASC, player.id ASC");
+		"WHERE round=? ORDER BY player.rseed ASC, "
+		"player.id ASC");
 	srandom(seed);
 	for (i = 0; i < winnersz; i++) {
 		do 
@@ -620,14 +605,14 @@ db_winners(int64_t round, size_t winnersz, int64_t seed, size_t count)
 		mpq_set_ui(cmp, random() % top, top);
 		mpq_canonicalize(cmp);
 		gmp_fprintf(stderr, "Winning probability: %Qd\n", cmp);
-		db_bind_int(stmt, 1, round);
+		db_bind_int(stmt, 1, (*expr)->rounds - 1);
 		mpq_set_ui(sum, 0, 1);
 		mpq_canonicalize(sum);
 		id = 0;
 		while (SQLITE_ROW == db_step(stmt, 0)) {
 			id = sqlite3_column_int(stmt, 0);
 			mpq_summation_str(sum, sqlite3_column_text(stmt, 1));
-			mpq_div(div, sum, total);
+			mpq_div(div, sum, (*expr)->total);
 			gmp_fprintf(stderr, "Checking: %Qd <= %Qd\n", div, cmp);
 			if (mpq_cmp(div, cmp) <= 0)
 				break;
@@ -666,19 +651,15 @@ db_winners(int64_t round, size_t winnersz, int64_t seed, size_t count)
 	}
 	sqlite3_finalize(stmt);
 
-	gmp_asprintf(&totalstr, "%Qd", total);
-	stmt = db_stmt("UPDATE experiment SET state=2,total=?");
-	db_bind_text(stmt, 1, totalstr);
+	stmt = db_stmt("UPDATE experiment SET state=?");
+	db_bind_int(stmt, 1, ESTATE_POSTWIN);
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);
-	free(totalstr);
-out:
+
 	db_trans_commit();
-	mpq_clear(total);
 	mpq_clear(sum);
 	mpq_clear(div);
 	mpq_clear(cmp);
-	mpq_clear(zero);
 	free(pids);
 	free(winners);
 }

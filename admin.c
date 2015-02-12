@@ -1020,7 +1020,7 @@ senddowinners(struct kreq *r)
 		return;
 	}
 
-	db_winners(expr->rounds - 1, 
+	db_winners(&expr,
 		r->fieldmap[KEY_WINNERS]->parsed.i, 
 		r->fieldmap[KEY_WINSEED]->parsed.i, 
 		db_game_count_all());
