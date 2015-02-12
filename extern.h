@@ -125,11 +125,16 @@ struct	smtp {
 	char		*from; /* "from" address on mails */
 };
 
+struct	winner {
+	mpq_t		 rnum;
+	int64_t		 rank;
+};
+
 __BEGIN_DECLS
 
 typedef void	(*gamef)(const struct game *, void *);
 typedef void	(*gameroundf)(const struct game *, int64_t, void *);
-typedef void	(*winnerf)(const struct player *, int64_t, void *);
+typedef void	(*winnerf)(const struct player *, const struct winner *, void *);
 typedef void	(*playerf)(const struct player *, void *);
 
 char		*db_admin_get_mail(void);
@@ -206,7 +211,8 @@ void		 db_smtp_set(const char *, const char *,
 
 void		 db_winners_load_all(void *, winnerf);
 void		 db_winners(struct expr **, size_t, int64_t, size_t);
-int64_t		 db_winners_get(int64_t);
+struct winner	*db_winners_get(int64_t);
+void		 db_winners_free(struct winner *);
 
 void		 mail_players(const char *);
 void		 mail_backup(void);

@@ -338,13 +338,13 @@ struct	exprget {
 };
 
 static void
-sendwinners(const struct player *p, int64_t rank, void *arg)
+sendwinners(const struct player *p, const struct winner *winner, void *arg)
 {
 	struct kjsonreq	*req = arg;
 
 	kjson_obj_open(req);
 	kjson_putstringp(req, "email", p->mail);
-	kjson_putintp(req, "rank", rank);
+	kjson_putintp(req, "rank", winner->rank);
 	kjson_obj_close(req);
 }
 

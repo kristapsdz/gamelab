@@ -447,38 +447,55 @@ db_admin_set_pass(const char *pass)
 	fprintf(stderr, "Administrator set password\n");
 }
 
-int64_t
+void
+db_winners_free(struct winner *win)
+{
+
+	if (NULL == win)
+		return;
+	mpq_clear(win->rnum);
+	free(win);
+}
+
+struct winner *
 db_winners_get(int64_t playerid)
 {
 	sqlite3_stmt	*stmt;
-	int64_t		 rc = -1;
+	struct winner	*win = NULL;
 
-	stmt = db_stmt("SELECT winrank FROM "
+	stmt = db_stmt("SELECT winrank,rnum FROM "
 		"winner WHERE playerid=? AND winner=1");
 	db_bind_int(stmt, 1, playerid);
-	if (SQLITE_ROW == db_step(stmt, 0)) 
-		rc = sqlite3_column_int(stmt, 0);
+	if (SQLITE_ROW == db_step(stmt, 0))  {
+		win = kcalloc(1, sizeof(struct winner));
+		win->rank = sqlite3_column_int(stmt, 0);
+		db_str2mpq_single(sqlite3_column_text(stmt, 1), win->rnum);
+	}
 	sqlite3_finalize(stmt);
-	return(rc);
+	return(win);
 }
 
 void
 db_winners_load_all(void *arg, winnerf fp)
 {
 	sqlite3_stmt	*stmt;
-	int64_t		 id, rank;
+	int64_t		 id;
 	struct player	*p;
+	struct winner	 win;
 
-	stmt = db_stmt("SELECT playerid,winrank "
+	stmt = db_stmt("SELECT playerid,winrank,rnum "
 		"FROM winner WHERE winner=1");
 
 	while (SQLITE_ROW == db_step(stmt, 0)) {
+		memset(&win, 0, sizeof(struct winner));
 		id = sqlite3_column_int(stmt, 0);
-		rank = sqlite3_column_int(stmt, 1);
+		win.rank = sqlite3_column_int(stmt, 1);
+		db_str2mpq_single(sqlite3_column_text(stmt, 2), win.rnum);
 		p = db_player_load(id);
 		assert(NULL != p);
-		fp(p, rank, arg);
+		fp(p, &win, arg);
 		db_player_free(p);
+		mpq_clear(win.rnum);
 	}
 	sqlite3_finalize(stmt);
 }
@@ -559,13 +576,14 @@ again:
 void
 db_winners(struct expr **expr, size_t winnersz, int64_t seed, size_t count)
 {
-	enum estate	 state;
-	sqlite3_stmt	*stmt;
-	size_t		 i, j, players;
-	int64_t		 id;
-	int64_t		*pids, *winners;
-	long		 top;
-	mpq_t		 sum, div, cmp;
+	enum estate	  state;
+	sqlite3_stmt	 *stmt;
+	size_t		  i, j, players;
+	int64_t		  id;
+	int64_t		 *pids, *winners;
+	char	 	**rnums;
+	long		  top;
+	mpq_t		  sum, div, cmp;
 
 	/* Compute the total count of players. */
 	db_expr_finish(expr, count);
@@ -588,6 +606,7 @@ db_winners(struct expr **expr, size_t winnersz, int64_t seed, size_t count)
 		winnersz = players;
 
 	winners = kcalloc(players, sizeof(int64_t));
+	rnums = kcalloc(winnersz, sizeof(char *));
 	pids = kcalloc(players, sizeof(int64_t));
 	mpq_init(sum);
 	mpq_init(div);
@@ -635,13 +654,14 @@ db_winners(struct expr **expr, size_t winnersz, int64_t seed, size_t count)
 			i--;
 		} else {
 			winners[i] = id;
+			gmp_asprintf(&rnums[i], "%Qd", cmp);
 			fprintf(stderr, "Winner: %" PRId64 "\n", id);
 		}
 	}
 	sqlite3_finalize(stmt);
 
 	stmt = db_stmt("INSERT INTO winner "
-		"(playerid,winner,winrank) VALUES (?,?,?)");
+		"(playerid,winner,winrank,rnum) VALUES (?,?,?,?)");
 	for (i = 0; i < players; i++) {
 		db_bind_int(stmt, 1, pids[i]);
 		for (j = 0; j < winnersz; j++)
@@ -650,9 +670,11 @@ db_winners(struct expr **expr, size_t winnersz, int64_t seed, size_t count)
 		if (j < winnersz) {
 			db_bind_int(stmt, 2, 1);
 			db_bind_int(stmt, 3, j);
+			db_bind_text(stmt, 4, rnums[j]);
 		} else {
 			db_bind_int(stmt, 2, 0);
 			db_bind_int(stmt, 3, 0);
+			db_bind_text(stmt, 4, "0/1");
 		}
 		db_step(stmt, DB_STEP_CONSTRAINT);
 		sqlite3_reset(stmt);
@@ -670,6 +692,9 @@ db_winners(struct expr **expr, size_t winnersz, int64_t seed, size_t count)
 	mpq_clear(cmp);
 	free(pids);
 	free(winners);
+	for (i = 0; i < winnersz; i++)
+		free(rnums[i]);
+	free(rnums);
 }
 
 char *

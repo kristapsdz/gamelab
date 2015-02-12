@@ -2,6 +2,7 @@ CREATE TABLE winner (
 	playerid INTEGER REFERENCES player(id) NOT NULL,
 	winner BOOLEAN NOT NULL,
 	winrank INTEGER NOT NULL,
+	rnum TEXT NOT NULL,
 	id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
 	unique (playerid)
 );

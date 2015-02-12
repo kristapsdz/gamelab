@@ -403,6 +403,7 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 	struct player	*player;
 	struct intvstor	 stor;
 	struct poffstor	 pstor;
+	struct winner	*win;
 	mpq_t		 cur, aggr;
 	time_t		 t;
 	int64_t	 	 i, round;
@@ -469,10 +470,16 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 	}
 
 	json_putexpr(&req, expr);
-	if (ESTATE_POSTWIN == expr->state)
-		kjson_putintp(&req, "winner", 
-			db_winners_get(playerid));
-	else
+	if (ESTATE_POSTWIN == expr->state) {
+		if (NULL != (win = db_winners_get(playerid))) {
+			kjson_putintp(&req, "winner", win->rank);
+			kjson_putdoublep(&req, "winrnum", mpq_get_d(win->rnum));
+			db_winners_free(win);
+		} else {
+			kjson_putintp(&req, "winner", -1);
+			kjson_putdoublep(&req, "winrnum", 0.0);
+		}
+	} else
 		kjson_putnullp(&req, "winner");
 
 	kjson_putdoublep(&req, "finalrank", 

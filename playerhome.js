@@ -838,6 +838,8 @@ function loadExprSuccess(resp)
 			doHide('exprFinishedWinWait');
 			doUnhide('exprFinishedWin');
 			doClearReplace('exprFinishedWinRank', (res.winner + 1));
+			v = res.winrnum * expr.maxtickets;
+			doClearReplace('exprFinishedWinRnum', v.toFixed(2));
 		}
 	}
 }
