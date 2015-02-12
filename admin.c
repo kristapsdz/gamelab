@@ -1009,6 +1009,8 @@ static void
 senddowinners(struct kreq *r)
 {
 	struct expr	*expr;
+	struct interval	*intv;
+	size_t		 gamesz;
 
 	if (kpairbad(r, KEY_WINNERS) || kpairbad(r, KEY_WINSEED)) {
 		http_open(r, KHTTP_400);
@@ -1018,12 +1020,24 @@ senddowinners(struct kreq *r)
 		http_open(r, KHTTP_409);
 		khttp_body(r);
 		return;
+	} else if (time(NULL) < expr->end) {
+		db_expr_free(expr);
+		http_open(r, KHTTP_409);
+		khttp_body(r);
+		return;
 	}
 
+	/* Make sure we're all round up. */
+	intv = db_interval_get(expr->rounds - 1);
+	assert(NULL != intv);
+	gamesz = intv->periodsz;
+	db_interval_free(intv);
+
+	/* Compute winners from that. */
 	db_winners(&expr,
 		r->fieldmap[KEY_WINNERS]->parsed.i, 
 		r->fieldmap[KEY_WINSEED]->parsed.i, 
-		db_game_count_all());
+		gamesz);
 	http_open(r, KHTTP_200);
 	khttp_body(r);
 	db_expr_free(expr);
