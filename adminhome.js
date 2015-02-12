@@ -33,11 +33,16 @@ function doSuccess(submitName, formName)
 
 function doError(err, submitName, errName) 
 {
+	var url = document.URL;
 
 	doValue(submitName, 'Submit');
 	switch (err) {
 	case 400:
 		doUnhide(errName + 'Form');
+		break;
+	case 403:
+		url = url.substring(0, url.lastIndexOf("/"));
+		location.href = url + '/login.html#loggedout';
 		break;
 	case 409:
 		doUnhide(errName + 'State');

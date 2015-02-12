@@ -263,6 +263,14 @@ http_open(struct kreq *r, enum khttp http)
 }
 
 static void
+send403(struct kreq *r)
+{
+
+	http_open(r, KHTTP_403);
+	khttp_body(r);
+}
+
+static void
 send404(struct kreq *r)
 {
 
@@ -821,17 +829,28 @@ senddologin(struct kreq *r)
 static void
 senddosetinstr(struct kreq *r)
 {
+	struct expr	*expr;
+	time_t		 t;
 
 	if (kpairbad(r, KEY_INSTR) || kpairbad(r, KEY_INSTRWIN)) {
 		http_open(r, KHTTP_400);
 		khttp_body(r);
 		return;
+	} else if (NULL == (expr = db_expr_get())) {
+		http_open(r, KHTTP_409);
+		khttp_body(r);
+		return;
 	}
 
-	db_expr_setinstr(r->fieldmap[KEY_INSTR]->parsed.s,
-		r->fieldmap[KEY_INSTRWIN]->parsed.s);
-	http_open(r, KHTTP_200);
+	if ((t = time(NULL)) < expr->end) {
+		db_expr_setinstr(r->fieldmap[KEY_INSTR]->parsed.s,
+			r->fieldmap[KEY_INSTRWIN]->parsed.s);
+		http_open(r, KHTTP_200);
+	} else
+		http_open(r, KHTTP_409);
+
 	khttp_body(r);
+	db_expr_free(expr);
 }
 
 static void
@@ -1130,7 +1149,10 @@ main(void)
 	 * attached to a valid administrative session.
 	 */
 	if ((perms[r.page] & PERM_LOGIN) && ! sess_valid(&r)) {
-		send303(&r, PAGE_LOGIN, 1);
+		if (KMIME_APP_JSON == r.mime)
+			send403(&r);
+		else
+			send303(&r, PAGE_LOGIN, 1);
 		goto out;
 	}
 
