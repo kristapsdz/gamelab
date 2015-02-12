@@ -105,14 +105,19 @@
 					</p>
 				</section>
 				<section id="exprFinished" class="noshow">
-					<p>
-						Experiment is finished: you received <span id="exprFinishedTickets"></span> tickets out of
-						<span id="exprFinishedTicketsMax"></span>.
-						Results are computed by drawing a random number within the total number of awarded tickets, then
-						seeing where the random number falls over ordered players' sequences of lottery tickets.
-						There may be multiple drawings, in which case rejection sampling ensures that players are not
-						awarded twice.
-					</p>
+					<div>
+						<p>
+							The experiment is finished: you received <span id="exprFinishedTickets"></span> tickets out of
+							<span id="exprFinishedTicketsMax"></span>, with your lottery draw interval being
+							<span id="exprFinishedFinalRank"></span>&ndash;<span id="exprFinishedFinalRankEnd"></span>.
+						</p>
+						<p>
+							Results are computed by drawing a random number within the total number of awarded tickets, then
+							seeing where the random number falls over ordered players' sequences of lottery tickets.
+							There may be multiple drawings, in which case rejection sampling ensures that players are not
+							awarded twice.
+						</p>
+					</div>
 					<p id="exprFinishedWin"></p>
 					<p id="exprFinishedWinWait">
 						Waiting for winning result...

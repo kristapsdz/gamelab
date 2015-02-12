@@ -110,6 +110,7 @@ struct	player {
 	int64_t		 rseed; /* random seed */
 	int64_t		 instr; /* show instructions? */
 	int64_t		 id;
+	mpq_t		 finalrank;
 };
 
 /*

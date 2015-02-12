@@ -702,7 +702,7 @@ function loadHistory(res)
 
 function loadExprSuccess(resp)
 {
-	var i, j, e, expr, c, oc;
+	var i, j, e, expr, c, oc, v;
 
 	resindex = 0;
 	res = null;
@@ -718,8 +718,6 @@ function loadExprSuccess(resp)
 		doHide('instructionsLoaded');
 		return;
 	}
-
-	console.log(resp);
 
 	expr = res.expr;
 
@@ -820,8 +818,12 @@ function loadExprSuccess(resp)
 			doHide('historyPlay');
 			doUnhide('historyNotYet');
 		}
-		doClearReplace('exprFinishedTicketsMax', expr.maxtickets);
+		doClearReplace('exprFinishedTicketsMax', expr.maxtickets.toFixed(2));
+		doClearReplace('exprFinishedFinalRank', res.finalrank.toFixed(2));
 		doClearReplace('exprFinishedTickets', res.aggrlottery.toFixed(2));
+		console.log(res.finalrank + ' + ' + res.aggrlottery);
+		v = res.finalrank + res.aggrlottery;
+		doClearReplace('exprFinishedFinalRankEnd', '' + v.toFixed(2));
 		doClearReplace('exprCountdown', 'finished');
 		if (null == res.winner) {
 			doHide('exprFinishedResults');

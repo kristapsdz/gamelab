@@ -435,6 +435,8 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 		kjson_putintp(&req, "rseed", player->rseed);
 		kjson_putintp(&req, "role", player->role);
 		kjson_putintp(&req, "instr", player->instr);
+		kjson_putdoublep(&req, "finalrank", 
+			mpq_get_d(player->finalrank));
 		goto out;
 	}
 
@@ -459,8 +461,12 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 	 * refresh the experiment object to reflect the total number of
 	 * lottery tickets.
 	 */
-	if (t >= expr->end && expr->state < ESTATE_PREWIN)
+	if (t >= expr->end && expr->state < ESTATE_PREWIN) {
 		db_expr_finish(&expr, gamesz);
+		/* Reload with new final ranking... */
+		db_player_free(player);
+		player = db_player_load(playerid);
+	}
 
 	json_putexpr(&req, expr);
 	if (ESTATE_POSTWIN == expr->state)
@@ -468,6 +474,9 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 			db_winners_get(playerid));
 	else
 		kjson_putnullp(&req, "winner");
+
+	kjson_putdoublep(&req, "finalrank", 
+		mpq_get_d(player->finalrank));
 	kjson_putintp(&req, "colour", playerid % 12);
 	kjson_putintp(&req, "ocolour", (playerid + 6) % 12);
 	kjson_putintp(&req, "rseed", player->rseed);

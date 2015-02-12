@@ -523,13 +523,21 @@ again:
 	sqlite3_finalize(stmt);
 	assert(i == players);
 
+	stmt = db_stmt("UPDATE player SET finalrank=? WHERE id=?");
 	for (i = 0; i < players; i++) {
 		mpq_clear(cmp);
 		mpq_clear(sum);
+		gmp_asprintf(&totalstr, "%Qd", total);
+		db_bind_text(stmt, 1, totalstr);
+		db_bind_int(stmt, 2, pids[i]);
+		db_step(stmt, 0);
+		sqlite3_reset(stmt);
+		free(totalstr);
 		db_player_lottery((*expr)->rounds - 1, 
 			pids[i], cmp, sum, count);
 		mpq_summation(total, sum);
 	}
+	sqlite3_finalize(stmt);
 
 	gmp_asprintf(&totalstr, "%Qd", total);
 	fprintf(stderr, "Total lottery tickets: %s\n", totalstr);
@@ -811,6 +819,7 @@ db_player_free(struct player *player)
 
 	if (NULL == player)
 		return;
+	mpq_clear(player->finalrank);
 	free(player->mail);
 	free(player);
 }
@@ -834,7 +843,7 @@ db_player_load(int64_t id)
 	struct player	*player = NULL;
 
 	stmt = db_stmt("SELECT email,state,id,enabled,"
-		"role,rseed,instr FROM player WHERE id=?");
+		"role,rseed,instr,finalrank FROM player WHERE id=?");
 	db_bind_int(stmt, 1, id);
 
 	if (SQLITE_ROW == db_step(stmt, 0)) {
@@ -847,6 +856,7 @@ db_player_load(int64_t id)
 		player->role = sqlite3_column_int(stmt, 4);
 		player->rseed = sqlite3_column_int(stmt, 5);
 		player->instr = sqlite3_column_int(stmt, 6);
+		db_str2mpq_single(sqlite3_column_text(stmt, 7), player->finalrank);
 	} 
 
 	sqlite3_finalize(stmt);
@@ -860,7 +870,7 @@ db_player_load_all(playerf fp, void *arg)
 	struct player	 player;
 
 	stmt = db_stmt("SELECT email,state,id,"
-		"enabled,role,rseed,instr FROM player");
+		"enabled,role,rseed,instr,finalrank FROM player");
 	while (SQLITE_ROW == db_step(stmt, 0)) {
 		memset(&player, 0, sizeof(struct player));
 		player.mail = kstrdup
@@ -871,8 +881,10 @@ db_player_load_all(playerf fp, void *arg)
 		player.role = sqlite3_column_int(stmt, 4);
 		player.rseed = sqlite3_column_int(stmt, 5);
 		player.instr = sqlite3_column_int(stmt, 6);
+		db_str2mpq_single(sqlite3_column_text(stmt, 7), player.finalrank);
 		(*fp)(&player, arg);
 		free(player.mail);
+		mpq_clear(player.finalrank);
 	}
 
 	sqlite3_finalize(stmt);
@@ -2286,7 +2298,8 @@ db_expr_wipe(void)
 	db_exec("DELETE FROM lottery");
 	db_exec("DELETE FROM winner");
 	db_exec("DELETE FROM tickets");
-	db_exec("UPDATE player SET state=0,enabled=1");
+	db_exec("UPDATE player SET instr=1,state=0,"
+		"enabled=1,finalrank='0/1'");
 	db_exec("UPDATE experiment SET state=0,rounds=0,total='0/1',"
 		"minutes=0,loginuri=\'\',instr=\'\',instrWin=\'\'");
 	stmt = db_stmt("SELECT id FROM player");
