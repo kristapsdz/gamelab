@@ -1,4 +1,24 @@
+# Mac OSX testing.
+PREFIX	 = /Users/kristaps/Sites
+HTDOCS	 = $(PREFIX)
+HTURI	 = /~kristaps
+CGIBIN	 = $(PREFIX)
+DATADIR	 = $(PREFIX)
+RDATADIR = $(PREFIX)
+LIBS	 = 
+STATIC	 = 
+# OpenBSD production.
+#PREFIX	 = /var/www
+#HTDOCS	 = $(PREFIX)/htdocs/gamelab
+#HTURI	 = /gamelab
+#CGIBIN	 = $(PREFIX)/cgi-bin/gamelab
+#DATADIR	 = $(PREFIX)/data/gamelab
+#RDATADIR = /data/gamelab
+#LIBS	 = -lintl -liconv
+#STATIC	 = -static
+
 CFLAGS 	+= -g -W -Wall -Wstrict-prototypes -Wno-unused-parameter -Wwrite-strings -I/usr/local/include
+CFLAGS	+= -DDATADIR=\"$(RDATADIR)\" -DHTDOCS=\"$(HTURI)\"
 PAGES 	 = addplayer.eml \
 	   adminhome-new.html \
 	   adminhome-started.html \
@@ -20,27 +40,6 @@ OBJS	 = compat-strtonum.o \
 	   json.o \
 	   mail.o \
 	   mpq.o
-
-# Mac OSX testing.
-PREFIX	 = /Users/kristaps/Sites
-HTDOCS	 = $(PREFIX)
-HTURI	 = /~kristaps
-CGIBIN	 = $(PREFIX)
-DATADIR	 = $(PREFIX)
-RDATADIR = $(PREFIX)
-LIBS	 = 
-STATIC	 = 
-# OpenBSD production.
-#PREFIX	 = /var/www
-#HTDOCS	 = $(PREFIX)/htdocs/gamelab
-#HTURI	 = /gamelab
-#CGIBIN	 = $(PREFIX)/cgi-bin/gamelab
-#DATADIR	 = $(PREFIX)/data/gamelab
-#RDATADIR = /data/gamelab
-#LIBS	 = -lintl -liconv
-#STATIC	 = -static
-
-CFLAGS	+= -DDATADIR=\"$(RDATADIR)\" -DHTDOCS=\"$(HTURI)\"
 
 all: admin lab
 
