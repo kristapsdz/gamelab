@@ -9,9 +9,10 @@
  * participation.
  */
 enum	estate {
-	ESTATE_NEW = 0,
-	ESTATE_STARTED = 1,
-	ESTATE_POSTWIN = 2
+	ESTATE_NEW = 0, /* experiment being configured */
+	ESTATE_STARTED = 1, /* players playing */
+	ESTATE_PREWIN = 2, /* experiment over, no lottery tally */
+	ESTATE_POSTWIN = 3 /* experiment over, lottery tallied */
 };
 
 /*
@@ -151,6 +152,7 @@ struct expr	*db_expr_get(void);
 void		 db_expr_wipe(void);
 int		 db_backup(const char *);
 void		 db_expr_setinstr(const char *, const char *);
+void		 db_expr_finish(struct expr **, size_t);
 
 struct interval	*db_interval_get(int64_t);
 void		 db_interval_free(struct interval *);

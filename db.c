@@ -484,6 +484,67 @@ db_winners_load_all(void *arg, winnerf fp)
 }
 
 void
+db_expr_finish(struct expr **expr, size_t count)
+{
+	sqlite3_stmt	*stmt;
+	size_t		 i, players;
+	int64_t		*pids, *winners;
+	mpq_t		 sum, div, cmp, total;
+	char		*totalstr;
+
+again:
+	db_expr_free(*expr);
+	*expr = db_expr_get();
+	assert(NULL != *expr);
+	if ((*expr)->state >= ESTATE_PREWIN)
+		return;
+
+	fprintf(stderr, "Computing total lottery tickets...\n");
+
+	mpq_init(total);
+	mpq_init(sum);
+	mpq_init(div);
+	mpq_init(cmp);
+
+	players = db_player_count_all();
+	pids = kcalloc(players, sizeof(int64_t));
+	winners = kcalloc(players, sizeof(int64_t));
+
+	stmt = db_stmt("SELECT id FROM player");
+	for (i = 0; SQLITE_ROW == db_step(stmt, 0); i++) {
+		assert(i < players);
+		pids[i] = sqlite3_column_int(stmt, 0);
+	}
+	sqlite3_finalize(stmt);
+	assert(i == players);
+
+	for (i = 0; i < players; i++) {
+		mpq_clear(cmp);
+		mpq_clear(sum);
+		db_player_lottery((*expr)->rounds - 1, 
+			pids[i], cmp, sum, count);
+		mpq_summation(total, sum);
+	}
+
+	gmp_asprintf(&totalstr, "%Qd", total);
+	fprintf(stderr, "Total lottery tickets: %s\n", totalstr);
+	stmt = db_stmt("UPDATE experiment SET state=?,total=?");
+	db_bind_int(stmt, 1, ESTATE_PREWIN);
+	db_bind_text(stmt, 2, totalstr);
+	db_step(stmt, 0);
+	sqlite3_finalize(stmt);
+
+	mpq_clear(total);
+	mpq_clear(sum);
+	mpq_clear(div);
+	mpq_clear(cmp);
+	free(pids);
+	free(winners);
+	free(totalstr);
+	goto again;
+}
+
+void
 db_winners(int64_t round, size_t winnersz, int64_t seed, size_t count)
 {
 	enum estate	 state;
@@ -1212,14 +1273,15 @@ db_expr_start(int64_t date, int64_t rounds, int64_t minutes,
 	}
 
 	stmt = db_stmt("UPDATE experiment SET "
-		"state=1,start=?,rounds=?,minutes=?,"
-		"loginuri=?,instr=?,instrWin=?");
+		"start=?,rounds=?,minutes=?,"
+		"loginuri=?,instr=?,instrWin=?,state=?");
 	db_bind_int(stmt, 1, date);
 	db_bind_int(stmt, 2, rounds);
 	db_bind_int(stmt, 3, minutes);
 	db_bind_text(stmt, 4, uri);
 	db_bind_text(stmt, 5, instr);
 	db_bind_text(stmt, 6, instrWin);
+	db_bind_int(stmt, 7, ESTATE_STARTED);
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);
 	db_trans_commit();
@@ -1437,7 +1499,11 @@ db_smtp_set(const char *user, const char *server,
 
 /*
  * Given the strategy mixes played for a given roundup, compute the
- * per-strategy-pair matrix.
+ * per-strategy-pair matrices.
+ * In other words, here we create, for a given game and round, the
+ * matrices that show (1) the weighted average over all prior rounds for
+ * each strategy combination, and (2) the average of the previous round
+ * for each strategy combination.
  */
 static struct roundup *
 db_roundup_round(struct roundup *r)
@@ -1485,7 +1551,6 @@ db_roundup_round(struct roundup *r)
 
 	mpq_clear(tmp);
 	mpq_clear(sum);
-
 	return(r);
 }
 
@@ -1826,6 +1891,11 @@ db_roundup_free(struct roundup *p)
 	free(p);
 }
 
+/*
+ * Try to fetch the roundup for a given round and game.
+ * If it doesn't exist (i.e., hasn't been built yet, or we're at a
+ * negative round), then return a NULL pointer.
+ */
 static struct roundup *
 db_roundup_get(int64_t round, const struct game *game)
 {
@@ -1872,8 +1942,17 @@ db_roundup_get(int64_t round, const struct game *game)
 	return(NULL);
 }
 
+/*
+ * For a given "game", recursively round up the full history of play up
+ * to and including "round".
+ * This will compute the average strategy plays for a given player role
+ * in all of the rounds of this game.
+ * NOTE: the database is NOT locked during this time: this function
+ * should be invoked without any state.
+ */
 static void
-db_roundup_game(const struct game *game, struct period *period, int64_t round, int64_t gamesz)
+db_roundup_game(const struct game *game, 
+	struct period *period, int64_t round, int64_t gamesz)
 {
 	struct roundup	*r;
 	size_t		 i, count;
@@ -1885,9 +1964,10 @@ db_roundup_game(const struct game *game, struct period *period, int64_t round, i
 
 	if (round < 0)
 		return;
+	/* Recursive step. */
 	db_roundup_game(game, period, round - 1, gamesz);
-
 again:
+	/* If the roundup exists, stop now. */
 	period->roundups[round] = db_roundup_get(round, game);
 	if (NULL != period->roundups[round])
 		return;
@@ -1910,6 +1990,7 @@ again:
 		mpq_init(r->aggrp1[i]);
 		mpq_init(r->curp1[i]);
 	}
+
 	for (i = 0; i < r->p2sz; i++) {
 		mpq_init(r->aggrp2[i]);
 		mpq_init(r->curp2[i]);
@@ -2087,6 +2168,11 @@ aggregate:
 	mpq_clear(sum);
 	mpq_clear(tmp);
 	db_roundup_free(r);
+	/* 
+	 * We've either entered the new roundup or another process beat
+	 * us to it.
+	 * Either way, run the whole sequence again to pull it again.
+	 */
 	goto again;
 }
 
@@ -2108,6 +2194,12 @@ db_interval_free(struct interval *intv)
 	free(intv);
 }
 
+/*
+ * This is the main driver behind incrementing rounds.
+ * For each game in the system, we round up all of the plays for that
+ * round, creating a history of play and the averages against which
+ * individuals will play their strategies for payoffs.
+ */
 struct interval *
 db_interval_get(int64_t round)
 {
@@ -2119,28 +2211,35 @@ db_interval_get(int64_t round)
 	if (round < 0) 
 		return(NULL);
 
+	/*
+	 * To prevent locking at this level, pull our game identifiers
+	 * into an array so that we can query them individually.
+	 * Each game will get a history for each round (inclusive),
+	 * which we also allocate.
+	 */
 	intv = kcalloc(1, sizeof(struct interval));
 	intv->periodsz = db_game_count_all();
 	intv->periods = kcalloc
 		(intv->periodsz, sizeof(struct period));
 	
-	i = 0;
 	stmt = db_stmt("SELECT id from game");
-	while (SQLITE_ROW == db_step(stmt, 0)) {
+	for (i = 0; SQLITE_ROW == db_step(stmt, 0); i++) {
 		assert(i < intv->periodsz);
 		intv->periods[i].roundupsz = (size_t)round + 1;
 		intv->periods[i].roundups = kcalloc
 			(intv->periods[i].roundupsz, 
 			 sizeof(struct roundup *));
-		intv->periods[i++].gameid = 
+		intv->periods[i].gameid = 
 			sqlite3_column_int(stmt, 0);
 	}
 	sqlite3_finalize(stmt);
-
 	assert(i == intv->periodsz);
+
+	/* Perform the round up itself for each game. */
 	for (i = 0; i < intv->periodsz; i++) {
 		game = db_game_load(intv->periods[i].gameid);
-		db_roundup_game(game, &intv->periods[i], round, intv->periodsz);
+		db_roundup_game(game, &intv->periods[i], 
+			round, intv->periodsz);
 		db_game_free(game);
 	}
 

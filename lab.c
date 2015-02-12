@@ -416,31 +416,28 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 	assert(NULL != player);
 	memset(&stor, 0, sizeof(struct intvstor));
 	memset(&pstor, 0, sizeof(struct poffstor));
+	t = time(NULL);
 
 	http_open(r, KHTTP_200);
 	khttp_body(r);
 	kjson_open(&req, r);
 	kjson_obj_open(&req);
-	json_putexpr(&req, expr);
-	if (ESTATE_POSTWIN == expr->state)
-		kjson_putintp(&req, "winner", 
-			db_winners_get(playerid));
-	else
-		kjson_putnullp(&req, "winner");
-	kjson_putintp(&req, "colour", playerid % 12);
-	kjson_putintp(&req, "ocolour", (playerid + 6) % 12);
-	kjson_putintp(&req, "rseed", player->rseed);
-	kjson_putintp(&req, "role", player->role);
-	kjson_putintp(&req, "instr", player->instr);
 
 	/*
 	 * If the experiment hasn't started yet, have it contain nothing
 	 * other than the experiment data itself.
 	 */
-	if ((t = time(NULL)) < expr->start)
+	if (t < expr->start) {
+		json_putexpr(&req, expr);
+		kjson_putnullp(&req, "winner");
+		kjson_putintp(&req, "colour", playerid % 12);
+		kjson_putintp(&req, "ocolour", (playerid + 6) % 12);
+		kjson_putintp(&req, "rseed", player->rseed);
+		kjson_putintp(&req, "role", player->role);
+		kjson_putintp(&req, "instr", player->instr);
 		goto out;
+	}
 
-	/* FIXME: if finished, show all rounds (not "-1"). */
 	/* Compute current round. */
 	round = t >= expr->end ?  expr->rounds :
 		(t - expr->start) / (expr->minutes * 60);
@@ -456,6 +453,26 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 		gamesz = stor.intv->periodsz;
 	else
 		gamesz = db_game_count_all();
+
+	/* 
+	 * If the experiment is over but we don't have a total yet,
+	 * refresh the experiment object to reflect the total number of
+	 * lottery tickets.
+	 */
+	if (t >= expr->end && expr->state < ESTATE_PREWIN)
+		db_expr_finish(&expr, gamesz);
+
+	json_putexpr(&req, expr);
+	if (ESTATE_POSTWIN == expr->state)
+		kjson_putintp(&req, "winner", 
+			db_winners_get(playerid));
+	else
+		kjson_putnullp(&req, "winner");
+	kjson_putintp(&req, "colour", playerid % 12);
+	kjson_putintp(&req, "ocolour", (playerid + 6) % 12);
+	kjson_putintp(&req, "rseed", player->rseed);
+	kjson_putintp(&req, "role", player->role);
+	kjson_putintp(&req, "instr", player->instr);
 
 	/*
 	 * This invokes the underlying lottery computation.

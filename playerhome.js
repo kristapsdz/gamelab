@@ -626,7 +626,7 @@ function loadHistory(res)
 
 		tbl = document.createElement('div');
 		gamee.appendChild(tbl);
-		tbl.setAttribute('id', 'bimatrix' + i);
+		tbl.setAttribute('id', 'bimatrix' + res.gameorders[i]);
 		bmatrix = 0 == res.role ? 
 			bimatrixCreate(game.payoffs) : 
 			bimatrixCreateTranspose(game.payoffs);
@@ -718,6 +718,8 @@ function loadExprSuccess(resp)
 		doHide('instructionsLoaded');
 		return;
 	}
+
+	console.log(resp);
 
 	expr = res.expr;
 
@@ -819,7 +821,6 @@ function loadExprSuccess(resp)
 			doUnhide('historyNotYet');
 		}
 		doClearReplace('exprFinishedTicketsMax', expr.maxtickets);
-		doClearReplace('exprFinishedAggr', res.aggrlottery.toFixed(2));
 		doClearReplace('exprFinishedTickets', res.aggrlottery.toFixed(2));
 		doClearReplace('exprCountdown', 'finished');
 		if (null == res.winner) {
