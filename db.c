@@ -2324,7 +2324,7 @@ db_expr_wipe(void)
 	db_exec("DELETE FROM winner");
 	db_exec("DELETE FROM tickets");
 	db_exec("UPDATE player SET instr=1,state=0,"
-		"enabled=1,finalrank='0/1'");
+		"enabled=1,finalrank='0/1',hash=''");
 	db_exec("UPDATE experiment SET state=0,rounds=0,total='0/1',"
 		"minutes=0,loginuri=\'\',instr=\'\',instrWin=\'\'");
 	stmt = db_stmt("SELECT id FROM player");

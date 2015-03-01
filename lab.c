@@ -397,6 +397,15 @@ senddoinstr(struct kreq *r, int64_t playerid)
 }
 
 static void
+senddowinrnums(const struct player *p, 
+	const struct winner *w, void *arg)
+{
+	struct kjsonreq	*r = arg;
+
+	kjson_putdouble(r, mpq_get_d(w->rnum));
+}
+
+static void
 senddoloadexpr(struct kreq *r, int64_t playerid)
 {
 	struct expr	*expr;
@@ -475,6 +484,9 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 			kjson_putintp(&req, "winner", win->rank);
 			kjson_putdoublep(&req, "winrnum", mpq_get_d(win->rnum));
 			db_winners_free(win);
+			kjson_arrayp_open(&req, "winrnums");
+			db_winners_load_all(&req, senddowinrnums);
+			kjson_array_close(&req);
 		} else {
 			kjson_putintp(&req, "winner", -1);
 			kjson_putdoublep(&req, "winrnum", 0.0);

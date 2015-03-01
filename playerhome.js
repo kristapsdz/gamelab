@@ -90,7 +90,7 @@ function appendMatrix(e, matrix, rorder, corder, ravg, cavg, payoffs, colour)
 		span.appendChild(document.createTextNode(': E\u27e6'));
 		cell.appendChild(span);
 		span = document.createElement('var');
-		span.appendChild(document.createTextNode('X'));
+		span.appendChild(document.createTextNode('U'));
 		cell.appendChild(span);
 		span = document.createElement('span');
 		span.appendChild(document.createTextNode('\u27e7'));
@@ -666,7 +666,7 @@ function loadHistory(res)
 				continue;
 			}
 			par.appendChild(document.createTextNode
-				('Your strategy mix: '));
+				('Your strategy mix was: '));
 			list = document.createElement('ul');
 			list.setAttribute('class', 'stratplays');
 			par.appendChild(list);
@@ -682,7 +682,7 @@ function loadHistory(res)
 			par = document.createElement('p');
 			tbl.appendChild(par);
 			par.appendChild(document.createTextNode
-				('Your payoff: '));
+				('Your payoff was: '));
 			par.appendChild(document.createTextNode(lot.poff.toFixed(2)));
 		}
 	}
@@ -829,14 +829,27 @@ function loadExprSuccess(resp)
 			doHide('exprFinishedResults');
 			doUnhide('exprFinishedWinWait');
 			doHide('exprFinishedWin');
+			doHide('exprFinishedWinRnums');
 		} else if (res.winner < 0) {
 			doUnhide('exprFinishedResults');
 			doHide('exprFinishedWinWait');
 			doHide('exprFinishedWin');
+			doUnhide('exprFinishedWinRnums');
+			e = doClear('exprFinishedRnums');
+			for (i = 0; i < res.winrnums.length; i++) {
+				v = res.winrnums[i] * expr.maxtickets;
+				e.appendChild(document.createTextNode(v.toFixed(2)));
+			}
 		} else {
 			doUnhide('exprFinishedResults');
 			doHide('exprFinishedWinWait');
 			doUnhide('exprFinishedWin');
+			doUnhide('exprFinishedWinRnums');
+			e = doClear('exprFinishedRnums');
+			for (i = 0; i < res.winrnums.length; i++) {
+				v = res.winrnums[i] * expr.maxtickets;
+				e.appendChild(document.createTextNode(v.toFixed(2)));
+			}
 			doClearReplace('exprFinishedWinRank', (res.winner + 1));
 			v = res.winrnum * expr.maxtickets;
 			doClearReplace('exprFinishedWinRnum', v.toFixed(2));

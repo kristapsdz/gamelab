@@ -58,12 +58,11 @@
 						</div>
 						<div id="historyHelp" class="noshow canclose">
 							<a href="#" class="close" onclick="doHideNode(this.parentNode); return false;"><i class="fa fa-times"></i></a>
-							The numbers in the white cells in the matrix show the share of games that ended in that
-							cell in the last round. The first numbers in the cells below and immediately to the
-							right of the white cells show the share of column and row players who chose each
-							strategy. The second, colored, numbers in the cells to the right of the white cells show
-							your expected payoff, E&#x27e6;<var>X</var>&#x27e7;, should you have played the pure strategy associated with
-							each row.
+							The number in the white cells in the matrix shows the share of plays that ended in that
+							cell in the selected round. The first number in the gray cells shows in what share of
+							plays that row or column strategy was used. The number in brackets in the gray cells to
+							the right show your payoff, represented by <var>U</var>, should you have played the pure strategy
+							associated with each row in the previous round.
 						</div>
 						<div id="historyRoundups"></div>
 					</div>
@@ -76,12 +75,12 @@
 				</section>
 				<section id="historyNotYet" class="noshow">
 					<p>
-						This is the first round: there is no history to report yet.
+						This is the first round, there is no history to report yet.
 					</p>
 				</section>
 				<section id="historyNotStarted" class="noshow">
 					<p>
-						Waiting for game to start...
+						Waiting for game to start.
 					</p>
 				</section>
 			</div>
@@ -92,7 +91,7 @@
 			<div id="exprLoaded" class="noshow">
 				<section id="exprNotStarted" class="noshow">
 					<p>
-						Waiting for game to start...
+						Waiting for game to start.
 					</p>
 				</section>
 				<section id="exprDone" class="noshow">
@@ -107,20 +106,21 @@
 				<section id="exprFinished" class="noshow">
 					<div>
 						<p>
-							The experiment is finished: you received <span id="exprFinishedTickets"></span> tickets out of
-							<span id="exprFinishedTicketsMax"></span>, with your lottery draw interval being
+							The experiment is finished.
+							Your payoff was <span id="exprFinishedTickets"></span> tickets out of a total of
+							<span id="exprFinishedTicketsMax"></span>.
+							Your lottery tickets are in the interval 
 							<span id="exprFinishedFinalRank"></span>&ndash;<span id="exprFinishedFinalRankEnd"></span>.
 						</p>
 						<p>
-							Results are computed by drawing a random number within the total number of awarded tickets, then
-							seeing where the random number falls over ordered players' sequences of lottery tickets.
-							There may be multiple drawings, in which case rejection sampling ensures that players are not
-							awarded twice.
+							Results are computed by drawing a random integer within the total number of awarded
+							tickets. 
 						</p>
 					</div>
+					<p id="exprFinishedWinRnums">The following: <span id="exprFinishedRnums"></span>.</p>
 					<p id="exprFinishedWin"></p>
 					<p id="exprFinishedWinWait">
-						Waiting for winning result...
+						Waiting for lottery draw...
 					</p>
 				</section>
 				<section id="exprPlay" class="noshow">
@@ -138,23 +138,23 @@
 								<div>
 									<div><i class="fa fa-exclamation-circle"></i></div>
 									<div>
-										In the last round, not enough participants played, so no points were tallied for the round.
+										In the last round, not enough participants played, so no points
+										were tallied for the round.
 									</div>
 								</div>
 							</div>
 						</div>
 						<div class="caption">
-							Play in the last round:
+							Your strategy mix was:
 							<a href="#" onclick="doUnhide('historyHelp2'); return false;"><i class="fa fa-question-circle"></i></a>
 						</div>
 						<div id="historyHelp2" class="noshow canclose">
 							<a href="#" class="close" onclick="doHideNode(this.parentNode); return false;"><i class="fa fa-times"></i></a>
-							The numbers in the white cells in the matrix show the share of games that ended in that
-							cell in the last round. The first numbers in the cells below and immediately to the
-							right of the white cells show the share of column and row players who chose each
-							strategy. The second, colored, numbers in the cells to the right of the white cells show
-							your expected payoff, E&#x27e6;<var>X</var>&#x27e7;, should you have played the pure strategy associated with
-							each row.
+							The number in the white cells in the matrix shows the share of plays that ended in that
+							cell in the last round. The first number in the gray cells shows in what share of plays
+							that row or column strategy was used. The number in brackets in the gray cells to the
+							right show your payoff, represented by <var>U</var>, should you have played the pure strategy
+							associated with each row in the previous round.
 						</div>
 						<div id="exprHistoryMatrix"></div>
 					</div>
@@ -165,10 +165,10 @@
 					</div>
 					<div id="bimatrixHelp" class="noshow canclose">
 						<a href="#" class="close" onclick="doHideNode(this.parentNode); return false;"><i class="fa fa-times"></i></a>
-						You are the row player. Click on each row that is included in the strategy you want to
-						play and assign the corresponding probability in the input field. Probabilities must be
-						given as fractions or decimal numbers with no greater accuracy than four digits
-						following the decimal. Any row that you don't select will be assigned probability zero.
+						You are the row player. Click on each row that is included in the strategy you want to play and
+						assign the corresponding probability in the input field. Probabilities must be given as
+						fractions or decimal numbers with no greater accuracy than four digits following the decimal.
+						Any row you don't select will be assigned probability zero.
 					</div>
 					<div id="exprMatrix"></div>
 					<form method="post" action="@@cgibin@@/doplay.json" id="playGame" onsubmit="return(playGame(this));">
@@ -189,8 +189,8 @@
 									<i class="fa fa-exclamation-circle"></i>
 									<span>
 										Probabilities must be fractions or decimal numbers with no
-										greater than four digits following the decimal. 
-										They must sum to one.
+										greater accuracy than four digits following the decimal. They
+										must sum to one.
 									</span>
 								</div>
 							</div>
@@ -217,7 +217,7 @@
 			<form action="@@cgibin@@/doinstr.json" method="post" onsubmit="return(updateInstr(this));">
 				<div id="instructionsPrompt">
 					<input type="checkbox" name="instr" id="instructionsPromptYes" value="1" />
-					<label for="instructionsPromptYes">Show me these instructions when I log in.</label>
+					<label for="instructionsPromptYes">Continue showing me these instructions when I log in.</label>
 					<input type="submit" value="Update" />
 				</div>
 			</form>
