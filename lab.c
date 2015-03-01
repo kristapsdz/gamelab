@@ -402,7 +402,7 @@ senddowinrnums(const struct player *p,
 {
 	struct kjsonreq	*r = arg;
 
-	kjson_putdouble(r, mpq_get_d(w->rnum));
+	kjson_putint(r, w->rnum);
 }
 
 static void
@@ -445,8 +445,8 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 		kjson_putintp(&req, "rseed", player->rseed);
 		kjson_putintp(&req, "role", player->role);
 		kjson_putintp(&req, "instr", player->instr);
-		kjson_putdoublep(&req, "finalrank", 
-			mpq_get_d(player->finalrank));
+		kjson_putintp(&req, "finalrank", player->finalrank);
+		kjson_putintp(&req, "finalscore", player->finalscore);
 		goto out;
 	}
 
@@ -480,13 +480,13 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 
 	json_putexpr(&req, expr);
 	if (ESTATE_POSTWIN == expr->state) {
+		kjson_arrayp_open(&req, "winrnums");
+		db_winners_load_all(&req, senddowinrnums);
+		kjson_array_close(&req);
 		if (NULL != (win = db_winners_get(playerid))) {
 			kjson_putintp(&req, "winner", win->rank);
-			kjson_putdoublep(&req, "winrnum", mpq_get_d(win->rnum));
+			kjson_putintp(&req, "winrnum", win->rnum);
 			db_winners_free(win);
-			kjson_arrayp_open(&req, "winrnums");
-			db_winners_load_all(&req, senddowinrnums);
-			kjson_array_close(&req);
 		} else {
 			kjson_putintp(&req, "winner", -1);
 			kjson_putdoublep(&req, "winrnum", 0.0);
@@ -494,8 +494,8 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 	} else
 		kjson_putnullp(&req, "winner");
 
-	kjson_putdoublep(&req, "finalrank", 
-		mpq_get_d(player->finalrank));
+	kjson_putintp(&req, "finalrank", player->finalrank);
+	kjson_putintp(&req, "finalscore", player->finalscore);
 	kjson_putintp(&req, "colour", playerid % 12);
 	kjson_putintp(&req, "ocolour", (playerid + 6) % 12);
 	kjson_putintp(&req, "rseed", player->rseed);

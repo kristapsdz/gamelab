@@ -564,6 +564,11 @@ function loadExprSuccess(resp)
 				div.appendChild(href);
 				div.appendChild(document.createTextNode(': '));
 				div.appendChild(document.createTextNode((res.winners[i].rank + 1)));
+				div.appendChild(document.createTextNode
+					(' (range ' + res.winners[i].winrank + '\u2013' + 
+					 (res.winners[i].winrank + res.winners[i].winscore) + 
+					 ', ticket ' +
+					 res.winners[i].winnum + ')'));
 			}
 		} else
 			doUnhide('statusExprFinishedWin');

@@ -89,9 +89,7 @@ function appendMatrix(e, matrix, rorder, corder, ravg, cavg, payoffs, colour)
 		span = document.createElement('span');
 		span.appendChild(document.createTextNode(': E\u27e6'));
 		cell.appendChild(span);
-		span = document.createElement('var');
-		span.appendChild(document.createTextNode('U'));
-		cell.appendChild(span);
+		cell.appendChild(document.createTextNode('U'));
 		span = document.createElement('span');
 		span.appendChild(document.createTextNode('\u27e7'));
 		cell.appendChild(span);
@@ -818,41 +816,39 @@ function loadExprSuccess(resp)
 			doHide('historyPlay');
 			doUnhide('historyNotYet');
 		}
-		doClearReplace('exprFinishedTicketsMax', expr.maxtickets.toFixed(2));
-		doClearReplace('exprFinishedFinalRank', res.finalrank.toFixed(2));
-		doClearReplace('exprFinishedTickets', res.aggrlottery.toFixed(2));
-		console.log(res.finalrank + ' + ' + res.aggrlottery);
-		v = res.finalrank + res.aggrlottery;
-		doClearReplace('exprFinishedFinalRankEnd', '' + v.toFixed(2));
+		doClearReplace('exprFinishedScore', res.aggrlottery.toFixed(2));
+		doClearReplace('exprFinishedTicketsMax', expr.maxtickets);
+		doClearReplace('exprFinishedFinalRank', res.finalrank);
+		doClearReplace('exprFinishedTickets', res.finalscore);
+		v = res.finalrank + res.finalscore;
+		doClearReplace('exprFinishedFinalRankEnd', v);
 		doClearReplace('exprCountdown', 'finished');
 		if (null == res.winner) {
 			doHide('exprFinishedResults');
 			doUnhide('exprFinishedWinWait');
 			doHide('exprFinishedWin');
+			doHide('exprFinishedLose');
 			doHide('exprFinishedWinRnums');
 		} else if (res.winner < 0) {
 			doUnhide('exprFinishedResults');
 			doHide('exprFinishedWinWait');
 			doHide('exprFinishedWin');
+			doUnhide('exprFinishedLose');
 			doUnhide('exprFinishedWinRnums');
 			e = doClear('exprFinishedRnums');
-			for (i = 0; i < res.winrnums.length; i++) {
-				v = res.winrnums[i] * expr.maxtickets;
-				e.appendChild(document.createTextNode(v.toFixed(2)));
-			}
+			for (i = 0; i < res.winrnums.length; i++)
+				e.appendChild(document.createTextNode(res.winrnums[i]));
 		} else {
 			doUnhide('exprFinishedResults');
 			doHide('exprFinishedWinWait');
 			doUnhide('exprFinishedWin');
+			doHide('exprFinishedLose');
 			doUnhide('exprFinishedWinRnums');
 			e = doClear('exprFinishedRnums');
-			for (i = 0; i < res.winrnums.length; i++) {
-				v = res.winrnums[i] * expr.maxtickets;
-				e.appendChild(document.createTextNode(v.toFixed(2)));
-			}
+			for (i = 0; i < res.winrnums.length; i++)
+				e.appendChild(document.createTextNode(res.winrnums[i]));
 			doClearReplace('exprFinishedWinRank', (res.winner + 1));
-			v = res.winrnum * expr.maxtickets;
-			doClearReplace('exprFinishedWinRnum', v.toFixed(2));
+			doClearReplace('exprFinishedWinRnum', res.winrnum);
 		}
 	}
 }

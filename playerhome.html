@@ -107,8 +107,9 @@
 					<div>
 						<p>
 							The experiment is finished.
-							Your payoff was <span id="exprFinishedTickets"></span> tickets out of a total of
-							<span id="exprFinishedTicketsMax"></span>.
+							Your payoff of <span id="exprFinishedScore"></span> earned you <span
+								id="exprFinishedTickets"></span> tickets out of a total of <span
+								id="exprFinishedTicketsMax"></span>.
 							Your lottery tickets are in the interval 
 							<span id="exprFinishedFinalRank"></span>&ndash;<span id="exprFinishedFinalRankEnd"></span>.
 						</p>
@@ -117,8 +118,14 @@
 							tickets. 
 						</p>
 					</div>
-					<p id="exprFinishedWinRnums">The following: <span id="exprFinishedRnums"></span>.</p>
+					<p id="exprFinishedWinRnums">
+						The draw has been finished and the winning number is <span id="exprFinishedRnums"></span>.
+					</p>
 					<p id="exprFinishedWin"></p>
+					<p id="exprFinishedLose"></p>
+						This means that you unfortunately didn't win this time around. 
+						Thank you for participating!
+					</p>
 					<p id="exprFinishedWinWait">
 						Waiting for lottery draw...
 					</p>
@@ -153,7 +160,7 @@
 							The number in the white cells in the matrix shows the share of plays that ended in that
 							cell in the last round. The first number in the gray cells shows in what share of plays
 							that row or column strategy was used. The number in brackets in the gray cells to the
-							right show your payoff, represented by <var>U</var>, should you have played the pure strategy
+							right show your payoff, represented by U, should you have played the pure strategy
 							associated with each row in the previous round.
 						</div>
 						<div id="exprHistoryMatrix"></div>

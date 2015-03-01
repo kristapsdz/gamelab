@@ -29,8 +29,8 @@ struct	expr {
 	int64_t		 minutes; /* minutes per game play */
 	char		*loginuri; /* player login (email click) */
 	char		*instr; /* instruction markup */
-	char		*instrWin; 
-	mpq_t		 total;
+	char		*instrWin; /* instructions for winner */
+	int64_t		 total; /* total winnings (>ESTATE_STARTED) */
 };
 
 /*
@@ -110,7 +110,8 @@ struct	player {
 	int64_t		 rseed; /* random seed */
 	int64_t		 instr; /* show instructions? */
 	int64_t		 id;
-	mpq_t		 finalrank;
+	int64_t		 finalrank;
+	int64_t		 finalscore;
 };
 
 /*
@@ -126,7 +127,7 @@ struct	smtp {
 };
 
 struct	winner {
-	mpq_t		 rnum;
+	int64_t		 rnum;
 	int64_t		 rank;
 };
 

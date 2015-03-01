@@ -245,9 +245,9 @@ static int
 admin_valid(struct kreq *r)
 {
 
+
 	if (kpairbad(r, KEY_EMAIL) || kpairbad(r, KEY_PASSWORD))
 		return(0);
-
 	return(db_admin_valid(r->fieldmap[KEY_EMAIL]->parsed.s,
 		r->fieldmap[KEY_PASSWORD]->parsed.s));
 }
@@ -345,6 +345,9 @@ sendwinners(const struct player *p, const struct winner *winner, void *arg)
 	kjson_obj_open(req);
 	kjson_putstringp(req, "email", p->mail);
 	kjson_putintp(req, "rank", winner->rank);
+	kjson_putintp(req, "winrank", p->finalrank);
+	kjson_putintp(req, "winscore", p->finalscore);
+	kjson_putintp(req, "winnum", winner->rnum);
 	kjson_obj_close(req);
 }
 
