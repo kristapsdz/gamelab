@@ -161,6 +161,8 @@ function prowOut(source, id)
 	var e;
 
 	if (null != (e = document.getElementById('index' + id))) {
+		if (e.hasAttribute('disabled'))
+			return;
 		source.classList.remove('hover');
 		e.parentNode.classList.remove('ihover');
 	}
@@ -171,6 +173,8 @@ function prowOver(source, id)
 	var e;
 
 	if (null != (e = document.getElementById('index' + id))) {
+		if (e.hasAttribute('disabled'))
+			return;
 		source.classList.add('hover');
 		e.parentNode.classList.add('ihover');
 	}
@@ -916,7 +920,7 @@ function doPlayGameError(err)
 
 function doPlayGameSuccess(resp)
 {
-	var i, e, div, ii, input;
+	var i, e, div, ii, input, elems;
 
 	e = document.getElementById('playGameSubmit');
 	e.setAttribute('value', 'Submitted!');

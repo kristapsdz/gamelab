@@ -57,7 +57,7 @@ json_instructions(size_t key, void *arg)
 		kjson_string_putint(c->r, c->rounds);
 		break;
 	case (TKEY_ROUND_TIME):
-		kjson_string_putint(c->r, c->roundtime / 60);
+		kjson_string_putdouble(c->r, c->roundtime / 60.0);
 		break;
 	default:
 		abort();
@@ -65,7 +65,6 @@ json_instructions(size_t key, void *arg)
 
 	return(1);
 }
-
 
 void
 json_putexpr(struct kjsonreq *r, const struct expr *expr)
