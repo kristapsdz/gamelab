@@ -831,6 +831,8 @@ function loadExprSuccess(resp)
 			doHide('exprFinishedWin');
 			doHide('exprFinishedLose');
 			doHide('exprFinishedWinRnums');
+			setTimeout(loadExpr, 1000 * 60);
+			console.log('Waiting...');
 		} else if (res.winner < 0) {
 			doUnhide('exprFinishedResults');
 			doHide('exprFinishedWinWait');
