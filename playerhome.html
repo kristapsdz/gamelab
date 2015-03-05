@@ -53,7 +53,7 @@
 						</div>
 						<div id="bimatrixRoundups"></div>
 						<div class="caption">
-							Play in the last round:
+							Play in the selected round:
 							<a href="#" onclick="doUnhide('historyHelp'); return false;"><i class="fa fa-question-circle"></i></a>
 						</div>
 						<div id="historyHelp" class="noshow canclose">
@@ -173,9 +173,10 @@
 					<div id="bimatrixHelp" class="noshow canclose">
 						<a href="#" class="close" onclick="doHideNode(this.parentNode); return false;"><i class="fa fa-times"></i></a>
 						You are the row player. Click on each row that is included in the strategy you want to play and
-						assign the corresponding probability in the input field. Probabilities must be given as
-						fractions or decimal numbers with no greater accuracy than four digits following the decimal.
-						Any row you don't select will be assigned probability zero.
+						assign the corresponding probability in the input field. 
+						Probabilities must be given as positive fractions or decimal numbers with no greater accuracy
+						than four digits following the decimal.  Any row you don't select will be assigned probability
+						zero.
 					</div>
 					<div id="exprMatrix"></div>
 					<form method="post" action="@@cgibin@@/doplay.json" id="playGame" onsubmit="return(playGame(this));">
@@ -195,9 +196,9 @@
 								<div>
 									<i class="fa fa-exclamation-circle"></i>
 									<span>
-										Probabilities must be fractions or decimal numbers with no
-										greater accuracy than four digits following the decimal. They
-										must sum to one.
+										Probabilities must be positive fractions or decimal numbers with
+										no greater accuracy than four digits following the decimal. 
+										They must sum to one.
 									</span>
 								</div>
 							</div>
