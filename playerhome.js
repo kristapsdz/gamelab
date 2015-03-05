@@ -240,12 +240,14 @@ function appendBimatrix(e, active, matrix, colour, ocolour, rorder, corder)
 	for (i = 0; i < matrix.length; i++) {
 		row = document.createElement('div');
 		if (active) {
+			row.setAttribute('id', 'payoffRow' + i);
 			row.setAttribute('onclick', 
 				'prowClick(this, ' + rorder[i] + ')');
 			row.setAttribute('onmouseover', 
 				'prowOver(this, ' + rorder[i] + ')');
 			row.setAttribute('onmouseout', 
 				'prowOut(this, ' + rorder[i] + ')');
+			row.style.cursor = 'pointer';
 		}
 		table.appendChild(row);
 		cell = document.createElement('div');
@@ -931,6 +933,9 @@ function doPlayGameSuccess(resp)
 		if (null == e)
 			break;
 		e.setAttribute('disabled', 'disabled');
+		e = document.getElementById('payoffRow' + i);
+		if (null != e)
+			e.style.cursor = 'auto';
 	}
 
 	resindex++;

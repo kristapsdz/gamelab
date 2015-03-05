@@ -220,8 +220,7 @@ div.payoffs			{ display: table;
 				  width: 100%; 
 				  margin: 0 auto;
 				  border-spacing: 1ex; }
-div.payoffs > div		{ display: table-row; 
-				  cursor: pointer; }
+div.payoffs > div		{ display: table-row; }
 div.payoffs > div > div		{ display: table-cell;  }
 div.payoffs div.pair 		{ border: thin solid #ccc;
 				  border-radius: 0.5ex; }
