@@ -1,12 +1,9 @@
+/*	$Id$ */
 #ifndef EXTERN_H
 #define EXTERN_H
 
 /*
  * The state of an experiment.
- * These can be either ESTATE_NEW, where the configuration is being laid
- * out, or ESTATE_STARTED, where the configuration has been committed.
- * At ESTATE_STARTED, players are initially mailed regarding
- * participation.
  */
 enum	estate {
 	ESTATE_NEW = 0, /* experiment being configured */
@@ -18,7 +15,7 @@ enum	estate {
 /*
  * An experiment encompassing more than one games.
  * There is always a table row corresponding to the experiment, though
- * at the outside, all of these fields except "state" (which will be
+ * at the outset, all of these fields except "state" (which will be
  * ESTATE_NEW) are undefined or NULL.
  */
 struct	expr {
@@ -55,14 +52,20 @@ struct	game {
 	int64_t		 id;
 };
 
+/*
+ * A roundup consists of the average plays of a game for a particular
+ * round.
+ * The roundup happens after the round ends: all plays are tallied to
+ * create the object.
+ */
 struct	roundup {
 	mpq_t		*curp1; /* current avg. row player */
 	mpq_t		*curp2; /* current avg. column player */
 	mpq_t		*aggrp1; /* aggr. row player */
 	mpq_t		*aggrp2; /* aggr. col player */
-	double		*navgp1; 
-	double		*navgp2; 
-	double		*navg; 
+	double		*navgp1; /* last round avg. row player */
+	double		*navgp2; /* last round avg. colun player */
+	double		*navg;  /* last round avg. matrix */
 	double		*avgp1; /* weighted aggr. avg. row player */
 	double		*avgp2; /* weighted aggr. avg. column player */
 	double		*avg; /* weighted aggr. avg. matrix */
@@ -74,15 +77,24 @@ struct	roundup {
 	int64_t		 round; /* round identifier */
 };
 
+/*
+ * A period consists of all roundup objects from now (at some round > 0)
+ * back to the first round (index zero) for a particular game.
+ * In essence, this is the entire history of play.
+ */
 struct	period {
-	struct roundup	**roundups;
-	size_t		  roundupsz;
-	int64_t		  gameid;
+	struct roundup	**roundups; /* roundups per round */
+	size_t		  roundupsz; /* number of rounds */
+	int64_t		  gameid; /* which game */
 };
 
+/*
+ * This is the entire play history for all games ("periodsz") over all
+ * rounds (roundupsz in the period object).
+ */
 struct	interval {
-	struct period	 *periods;
-	size_t		  periodsz;
+	struct period	 *periods; /* per-game roundup history */
+	size_t		  periodsz; /* number of games */
 };
 
 /*
@@ -109,9 +121,9 @@ struct	player {
 	int64_t		 role; /* row/column player role */
 	int64_t		 rseed; /* random seed */
 	int64_t		 instr; /* show instructions? */
+	int64_t		 finalrank; /* ticket offset in all awards */
+	int64_t		 finalscore; /* number of tickets */
 	int64_t		 id;
-	int64_t		 finalrank;
-	int64_t		 finalscore;
 };
 
 /*
@@ -126,9 +138,16 @@ struct	smtp {
 	char		*from; /* "from" address on mails */
 };
 
+/*
+ * At the end of the game, we create a winning object for each player
+ * that records, well, whether they've won or not.
+ * If they've won, it keeps track of the random sequence so that it can
+ * be reconstructed later.
+ * This object is filled in for winners only.
+ */
 struct	winner {
-	int64_t		 rnum;
-	int64_t		 rank;
+	int64_t		 rnum;  /* the winning lottery ticket */
+	int64_t		 rank; /* which dice-throw this was */
 };
 
 __BEGIN_DECLS
