@@ -441,6 +441,7 @@ function loadGame()
 			doUnhide('skipExplain');
 		else
 			doHide('skipExplain');
+		/* FIXME: this should be per-game, not all rounds. */
 		doClearReplace('exprHistoryLottery', res.curlottery.toFixed(2));
 		appendMatrix(doClear('exprHistoryMatrix'), hmatrix, 
 			res.roworders[res.gameorders[resindex]], 
