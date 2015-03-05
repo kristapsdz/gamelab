@@ -577,7 +577,7 @@ again:
 	goto again;
 }
 
-void
+int
 db_winners(struct expr **expr, size_t winnersz, int64_t seed, size_t count)
 {
 	enum estate	 state;
@@ -600,7 +600,13 @@ db_winners(struct expr **expr, size_t winnersz, int64_t seed, size_t count)
 	if (ESTATE_POSTWIN == state) {
 		fprintf(stderr, "Experiment already winnered.\n");
 		db_trans_rollback();
-		return;
+		return(1);
+	}
+
+	if (0 == (*expr)->total) {
+		fprintf(stderr, "Experiment has zero tickets.\n");
+		db_trans_rollback();
+		return(0);
 	}
 
 	/* Disallow more winners than players. */
@@ -686,6 +692,7 @@ db_winners(struct expr **expr, size_t winnersz, int64_t seed, size_t count)
 	free(pids);
 	free(winners);
 	free(rnums);
+	return(1);
 }
 
 char *

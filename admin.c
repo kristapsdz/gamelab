@@ -1014,6 +1014,7 @@ senddowinners(struct kreq *r)
 	struct expr	*expr;
 	struct interval	*intv;
 	size_t		 gamesz;
+	int		 rc;
 
 	if (kpairbad(r, KEY_WINNERS) || kpairbad(r, KEY_WINSEED)) {
 		http_open(r, KHTTP_400);
@@ -1037,11 +1038,11 @@ senddowinners(struct kreq *r)
 	db_interval_free(intv);
 
 	/* Compute winners from that. */
-	db_winners(&expr,
+	rc = db_winners(&expr,
 		r->fieldmap[KEY_WINNERS]->parsed.i, 
 		r->fieldmap[KEY_WINSEED]->parsed.i, 
 		gamesz);
-	http_open(r, KHTTP_200);
+	http_open(r, 0 == rc ? KHTTP_409 : KHTTP_200);
 	khttp_body(r);
 	db_expr_free(expr);
 }
