@@ -82,17 +82,14 @@ function appendMatrix(e, matrix, rorder, corder, ravg, cavg, payoffs, colour)
 	cell.setAttribute('class', 'sumaside');
 	cell.setAttribute('style', 'width: ' + 
 		((100.0 / (matrix[0].length + 1)) - 1) + '%;');
-	span = document.createElement('span');
-	span.appendChild(document.createTextNode('\u2211'));
-	cell.appendChild(span);
+	cell.appendChild(document.createTextNode('\u2211'));
 	if (null != payoffs) {
+		cell.appendChild(document.createTextNode(' ['));
 		span = document.createElement('span');
-		span.appendChild(document.createTextNode(': E\u27e6'));
+		span.setAttribute('style', 'color: ' + colours[colour]);
+		span.appendChild(document.createTextNode('U'));
 		cell.appendChild(span);
-		cell.appendChild(document.createTextNode('U'));
-		span = document.createElement('span');
-		span.appendChild(document.createTextNode('\u27e7'));
-		cell.appendChild(span);
+		cell.appendChild(document.createTextNode(']'));
 	}
 	row.appendChild(cell);
 
@@ -127,13 +124,12 @@ function appendMatrix(e, matrix, rorder, corder, ravg, cavg, payoffs, colour)
 			(ravg[rorder[i]].toFixed(2)));
 		cell.appendChild(span);
 		if (null != payoffs) {
-			span = document.createElement('span');
-			span.appendChild(document.createTextNode(': '));
-			cell.appendChild(span);
+			cell.appendChild(document.createTextNode(' ['));
 			span = document.createElement('span');
 			span.setAttribute('style', 'color: ' + colours[colour]);
 			span.appendChild(document.createTextNode(sum.toFixed(2)));
 			cell.appendChild(span);
+			cell.appendChild(document.createTextNode(']'));
 		}
 		row.appendChild(cell);
 	}
@@ -432,9 +428,6 @@ function loadGame()
 		res.roworders[res.gameorders[resindex]],
 		res.colorders[res.gameorders[resindex]]);
 
-	document.getElementById('playerColour2').setAttribute('style', 'color: ' + colours[c] + ';');
-	document.getElementById('playerOColour2').setAttribute('style', 'color: ' + colours[oc] + ';');
-
 	if (null != hmatrix) {
 		doUnhide('exprHistory');
 		if (0 != game.roundup.skip) 
@@ -701,7 +694,7 @@ function loadHistory(res)
 
 function loadExprSuccess(resp)
 {
-	var i, j, e, expr, c, oc, v;
+	var i, j, e, expr, c, oc, v, elems;
 
 	resindex = 0;
 	res = null;
@@ -737,10 +730,12 @@ function loadExprSuccess(resp)
 	c = res.rseed % colours.length;
 	oc = (0 == c % 2) ? c + 1 : c - 1;
 
-	document.getElementById('playerColour2').setAttribute
-		('style', 'color: ' + colours[c] + ';');
-	document.getElementById('playerOColour2').setAttribute
-		('style', 'color: ' + colours[oc] + ';');
+	elems = document.getElementsByClassName('gamelab-colour');
+	for (i = 0; i < elems.length; i++)
+		elems[i].style.color = colours[c];
+	elems = document.getElementsByClassName('gamelab-ocolour');
+	for (i = 0; i < elems.length; i++)
+		elems[i].style.color = colours[oc];
 
 	/* Shuffle our game list and row orders. */
 	if (null != res.history) {
