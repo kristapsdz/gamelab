@@ -17,6 +17,7 @@ STATIC	 =
 #LIBS	 = -lintl -liconv
 #STATIC	 = -static
 
+VERSION	 = 1.0.0
 CFLAGS 	+= -g -W -Wall -Wstrict-prototypes -Wno-unused-parameter -Wwrite-strings -I/usr/local/include
 CFLAGS	+= -DDATADIR=\"$(RDATADIR)\" -DHTDOCS=\"$(HTURI)\"
 PAGES 	 = addplayer.eml \
@@ -55,7 +56,9 @@ config.h: config.h.pre config.h.post configure $(TESTS)
 	rm -f config.log
 	CC="$(CC)" CFLAGS="$(CFLAGS)" ./configure
 
-installwww: all
+www: index.html manual.html
+
+update: all
 	install -m 0444 $(STATICS) $(HTDOCS)
 	install -m 0444 $(PAGES) $(DATADIR)
 	install -m 0755 admin $(CGIBIN)/admin.cgi
@@ -63,13 +66,19 @@ installwww: all
 	install -m 0755 lab $(CGIBIN)/lab.cgi
 	install -m 0755 lab $(CGIBIN)
 
-install: installwww gamelab.db
+install: update gamelab.db
 	install -m 0666 gamelab.db $(DATADIR)
 
 gamelab.db: gamelab.sql
 	rm -f $@
 	sqlite3 $@ < gamelab.sql
 
+manual.html: manual.xml
+	sed "s!@VERSION@!$(VERSION)!g" manual.xml >$@
+
+index.html: index.xml
+	sed "s!@VERSION@!$(VERSION)!g" index.xml >$@
+
 clean:
-	rm -f admin admin.o gamelab.db lab lab.o $(OBJS) config.h config.log
+	rm -f admin admin.o gamelab.db lab lab.o $(OBJS) config.h config.log index.html manual.html
 	rm -rf *.dSYM

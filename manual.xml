@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+		<meta charset='utf-8' /> 
+		<title>gamelab</title>
+		<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" />
+		<link rel="stylesheet" href="manual.css" type="text/css" />
+	</head>
+	<body>
+		<header>
+			<h1><a href="index.html">gamelab</a></h1>
+		</header>
+		<nav>
+			<span>Version @VERSION@</span>
+			<a href="mailto:kristaps@kcons.eu"><i class="fa fa-envelope"></i></a>
+		</nav>
+		<article>
+			<p>
+				This is the operator's manual for <span class="nm">gamelab</span>, a web application for online game theory
+				experimentation.
+				It is roughly divided into sections for installing the <a href="#server">server</a> itself; <a
+					href="#administration">administration</a> of experiments; and finally, a description of the system
+				itself.
+			</p>
+			<section id="server">
+				<h2>Server</h2>
+				<p>
+					In order to use <span class="nm">gamelab</span>, you'll need to download, configure, and install the
+					system.
+					The <span class="nm">gamelab</span> server is a CGI application that runs under any CGI-compatible web
+					server.
+					If a system administrator has already installed the server and given you the web address for its
+					laboratory and administrative interfaces, jump down to <a href="#administration">Administration</a>.
+				</p>
+				<section>
+					<h3>Environment</h3>
+					<p>
+						To operate a <span class="nm">gamelab</span> server, you'll need a modern UNIX system with a
+						number of dependencies (described below) and a web server.
+						To date, <span class="nm">gamelab</span> has been deployed on Mac OS X, GNU/Linux, and a number
+						of BSD systems.
+						It has been run under the <a href="https://httpd.apache.org/">Apache</a> web server, 
+						<a href="http://nginx.org/">nginx</a> via <a
+							href="http://www.openbsd.org/cgi-bin/man.cgi/OpenBSD-current/man8/slowcgi.8">slowcgi(8)</a>,
+						and OpenBSD's <a
+							href="http://www.openbsd.org/cgi-bin/man.cgi/OpenBSD-current/man8/httpd.8">httpd(8)</a> via
+						<a href="http://www.openbsd.org/cgi-bin/man.cgi/OpenBSD-current/man8/slowcgi.8">slowcgi(8)</a>.
+						The system is designed to run in a <q>jail</q> as is the default with OpenBSD <a
+							href="http://www.openbsd.org/cgi-bin/man.cgi/OpenBSD-current/man8/httpd.8">httpd(8)</a>;
+						you are encouraged to do the same in any environment for security reasons.
+					</p>
+				</section>
+				<section>
+					<h3>Dependencies</h3>
+					<p>
+						With your environment prepared, you'll need to download the <span class="nm">gamelab</span>
+						source code as well as its dependencies.
+						These are <i>compile-time</i> dependencies, so if the system compiles, it will run just fine.
+						There are no additional run-time dependencies.
+						The dependencies consist of 
+						<a href="http://kristaps.bsd.lv">kcgi</a> (the CGI framework), 
+						<a href="https://gmplib.org">GMP</a> (rational number library), 
+						<a href="https://sqlite.org">SQLite</a> (database), and
+						<a href="http://curl.haxx.se/libcurl/">libcURL</a> (e-mailing).
+						Each of these systems has its own installation procedure beyond the scope of this document.
+						Following dependencies, download <a href="http://www.kcons.eu/gamelab" class="nm">gamelab</a>.
+					</p>
+				</section>
+				<section id="compiling">
+					<h3>Compiling</h3>
+					<p>
+						Once you've unpacked the source code, you need to compile the server.
+						Begin by editing the <span class="file">Makefile</span> to your specifications: these will
+						hard-code a configuration that will define run-time operation, e.g., paths and filenames.
+					</p>
+					<dl>
+						<dt><code>PREFIX</code></dt>
+						<dd>
+							Convenience variable for defining other variables.
+							This is not used during operation.
+						</dd>
+						<dt id="htdocs"><code>HTDOCS</code></dt>
+						<dd>
+							This is a path used for installing read-only <q>static</q> pages, like CSS,
+							JavaScript, and some HTML.
+							This is usually the <q>htdocs</q> directory for your web server.
+							In most web servers, this defaults to <span class="file">/var/www/htdocs</span>.
+							It must be accessable (i.e., mapped) by the web server process.
+						</dd>
+						<dt><code>HTURI</code></dt>
+						<dd>
+							This is the URI location of the <a href="#htdocs"><code>HTDOCS</code></a> variable.
+							In most web servers, this defaults to <span class="file">/</span> (the root).
+						</dd>
+						<dt id="cgibin"><code>CGIBIN</code></dt>
+						<dd>
+							This is the path used for installing compiled (executable) CGI binaries.
+							This is usually the <q>cgibin</q> directory for your web server.
+							In most web servers, this defaults to <span class="file">/var/www/cgi-bin</span>.
+							It must be accessable (i.e., mapped) by the web server process.
+						</dd>
+						<dt id="datadir"><code>DATADIR</code></dt>
+						<dd>
+							This is the path used for installing read-only data files.
+							This doesn't have a standard location.
+							We recommend using <span class="file">/var/www/data</span>.
+							It <strong>must not</strong> be accessable by the web server process&mdash;only the
+							running CGI processes.
+						</dd>
+						<dt><code>RDATADIR</code></dt>
+						<dd>
+							This is the path used by the running CGI process to find <a
+								href="#datadir"><code>DATADIR</code></a>.
+							This is because the running process may be jailed in a file-system (such as <span
+								class="file">/var/www</span>) and the absolute path of <a
+								href="#datadir"><code>DATADIR</code></a> may not be available.
+						</dd>
+						<dt><code>LIBS</code></dt>
+						<dd>
+							If you're going to statically link (see <a href="#static"><code>STATIC</code></a>) then
+							you may need to define extra libraries to satisfy your compiler.
+							This really depends on the operating system.
+							For OpenBSD, you'll need to define <code>-lintl -liconv</code>.
+							For non-static compilations, you probably don't need anything here.
+						</dd>
+						<dt id="static"><code>STATIC</code></dt>
+						<dd>
+							If you're going to run in a file-system jail and don't want to import dynamic libraries,
+							you can statically compile the <span class="nm">gamelab</span> executable by specifying
+							<code>-static</code>.
+						</dd>
+					</dl>
+					<p>
+						Sample variables are set for a local Mac OS X installation (non-static in one's <span
+							class="file">~/Sites</span> directory) and OpenBSD production (static in a named
+						subdirectory of the usual installation locations).
+					</p>
+					<p>
+						Once you've defined these variables, compile the software in the usual way by executing
+						<kbd>make</kbd>.
+					</p>
+				</section>
+				<section id="installation">
+					<h3>Installation</h3>
+					<p>
+						Once you've <a href="#compiling">compiled</a> the software and configured its parameters, you
+						can install it by simply running <kbd>make install</kbd>.
+						You'll probably need to do <kbd>sudo make install</kbd>, however.
+					</p>
+					<p>
+						<strong>Warning</strong>: if you already have a <span class="nm">gamelab</span> server
+						installed, this will re-install the database.
+						To update an existing installation (assuming the database hasn't changed&mdash;the release notes
+						for each version will tell you), use <kbd>make update</kbd> or <kbd>sudo make update</kbd>.
+					</p>
+					<p>
+						Both of these steps will install the following.
+					</p>
+					<dl>
+						<dt><span class="file">admin</span></dt>
+						<dt><span class="file">admin.cgi</span></dt>
+						<dd>
+							The administrative CGI executable installed into <a
+								href="#cgibin"><code>CGIBIN</code></a>.
+							These files are identical but for the suffix.
+						</dd>
+						<dt><span class="file">lab</span></dt>
+						<dt><span class="file">lab.cgi</span></dt>
+						<dd>
+							The laboratory CGI executable installed into <a href="#cgibin"><code>CGIBIN</code></a>.
+							These files are identical but for the suffix.
+						</dd>
+						<dt><span class="file">style.css</span></dt>
+						<dt><span class="file">script.js</span></dt>
+						<dd>
+							These statically-served, read-only files are installed into <a
+								href="#htdocs"><code>HTDOCS</code></a>.
+						</dd>
+						<dt><span class="file">addplayer.eml</span></dt>
+						<dt><span class="file">adminhome-new.html</span></dt>
+						<dt><span class="file">adminhome-started.html</span></dt>
+						<dt><span class="file">adminhome.js</span></dt>
+						<dt><span class="file">adminlogin.html</span></dt>
+						<dt><span class="file">backupfail.eml</span></dt>
+						<dt><span class="file">backupsuccess.eml</span></dt>
+						<dt><span class="file">playerhome.html</span></dt>
+						<dt><span class="file">playerhome.js</span></dt>
+						<dt><span class="file">playerlogin.html</span></dt>
+						<dt><span class="file">privacy.html</span></dt>
+						<dt><span class="file">test.eml</span></dt>
+						<dd>
+							These read-only files are installed into <a href="#datadir"><code>DATADIR</code></a>.
+							They are used by the CGI processes to serve content to data requests.
+						</dd>
+					</dl>
+					<p>
+						If you run <kbd>make install</kbd> (instead of <kbd>make update</kbd>), the following will also
+						be installed.
+					</p>
+					<dl>
+						<dt><span class="file">gamelab.db</span></dt>
+						<dd>
+							The writable database file itself, installed into <a
+								href="#datadir"><code>DATADIR</code></a>.
+							This is initialised to the defaults described in the <a
+								href="#administration">Administration</a> section.
+						</dd>
+					</dl>
+					<p>
+						<strong>Note</strong>: the SQLite database system usually needs access to a <a
+							href="https://www.sqlite.org/c3ref/temp_directory.html">temporary directory</a> for
+						journalling and so forth.
+						If you're running in a file-system jail (e.g., OpenBSD), you'll need to make sure this
+						directory exists in the root of the jai.
+						On default installations, this consists of a <span class="file">tmp</span> directory in the
+						document root, e.g., <span class="file">/var/www/tmp</span>, with world-writable permissions.
+					</p>
+					<p>
+						<strong>Note</strong>: if you're running in a file-system jail, the security measures of <a
+							href="http://kristaps.bsd.lv/kcgi">kcgi</a> on OpenBSD (or any <a
+							href="http://www.openbsd.org/cgi-bin/man.cgi/OpenBSD-current/man4/systrace.4">systrace(4)</a>
+						system) require a systrace device in the <span class="file">dev</span> directory of the document
+						root, e.g., <span class="file">/var/www/dev</span>.
+						Moreover, the file-system of this directory must not be <code>nodev</code> in its mount options
+						(see <a
+							href="http://www.openbsd.org/cgi-bin/man.cgi/OpenBSD-current/man8/mount.8">mount(8)</a>).
+					</p>
+					<p>
+						Once you've deployed your system, you can test it by going to the administration site.
+					</p>
+				</section>
+			</section>
+			<section id="administration">
+				<h2>Administration</h2>
+				<p>
+					In this section, I describe how to administer the <span class="nm">gamelab</span> system.
+					I assume that you've just installed it following the <a href="#installation">Installation</a> section.
+					Let's assume that a system administrator has installed <span class="nm">gamelab</span> already.
+				</p>
+				<p>
+					<span class="nm">Gamelab</span> experiments consist of a series of games (normal form bimatrices) played
+					by a set of participants over a finite number of rounds of a certain amount of time.
+					When the experiment is over, you run a lottery that selects a participant as a winner of the experiment.
+					Thus, to run an experiment, you'll need players, games, and a duration of time split into rounds.
+				</p>
+				<p>
+					You can only run one experiment at a time on each <span class="nm">gamelab</span> installation.
+					However, you can back up and wipe the experiment installation database&mdash;starting over&mdash;at any
+					time to start over.
+				</p>
+				<section id="firstlogin">
+					<h3>First Login</h3>
+					<p>
+						Begin by accessing the administrator URL with your browser.
+						This will usually look like <span class="url">http://foo.com/cgi-bin/admin</span>, but it
+						depends on how your system administrator has configured the system.
+						You will be taken to a page prompting for an e-mail and password.
+					</p>
+					<figure>
+						<a href="screen-admin1.png"><img src="screen-admin1.png" alt="Administrator Login" /></a>
+					</figure>
+					<p>
+						The default e-mail address is <samp>foo@example.com</samp> and the default password is
+						<samp>foobar</samp>.
+						If the system has been properly configured, you'll be logged in.
+						<strong>Note</strong>: you can log out at any time by clicking the navigation bars in the upper
+						left-hand corner, then selecting <q>Logout</q>.
+					</p>
+					<p>
+						The first thing you should do upon logging in is change the administrator e-mail address and password.
+						Set the administrator e-mail to be your own e-mail address and the password to something fairly
+						complicated.
+						You'll be logged out&mdash;and must log back in&mdash;after each step.
+						Make sure that no participants will be able to guess (or know) your credentials!
+					</p>
+					<figure>
+						<a href="screen-admin2.png"><img src="screen-admin2.png" alt="Administrator Homepage" /></a>
+					</figure>
+					<p>
+						The next step is e-mail configuration.
+						<span class="nm">Gamelab</span> uses e-mail to notify participants of events.
+						You won't be able to use the system properly without it!
+						You may need your system administrator's help, but you should be able to enter the same information as
+						when you configure your e-mail reader: 
+						the <q>from</q> address the e-mails will use (usually your own so that they can respond to you);
+						the outgoing (SMTP) e-mail server in the form <samp>smtp://foo.bar:587</samp>; 
+						and the user and password for accessing that server.
+						<span class="nm">Gamelab</span> won't work for non-secure (TLS) e-mail access.
+					</p>
+					<figure>
+						<a href="screen-admin3.png"><img src="screen-admin3.png" alt="Administrator Homepage" /></a>
+					</figure>
+					<p>
+						When you're finished entering this information, test the configuration.
+						You should receive an e-mail in a few minutes from the <span class="nm">gamelab</span> server.
+					</p>
+				</section>
+				<section>
+					<h3>First Experiment</h3>
+					<p>
+						Now that you've set your e-mail and administrator credentials as described in <a
+							href="#firstlogin">First Login</a>, you're ready to configure an experiment.
+						Don't worry&mdash;you don't need to start your experiment immediately.
+						You can slowly add the players and games you want til you're ready to deploy the experiment
+						itself.
+						Start with the following.
+					</p>
+					<figure>
+						<a href="screen-admin4.png"><img src="screen-admin4.png" alt="Administrator Homepage" /></a>
+					</figure>
+					<ul>
+						<li>
+							A set of players identified by e-mail address.
+							The more, the merrier, but you'll need two at a minimum.
+							Make sure the e-mail addresses are real!
+							Enter these names into the <q>Players</q> section.
+						</li>
+						<li>
+							A set of normal form bimatrix games.
+							These can have any number of strategies and either positive integer or rational payoffs.
+							Enter these games into the <q>Games</q> section.
+						</li>
+						<li>
+							The duration that players will participate in the experiment.
+						</li>
+					</ul>
+					<figure>
+						<a href="screen-admin5.png"><img src="screen-admin5.png" alt="Administrator Homepage" /></a>
+					</figure>
+					<p>
+						Once you've added your games and your players, you're ready to actually deploy the experiment
+						itself.
+						Set the time and date when the experiment begins (<strong>remember</strong>: in GMT!) and the
+						number of rounds and duration of each round.
+						You can edit the instructions given to players&mdash;in fact, that's a good idea, as you
+						probably want to tune the winnings.
+						Then hit <q>Start</q> and you're ready to go!
+					</p>
+					<p>
+						Once you hit the <q>Start</q> button, the experiment has begun.
+						It won't be playable until the time and date you specified, but the players are notified
+						immediately with their login credentials.
+					</p>
+				</section>
+			</section>
+		</article>
+		<footer>
+			<div>
+				&copy; 2015, <a href="http://www.kcons.eu"><i>k</i>-Consulting</a>
+			</div>
+		</footer>
+	</body>
+</html>

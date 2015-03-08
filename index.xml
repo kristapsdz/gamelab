@@ -10,7 +10,8 @@
 	<body>
 		<header>
 			<div>
-				<span><a href="#"><i class="fa fa-envelope-o"></i></a></span>
+				<span>Version @VERSION@</span>
+				<a href="#"><i class="fa fa-envelope-o"></i></a>
 			</div>
 			<h1>gamelab</h1>
 		</header>
@@ -47,7 +48,7 @@
 		</article>
 		<footer>
 			<div>
-				&copy; 2015, <a href="http://www.kcons.eu">k-Consulting</a>
+				&copy; 2015, <a href="http://www.kcons.eu"><i>k</i>-Consulting</a>
 			</div>
 		</footer>
 	</body>
