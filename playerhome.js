@@ -440,14 +440,13 @@ function loadGame()
 			doUnhide('skipExplain');
 		else
 			doHide('skipExplain');
-		/* FIXME: this should be per-game, not all rounds. */
-		doClearReplace('exprHistoryLottery', res.curlottery.toFixed(2));
+		lot = res.lotteries[res.expr.round - 1].plays[res.gameorders[resindex]];
+		doClearReplace('exprHistoryLottery', lot.poff.toFixed(2));
 		appendMatrix(doClear('exprHistoryMatrix'), hmatrix, 
 			res.roworders[res.gameorders[resindex]], 
 			res.colorders[res.gameorders[resindex]], 
 			ravg, cavg, matrix, c);
 		par = doClear('exprHistoryPlays');
-		lot = res.lotteries[res.expr.round - 1].plays[res.gameorders[resindex]];
 		if (null != lot) {
 			par.appendChild(document.createTextNode
 				(', strategy mix: '));
