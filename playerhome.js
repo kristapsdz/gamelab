@@ -441,13 +441,13 @@ function loadGame()
 		else
 			doHide('skipExplain');
 		lot = res.lotteries[res.expr.round - 1].plays[res.gameorders[resindex]];
-		doClearReplace('exprHistoryLottery', lot.poff.toFixed(2));
 		appendMatrix(doClear('exprHistoryMatrix'), hmatrix, 
 			res.roworders[res.gameorders[resindex]], 
 			res.colorders[res.gameorders[resindex]], 
 			ravg, cavg, matrix, c);
 		par = doClear('exprHistoryPlays');
 		if (null != lot) {
+			doClearReplace('exprHistoryLottery', lot.poff.toFixed(2));
 			par.appendChild(document.createTextNode
 				(', strategy mix: '));
 			list = document.createElement('ul');
@@ -461,7 +461,8 @@ function loadGame()
 					(lot.strats[res.roworders[res.gameorders[resindex]][i]]));
 				list.appendChild(listitem);
 			}
-		}
+		} else 
+			doClearReplace('exprHistoryLottery', '0');
 	} else {
 		doHide('exprHistory');
 	}
