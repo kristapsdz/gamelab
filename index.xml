@@ -11,7 +11,13 @@
 		<header>
 			<div>
 				<span>Version @VERSION@</span>
-				<a href="#"><i class="fa fa-envelope-o"></i></a>
+				<span><a title="Contact" href="mailto:kristaps@kcons.eu"><i class="fa fa-envelope-o"></i></a></span>
+				<span>
+					<a title="Source Code" href="snapshots/gamelab.tgz"><i class="fa fa-gears"></i></a>
+					<a title="Source Checksum" href="snapshots/gamelab.tgz.sha512"><i class="fa fa-lock"></i></a>
+					<a title="Source Archive" href="snapshots"><i class="fa fa-archive"></i></a>
+				</span>
+				<span><a title="BibTeX Citation" href="gamelab.bib"><i class="fa fa-bookmark"></i></a></span>
 			</div>
 			<h1>gamelab</h1>
 		</header>
@@ -31,18 +37,13 @@
 			</p>
 			<section id="moreinfo">
 				<p>
-					We're not releasing the <span class="nm">gamelab</span> sources to the public yet&mdash;it's just not
-					quite there yet, though well on its way.
-					If you're interested in teaming up, contact J&ouml;rgen, Kristaps, or Eskil.
-					The software ships as ISO C source code, compiling and installing on any modern UNIX systems (tested on
-					modern Mac OS X, Linux, and OpenBSD).
-					It requires <a href="http://kristaps.bsd.lv/kcgi">kcgi</a>, <a
-						href="https://www.sqlite.org/">SQLite</a>, and <a
-						href="http://curl.haxx.se/libcurl/">libcurl</a> to compile and run.
-					For installation details, the source contains a comprehensive README file.
-					In the spirit of academic sharing, it is open source <a rel="license"
+					If you're interested in deploying a <span class="nm">gamelab</span> server of your own, consult the <a
+						href="manual.html">manual</a> on how to download, install, and administer experiments.
+					If you're interested in teaming up, or just want to share your experiences, contact J&ouml;rgen,
+					Kristaps, or Eskil.
+					In the spirit of academic sharing, <span class="nm">gamelab</span> is open source <a rel="license"
 						href="http://cvsweb.openbsd.org/cgi-bin/cvsweb/src/share/misc/license.template?rev=HEAD">ISC</a>
-					licensed, though we kindly suggest that experimenters cite our work.
+					licensed, and we kindly suggest that experimenters <a href="gamelab.bib">cite</a> our work!
 				</p>
 			</section>
 		</article>

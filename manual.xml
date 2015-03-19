@@ -13,31 +13,73 @@
 		</header>
 		<nav>
 			<span>Version @VERSION@</span>
-			<a href="mailto:kristaps@kcons.eu"><i class="fa fa-envelope"></i></a>
+			<span><a title="Contact" href="mailto:kristaps@kcons.eu"><i class="fa fa-envelope-o"></i></a></span>
+			<span>
+				<a title="Source Code" href="snapshots/gamelab.tgz"><i class="fa fa-gears"></i></a>
+				<a title="Source Checksum" href="snapshots/gamelab.tgz.sha512"><i class="fa fa-lock"></i></a>
+				<a title="Source Archive" href="snapshots"><i class="fa fa-archive"></i></a>
+			</span>
+			<span><a title="BibTeX Citation" href="gamelab.bib"><i class="fa fa-bookmark"></i></a></span>
 		</nav>
 		<article>
 			<p>
-				This is the operator's manual for <span class="nm">gamelab</span>, a web application for online game theory
-				experimentation.
-				It is roughly divided into sections for installing the <a href="#server">server</a> itself; <a
-					href="#administration">administration</a> of experiments; and finally, a description of the system
-				itself.
+				<span class="nm">Gamelab</span> is an online game theory laboratory where participants assign mixed strategies
+				to game bimatrices over a series of rounds, accumulating payoffs as the experiment progresses.
+				The mission of <span class="nm">gamelab</span> is to allow for laboratory-style interaction within the
+				need for a laboratory.
 			</p>
+			<p>
+				This is the operator's manual for <span class="nm">gamelab</span>.
+				It is roughly divided into sections for installing the <a href="#server">server</a> itself and the <a
+					href="#administration">administration</a> of experiments.
+			</p>
+			<nav>
+				<ul>
+					<li>
+						<a href="#server">Server</a>
+						<ul>
+							<li><a href="#environment">Environment</a></li>
+							<li><a href="#dependencies">Dependencies</a></li>
+							<li><a href="#compiling">Compiling</a></li>
+							<li><a href="#installation">Installation</a></li>
+						</ul>
+					</li>
+					<li>
+						<a href="#administration">Administration</a>
+						<ul>
+							<li><a href="#firstlogin">First Login</a></li>
+							<li><a href="#firstexperiment">First Experiment</a></li>
+							<li><a href="#runningexperiments">Running Experiments</a></li>
+							<li><a href="#analysingexperiments">Analysing Experiments</a></li>
+						</ul>
+					</li>
+				</ul>
+			</nav>
 			<section id="server">
 				<h2>Server</h2>
 				<p>
-					In order to use <span class="nm">gamelab</span>, you'll need to download, configure, and install the
-					system.
 					The <span class="nm">gamelab</span> server is a CGI application that runs under any CGI-compatible web
-					server.
+					server on a modern UNIX system.
+					In order to use <span class="nm">gamelab</span>, you'll need to download, configure, and install
+					it&mdash;just like any piece of software.
 					If a system administrator has already installed the server and given you the web address for its
-					laboratory and administrative interfaces, jump down to <a href="#administration">Administration</a>.
+					laboratory and administrative interfaces, jump down to the <a href="#administration">Administration</a>
+					section.
 				</p>
-				<section>
+				<p>
+					If at any time you have problems during an installation, or you encounter confusing language, please
+					e-mail <a href="mailto:kristaps@kcons.eu">Kristaps</a> with the issue.
+				</p>
+				<section id="environment">
 					<h3>Environment</h3>
 					<p>
-						To operate a <span class="nm">gamelab</span> server, you'll need a modern UNIX system with a
-						number of dependencies (described below) and a web server.
+						To operate a <span class="nm">gamelab</span> server, you'll need a modern UNIX system with a web
+						server accessable to your participants.
+						I don't discuss web server deployment in this manual: please consult your operating system
+						documentation on how to do so.
+						Specifically, you'll want to research on how to enable CGI scripts (<em>not</em> FastCGI).
+					</p>
+					<p>
 						To date, <span class="nm">gamelab</span> has been deployed on Mac OS X, GNU/Linux, and a number
 						of BSD systems.
 						It has been run under the <a href="https://httpd.apache.org/">Apache</a> web server, 
@@ -47,28 +89,52 @@
 							href="http://www.openbsd.org/cgi-bin/man.cgi/OpenBSD-current/man8/httpd.8">httpd(8)</a> via
 						<a href="http://www.openbsd.org/cgi-bin/man.cgi/OpenBSD-current/man8/slowcgi.8">slowcgi(8)</a>.
 						The system is designed to run in a <q>jail</q> as is the default with OpenBSD <a
-							href="http://www.openbsd.org/cgi-bin/man.cgi/OpenBSD-current/man8/httpd.8">httpd(8)</a>;
-						you are encouraged to do the same in any environment for security reasons.
+							href="http://www.openbsd.org/cgi-bin/man.cgi/OpenBSD-current/man8/httpd.8">httpd(8)</a>.
+						You are encouraged to do the same in any environment for security reasons; however, the system
+						will also run fine in a non-jail context.
+					</p>
+					<p>
+						Note that several newer web servers only work with FastCGI scripts.
+						<span class="nm">Gamelab</span> does not run under FastCGI (yet), so you'll need to install the
+						appropriate proxy for a CGI script.
 					</p>
 				</section>
-				<section>
+				<section id="dependencies">
 					<h3>Dependencies</h3>
 					<p>
 						With your environment prepared, you'll need to download the <span class="nm">gamelab</span>
 						source code as well as its dependencies.
 						These are <i>compile-time</i> dependencies, so if the system compiles, it will run just fine.
 						There are no additional run-time dependencies.
-						The dependencies consist of 
-						<a href="http://kristaps.bsd.lv">kcgi</a> (the CGI framework), 
-						<a href="https://gmplib.org">GMP</a> (rational number library), 
-						<a href="https://sqlite.org">SQLite</a> (database), and
-						<a href="http://curl.haxx.se/libcurl/">libcURL</a> (e-mailing).
+						The dependencies consist of the following:
+					</p>
+					<ul>
+						<li><a href="http://kristaps.bsd.lv">kcgi</a> (the CGI framework),</li>
+						<li><a href="https://gmplib.org">GMP</a> (rational number library),</li>
+						<li><a href="https://sqlite.org">SQLite</a> (database), and</li>
+						<li><a href="http://curl.haxx.se/libcurl/">libcURL</a> (e-mailing).</li>
+					</ul>
+					<p>
 						Each of these systems has its own installation procedure beyond the scope of this document.
-						Following dependencies, download <a href="http://www.kcons.eu/gamelab" class="nm">gamelab</a>.
+						After you've installed the dependencies, download <a
+							class="file" href="snapshots/gamelab.tgz">gamelab.tgz</a> and the checksum <a
+							class="file" href="snapshots/gamelab.tgz.sha512">gamelab.tgz.sha512</a>.
 					</p>
 				</section>
 				<section id="compiling">
 					<h3>Compiling</h3>
+					<p>
+						Move the <span class="nm">gamelab</span> source code into a source directory (we suggest <span
+							class="file">~/Source</span> or <span class="file">~/src</span> and unpack.
+						First, however, verify the checksum.
+						These instructions are valid for new installations and for upgrades: the source archive will
+						unpack as <span class="file">gamelab-MAJOR-MINOR-BUILD</span>, so you won't overwrite previous
+						installations on upgrading.
+					</p>
+					<p>
+						<div><kbd>openssl dgst -sha512 gamelab.tgz | cmp - gamelab.tgz.sha512</kbd></div>
+						<div><kbd>tar zxf gamelab.tgz &amp;&amp; rm -f gamelab.tgz</kbd></div>
+					</p>
 					<p>
 						Once you've unpacked the source code, you need to compile the server.
 						Begin by editing the <span class="file">Makefile</span> to your specifications: these will
@@ -149,10 +215,10 @@
 						You'll probably need to do <kbd>sudo make install</kbd>, however.
 					</p>
 					<p>
-						<strong>Warning</strong>: if you already have a <span class="nm">gamelab</span> server
-						installed, this will re-install the database.
+						<strong>Warning</strong>: this will overwrite any existing database!
 						To update an existing installation (assuming the database hasn't changed&mdash;the release notes
 						for each version will tell you), use <kbd>make update</kbd> or <kbd>sudo make update</kbd>.
+						I <strong>do not</strong> recommend this, as it's easy to miss a small database change.
 					</p>
 					<p>
 						Both of these steps will install the following.
@@ -237,6 +303,8 @@
 					In this section, I describe how to administer the <span class="nm">gamelab</span> system.
 					I assume that you've just installed it following the <a href="#installation">Installation</a> section.
 					Let's assume that a system administrator has installed <span class="nm">gamelab</span> already.
+					I'll use screenshots from the <a class="http://getfirefox.org">Firefox</a> web browser installed on Mac
+					OS X.  Your system may not look like this&mdash;that's ok.
 				</p>
 				<p>
 					<span class="nm">Gamelab</span> experiments consist of a series of games (normal form bimatrices) played
@@ -256,6 +324,8 @@
 						This will usually look like <span class="url">http://foo.com/cgi-bin/admin</span>, but it
 						depends on how your system administrator has configured the system.
 						You will be taken to a page prompting for an e-mail and password.
+						<strong>Note</strong>: you'll need to configure your browser to accept cookies and run
+						JavaScript for the domain upon which <span class="nm">gamelab</span> is running.
 					</p>
 					<figure>
 						<a href="screen-admin1.png"><img src="screen-admin1.png" alt="Administrator Login" /></a>
@@ -286,7 +356,7 @@
 						the <q>from</q> address the e-mails will use (usually your own so that they can respond to you);
 						the outgoing (SMTP) e-mail server in the form <samp>smtp://foo.bar:587</samp>; 
 						and the user and password for accessing that server.
-						<span class="nm">Gamelab</span> won't work for non-secure (TLS) e-mail access.
+						<span class="nm">Gamelab</span> won't work for non-secure (i.e., non-TLS) e-mail access.
 					</p>
 					<figure>
 						<a href="screen-admin3.png"><img src="screen-admin3.png" alt="Administrator Homepage" /></a>
@@ -296,7 +366,7 @@
 						You should receive an e-mail in a few minutes from the <span class="nm">gamelab</span> server.
 					</p>
 				</section>
-				<section>
+				<section id="firstexperiment">
 					<h3>First Experiment</h3>
 					<p>
 						Now that you've set your e-mail and administrator credentials as described in <a
@@ -315,14 +385,65 @@
 							The more, the merrier, but you'll need two at a minimum.
 							Make sure the e-mail addresses are real!
 							Enter these names into the <q>Players</q> section.
+							You'll be able to and and remove these before the experiment, so no worries.
+							Moreover, if you start an experiment with mistaken e-mails, you'll be able to disable them.
 						</li>
 						<li>
 							A set of normal form bimatrix games.
 							These can have any number of strategies and either positive integer or rational payoffs.
 							Enter these games into the <q>Games</q> section.
+							Bimatrix games are laid out top-left to bottom-right.
+							So let's say you have the following game shown first as a symmetric game then with the
+							<span style="color: red;">implied payoffs</span> to the opponent player.
+							<div id="gamepanes" class="gamepanes"><div>
+									<table>
+										<tr>
+											<td>1</td>
+											<td>0</td>
+											<td>-1</td>
+										</tr>
+										<tr>
+											<td>0</td>
+											<td>-1</td>
+											<td>1</td>
+										</tr>
+										<tr>
+											<td>-1</td>
+											<td>1</td>
+											<td>0</td>
+										</tr>
+									</table>
+								</div><div>
+									<table>
+										<tr>
+											<td>1<span>, -1</span></td>
+											<td>0<span>, 0</span></td>
+											<td>-1<span>, 1</span></td>
+										</tr>
+										<tr>
+											<td>0<span>, 0</span></td>
+											<td>-1<span>, 1</span></td>
+											<td>1<span>, -1</span></td>
+										</tr>
+										<tr>
+											<td>-1<span>, 1</span></td>
+											<td>1<span>, -1</span></td>
+											<td>0<span>, 0</span></td>
+										</tr>
+									</table>
+							</div></div>
+							These would decompose into <kbd class="gamepayoffs">1 <span>-1</span> 0 <span>0</span>
+								-1 <span>1</span> 0 <span>0</span> -1 <span>1</span> 1 <span>-1</span> -1
+								<span>1</span> 1 <span>-1</span> 0 <span>0</span></kbd>,
+							where opponent payoffs are <span style="color: red;">coloured</span>.
 						</li>
 						<li>
-							The duration that players will participate in the experiment.
+							The duration (minutes per round and rounds) that players will participate in the
+							experiment.
+							The round time is specified in minutes.
+							It's important to factor in network lag: while one-minute experiments are certainly
+							well-tested and possible, they're not realistic if people sometimes must wait for the
+							page to load!
 						</li>
 					</ul>
 					<figure>
@@ -342,6 +463,336 @@
 						It won't be playable until the time and date you specified, but the players are notified
 						immediately with their login credentials.
 					</p>
+				</section>
+				<section id="runningexperiments">
+					<h3>Running Experiments</h3>
+					<p>
+						Once you've deployed your experiment as described in <a href="#firstexperiment">First
+							Experiment</a>, you must now administer it.
+						For the time being, there's very little in the way of <span class="nm">gamelab</span>
+						administration.
+						You can enable and disable players, reset player passwords, and reconfigure your administrator
+						credentials.
+					</p>
+					<figure>
+						<a href="screen-admin7.png"><img src="screen-admin7.png" alt="Administrator Homepage" /></a>
+					</figure>
+					<p>
+						If a player forgets her password, you can reset it by clicking on the player's email address and
+						selecting the <q>Reset Password</q> option.
+						You can reset all players' passwords with the <q>Reset All Passwords</q> option.
+						If a player is misbehaving, you can disable her login by toggling the button next to her e-mail
+						address.
+						Once toggled, she'll no longer be able to log in.
+						If she's already logged in, she'll be logged out; no plays are accepted.
+					</p>
+					<p>
+						If you misconfigured the e-mail server and no e-mails were sent out, you can retry the failed
+						e-mail attempts by re-configuring (correctly!) the server and selecting <q>Resend Error
+							Mails</q>.
+					</p>
+					<p>
+						When a game has finished, you can compute its lottery by specifying a seed for the random number
+						generator and a number of lottery winners.
+						<strong>Note</strong>: for the time being, only choose one!
+					</p>
+					<figure>
+						<a href="screen-admin6.png"><img src="screen-admin6.png" alt="Administrator Homepage" /></a>
+					</figure>
+					<p>
+						Once the winner has been chosen and notified, and the game wound down, you can wipe and start
+						afresh by selecting the <q>Wipe Experiment</q> option.
+						This will first back up the database (e-mailing it to you in the process), then wipe all by the
+						administrator credentials, listed games, and player identities (though not their play, of
+						course).
+					</p>
+				</section>
+				<section id="analysingexperiments">
+					<h3>Analysing Experiments</h3>
+					<p>
+						At this time, <span class="nm">gamelab</span> doesn't have any special functionality for
+						analysing played (or in-flight) experiments.
+						You can, however, directly access the <a href="http://sqlite.org">SQLite</a> game database by
+						backing up on the administrative console.
+						This will e-mail a redacted database to the administrator.
+						The redacted bits consist of user and administrator e-mail passwords.
+					</p>
+					<figure>
+						<a href="gamelab.png"><img class="shadow" src="gamelab.png" alt="Gamelab Schema" /></a>
+					</figure>
+					<p>
+						The database schema is fairly straightforward.
+						It consists of the following tables.
+						In all of these, note that <q>Unique Identifier</q> fields are non-zero SQLite <q>rowid</q> fields.
+						Rational numbers are stored as text, such as <var>1/2</var> or just <var>2</var>, starting with
+						<var>0/1</var>.
+					</p>
+					<dl>
+						<dt id="db-winner"><code>winner</code></dt>
+						<dd>
+							<p>
+								The <code>winner</code> table consists of rows corresponding to a player and her
+								winner status.
+								This table does not exist until the <a
+									href="db-experiment-status"><var>status</var></a> field of the <a
+									href="#db-experiment"><code>experiment</code></a> is set to
+								<var>3</var>.
+								This table is deleted when the database is wiped.
+							</p>
+							<dl>
+								<dt id="db-winner-playerid"><var>playerid</var></dt>
+								<dd>A foreign key reference to the <a href="#db-player"><code>player</code></a> table.</dd>
+								<dt id="db-winner-winner"><var>winner</var></dt>
+								<dd>
+									Boolean value as to whether the player is a winner.
+									If this is <var>false</var>, then the <a
+										href="#db-winner-winrank"><var>winrank</var></a> and
+									<a href="#db-winner-rnum"><var>rnum</var></a> columns are undefined.
+								</dd>
+								<dt id="db-winner-winrank"><var>winrank</var></dt>
+								<dd>If the player is a winner, the rank (first, second, third draw...) of their winning.</dd>
+								<dt id="db-winner-rnum"><var>rnum</var></dt>
+								<dd>The random number used for this winning draw.</dd>
+								<dt id="db-winner-id"><var>id</var></dt>
+								<dd>Unique identifier.</dd>
+							</dl>
+						</dd>
+						<dt id="db-player"><code>player</code></dt>
+						<dd>
+							<p>
+								The central <code>player</code> table consists of all participants.
+								The <a href="#db-player-hash"><var>hash</var></a> variable is redacted when the
+								experiment is wiped.
+							</p>
+							<dl>
+								<dt id="db-player-email"><var>email</var></dt>
+								<dd>Player e-mail address.  This is unique in the set of all players.</dd>
+								<dt id="db-player-state"><var>state</var></dt>
+								<dd>
+									The state of a player can be <var>0</var>, meaning the player is
+									newly-added and has no password; <var>1</var> when the player has been
+									mailed her password; <var>2</var>, the player has logged in; and
+									<var>3</var>, an error occured when the password e-mail was attempted.
+								</dd>
+								<dt id="db-player-enabled"><var>enabled</var></dt>
+								<dd>Whether a player is allowed to login during an experiment.</dd>
+								<dt id="db-player-rseed"><var>rseed</var></dt>
+								<dd>A non-zero cryptographically random number given to the player when created.</dd>
+								<dt id="db-player-role"><var>role</var></dt>
+								<dd>The player role (<var>0</var> for row player, <var>1</var> for column
+									player) set set when the <a
+										href="#db-experiment"><code>experiment</code></a> <a
+										href="#db-experiment-state"><var>state</var></a> is
+									&gt;0.</dd>
+								<dt id="db-player-rank"><var>rank</var></dt>
+								<dd>The index of the player in the sequence of all players sorted by <a
+										href="#db-player-rseed"><var>rseed</var></a> and (if
+									non-unique) <a href="#db-player-id"><var>id</var></a>.  
+									This is set when the <a
+										href="#db-experiment"><code>experiment</code></a> <a
+										href="#db-experiment-state"><var>state</var></a> is
+									&gt;0.</dd>
+								<dt id="db-player-instr"><var>instr</var></dt>
+								<dd>Whether the player should be shown instructions when she logs in (versus
+									being taken directly to the game-play tab).</dd>
+								<dt id="db-player-finalrank"><var>finalrank</var></dt>
+								<dd>The minimum of the slot of the player's tickets among all players' tickets.
+									For example, given 100 players with roughly 10 tickets each, this might
+									be <var>543</var> to indicate that slot <var>543</var> to <var>543</var>
+									plus <a href="#db-player-finalscore"><var>finalscore</var></a> are this
+									player's slots in the lottery.</dd>
+								<dt id="db-player-finalscore"><var>finalscore</var></dt>
+								<dd>Set to the accumulated payoffs from the <a
+										href="#db-lottery"><code>lottery</code></a> <a
+										href="#db-lottery-aggrpayoff"><var>aggrpayoff</var></a>
+									rounded up to the nearest integer.</dd>
+								<dt id="db-player-hash"><var>hash</var></dt>
+								<dd>The player's password set when the experiment is started (i.e., when the <a
+										href="#db-experiment"><code>experiment</code></a> <a
+										href="#db-experiment-state"><var>state</var></a> is &gt;0) or
+									when reset. <strong>Note</strong>: this is stored in the clear: it is
+									not (yet) a hash.</dd>
+								<dt id="db-player-id"><var>id</var></dt>
+								<dd>Unique identifier.</dd>
+							</dl>
+						</dd>
+						<dt id="db-lottery"><code>lottery</code></dt>
+						<dd>
+							<p>
+								A lottery is created for an individual <a
+									href="#db-player"><code>player</code></a> when that player has been
+								granted <a href="#db-payoff"><code>payoff</code></a> for all <a
+									href="#db-game"><code>game</code></a> rows in a round.
+							</p>
+							<dl>
+								<dt id="db-lottery-round"><var>round</var></dt>
+								<dd>The round number (starting at zero).</dd>
+								<dt id="db-lottery-playerid"><var>playerid</var></dt>
+								<dd>A foreign key reference to the <a href="#db-player"><code>player</code></a>
+									<a href="#db-player-id"><var>id</var></a>.</dd>
+								<dt id="db-lottery-aggrpayoff"><var>aggrpayoff</var></dt>
+								<dd>The player's aggregate payoff (as a rational number) computing by adding the
+									previous round's aggregate payoff to the current <a
+										href="#db-lottery-curpayoff"><var>curpayoff</var></a>.</dd>
+								<dt id="db-lottery-curpayoff"><var>curpayoff</var></dt>
+								<dd>The player's current payoff (as a rational number) computing by accumulating
+									her <a href="#db-payoff"><code>payoff</code></a> <a
+										href="#db-payoff-payoff"><var>payoff</var></a> for all
+									games in the experiment.
+									This is set to <var>0/1</var> if the player has not played all
+									games.</dd>
+								<dt id="db-lottery-id"><var>id</var></dt>
+								<dd>Unique identifier.</dd>
+							</dl>
+						</dd>
+						<dt id="db-gameplay"><code>gameplay</code></dt>
+						<dd>
+							<p>
+								During a given round, this records a <a
+									href="#db-player"><code>player</code></a>'s status in terms of number of
+								<a href="#db-choice"><code>choice</code></a> rows (plays) made.
+							</p>
+							<dl>
+								<dt id="db-gameplay-round"><var>round</var></dt>
+								<dd>The round number (starting at zero).</dd>
+								<dt id="db-gameplay-choices"><var>choices</var></dt>
+								<dd>The number of games this player has played, i.e., the count of <a
+										href="#db-choice"><code>choice</code></a> rows.</dd>
+								<dt id="db-gameplay-playerid"><var>playerid</var></dt>
+								<dd>A foreign key reference to the <a href="#db-player"><code>player</code></a>
+									<a href="#db-player-id"><var>id</var></a>. When this equals the number
+									of games, the player has played all games for a round.</dd>
+								<dt id="db-gameplay-id"><var>id</var></dt>
+								<dd>Unique identifier.</dd>
+							</dl>
+						</dd>
+						<dt id="db-payoff"><code>payoff</code></dt>
+						<dd>
+							<p>
+								When the given round has completed, this consists of the payoff of the player's
+								<a href="#db-choice"><code>choice</code></a> strategy mix for a given <a
+									href="#db-game"><code>game</code></a> when played against the average
+								strategy of the opposing player role.
+							</p>
+							<dl>
+								<dt id="db-payoff-round"><var>round</var></dt>
+								<dd>The round number (starting at zero).</dd>
+								<dt id="db-payoff-playerid"><var>playerid</var></dt>
+								<dd>A foreign key reference to the <a href="#db-player"><code>player</code></a>
+									<a href="#db-player-id"><var>id</var></a>. When this equals the number
+									of games, the player has played all games for a round.</dd>
+								<dt id="db-payoff-gameid"><var>gameid</var></dt>
+								<dd>A foreign key reference to the <a href="#db-game"><code>game</code></a>
+									<a href="#db-game-id"><var>id</var></a>.</dd>
+								<dt id="db-payoff-payoff"><var>payoff</var></dt>
+								<dd>A rational number of the payoff.</dd>
+								<dt id="db-payoff-id"><var>id</var></dt>
+								<dd>Unique identifier.</dd>
+							</dl>
+						</dd>
+						<dt id="db-choice"><code>choice</code></dt>
+						<dd>
+							<p>
+								A strategy mixture created when a <a href="#db-player"><code>player</code></a>
+								plays a round in a <a href="#db-game"><code>game</code></a>.
+							</p>
+							<dl>
+								<dt id="db-choice-round"><var>round</var></dt>
+								<dd>The round number (starting at zero).</dd>
+								<dt id="db-choice-strats"><var>strats</var></dt>
+								<dd>A text (space-separated) list of rational numbers of the strategy mixture
+									ordered from the top if a row-playing <a
+										href="#db-player-role"><var>role</var></a> or left if a
+									column-player.</dd>
+								<dt id="db-choice-stratsz"><var>stratsz</var></dt>
+								<dd>Number of entries in <a href="#db-choice-strats"><var>strats</var></a>.
+									This obviously equals the number of strategies available to the player
+									in that <a href="#db-game"><code>game</code></a>, given the player <a
+										href="#db-player-role"><var>role</var></a>.</dt>
+								<dt id="db-choice-playerid"><var>playerid</var></dt>
+								<dd>A foreign key reference to the <a href="#db-player"><code>player</code></a>
+									<a href="#db-player-id"><var>id</var></a>. When this equals the number
+									of games, the player has played all games for a round.</dd>
+								<dt id="db-choice-gameid"><var>gameid</var></dt>
+								<dd>A foreign key reference to the <a href="#db-game"><code>game</code></a>
+									<a href="#db-game-id"><var>id</var></a>.</dd>
+								<dt id="db-payoff-id"><var>id</var></dt>
+								<dd>Unique identifier.</dd>
+							</dl>
+						</dd>
+						<dt id="db-experiment"><code>experiment</code></dt>
+						<dd>
+							<p>
+								This describes an experiment configured by the experimenter.
+							</p>
+							<dl>
+								<dt id="db-experiment-state"><var>state</var></dt>
+								<dd>The running state of the experiment, being either <var>0</var>, for new
+									(still in the configuration stage); <var>1</var>, for started (players
+									can log in, though the experiment itself may not be accepting plays
+									yet); <var>2</var>, where the experiment has expired, but the winner has
+									not been chosen by the experimenter; or <var>3</var>, where the
+									experiment has expired and the winner has been chosen.</dd>
+								<dt id="db-experiment-start"><var>start</var></dt>
+								<dd>An epoch-encoded (seconds) time and date when the experiment when the first
+									round of the experiment begins.</dd>
+								<dt id="db-experiment-end"><var>end</var></dt>
+								<dd>An epoch-encoded (seconds) time and date when the experiment when the last
+									round of the experiment concludes.  This also corresponds to the
+									starting time plus the number of rounds times round duration.</dd>
+								<dt id="db-experiment-rounds"><var>rounds</var></dt>
+								<dd>The number of rounds that will be played.  Minimum of one.</dd>
+								<dt id="db-experiment-minutes"><var>minutes</var></dt>
+								<dd>The number of minutes per round.  Minimum of one.</dt>
+								<dt id="db-experiment-loginuri"><var>loginuri</var></dt>
+								<dd>Set when the experiment begins (i.e., when <a
+										href="#db-experiment-state"><var>state</var></a> &gt;0), this is
+									the URL given to players in their initial e-mail for when they log in.
+									This is suffixed by
+									<code>?email=EMAIL&amp;password=PASSWORD</code>.</dd>
+								<dt id="db-experiment-instr"><var>instr</var></dt>
+								<dd>The instructions shown to players.  This must contain valid HTML5.  It may
+									contain <code>@@gamelab-admin-email@@</code>, which is filled in with
+									the experimenter's configured e-mail address;
+									<code>@@gamelab-games@@</code> for the number of games;
+									<code>@@gamelab-rounds@@</code> for the number of rounds; and
+									<code>@@gamelab-round-time@@</code>, a decimal number of the number of
+									hours per round.</dd>
+								<dt id="db-experiment-instrWin"><var>instrWin</var></dt>
+								<dd>The winner's instructions.  This must contain valid HTML5.</dd>
+								<dt id="db-experiment-total"><var>total</var></dt>
+								<dd>When the experiment finishes (i.e., when <a
+										href="#db-experiment-state"><var>state</var></a> is set to 2),
+									this is filled in with the total number of lottery tickets (the <a
+										href="#db-player-finalscore"><var>finalscore</var></a>) awarded to
+									all players.</dd>
+								<dt id="db-experiment-id"><var>id</var></dt>
+								<dd>Unique identifier.</dd>
+							</dl>
+						</dd>
+						<dt id="db-game"><code>game</code></dt>
+						<dd>
+							<p>
+								A game is a payoff bimatrix configured by the experimenter.
+								There may be any non-zero number of games in a running experiment.
+							</p>
+							<dl>
+								<dt id="db-game-p1"><var>p1</var></dt>
+								<dd>The number of strategies for the row player.</dd>
+								<dt id="db-game-p2"><var>p2</var></dt>
+								<dd>The number of strategies for the column player.</dd>
+								<dt id="db-game-payoffs"><var>payoffs</var></dt>
+								<dd>A list of payoffs from the top-left to the bottom-right of the payoff
+									matrix, ordered row-player payoff, column-player payoff.
+									See <a href="#firstexperiment">First Experiment</a> configuration for
+									more.</dd>
+								<dt id="db-game-name"><var>name</var></dt>
+								<dd>The name of the experiment.  This is shown only to the experimenter.</dd>
+								<dt id="db-game-id"><var>id</var></dt>
+								<dd>Unique identifier.</dd>
+							</dl>
+						</dd>
+					</dl>
 				</section>
 			</section>
 		</article>
