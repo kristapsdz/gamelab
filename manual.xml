@@ -132,8 +132,9 @@
 						installations on upgrading.
 					</p>
 					<p>
-						<div><kbd>openssl dgst -sha512 gamelab.tgz | cmp - gamelab.tgz.sha512</kbd></div>
-						<div><kbd>tar zxf gamelab.tgz &amp;&amp; rm -f gamelab.tgz</kbd></div>
+						<kbd>openssl dgst -sha512 gamelab.tgz | cmp - gamelab.tgz.sha512</kbd>
+						<br />
+						<kbd>tar zxf gamelab.tgz &amp;&amp; rm -f gamelab.tgz</kbd>
 					</p>
 					<p>
 						Once you've unpacked the source code, you need to compile the server.
@@ -708,7 +709,7 @@
 								<dd>Number of entries in <a href="#db-choice-strats"><var>strats</var></a>.
 									This obviously equals the number of strategies available to the player
 									in that <a href="#db-game"><code>game</code></a>, given the player <a
-										href="#db-player-role"><var>role</var></a>.</dt>
+										href="#db-player-role"><var>role</var></a>.</dd>
 								<dt id="db-choice-playerid"><var>playerid</var></dt>
 								<dd>A foreign key reference to the <a href="#db-player"><code>player</code></a>
 									<a href="#db-player-id"><var>id</var></a>. When this equals the number
@@ -716,7 +717,7 @@
 								<dt id="db-choice-gameid"><var>gameid</var></dt>
 								<dd>A foreign key reference to the <a href="#db-game"><code>game</code></a>
 									<a href="#db-game-id"><var>id</var></a>.</dd>
-								<dt id="db-payoff-id"><var>id</var></dt>
+								<dt id="db-choice-id"><var>id</var></dt>
 								<dd>Unique identifier.</dd>
 							</dl>
 						</dd>
@@ -745,7 +746,7 @@
 								<dt id="db-experiment-rounds"><var>rounds</var></dt>
 								<dd>The number of rounds that will be played.  Minimum of one.</dd>
 								<dt id="db-experiment-minutes"><var>minutes</var></dt>
-								<dd>The number of minutes per round.  Minimum of one.</dt>
+								<dd>The number of minutes per round.  Minimum of one.</dd>
 								<dt id="db-experiment-loginuri"><var>loginuri</var></dt>
 								<dd>Set when the experiment begins (i.e., when <a
 										href="#db-experiment-state"><var>state</var></a> &gt;0), this is
@@ -806,7 +807,6 @@
 								<dd>A cryptographically random cookie assigned to each session.  This is used as
 									a security feature so that people can't guess others' session
 									identifiers and re-use them.</dd>
-								<dt id="db-sess-playerid"><var>playerid</var></dt>
 								<dt id="db-sess-playerid"><var>playerid</var></dt>
 								<dd>A foreign key reference to the <a href="#db-player"><code>player</code></a>
 									<a href="#db-player-id"><var>id</var></a>.
