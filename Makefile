@@ -112,7 +112,7 @@ installwww: www
 	mkdir -p $(PREFIX)
 	mkdir -p $(PREFIX)/snapshots
 	install -m 0444 index.html gamelab.bib manual.html index.css manual.css $(PREFIX)
-	install -m 0444 $(SCREENS) $(PREFIX)
+	install -m 0444 $(SCREENS) gamelab.png $(PREFIX)
 	install -m 0444 gamelab.tgz $(PREFIX)/snapshots
 	install -m 0444 gamelab.tgz.sha512 $(PREFIX)/snapshots
 	install -m 0444 gamelab.tgz $(PREFIX)/snapshots/gamelab-$(VERSION).tgz
@@ -133,5 +133,5 @@ index.html: index.xml
 
 clean:
 	rm -f admin admin.o gamelab.db lab lab.o $(OBJS) config.h config.log 
-	rm -f index.html manual.html gamelab.tgz gamelab.tgz.sha512 gamelab.bib
+	rm -f index.html manual.html gamelab.tgz gamelab.tgz.sha512 gamelab.bib gamelab.png
 	rm -rf *.dSYM
