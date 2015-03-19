@@ -724,6 +724,8 @@
 						<dd>
 							<p>
 								This describes an experiment configured by the experimenter.
+								There is always one (and only one) row in this table.
+								It is initialised to default values.
 							</p>
 							<dl>
 								<dt id="db-experiment-state"><var>state</var></dt>
@@ -789,6 +791,129 @@
 								<dt id="db-game-name"><var>name</var></dt>
 								<dd>The name of the experiment.  This is shown only to the experimenter.</dd>
 								<dt id="db-game-id"><var>id</var></dt>
+								<dd>Unique identifier.</dd>
+							</dl>
+						</dd>
+						<dt id="db-sess"><code>sess</code></dt>
+						<dd>
+							<p>
+								A session.
+								Sessions are the usual browser session used when players (or the experimenter)
+								are interacting with the system.
+							</p>
+							<dl>
+								<dt id="db-sess-cookie"><var>cookie</var></dt>
+								<dd>A cryptographically random cookie assigned to each session.  This is used as
+									a security feature so that people can't guess others' session
+									identifiers and re-use them.</dd>
+								<dt id="db-sess-playerid"><var>playerid</var></dt>
+								<dt id="db-sess-playerid"><var>playerid</var></dt>
+								<dd>A foreign key reference to the <a href="#db-player"><code>player</code></a>
+									<a href="#db-player-id"><var>id</var></a>.
+									For experimenter logins, this value is <var>null</var>.</dd>
+								<dt id="db-sess-id"><var>id</var></dt>
+								<dd>Unique identifier.</dd>
+							</dl>
+						</dd>
+						<dt id="db-admin"><code>admin</code></dt>
+						<dd>
+							<p>
+								Administrator (a.k.a. experimenter) credentials.
+								There is always one (and only one) row that exists, initialised to default
+								values.
+							</p>
+							<dl>
+								<dt id="db-admin-email"><var>email</var></dt>
+								<dd>The experimenter e-mail address.  This is used as a predefined template
+									value for the instructions.  It is also used as the destination for
+									backups of the database.  Initialises to <code>foo@example.com</code>.</dd>
+								<dt id="db-admin-hash"><var>hash</var></dt>
+								<dd>The experimenter password.  <strong>Note</strong>: this is stored as
+									cleartext, so it is not really a hash (yet).  Initialises to
+									<code>xyzzy</code>.</dd>
+								<dt id="db-admin-id"><var>id</var></dt>
+								<dd>Unique identifier.</dd>
+							</dl>
+						</dd>
+						<dt id="db-past"><code>past</code></dt>
+						<dd>
+							<p>
+								Records the average strategy mixture of a given player role for a given round
+								and <a href="#db-game"><code>game</code></a> when a round has concluded.
+							</p>
+							<dl>
+								<dt id="db-past-round"><var>round</var></dt>
+								<dd>The round starting at zero.</dd>
+								<dt id="db-past-gameid"><var>gameid</var></dt>
+								<dd>A foreign key reference to the <a href="#db-game"><code>game</code></a>
+									<a href="#db-game-id"><var>id</var></a>.</dd>
+								<dt id="db-past-averagesp1"><var>averagesp1</var></dt>
+								<dd>For the row player, the accumulated weighted average strategy mixture of all
+									previous rounds, with previous rounds being exponentially decayed.  That
+									is, the <a href="#db-past-currentsp1"><var>currentsp1</var></a> plus
+									half of the last round's weighted average and so on.
+									If a round does not have enough plays by either player role to produce
+									payoffs, it is omitted from the accumulation sequence.
+									This is recorded as a space-separated sequence of rational numbers, one
+									per strategy.</dd>
+								<dt id="db-past-averagesp2"><var>averagesp2</var></dt>
+								<dd>Like <a href="#db-past-averagesp1"><var>averagesp1</var></a> but for the
+									column player.</dd>
+								<dt id="db-past-currentsp1"><var>currentsp1</var></dt>
+								<dd>For the row player, the average strategy mixture of the current round.
+									Strategy mixtures are only considered for <a
+										href="#db-choice"><code>code</code></a> rows where the <a
+										href="#db-player"><code>player</code></a> played all games
+									for the round, so this will be a set of zeroes if no players completed
+									all games.
+									This is recorded as a space-separated sequence of rational numbers, one
+									per strategy.</dd>
+								<dt id="db-past-currentsp2"><var>currentsp2</var></dt>
+								<dd>Like <a href="#db-past-currentsp1"><var>currentsp1</var></a> but for the
+									column player.</dd>
+								<dt id="db-past-skip"><var>skip</var></dt>
+								<dd>If zero row or column players played all games, this is set to <var>1</var>,
+									else it is <var>0</var> (sufficient players played).</dd>
+								<dd>The accumulated count of rounds not skipping, i.e., the count of zero-valued
+									<a href="#db-past-skip"><var>skip</var></a> rounds.  This is used for
+									computing the accumulated weighted average, which is really the sum of
+									all (non-zero) weighted previous rounds divided by the exponential
+									sum.</dd>
+								<dt id="db-past-id"><var>id</var></dt>
+								<dd>Unique identifier.</dd>
+							</dl>
+						</dd>
+						<dt id="db-tickets"><code>tickets</code></dt>
+						<dd>
+							<p>This table is not used and will be removed.</p>
+						</dd>
+						<dt id="db-smtp"><code>smtp</code></dt>
+						<dd>
+							<p>
+								This consists of the SMTP server information used in sending e-mails.
+								There is always only one row set, which defaults to empty values (see <a
+									href="#db-smtp-isset"><var>isset</var></a>).
+							</p>
+							<dl>
+								<dt id="db-smtp-user"><var>user</var></dt>
+								<dd>The SMTP server username (used for logging in).</dd>
+								<dt id="db-smtp-email"><var>email</var></dt>
+								<dd>The e-mail address used as the <q>From</q> address in all communication from
+									the server to players and the experimenter.
+									It is usually the same as the experimenter <a
+										href="#db-admin-email"><var>email</var></a> set in the <a
+										href="#db-admin"><code>admin</code></a> table, but may be set as
+									a standard <q>No-Reply</q>. (This is discouraged, as your players should
+									be able to reply to you if things go wrong.)
+								<dt id="db-smtp-pass"><var>pass</var></dt>
+								<dd>The SMTP username's password (used for logging in).  <strong>Note</strong>
+									that this is stored in cleartext, so make sure that your password isn't
+									used elsewhere.</dd>
+								<dt id="db-smtp-server"><var>server</var></dt>
+								<dd>The SMTP server in <code>smtp://server:port</code> format.</dd>
+								<dt id="db-smtp-isset"><var>isset</var></dt>
+								<dd>Whether these entries have been set.</dd>
+								<dt id="db-smtp-id"><var>id</var></dt>
 								<dd>Unique identifier.</dd>
 							</dl>
 						</dd>
