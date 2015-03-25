@@ -1,0 +1,18 @@
+body				{ background-color: #eee; }
+h1				{ font-family: cursive; 
+				  text-align: right; 
+				  font-size: 32pt; 
+				  margin-bottom: -0.9ex; }
+article > section > form 	{ padding: 0; }
+form 				{ box-shadow: 2px 2px 2px #ccc; }
+section section 		{ background-color: #fff; 
+				  margin: 0; 
+				  padding: 0; 
+				  border: 0; }
+section section >* 		{ margin: 0; }
+section section fieldset	{ padding: 1em; }
+section section .error >*	{ padding: 1em 1em 0 1em; }
+section section:last-child 	{ background-color: #ddd; 
+				  padding: 1em; 
+				  color: #236;
+				  line-height: 120%; }

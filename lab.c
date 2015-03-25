@@ -54,18 +54,8 @@ enum	page {
 	PAGE_DOLOGIN,
 	PAGE_DOLOGOUT,
 	PAGE_DOPLAY,
-	PAGE_HOME,
 	PAGE_INDEX,
 	PAGE__MAX
-};
-
-/*
- * Content that we manage.
- * By "manage" I mean that we template them.
- */
-enum	cntt {
-	CNTT_HTML_HOME,
-	CNTT__MAX
 };
 
 /*
@@ -92,7 +82,6 @@ static	unsigned int perms[PAGE__MAX] = {
 	PERM_JSON | PERM_HTML, /* PAGE_DOLOGIN */
 	PERM_HTML | PERM_LOGIN, /* PAGE_DOLOGOUT */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOPLAY */
-	PERM_HTML | PERM_LOGIN, /* PAGE_HOME */
 	PERM_HTML | PERM_LOGIN, /* PAGE_INDEX */
 };
 
@@ -102,12 +91,7 @@ static const char *const pages[PAGE__MAX] = {
 	"dologin", /* PAGE_DOLOGIN */
 	"dologout", /* PAGE_DOLOGOUT */
 	"doplay", /* PAGE_DOPLAY */
-	"home", /* PAGE_HOME */
 	"index", /* PAGE_INDEX */
-};
-
-static const char *const cntts[CNTT__MAX] = {
-	"playerhome.html", /* CNTT_HTML_HOME_NEW */
 };
 
 static const struct kvalid keys[KEY__MAX] = {
@@ -205,19 +189,6 @@ send303(struct kreq *r, const char *pg, enum page dest, int st)
 }
 
 static void
-sendcontent(struct kreq *r, enum cntt cntt)
-{
-	char	 fname[PATH_MAX];
-
-	snprintf(fname, sizeof(fname), 
-		DATADIR "/%s", cntts[cntt]);
-
-	http_open(r, KHTTP_200);
-	khttp_body(r);
-	khttp_template(r, NULL, fname);
-}
-
-static void
 senddologin(struct kreq *r)
 {
 	struct sess	*sess;
@@ -236,7 +207,7 @@ senddologin(struct kreq *r)
 			"%s=%" PRId64 "; path=/; expires=", 
 			keys[KEY_SESSID].name, sess->id);
 		if (KMIME_TEXT_HTML == r->mime)
-			send303(r, NULL, PAGE_HOME, 0);
+			send303(r, HTURI "/playerhome.html", PAGE__MAX, 0);
 		else
 			khttp_body(r);
 		db_sess_free(sess);
@@ -703,11 +674,8 @@ main(void)
 	case (PAGE_DOPLAY):
 		senddoplay(&r, id);
 		break;
-	case (PAGE_HOME):
-		sendcontent(&r, CNTT_HTML_HOME);
-		break;
 	case (PAGE_INDEX):
-		send303(&r, NULL, PAGE_HOME, 1);
+		send303(&r, HTURI "/playerhome.html", PAGE__MAX, 1);
 		break;
 	default:
 		http_open(&r, KHTTP_404);

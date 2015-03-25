@@ -13,227 +13,232 @@
 		<script src="@HTURI@/script.js"></script>
 		<script src="@HTURI@/playerhome.js"></script>
 	</head>
-	<body onload="loadExpr();" onclick="onNavUp();" id="playerHomeBase">
-		<header>
-			<a id="navButton" href="#" onclick="return(onNav(event));"><i class="fa fa-navicon"></i></a>
-			<h1>gamelab</h1>
-			<span>
-				Next round: <span id="exprCountdown"><i class="fa fa-spinner fa-spin"></i></span>
-			</span>
-			<div id="navParent">
-				<nav id="nav">
-					<ul>
-						<li><a href="#defaultTab"><i class="fa fa-fw fa-info"></i> Instructions</a></li>
-						<li><a href="#play"><i class="fa fa-fw fa-play"></i> Play</a></li>
-						<li><a href="#history"><i class="fa fa-fw fa-history"></i> History</a></li>
-						<li><a href="@LABURI@/dologout.html"><i class="fa fa-fw fa-sign-out"></i> Logout</a></li>
-					</ul>
-				</nav>
-			</div>
-		</header>
-		<article id="history" class="tab">
-			<h2>History of play</h2>
-			<div id="historyLoading"><i class="fa fa-spinner fa-spin"></i></div>
-			<div id="historyLoaded" class="noshow">
-				<section id="historyPlay" class="noshow">
-					<nav id="historyNav">
-						Game 
-						<a href="#" onclick='showHistoryGamePrev(); return false;'><i class="fa fa-arrow-circle-left"></i></a>
-						<select id="historySelectGame" onchange="showHistory();"></select>
-						<a href="#" onclick='showHistoryGameNext(); return false;'><i class="fa fa-arrow-circle-right"></i></a>,
-						Round 
-						<a href="#" onclick='showHistoryRoundPrev(); return false;'><i class="fa fa-toggle-left"></i></a>
-						<select id="historySelectRound" onchange="showHistory();"></select>
-						<a href="#" onclick='showHistoryRoundNext(); return false;'><i class="fa fa-toggle-right"></i></a>
+	<body onload="loadExprFirst();" onclick="onNavUp();" id="playerHomeBase">
+		<section id="loading">
+			<i class="fa fa-spinner fa-spin"></i> Gamelab is loading...
+		</section>
+		<section id="loaded" class="noshow">
+			<header>
+				<a id="navButton" href="#" onclick="return(onNav(event));"><i class="fa fa-navicon"></i></a>
+				<h1>gamelab</h1>
+				<span>
+					Next round: <span id="exprCountdown"><i class="fa fa-spinner fa-spin"></i></span>
+				</span>
+				<div id="navParent">
+					<nav id="nav">
+						<ul>
+							<li><a href="#defaultTab"><i class="fa fa-fw fa-info"></i> Instructions</a></li>
+							<li><a href="#play"><i class="fa fa-fw fa-play"></i> Play</a></li>
+							<li><a href="#history"><i class="fa fa-fw fa-history"></i> History</a></li>
+							<li><a href="@LABURI@/dologout.html"><i class="fa fa-fw fa-sign-out"></i> Logout</a></li>
+						</ul>
 					</nav>
-					<div>
-						<h3>Game and round specifics</h3>
-						<div class="caption">
-							Payoff bimatrix:
-						</div>
-						<div id="bimatrixRoundups"></div>
-						<div class="caption">
-							Play in the selected round:
-							<a href="#" onclick="doUnhide('historyHelp'); return false;"><i class="fa fa-question-circle"></i></a>
-						</div>
-						<div id="historyHelp" class="noshow canclose">
-							<a href="#" class="close" onclick="doHideNode(this.parentNode); return false;"><i class="fa fa-times"></i></a>
-							The number in the white cells in the matrix shows the share of plays that ended in that
-							cell in the selected round. The first number in the gray cells shows in what share of
-							plays that row or column strategy was used. The number in brackets in the gray cells to
-							the right show your payoff, represented by [U], should you have played the pure strategy
-							associated with each row in the previous round.
-						</div>
-						<div id="historyRoundups"></div>
-					</div>
-					<h3>Round specifics</h3>
-					<div id="lotteryRoundups"></div>
-					<h2>Total payoffs</h2>
-					<p>
-						Your total payoff from all rounds and games: <span id="historyLottery"></span>
-					</p>
-				</section>
-				<section id="historyNotYet" class="noshow">
-					<p>
-						This is the first round, there is no history to report yet.
-					</p>
-				</section>
-				<section id="historyNotStarted" class="noshow">
-					<p>
-						Waiting for game to start.
-					</p>
-				</section>
-			</div>
-		</article>
-		<article id="play" class="tab">
-			<h2>Play game</h2>
-			<div id="exprLoading"><i class="fa fa-spinner fa-spin"></i></div>
-			<div id="exprLoaded" class="noshow">
-				<section id="exprNotStarted" class="noshow">
-					<p>
-						Waiting for game to start.
-					</p>
-				</section>
-				<section id="exprDone" class="noshow">
-					<h3>
-						Round <span id="playRoundNum2"></span> of <span id="playRoundMax2"></span>
-					</h3>
-					<p>
-						You've played all the games for this round.
-						Please wait to play again.
-					</p>
-				</section>
-				<section id="exprFinished" class="noshow">
-					<div>
-						<p>
-							The experiment is finished.
-							Your payoff of <span id="exprFinishedScore"></span> earned you <span
-								id="exprFinishedTickets"></span> tickets out of a total of <span
-								id="exprFinishedTicketsMax"></span>.
-							Your lottery tickets are in the interval 
-							<span id="exprFinishedFinalRank"></span>&ndash;<span id="exprFinishedFinalRankEnd"></span>.
-						</p>
-						<p>
-							Results are computed by drawing a random integer within the total number of awarded
-							tickets. 
-						</p>
-					</div>
-					<p id="exprFinishedWinRnums">
-						The draw has been finished and the winning number is <span id="exprFinishedRnums"></span>.
-					</p>
-					<p id="exprFinishedWin"></p>
-					<p id="exprFinishedLose">
-						This means that you unfortunately didn't win this time around. 
-						Thank you for participating!
-					</p>
-					<p id="exprFinishedWinWait">
-						Waiting for lottery draw...
-					</p>
-				</section>
-				<section id="exprPlay" class="noshow">
-					<h3>
-						Game <span id="playGameNum"></span> of <span id="playGameMax"></span>,
-						round <span id="playRoundNum"></span> of <span id="playRoundMax"></span>
-					</h3>
-					<div id="exprHistory">
+				</div>
+			</header>
+			<article id="history" class="tab">
+				<h2>History of play</h2>
+				<div id="historyLoading"><i class="fa fa-spinner fa-spin"></i></div>
+				<div id="historyLoaded" class="noshow">
+					<section id="historyPlay" class="noshow">
+						<nav id="historyNav">
+							Game 
+							<a href="#" onclick='showHistoryGamePrev(); return false;'><i class="fa fa-arrow-circle-left"></i></a>
+							<select id="historySelectGame" onchange="showHistory();"></select>
+							<a href="#" onclick='showHistoryGameNext(); return false;'><i class="fa fa-arrow-circle-right"></i></a>,
+							Round 
+							<a href="#" onclick='showHistoryRoundPrev(); return false;'><i class="fa fa-toggle-left"></i></a>
+							<select id="historySelectRound" onchange="showHistory();"></select>
+							<a href="#" onclick='showHistoryRoundNext(); return false;'><i class="fa fa-toggle-right"></i></a>
+						</nav>
 						<div>
-							Your payoff from this game in the previous round:
-							<span id="exprHistoryLottery"></span><span id="exprHistoryPlays"></span>
+							<h3>Game and round specifics</h3>
+							<div class="caption">
+								Payoff bimatrix:
+							</div>
+							<div id="bimatrixRoundups"></div>
+							<div class="caption">
+								Play in the selected round:
+								<a href="#" onclick="doUnhide('historyHelp'); return false;"><i class="fa fa-question-circle"></i></a>
+							</div>
+							<div id="historyHelp" class="noshow canclose">
+								<a href="#" class="close" onclick="doHideNode(this.parentNode); return false;"><i class="fa fa-times"></i></a>
+								The number in the white cells in the matrix shows the share of plays that ended in that
+								cell in the selected round. The first number in the gray cells shows in what share of
+								plays that row or column strategy was used. The number in brackets in the gray cells to
+								the right show your payoff, represented by [U], should you have played the pure strategy
+								associated with each row in the previous round.
+							</div>
+							<div id="historyRoundups"></div>
 						</div>
-						<div id="skipExplain">
-							<div class="warning">
-								<div>
-									<div><i class="fa fa-exclamation-circle"></i></div>
+						<h3>Round specifics</h3>
+						<div id="lotteryRoundups"></div>
+						<h2>Total payoffs</h2>
+						<p>
+							Your total payoff from all rounds and games: <span id="historyLottery"></span>
+						</p>
+					</section>
+					<section id="historyNotYet" class="noshow">
+						<p>
+							This is the first round, there is no history to report yet.
+						</p>
+					</section>
+					<section id="historyNotStarted" class="noshow">
+						<p>
+							Waiting for game to start.
+						</p>
+					</section>
+				</div>
+			</article>
+			<article id="play" class="tab">
+				<h2>Play game</h2>
+				<div id="exprLoading"><i class="fa fa-spinner fa-spin"></i></div>
+				<div id="exprLoaded" class="noshow">
+					<section id="exprNotStarted" class="noshow">
+						<p>
+							Waiting for game to start.
+						</p>
+					</section>
+					<section id="exprDone" class="noshow">
+						<h3>
+							Round <span id="playRoundNum2"></span> of <span id="playRoundMax2"></span>
+						</h3>
+						<p>
+							You've played all the games for this round.
+							Please wait to play again.
+						</p>
+					</section>
+					<section id="exprFinished" class="noshow">
+						<div>
+							<p>
+								The experiment is finished.
+								Your payoff of <span id="exprFinishedScore"></span> earned you <span
+									id="exprFinishedTickets"></span> tickets out of a total of <span
+									id="exprFinishedTicketsMax"></span>.
+								Your lottery tickets are in the interval 
+								<span id="exprFinishedFinalRank"></span>&ndash;<span id="exprFinishedFinalRankEnd"></span>.
+							</p>
+							<p>
+								Results are computed by drawing a random integer within the total number of awarded
+								tickets. 
+							</p>
+						</div>
+						<p id="exprFinishedWinRnums">
+							The draw has been finished and the winning number is <span id="exprFinishedRnums"></span>.
+						</p>
+						<p id="exprFinishedWin"></p>
+						<p id="exprFinishedLose">
+							This means that you unfortunately didn't win this time around. 
+							Thank you for participating!
+						</p>
+						<p id="exprFinishedWinWait">
+							Waiting for lottery draw...
+						</p>
+					</section>
+					<section id="exprPlay" class="noshow">
+						<h3>
+							Game <span id="playGameNum"></span> of <span id="playGameMax"></span>,
+							round <span id="playRoundNum"></span> of <span id="playRoundMax"></span>
+						</h3>
+						<div id="exprHistory">
+							<div>
+								Your payoff from this game in the previous round:
+								<span id="exprHistoryLottery"></span><span id="exprHistoryPlays"></span>
+							</div>
+							<div id="skipExplain">
+								<div class="warning">
 									<div>
-										In the last round, not enough participants played, so no points
-										were tallied for the round.
+										<div><i class="fa fa-exclamation-circle"></i></div>
+										<div>
+											In the last round, not enough participants played, so no points
+											were tallied for the round.
+										</div>
 									</div>
 								</div>
 							</div>
+							<div class="caption">
+								Your strategy mix was:
+								<a href="#" onclick="doUnhide('historyHelp2'); return false;"><i class="fa fa-question-circle"></i></a>
+							</div>
+							<div id="historyHelp2" class="noshow canclose">
+								<a href="#" class="close" onclick="doHideNode(this.parentNode); return false;"><i class="fa fa-times"></i></a>
+								The number in the white cells in the matrix shows the share of plays that ended in that
+								cell in the last round. The first number in the gray cells shows in what share of plays
+								that row or column strategy was used. The number in brackets in the gray cells to the
+								right show your payoff, represented by U, should you have played the pure strategy
+								associated with each row in the previous round.
+							</div>
+							<div id="exprHistoryMatrix"></div>
 						</div>
+						</aside>
 						<div class="caption">
-							Your strategy mix was:
-							<a href="#" onclick="doUnhide('historyHelp2'); return false;"><i class="fa fa-question-circle"></i></a>
+							Payoff bimatrix:
+							<a href="#" onclick="doUnhide('bimatrixHelp'); return false;"><i class="fa fa-question-circle"></i></a>
 						</div>
-						<div id="historyHelp2" class="noshow canclose">
+						<div id="bimatrixHelp" class="noshow canclose">
 							<a href="#" class="close" onclick="doHideNode(this.parentNode); return false;"><i class="fa fa-times"></i></a>
-							The number in the white cells in the matrix shows the share of plays that ended in that
-							cell in the last round. The first number in the gray cells shows in what share of plays
-							that row or column strategy was used. The number in brackets in the gray cells to the
-							right show your payoff, represented by U, should you have played the pure strategy
-							associated with each row in the previous round.
+							You are the row player. Click on each row that is included in the strategy you want to play and
+							assign the corresponding probability in the input field. 
+							Probabilities must be given as positive fractions or decimal numbers with no greater accuracy
+							than four digits following the decimal.  Any row you don't select will be assigned probability
+							zero.
 						</div>
-						<div id="exprHistoryMatrix"></div>
-					</div>
-					</aside>
-					<div class="caption">
-						Payoff bimatrix:
-						<a href="#" onclick="doUnhide('bimatrixHelp'); return false;"><i class="fa fa-question-circle"></i></a>
-					</div>
-					<div id="bimatrixHelp" class="noshow canclose">
-						<a href="#" class="close" onclick="doHideNode(this.parentNode); return false;"><i class="fa fa-times"></i></a>
-						You are the row player. Click on each row that is included in the strategy you want to play and
-						assign the corresponding probability in the input field. 
-						Probabilities must be given as positive fractions or decimal numbers with no greater accuracy
-						than four digits following the decimal.  Any row you don't select will be assigned probability
-						zero.
-					</div>
-					<div id="exprMatrix"></div>
-					<form method="post" action="@LABURI@/doplay.json" id="playGame" onsubmit="return(playGame(this));">
-						<div id="playGameErrorState" class="noshow">
-							<div class="warning">
-								<div>
-									<i class="fa fa-exclamation-circle"></i>
-									<span>
-										You've already played this game.  (Did you play twice?) 
-										<a href="#" onclick="window.location.reload(true);">Reload</a> to refresh the game view.
-									</span>
+						<div id="exprMatrix"></div>
+						<form method="post" action="@LABURI@/doplay.json" id="playGame" onsubmit="return(playGame(this));">
+							<div id="playGameErrorState" class="noshow">
+								<div class="warning">
+									<div>
+										<i class="fa fa-exclamation-circle"></i>
+										<span>
+											You've already played this game.  (Did you play twice?) 
+											<a href="#" onclick="window.location.reload(true);">Reload</a> to refresh the game view.
+										</span>
+									</div>
 								</div>
 							</div>
-						</div>
-						<div id="playGameErrorForm" class="noshow">
-							<div class="warning">
-								<div>
-									<i class="fa fa-exclamation-circle"></i>
-									<span>
-										Probabilities must be positive fractions or decimal numbers with
-										no greater accuracy than four digits following the decimal. 
-										They must sum to one.
-									</span>
+							<div id="playGameErrorForm" class="noshow">
+								<div class="warning">
+									<div>
+										<i class="fa fa-exclamation-circle"></i>
+										<span>
+											Probabilities must be positive fractions or decimal numbers with
+											no greater accuracy than four digits following the decimal. 
+											They must sum to one.
+										</span>
+									</div>
 								</div>
 							</div>
-						</div>
-						<div id="playGameErrorJson" class="noshow">
-							<div class="warning">
-								<div>
-									<i class="fa fa-warning"></i>
-									<span>A system error occured.</span>
+							<div id="playGameErrorJson" class="noshow">
+								<div class="warning">
+									<div>
+										<i class="fa fa-warning"></i>
+										<span>A system error occured.</span>
+									</div>
 								</div>
 							</div>
-						</div>
-						<input type="hidden" id="exprPlayGid" name="gid" />
-						<input type="hidden" id="exprPlayRound" name="round" />
-						<fieldset id="exprPlayList"></fieldset>
-					</form>
-				</section>
-			</div>
-		</article>
-		<article id="defaultTab" class="tab">
-			<h2>Instructions</h2>
-			<div id="instructionsLoading"><i class="fa fa-spinner fa-spin"></i></div>
-			<div id="instructionsLoaded"></div>
-			<form action="@LABURI@/doinstr.json" method="post" onsubmit="return(updateInstr(this));">
-				<div id="instructionsPrompt">
-					<input type="checkbox" name="instr" id="instructionsPromptYes" value="1" />
-					<label for="instructionsPromptYes">Continue showing me these instructions when I log in.</label>
-					<input type="submit" value="Update" />
+							<input type="hidden" id="exprPlayGid" name="gid" />
+							<input type="hidden" id="exprPlayRound" name="round" />
+							<fieldset id="exprPlayList"></fieldset>
+						</form>
+					</section>
 				</div>
-			</form>
-		</article>
-		<footer>
-			&copy; 2014, 
-			<a href="http://www.kcons.eu"><i>k</i>-Consulting</a>
-			<a href="@HTURI@/privacy.html">Privacy</a>
-		</footer>
+			</article>
+			<article id="defaultTab" class="tab">
+				<h2>Instructions</h2>
+				<div id="instructionsLoading"><i class="fa fa-spinner fa-spin"></i></div>
+				<div id="instructionsLoaded"></div>
+				<form action="@LABURI@/doinstr.json" method="post" onsubmit="return(updateInstr(this));">
+					<div id="instructionsPrompt">
+						<input type="checkbox" name="instr" id="instructionsPromptYes" value="1" />
+						<label for="instructionsPromptYes">Continue showing me these instructions when I log in.</label>
+						<input type="submit" value="Update" />
+					</div>
+				</form>
+			</article>
+			<footer>
+				&copy; 2014, 2015,
+				<a href="http://www.kcons.eu"><i>k</i>-Consulting</a>
+				<a href="@HTURI@/privacy.html">Privacy</a>
+			</footer>
+		</section>
 	</body>
 </html>

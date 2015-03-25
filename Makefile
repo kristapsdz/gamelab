@@ -35,11 +35,9 @@ CFLAGS	+= -DDATADIR=\"$(RDATADIR)\" -DHTURI=\"$(HTURI)\"
 PAGES 	 = addplayer.eml \
 	   backupfail.eml \
 	   backupsuccess.eml \
-	   playerhome.html \
 	   test.eml
 BUILTPS	 = adminhome-new.html \
-	   adminhome-started.html \
-	   playerhome.html
+	   adminhome-started.html
 SCREENS	 = screen-admin1.png \
 	   screen-admin2.png \
 	   screen-admin3.png \
@@ -47,7 +45,9 @@ SCREENS	 = screen-admin1.png \
 	   screen-admin5.png \
 	   screen-admin6.png \
 	   screen-admin7.png
-STATICS	 = style.css \
+STATICS	 = adminlogin.css \
+	   playerlogin.css \
+	   style.css \
 	   script.js
 OBJS	 = compat-strtonum.o \
 	   compat-strlcat.o \
@@ -72,6 +72,7 @@ SRCS	 = Makefile \
 	   lab.c \
 	   mail.c \
 	   mpq.c \
+	   playerhome.in.html \
 	   playerhome.in.js \
 	   playerlogin.in.html \
 	   privacy.in.html \
@@ -80,6 +81,7 @@ SRCS	 = Makefile \
 	   test-strtonum.c
 BUILT	 = adminhome.js \
 	   adminlogin.html \
+	   playerhome.html \
 	   playerhome.js \
 	   playerlogin.html \
 	   privacy.html

@@ -6,23 +6,24 @@ a				{ text-decoration: none;
 				  color: blue; }
 body				{ font-size: 14pt; 
 				  background-color: #eee; }
-body > header			{ background-color: #ccc; 
+#loading			{ padding-top: 20%; text-align: center; }
+header				{ background-color: #ccc; 
 				  display: table;
 				  position: fixed;
 				  left: 0;
 				  top: 0;
 				  width: 100%;
 				  border-bottom: thin solid #aaa; }
-body > header > *		{ display: table-cell; 
+header > *			{ display: table-cell; 
 				  padding: 0.5ex 1ex;
 				  text-align: center;
 				  width: 1%;
 				  white-space: nowrap;
 				  border-right: thin solid #eee; }
-body > header > span		{ border-right: none; 
+header > span			{ border-right: none; 
 				  text-align: left; 
 				  width: 98%; }
-body > header a			{ color: #222; }
+header a			{ color: #222; }
 .tab, .tab:target ~ #defaultTab	{ display: none; }
 #defaultTab, .tab:target 	{ display: block; }
 #navParent			{ position: absolute; 
@@ -60,7 +61,7 @@ h3				{ font-size: 14pt;
 				  margin-bottom: 0; }
 h3 + div, h3 + p		{ margin-top: 1ex; }
 h4				{ font-size: inherit; }
-body > article			{ background-color: #fff;
+article				{ background-color: #fff;
 				  padding-bottom: 1em;
 				  padding-top: 3em;
 				  padding-left: 20%;
@@ -69,18 +70,18 @@ body > article			{ background-color: #fff;
 				  max-width: 1024px; 
 				  margin-left: auto;
 		  	  	  margin-right: auto; }
-body > footer			{ text-align: center; 
+footer				{ text-align: center; 
 				  padding: 1em 0;
 				  border-top: thin solid #bbb;
 				  color: #888;
 				  font-size: smaller; }
 #login > footer			{ border-top: none; }
-body > footer a			{ color: #666; 
+footer a			{ color: #666; 
 				  padding-right: 0.5ex;
 				  border-right: thin solid #888; }
-body > footer a:last-child	{ border-right: none; 
+footer a:last-child		{ border-right: none; 
 				  padding-right: 0; }
-body > footer a:hover		{ color: #222; }
+footer a:hover			{ color: #222; }
 section section			{ border: thin solid #ddd;
 				  margin: 1em 0; }
 section section >*		{ margin: 1em; }
@@ -285,7 +286,11 @@ div.input input[readonly]	{ background-color: #ddd; }
 				  border-radius: 0.5ex;
 				  display: inline; }
 #bimatrixRoundups		{ margin-bottom: 1em; }
-@media only screen and (max-width: 400px), only screen and (max-device-width: 400px) {
+@media only screen and (max-width: 800px), only screen and (max-device-width: 800px) {
+	article			{ padding-left: 10%; 
+			  	  padding-right: 10%; }
+}
+@media only screen and (max-width: 480px), only screen and (max-device-width: 480px) {
 	#login h1		{ text-align: center; }
 	#login article > section > form		
 				{ padding: 0; }
@@ -302,7 +307,7 @@ div.input input[readonly]	{ background-color: #ddd; }
 	section section >h3	{ text-align: center; 
 				  font-size: 14pt;
 				  padding: 1ex; }
-	body > article		{ padding-bottom: 1em;
+	article			{ padding-bottom: 1em;
 				  padding-left: 0.5ex;
 				  padding-right: 0.5ex;
 			 	  padding-top: 2em; }
@@ -311,6 +316,6 @@ div.input input[readonly]	{ background-color: #ddd; }
 	div.history		{ width: 100%; 
 				  border-spacing: 0.25ex; }
 	h1			{ font-size: 18pt; }
-	body > header span	{ font-size: 12pt; }
+	header span		{ font-size: 12pt; }
 	#historyNav		{ text-align: center; }
 }

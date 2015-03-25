@@ -704,6 +704,8 @@ function loadExprSuccess(resp)
 
 	resindex = 0;
 	res = null;
+	doHide('loading');
+	doUnhide('loaded');
 
 	try  { 
 		res = JSON.parse(resp);
@@ -874,16 +876,21 @@ function loadExprSetup()
 
 function sendLoggedOut()
 {
-	var url = document.URL;
 
-	url = url.substring(0, url.lastIndexOf("/"));
-	location.href = url + '/login.html#loggedout';
+	location.href = '@HTURI@/playerlogin.html#loggedout';
 }
 
 function loadExprFailure(err)
 {
 
 	sendLoggedOut();
+}
+
+function loadExprFirst() 
+{
+
+	doHide('loaded');
+	loadExpr();
 }
 
 function loadExpr() 

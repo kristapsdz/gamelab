@@ -255,6 +255,7 @@
 						<dt><span class="file">adminhome.js</span></dt>
 						<dt><span class="file">adminlogin.html</span></dt>
 						<dt><span class="file">playerhome.js</span></dt>
+						<dt><span class="file">playerhome.html</span></dt>
 						<dt><span class="file">playerlogin.html</span></dt>
 						<dt><span class="file">privacy.html</span></dt>
 						<dt><span class="file">style.css</span></dt>
@@ -268,7 +269,6 @@
 						<dt><span class="file">adminhome-started.html</span></dt>
 						<dt><span class="file">backupfail.eml</span></dt>
 						<dt><span class="file">backupsuccess.eml</span></dt>
-						<dt><span class="file">playerhome.html</span></dt>
 						<dt><span class="file">test.eml</span></dt>
 						<dd>
 							These read-only files are installed into <a href="#datadir"><code>DATADIR</code></a>.
