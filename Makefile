@@ -79,6 +79,7 @@ BUILT	 = adminhome.js \
 	   adminhome-new.html \
 	   adminhome-started.html \
 	   adminlogin.html \
+	   playerhome.html \
 	   playerhome.js \
 	   playerlogin.html \
 	   privacy.html

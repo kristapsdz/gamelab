@@ -69,6 +69,7 @@ enum	mailkey {
 	MAILKEY_PASS, /* password (or NULL) */
 	MAILKEY_LOGIN, /* login URL (or NULL) */
 	MAILKEY_BACKUP,
+	MAILKEY_LABURL,
 	MAILKEY__MAX
 };
 
@@ -79,6 +80,7 @@ static	const char *const mailkeys[MAILKEY__MAX] = {
 	"pass", /* MAILKEY_PASS */
 	"login", /* MAILKEY_LOGIN */
 	"backup", /* MAILKEY_LOGIN */
+	"uri", /* MAILKEY_LABURL */
 };
 
 /*
@@ -275,6 +277,10 @@ mail_template_buf(size_t key, void *arg)
 	case (MAILKEY_BACKUP):
 		assert(NULL != mail->fname);
 		mail_putfile(mail->fname, mail);
+		break;
+	case (MAILKEY_LABURL):
+		assert(NULL != mail->fname);
+		mail_putfile(HTURI "/playerlogin.html", mail);
 		break;
 	default:
 		abort();
