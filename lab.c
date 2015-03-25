@@ -69,7 +69,6 @@ enum	cntt {
 	CNTT_HTML_HOME,
 	CNTT_HTML_LOGIN,
 	CNTT_HTML_PRIVACY,
-	CNTT_JS_HOME,
 	CNTT__MAX
 };
 
@@ -99,7 +98,6 @@ enum	templ {
 #define	PERM_LOGIN	0x01
 #define	PERM_HTML	0x08
 #define	PERM_JSON	0x10
-#define	PERM_JS		0x40
 
 static	unsigned int perms[PAGE__MAX] = {
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOINSTR */
@@ -107,8 +105,8 @@ static	unsigned int perms[PAGE__MAX] = {
 	PERM_JSON | PERM_HTML, /* PAGE_DOLOGIN */
 	PERM_HTML | PERM_LOGIN, /* PAGE_DOLOGOUT */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOPLAY */
-	PERM_JS | PERM_HTML | PERM_LOGIN, /* PAGE_HOME */
-	PERM_JS | PERM_HTML | PERM_LOGIN, /* PAGE_INDEX */
+	PERM_HTML | PERM_LOGIN, /* PAGE_HOME */
+	PERM_HTML | PERM_LOGIN, /* PAGE_INDEX */
 	PERM_HTML, /* PAGE_LOGIN */
 	PERM_HTML, /* PAGE_PRIVACY */
 };
@@ -134,7 +132,6 @@ static const char *const cntts[CNTT__MAX] = {
 	"playerhome.html", /* CNTT_HTML_HOME_NEW */
 	"playerlogin.html", /* CNTT_HTML_LOGIN */
 	"privacy.html", /* CNTT_HTML_PRIVACY */
-	"playerhome.js", /* CNTT_JS_HOME */
 };
 
 static const struct kvalid keys[KEY__MAX] = {
@@ -234,7 +231,7 @@ sendtempl(size_t key, void *arg)
 		khttp_puts(r, r->pname);
 		break;
 	case (TEMPL_HTDOCS):
-		khttp_puts(r, HTDOCS);
+		khttp_puts(r, HTURI);
 		break;
 	default:
 		break;
@@ -716,9 +713,6 @@ main(void)
 	case (KMIME_APP_JSON):
 		bit = PERM_JSON;
 		break;
-	case (KMIME_APP_JAVASCRIPT):
-		bit = PERM_JS;
-		break;
 	default:
 		send404(&r);
 		goto out;
@@ -751,10 +745,7 @@ main(void)
 		senddoplay(&r, id);
 		break;
 	case (PAGE_HOME):
-		if (KMIME_APP_JAVASCRIPT == r.mime)
-			sendcontent(&r, CNTT_JS_HOME);
-		else
-			sendcontent(&r, CNTT_HTML_HOME);
+		sendcontent(&r, CNTT_HTML_HOME);
 		break;
 	case (PAGE_INDEX):
 		send303(&r, PAGE_HOME, 1);

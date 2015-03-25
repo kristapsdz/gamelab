@@ -376,7 +376,7 @@ function doDisableEnablePlayer(id, url)
 		if (xrh.readyState==4 && xrh.status==200)
 			loadPlayers()
 	} 
-	xrh.open('GET', '@@cgibin@@/' + url + '.json?pid=' + id, true);
+	xrh.open('GET', '@ADMINURI@/' + url + '.json?pid=' + id, true);
 	xrh.send(null);
 }
 
@@ -397,7 +397,7 @@ function doDeleteGame(id)
 			loadNewPlayers();
 		}
 	} 
-	xrh.open('GET', '@@cgibin@@/dodeletegame.json?gid=' + id, true);
+	xrh.open('GET', '@ADMINURI@/dodeletegame.json?gid=' + id, true);
 	xrh.send(null);
 }
 
@@ -418,7 +418,7 @@ function doDeletePlayer(id)
 			loadNewPlayers();
 		}
 	} 
-	xrh.open('GET', '@@cgibin@@/dodeleteplayer.json?pid=' + id, true);
+	xrh.open('GET', '@ADMINURI@/dodeleteplayer.json?pid=' + id, true);
 	xrh.send(null);
 }
 
@@ -483,7 +483,7 @@ function loadSmtpError(err)
 function loadSmtp() 
 {
 
-	sendQuery('@@cgibin@@/dochecksmtp.json', 
+	sendQuery('@ADMINURI@/dochecksmtp.json', 
 		loadSmtpSetup, loadSmtpSuccess, loadSmtpError);
 }
 
@@ -503,7 +503,7 @@ function loadNewPlayers()
 {
 
 	doClassLoading('checkPlayersLoad');
-	loadList('@@cgibin@@/doloadplayers.json', 'loadNewPlayers', 
+	loadList('@ADMINURI@/doloadplayers.json', 'loadNewPlayers', 
 		loadNewPlayersSuccess, loadNewPlayersError);
 }
 
@@ -511,7 +511,7 @@ function loadNewPlayers()
 function loadPlayers() 
 {
 
-	loadList('@@cgibin@@/doloadplayers.json', 'loadPlayers', 
+	loadList('@ADMINURI@/doloadplayers.json', 'loadPlayers', 
 		loadPlayersSuccess, loadPlayersError);
 }
 
@@ -519,7 +519,7 @@ function loadNewGames()
 {
 
 	doClassLoading('checkGameLoad');
-	loadList('@@cgibin@@/doloadgames.json', 'loadGames', 
+	loadList('@ADMINURI@/doloadgames.json', 'loadGames', 
 		loadNewGamesSuccess, loadGamesError);
 }
 
@@ -527,7 +527,7 @@ function loadGames()
 {
 
 	doClassLoading('checkGameLoad');
-	loadList('@@cgibin@@/doloadgames.json', 'loadGames', 
+	loadList('@ADMINURI@/doloadgames.json', 'loadGames', 
 		loadGamesSuccess, loadGamesError);
 }
 
@@ -651,7 +651,7 @@ function loadExprFailure(err)
 function loadExpr() 
 {
 
-	sendQuery('@@cgibin@@/dogetexpr.json', 
+	sendQuery('@ADMINURI@/dogetexpr.json', 
 		loadExprSetup, loadExprSuccess, loadExprFailure);
 }
 
@@ -847,7 +847,7 @@ function sendWinners(form)
 function backup() 
 {
 
-	sendQuery('@@cgibin@@/dobackup.json', 
+	sendQuery('@ADMINURI@/dobackup.json', 
 		doBackupSetup, doBackupSuccess, null);
 }
 
@@ -855,28 +855,28 @@ function backup()
 function wipeExpr() 
 {
 
-	sendQuery('@@cgibin@@/dowipe.json', 
+	sendQuery('@ADMINURI@/dowipe.json', 
 		doWipeExprSetup, doWipeExprSuccess, null);
 }
 
 function resetPasswords() 
 {
 
-	sendQuery('@@cgibin@@/doresetpasswords', 
+	sendQuery('@ADMINURI@/doresetpasswords', 
 		doResetPasswordsSetup, doResetPasswordsSuccess, null);
 }
 
 function reTestSmtp() 
 {
 
-	sendQuery('@@cgibin@@/doresendemail.json', 
+	sendQuery('@ADMINURI@/doresendemail.json', 
 		doReTestSmtpSetup, doReTestSmtpSuccess, null);
 }
 
 function testSmtp() 
 {
 
-	sendQuery('@@cgibin@@/dotestsmtp.json', 
+	sendQuery('@ADMINURI@/dotestsmtp.json', 
 		doTestSmtpSetup, doTestSmtpSuccess, null);
 }
 
@@ -909,7 +909,7 @@ function doChangeInstrSuccess(resp)
 {
 
 	doSuccess('changeInstrSubmit', 'changeInstr');
-	location.href = '@@cgibin@@';
+	location.href = '@ADMINURI@';
 }
 
 
@@ -951,7 +951,7 @@ function doChangePassSuccess(resp)
 {
 
 	doSuccess('changePassSubmit', 'changePass');
-	location.href = '@@cgibin@@';
+	location.href = '@ADMINURI@';
 }
 
 function changePass(form)

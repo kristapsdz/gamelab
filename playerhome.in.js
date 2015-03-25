@@ -889,7 +889,7 @@ function loadExprFailure(err)
 function loadExpr() 
 {
 
-	sendQuery('@@cgibin@@/doloadexpr.json', 
+	sendQuery('@CGIBIN@/doloadexpr.json', 
 		loadExprSetup, loadExprSuccess, loadExprFailure);
 }
 

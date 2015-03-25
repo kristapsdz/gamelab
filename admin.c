@@ -64,7 +64,6 @@ enum	page {
 	PAGE_DOWIPE,
 	PAGE_HOME,
 	PAGE_INDEX,
-	PAGE_LOGIN,
 	PAGE__MAX
 };
 
@@ -75,8 +74,6 @@ enum	page {
 enum	cntt {
 	CNTT_HTML_HOME_NEW,
 	CNTT_HTML_HOME_STARTED,
-	CNTT_HTML_LOGIN,
-	CNTT_JS_HOME,
 	CNTT__MAX
 };
 
@@ -127,7 +124,6 @@ enum	templ {
 #define	PERM_LOGIN	0x01
 #define	PERM_HTML	0x08
 #define	PERM_JSON	0x10
-#define	PERM_JS		0x40
 
 static	unsigned int perms[PAGE__MAX] = {
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOADDGAME */
@@ -153,9 +149,8 @@ static	unsigned int perms[PAGE__MAX] = {
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOTESTSMTP */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOWINNERS */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOWIPE */
-	PERM_JS | PERM_HTML | PERM_LOGIN, /* PAGE_HOME */
-	PERM_JS | PERM_HTML | PERM_LOGIN, /* PAGE_INDEX */
-	PERM_HTML, /* PAGE_LOGIN */
+	PERM_HTML | PERM_LOGIN, /* PAGE_HOME */
+	PERM_HTML | PERM_LOGIN, /* PAGE_INDEX */
 };
 
 static const char *const pages[PAGE__MAX] = {
@@ -184,7 +179,6 @@ static const char *const pages[PAGE__MAX] = {
 	"dowipe", /* PAGE_DOWIPE */
 	"home", /* PAGE_HOME */
 	"index", /* PAGE_INDEX */
-	"login", /* PAGE_LOGIN */
 };
 
 static	const char *const templs[TEMPL__MAX] = {
@@ -195,8 +189,6 @@ static	const char *const templs[TEMPL__MAX] = {
 static const char *const cntts[CNTT__MAX] = {
 	"adminhome-new.html", /* CNTT_HTML_HOME_NEW */
 	"adminhome-started.html", /* CNTT_HTML_HOME_STARTED */
-	"adminlogin.html", /* CNTT_HTML_LOGIN */
-	"adminhome.js", /* CNTT_JS_HOME */
 };
 
 static int kvalid_rounds(struct kpair *);
@@ -291,15 +283,22 @@ send404(struct kreq *r)
 }
 
 static void
-send303(struct kreq *r, enum page dest, int dostatus)
+send303(struct kreq *r, const char *pg, enum page dest, int st)
 {
 	char	*page, *full;
 
-	if (dostatus)
+	if (st)
 		http_open(r, KHTTP_303);
-	page = kutil_urlpart(r, r->pname, 
-		ksuffixes[r->mime], pages[dest], NULL);
-	full = kutil_urlabs(KSCHEME_HTTP, r->host, r->port, page);
+
+	if (NULL == pg) {
+		page = kutil_urlpart(r, r->pname, 
+			ksuffixes[r->mime], pages[dest], NULL);
+		full = kutil_urlabs(KSCHEME_HTTP, r->host, r->port, page);
+	} else {
+		page = NULL;
+		full = kutil_urlabs(KSCHEME_HTTP, r->host, r->port, pg);
+	}
+
 	khttp_head(r, kresps[KRESP_LOCATION], "%s", full);
 	khttp_body(r);
 	khttp_puts(r, "Redirecting...");
@@ -317,7 +316,7 @@ sendtempl(size_t key, void *arg)
 		khttp_puts(r, r->pname);
 		break;
 	case (TEMPL_HTDOCS):
-		khttp_puts(r, HTDOCS);
+		khttp_puts(r, HTURI);
 		break;
 	default:
 		break;
@@ -1017,7 +1016,7 @@ senddologout(struct kreq *r)
 	khttp_head(r, kresps[KRESP_SET_COOKIE],
 		"%s=; path=/; expires=", 
 		keys[KEY_SESSID].name);
-	send303(r, PAGE_LOGIN, 0);
+	send303(r, HTURI "/adminlogin.html", PAGE__MAX, 0);
 }
 
 static void
@@ -1137,8 +1136,6 @@ kvalid_minutes(struct kpair *kp)
 	return(kp->parsed.i > 0 && kp->parsed.i <= 1440);
 }
 
-#include <sys/socket.h>
-
 int
 main(void)
 {
@@ -1148,6 +1145,16 @@ main(void)
 	if (KCGI_OK != khttp_parse(&r, keys, KEY__MAX, 
 			pages, PAGE__MAX, PAGE_INDEX))
 		return(EXIT_FAILURE);
+
+	switch (r.method) {
+	case (KMETHOD_GET):
+	case (KMETHOD_POST):
+		break;
+	default:
+		http_open(&r, KHTTP_405);
+		khttp_body(&r);
+		goto out;
+	}
 
 	/* 
 	 * First, make sure that the page accepts the content type we've
@@ -1160,9 +1167,6 @@ main(void)
 		break;
 	case (KMIME_APP_JSON):
 		bit = PERM_JSON;
-		break;
-	case (KMIME_APP_JAVASCRIPT):
-		bit = PERM_JS;
 		break;
 	default:
 		send404(&r);
@@ -1179,10 +1183,11 @@ main(void)
 	 * attached to a valid administrative session.
 	 */
 	if ((perms[r.page] & PERM_LOGIN) && ! sess_valid(&r)) {
-		if (KMIME_APP_JSON == r.mime)
+		if (KMIME_APP_JSON == r.mime) {
 			send403(&r);
-		else
-			send303(&r, PAGE_LOGIN, 1);
+			goto out;
+		}
+		send303(&r, HTURI "/adminlogin.html", PAGE__MAX, 1);
 		goto out;
 	}
 
@@ -1257,18 +1262,13 @@ main(void)
 		senddowipe(&r);
 		break;
 	case (PAGE_HOME):
-		if (KMIME_APP_JAVASCRIPT == r.mime)
-			sendcontent(&r, CNTT_JS_HOME);
-		else if ( ! db_expr_checkstate(ESTATE_NEW))
+		if ( ! db_expr_checkstate(ESTATE_NEW))
 			sendcontent(&r, CNTT_HTML_HOME_STARTED);
 		else
 			sendcontent(&r, CNTT_HTML_HOME_NEW);
 		break;
 	case (PAGE_INDEX):
-		send303(&r, PAGE_HOME, 1);
-		break;
-	case (PAGE_LOGIN):
-		sendcontent(&r, CNTT_HTML_LOGIN);
+		send303(&r, NULL, PAGE_HOME, 1);
 		break;
 	default:
 		send404(&r);

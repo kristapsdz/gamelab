@@ -1,38 +1,42 @@
+.SUFFIXES: .in.js .js .in.html .html
+
 # Mac OSX testing.
-PREFIX	 = /Users/kristaps/Sites
-HTDOCS	 = $(PREFIX)
-HTURI	 = /~kristaps
-CGIBIN	 = $(PREFIX)
-DATADIR	 = $(PREFIX)
-RDATADIR = $(PREFIX)
-LIBS	 = 
-STATIC	 = 
+# This is useful when running in a userdir.
+PREFIX		 = /Users/kristaps/Sites
+HTDOCS		 = $(PREFIX)
+HTURI		 = /~kristaps
+LABURI		 = /~kristaps/lab.cgi
+ADMINURI	 = /~kristaps/admin.cgi
+CGIBIN		 = $(PREFIX)
+DATADIR		 = $(PREFIX)
+RDATADIR	 = $(PREFIX)
+LIBS		 = 
+STATIC		 = 
+
 # OpenBSD production.
-#PREFIX	 = /var/www
-#HTDOCS	 = $(PREFIX)/htdocs/gamelab
-#HTURI	 = /gamelab
-#CGIBIN	 = $(PREFIX)/cgi-bin/gamelab
+#PREFIX		 = /var/www
+#HTDOCS		 = $(PREFIX)/htdocs/gamelab
+#HTURI		 = /gamelab
+#CGIBIN		 = $(PREFIX)/cgi-bin/gamelab
+#LABURI		 = /cgi-bin/gamelab/lab
+#ADMINURI	 = /cgi-bin/gamelab/admin
 #DATADIR	 = $(PREFIX)/data/gamelab
-#RDATADIR = /data/gamelab
-#LIBS	 = -lintl -liconv
-#STATIC	 = -static
+#RDATADIR	 = /data/gamelab
+#LIBS		 = -lintl -liconv
+#STATIC		 = -static
+
+# You really don't want to change anything below this line.
 
 VERSION	 = 1.0.0
 VMONTH	 = March
 VYEAR	 = 2015
 CFLAGS 	+= -g -W -Wall -Wstrict-prototypes -Wno-unused-parameter -Wwrite-strings -I/usr/local/include
-CFLAGS	+= -DDATADIR=\"$(RDATADIR)\" -DHTDOCS=\"$(HTURI)\"
+CFLAGS	+= -DDATADIR=\"$(RDATADIR)\" -DHTURI=\"$(HTURI)\"
 PAGES 	 = addplayer.eml \
-	   adminhome-new.html \
-	   adminhome-started.html \
-	   adminhome.js \
-	   adminlogin.html \
 	   backupfail.eml \
 	   backupsuccess.eml \
 	   playerhome.html \
-	   playerhome.js \
 	   playerlogin.html \
-	   privacy.html \
 	   test.eml
 SCREENS	 = screen-admin1.png \
 	   screen-admin2.png \
@@ -52,6 +56,10 @@ OBJS	 = compat-strtonum.o \
 	   mpq.o
 SRCS	 = Makefile \
 	   admin.c \
+	   adminhome.in.js \
+	   adminhome-new.in.html \
+	   adminhome-started.in.html \
+	   adminlogin.in.html \
 	   compat-strlcat.c \
 	   compat-strlcpy.c \
 	   compat-strtonum.c \
@@ -62,11 +70,19 @@ SRCS	 = Makefile \
 	   lab.c \
 	   mail.c \
 	   mpq.c \
+	   playerhome.in.js \
+	   privacy.in.html \
 	   test-strlcat.c \
 	   test-strlcpy.c \
 	   test-strtonum.c
+BUILT	 = adminhome.js \
+	   adminhome-new.html \
+	   adminhome-started.html \
+	   adminlogin.html \
+	   playerhome.js \
+	   privacy.html
 
-all: admin lab
+all: admin lab $(BUILT)
 
 admin: admin.o $(OBJS)
 	$(CC) $(STATIC) -L/usr/local/lib -o $@ admin.o $(OBJS) -lsqlite3 -lkcgi -lkcgijson -lz -lgmp `curl-config --libs` $(LIBS)
@@ -88,7 +104,7 @@ gamelab.bib: gamelab.in.bib
 	    -e "s!@VYEAR@!$(VYEAR)!g" gamelab.in.bib >$@
 
 update: all
-	install -m 0444 $(STATICS) $(HTDOCS)
+	install -m 0444 $(STATICS) $(BUILT) $(HTDOCS)
 	install -m 0444 $(PAGES) $(DATADIR)
 	install -m 0755 admin $(CGIBIN)/admin.cgi
 	install -m 0755 admin $(CGIBIN)
@@ -131,7 +147,17 @@ manual.html: manual.xml
 index.html: index.xml
 	sed "s!@VERSION@!$(VERSION)!g" index.xml >$@
 
+.in.js.js:
+	sed -e "s!@ADMINURI@!$(ADMINURI)!g" \
+		-e "s!@LABURI@!$(LABURI)!g" \
+		-e "s!@HTURI@!$(HTURI)!g" $< >$@
+
+.in.html.html:
+	sed -e "s!@ADMINURI@!$(ADMINURI)!g" \
+		-e "s!@LABURI@!$(LABURI)!g" \
+		-e "s!@HTURI@!$(HTURI)!g" $< >$@
+
 clean:
-	rm -f admin admin.o gamelab.db lab lab.o $(OBJS) config.h config.log 
+	rm -f admin admin.o gamelab.db lab lab.o $(OBJS) $(BUILT) config.h config.log 
 	rm -f index.html manual.html gamelab.tgz gamelab.tgz.sha512 gamelab.bib gamelab.png
 	rm -rf *.dSYM
