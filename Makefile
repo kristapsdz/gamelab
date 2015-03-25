@@ -36,7 +36,6 @@ PAGES 	 = addplayer.eml \
 	   backupfail.eml \
 	   backupsuccess.eml \
 	   playerhome.html \
-	   playerlogin.html \
 	   test.eml
 SCREENS	 = screen-admin1.png \
 	   screen-admin2.png \
@@ -71,6 +70,7 @@ SRCS	 = Makefile \
 	   mail.c \
 	   mpq.c \
 	   playerhome.in.js \
+	   playerlogin.in.html \
 	   privacy.in.html \
 	   test-strlcat.c \
 	   test-strlcpy.c \
@@ -80,6 +80,7 @@ BUILT	 = adminhome.js \
 	   adminhome-started.html \
 	   adminlogin.html \
 	   playerhome.js \
+	   playerlogin.html \
 	   privacy.html
 
 all: admin lab $(BUILT)

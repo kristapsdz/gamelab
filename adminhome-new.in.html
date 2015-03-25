@@ -94,7 +94,7 @@
 							will be shown to players.
 						</div>
 					</aside>
-					<form action="@@cgibin@@/dostartexpr.json" method="post" id="startExpr" onsubmit="return(startExpr(this));">
+					<form action="@ADMINURI@/dostartexpr.json" method="post" id="startExpr" onsubmit="return(startExpr(this));">
 						<div class="error">
 							<div class="noshow" id="startExprErrSystem">
 								An unexpected error occurred.
@@ -295,7 +295,7 @@ You will be contacted by the experimenter shortly.
 						You may add games by specifying a name and payoffs.
 						Payoffs must follow the usual top-left to bottom-right order, one payoff per player (row player first).
 					</aside>
-					<form action="@@cgibin@@/doaddgame.json" method="post" id="addGame" onsubmit="return(addGame(this));">
+					<form action="@ADMINURI@/doaddgame.json" method="post" id="addGame" onsubmit="return(addGame(this));">
 						<div class="error">
 							<div class="noshow" id="addGameErrSystem">
 								An unexpected system error occurred.
@@ -345,7 +345,7 @@ You will be contacted by the experimenter shortly.
 						Players consist of e-mail addresses separated by white-space (newlines, tabs, spaces, whatever).
 						Players will not be contacted until you start the game.
 					</aside>
-					<form action="@@cgibin@@/doaddplayers.json" method="post" id="addPlayers" onsubmit="return(addPlayers(this));">
+					<form action="@ADMINURI@/doaddplayers.json" method="post" id="addPlayers" onsubmit="return(addPlayers(this));">
 						<div class="error">
 							<div class="noshow" id="addPlayersErrSystem">
 								An unexpected system error occurred.
@@ -373,7 +373,7 @@ You will be contacted by the experimenter shortly.
 						mail you if it has issues.
 						You will be logged out after doing so.
 					</aside>
-					<form action="@@cgibin@@/dochangemail.json" method="post" id="changeMail" onsubmit="return(changeMail(this));">
+					<form action="@ADMINURI@/dochangemail.json" method="post" id="changeMail" onsubmit="return(changeMail(this));">
 						<div class="error">
 							<div class="noshow" id="changeMailErrSystem">
 								An unexpected error occurred.
@@ -410,7 +410,7 @@ You will be contacted by the experimenter shortly.
 						It's up to you to make sure your password is secure.
 						You will be logged out after doing so.
 					</aside>
-					<form action="@@cgibin@@/dochangepass.json" method="post" id="changePass" onsubmit="return(changePass(this));">
+					<form action="@ADMINURI@/dochangepass.json" method="post" id="changePass" onsubmit="return(changePass(this));">
 						<div class="error">
 							<div class="noshow" id="changePassErrSystem">
 								An unexpected error occurred.
@@ -503,7 +503,7 @@ You will be contacted by the experimenter shortly.
 							make sure it's something random and not used elsewhere!
 						</div>
 					</aside>
-					<form action="@@cgibin@@/dochangesmtp.json" method="post" id="changeSmtp" onsubmit="return(changeSmtp(this));">
+					<form action="@ADMINURI@/dochangesmtp.json" method="post" id="changeSmtp" onsubmit="return(changeSmtp(this));">
 						<div class="error">
 							<div class="noshow" id="changeSmtpErrSystem">
 								An unexpected error occurred.

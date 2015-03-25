@@ -112,15 +112,6 @@ enum	key {
 	KEY__MAX
 };
 
-/*
- * Values in our content that we're templating.
- */
-enum	templ {
-	TEMPL_CGIBIN,
-	TEMPL_HTDOCS,
-	TEMPL__MAX
-};
-
 #define	PERM_LOGIN	0x01
 #define	PERM_HTML	0x08
 #define	PERM_JSON	0x10
@@ -179,11 +170,6 @@ static const char *const pages[PAGE__MAX] = {
 	"dowipe", /* PAGE_DOWIPE */
 	"home", /* PAGE_HOME */
 	"index", /* PAGE_INDEX */
-};
-
-static	const char *const templs[TEMPL__MAX] = {
-	"cgibin", /* TEMPL_CGIBIN */
-	"htdocs" /* TEMPL_HTDOCS */
 };
 
 static const char *const cntts[CNTT__MAX] = {
@@ -306,41 +292,17 @@ send303(struct kreq *r, const char *pg, enum page dest, int st)
 	free(page);
 }
 
-static int
-sendtempl(size_t key, void *arg)
-{
-	struct kreq	*r = arg;
-
-	switch (key) {
-	case (TEMPL_CGIBIN):
-		khttp_puts(r, r->pname);
-		break;
-	case (TEMPL_HTDOCS):
-		khttp_puts(r, HTURI);
-		break;
-	default:
-		break;
-	}
-	return(1);
-}
-
 static void
 sendcontent(struct kreq *r, enum cntt cntt)
 {
-	struct ktemplate t;
-	char		 fname[PATH_MAX];
-
-	t.key = templs;
-	t.keysz = TEMPL__MAX;
-	t.arg = r;
-	t.cb = sendtempl;
+	char	 fname[PATH_MAX];
 
 	snprintf(fname, sizeof(fname), 
 		DATADIR "/%s", cntts[cntt]);
 
 	http_open(r, KHTTP_200);
 	khttp_body(r);
-	khttp_template(r, &t, fname);
+	khttp_template(r, NULL, fname);
 }
 
 struct	exprget {

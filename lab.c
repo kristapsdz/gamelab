@@ -56,8 +56,6 @@ enum	page {
 	PAGE_DOPLAY,
 	PAGE_HOME,
 	PAGE_INDEX,
-	PAGE_LOGIN,
-	PAGE_PRIVACY,
 	PAGE__MAX
 };
 
@@ -67,8 +65,6 @@ enum	page {
  */
 enum	cntt {
 	CNTT_HTML_HOME,
-	CNTT_HTML_LOGIN,
-	CNTT_HTML_PRIVACY,
 	CNTT__MAX
 };
 
@@ -86,15 +82,6 @@ enum	key {
 	KEY__MAX
 };
 
-/*
- * Values in our content that we're templating.
- */
-enum	templ {
-	TEMPL_CGIBIN,
-	TEMPL_HTDOCS,
-	TEMPL__MAX
-};
-
 #define	PERM_LOGIN	0x01
 #define	PERM_HTML	0x08
 #define	PERM_JSON	0x10
@@ -107,8 +94,6 @@ static	unsigned int perms[PAGE__MAX] = {
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOPLAY */
 	PERM_HTML | PERM_LOGIN, /* PAGE_HOME */
 	PERM_HTML | PERM_LOGIN, /* PAGE_INDEX */
-	PERM_HTML, /* PAGE_LOGIN */
-	PERM_HTML, /* PAGE_PRIVACY */
 };
 
 static const char *const pages[PAGE__MAX] = {
@@ -119,19 +104,10 @@ static const char *const pages[PAGE__MAX] = {
 	"doplay", /* PAGE_DOPLAY */
 	"home", /* PAGE_HOME */
 	"index", /* PAGE_INDEX */
-	"login", /* PAGE_LOGIN */
-	"privacy", /* PAGE_PRIVACY */
-};
-
-static	const char *const templs[TEMPL__MAX] = {
-	"cgibin", /* TEMPL_CGIBIN */
-	"htdocs" /* TEMPL_HTDOCS */
 };
 
 static const char *const cntts[CNTT__MAX] = {
 	"playerhome.html", /* CNTT_HTML_HOME_NEW */
-	"playerlogin.html", /* CNTT_HTML_LOGIN */
-	"privacy.html", /* CNTT_HTML_PRIVACY */
 };
 
 static const struct kvalid keys[KEY__MAX] = {
@@ -205,15 +181,22 @@ send404(struct kreq *r)
 }
 
 static void
-send303(struct kreq *r, enum page dest, int dostatus)
+send303(struct kreq *r, const char *pg, enum page dest, int st)
 {
 	char	*page, *full;
 
-	if (dostatus)
+	if (st)
 		http_open(r, KHTTP_303);
-	page = kutil_urlpart(r, r->pname, 
-		ksuffixes[r->mime], pages[dest], NULL);
-	full = kutil_urlabs(KSCHEME_HTTP, r->host, r->port, page);
+
+	if (NULL == pg) {
+		page = kutil_urlpart(r, r->pname, 
+			ksuffixes[r->mime], pages[dest], NULL);
+		full = kutil_urlabs(KSCHEME_HTTP, r->host, r->port, page);
+	} else {
+		page = NULL;
+		full = kutil_urlabs(KSCHEME_HTTP, r->host, r->port, pg);
+	}
+
 	khttp_head(r, kresps[KRESP_LOCATION], "%s", full);
 	khttp_body(r);
 	khttp_puts(r, "Redirecting...");
@@ -221,41 +204,17 @@ send303(struct kreq *r, enum page dest, int dostatus)
 	free(page);
 }
 
-static int
-sendtempl(size_t key, void *arg)
-{
-	struct kreq	*r = arg;
-
-	switch (key) {
-	case (TEMPL_CGIBIN):
-		khttp_puts(r, r->pname);
-		break;
-	case (TEMPL_HTDOCS):
-		khttp_puts(r, HTURI);
-		break;
-	default:
-		break;
-	}
-	return(1);
-}
-
 static void
 sendcontent(struct kreq *r, enum cntt cntt)
 {
-	struct ktemplate t;
-	char		 fname[PATH_MAX];
-
-	t.key = templs;
-	t.keysz = TEMPL__MAX;
-	t.arg = r;
-	t.cb = sendtempl;
+	char	 fname[PATH_MAX];
 
 	snprintf(fname, sizeof(fname), 
 		DATADIR "/%s", cntts[cntt]);
 
 	http_open(r, KHTTP_200);
 	khttp_body(r);
-	khttp_template(r, &t, fname);
+	khttp_template(r, NULL, fname);
 }
 
 static void
@@ -277,14 +236,14 @@ senddologin(struct kreq *r)
 			"%s=%" PRId64 "; path=/; expires=", 
 			keys[KEY_SESSID].name, sess->id);
 		if (KMIME_TEXT_HTML == r->mime)
-			send303(r, PAGE_HOME, 0);
+			send303(r, NULL, PAGE_HOME, 0);
 		else
 			khttp_body(r);
 		db_sess_free(sess);
 	} else {
 		if (KMIME_TEXT_HTML == r->mime) {
 			http_open(r, KHTTP_303);
-			send303(r, PAGE_LOGIN, 0);
+			send303(r, HTURI "/playerlogin.html", PAGE__MAX, 0);
 		} else {
 			http_open(r, KHTTP_400);
 			khttp_body(r);
@@ -692,7 +651,7 @@ senddologout(struct kreq *r)
 	khttp_head(r, kresps[KRESP_SET_COOKIE],
 		"%s=; path=/; expires=", 
 		keys[KEY_SESSID].name);
-	send303(r, PAGE_LOGIN, 0);
+	send303(r, HTURI "/playerlogin.html", PAGE__MAX, 0);
 }
 
 int
@@ -724,7 +683,7 @@ main(void)
 	}
 
 	if ((perms[r.page] & PERM_LOGIN) && ! sess_valid(&r, &id)) {
-		send303(&r, PAGE_LOGIN, 1);
+		send303(&r, HTURI "/playerlogin.html", PAGE__MAX, 1);
 		goto out;
 	}
 
@@ -748,13 +707,7 @@ main(void)
 		sendcontent(&r, CNTT_HTML_HOME);
 		break;
 	case (PAGE_INDEX):
-		send303(&r, PAGE_HOME, 1);
-		break;
-	case (PAGE_LOGIN):
-		sendcontent(&r, CNTT_HTML_LOGIN);
-		break;
-	case (PAGE_PRIVACY):
-		sendcontent(&r, CNTT_HTML_PRIVACY);
+		send303(&r, NULL, PAGE_HOME, 1);
 		break;
 	default:
 		http_open(&r, KHTTP_404);

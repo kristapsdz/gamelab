@@ -4,14 +4,14 @@
 		<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
 		<meta charset="utf-8" /> 
 		<title>Gamelab</title>
-		<link rel="stylesheet" href="@@htdocs@@/style.css" type="text/css" />
+		<link rel="stylesheet" href="@HTURI@/style.css" type="text/css" />
 		<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet" />
 		<style>
 			fieldset { box-shadow: none; }
 			form { margin-left: auto; margin-right: auto; max-width: 100%; }
 		</style>
-		<script src="@@htdocs@@/script.js"></script>
-		<script src="@@htdocs@@/playerhome.js"></script>
+		<script src="@HTURI@/script.js"></script>
+		<script src="@HTURI@/playerhome.js"></script>
 	</head>
 	<body onload="loadExpr();" onclick="onNavUp();" id="playerHomeBase">
 		<header>
@@ -26,7 +26,7 @@
 						<li><a href="#defaultTab"><i class="fa fa-fw fa-info"></i> Instructions</a></li>
 						<li><a href="#play"><i class="fa fa-fw fa-play"></i> Play</a></li>
 						<li><a href="#history"><i class="fa fa-fw fa-history"></i> History</a></li>
-						<li><a href="@@cgibin@@/dologout.html"><i class="fa fa-fw fa-sign-out"></i> Logout</a></li>
+						<li><a href="@LABURI@/dologout.html"><i class="fa fa-fw fa-sign-out"></i> Logout</a></li>
 					</ul>
 				</nav>
 			</div>
@@ -179,7 +179,7 @@
 						zero.
 					</div>
 					<div id="exprMatrix"></div>
-					<form method="post" action="@@cgibin@@/doplay.json" id="playGame" onsubmit="return(playGame(this));">
+					<form method="post" action="@LABURI@/doplay.json" id="playGame" onsubmit="return(playGame(this));">
 						<div id="playGameErrorState" class="noshow">
 							<div class="warning">
 								<div>
@@ -222,7 +222,7 @@
 			<h2>Instructions</h2>
 			<div id="instructionsLoading"><i class="fa fa-spinner fa-spin"></i></div>
 			<div id="instructionsLoaded"></div>
-			<form action="@@cgibin@@/doinstr.json" method="post" onsubmit="return(updateInstr(this));">
+			<form action="@LABURI@/doinstr.json" method="post" onsubmit="return(updateInstr(this));">
 				<div id="instructionsPrompt">
 					<input type="checkbox" name="instr" id="instructionsPromptYes" value="1" />
 					<label for="instructionsPromptYes">Continue showing me these instructions when I log in.</label>
@@ -233,7 +233,7 @@
 		<footer>
 			&copy; 2014, 
 			<a href="http://www.kcons.eu"><i>k</i>-Consulting</a>
-			<a href="@@cgibin@@/privacy.html">Privacy</a>
+			<a href="@HTURI@/privacy.html">Privacy</a>
 		</footer>
 	</body>
 </html>
