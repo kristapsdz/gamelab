@@ -167,6 +167,18 @@
 							In most web servers, this defaults to <span class="file">/var/www/cgi-bin</span>.
 							It must be accessable (i.e., mapped) by the web server process.
 						</dd>
+						<dt id="adminuri"><code>ADMINURI</code></dt>
+						<dd>
+							This is the administrative CGI URI relative to the server root.
+							It will correspond to the mapped location of <a href="#cgibin"><code>CGIBIN</code></a>
+							plus the script name.
+						</dd>
+						<dt id="laburi"><code>LABURI</code></dt>
+						<dd>
+							This is the player (laboratory) CGI URI relative to the server root.
+							It will correspond to the mapped location of <a href="#cgibin"><code>CGIBIN</code></a>
+							plus the script name.
+						</dd>
 						<dt id="datadir"><code>DATADIR</code></dt>
 						<dd>
 							This is the path used for installing read-only data files.
@@ -231,13 +243,20 @@
 							The administrative CGI executable installed into <a
 								href="#cgibin"><code>CGIBIN</code></a>.
 							These files are identical but for the suffix.
+							These must resolve to <a href="#adminuri"><code>ADMINURI</code></a>.
 						</dd>
 						<dt><span class="file">lab</span></dt>
 						<dt><span class="file">lab.cgi</span></dt>
 						<dd>
 							The laboratory CGI executable installed into <a href="#cgibin"><code>CGIBIN</code></a>.
 							These files are identical but for the suffix.
+							These must resolve to <a href="#laburi"><code>LABURI</code></a>.
 						</dd>
+						<dt><span class="file">adminhome.js</span></dt>
+						<dt><span class="file">adminlogin.html</span></dt>
+						<dt><span class="file">playerhome.js</span></dt>
+						<dt><span class="file">playerlogin.html</span></dt>
+						<dt><span class="file">privacy.html</span></dt>
 						<dt><span class="file">style.css</span></dt>
 						<dt><span class="file">script.js</span></dt>
 						<dd>
@@ -247,14 +266,9 @@
 						<dt><span class="file">addplayer.eml</span></dt>
 						<dt><span class="file">adminhome-new.html</span></dt>
 						<dt><span class="file">adminhome-started.html</span></dt>
-						<dt><span class="file">adminhome.js</span></dt>
-						<dt><span class="file">adminlogin.html</span></dt>
 						<dt><span class="file">backupfail.eml</span></dt>
 						<dt><span class="file">backupsuccess.eml</span></dt>
 						<dt><span class="file">playerhome.html</span></dt>
-						<dt><span class="file">playerhome.js</span></dt>
-						<dt><span class="file">playerlogin.html</span></dt>
-						<dt><span class="file">privacy.html</span></dt>
 						<dt><span class="file">test.eml</span></dt>
 						<dd>
 							These read-only files are installed into <a href="#datadir"><code>DATADIR</code></a>.

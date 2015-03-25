@@ -27,7 +27,7 @@ STATIC		 =
 
 # You really don't want to change anything below this line.
 
-VERSION	 = 1.0.0
+VERSION	 = 1.0.1
 VMONTH	 = March
 VYEAR	 = 2015
 CFLAGS 	+= -g -W -Wall -Wstrict-prototypes -Wno-unused-parameter -Wwrite-strings -I/usr/local/include
@@ -37,6 +37,9 @@ PAGES 	 = addplayer.eml \
 	   backupsuccess.eml \
 	   playerhome.html \
 	   test.eml
+BUILTPS	 = adminhome-new.html \
+	   adminhome-started.html \
+	   playerhome.html
 SCREENS	 = screen-admin1.png \
 	   screen-admin2.png \
 	   screen-admin3.png \
@@ -76,15 +79,13 @@ SRCS	 = Makefile \
 	   test-strlcpy.c \
 	   test-strtonum.c
 BUILT	 = adminhome.js \
-	   adminhome-new.html \
-	   adminhome-started.html \
 	   adminlogin.html \
-	   playerhome.html \
 	   playerhome.js \
 	   playerlogin.html \
 	   privacy.html
+VERSIONS = version_1_0_1.xml
 
-all: admin lab $(BUILT)
+all: admin lab $(BUILT) $(BUILTPS)
 
 admin: admin.o $(OBJS)
 	$(CC) $(STATIC) -L/usr/local/lib -o $@ admin.o $(OBJS) -lsqlite3 -lkcgi -lkcgijson -lz -lgmp `curl-config --libs` $(LIBS)
@@ -107,7 +108,7 @@ gamelab.bib: gamelab.in.bib
 
 update: all
 	install -m 0444 $(STATICS) $(BUILT) $(HTDOCS)
-	install -m 0444 $(PAGES) $(DATADIR)
+	install -m 0444 $(PAGES) $(BUILTPS) $(DATADIR)
 	install -m 0755 admin $(CGIBIN)/admin.cgi
 	install -m 0755 admin $(CGIBIN)
 	install -m 0755 lab $(CGIBIN)/lab.cgi
@@ -147,7 +148,8 @@ manual.html: manual.xml
 	sed "s!@VERSION@!$(VERSION)!g" manual.xml >$@
 
 index.html: index.xml
-	sed "s!@VERSION@!$(VERSION)!g" index.xml >$@
+	sblg -t index.xml -o- $(VERSIONS) | \
+		sed "s!@VERSION@!$(VERSION)!g" >$@
 
 .in.js.js:
 	sed -e "s!@ADMINURI@!$(ADMINURI)!g" \
@@ -160,6 +162,7 @@ index.html: index.xml
 		-e "s!@HTURI@!$(HTURI)!g" $< >$@
 
 clean:
-	rm -f admin admin.o gamelab.db lab lab.o $(OBJS) $(BUILT) config.h config.log 
+	rm -f admin admin.o gamelab.db lab lab.o $(OBJS) config.h config.log 
+	rm -f $(BUILT) $(BUILTPS) 
 	rm -f index.html manual.html gamelab.tgz gamelab.tgz.sha512 gamelab.bib gamelab.png
 	rm -rf *.dSYM

@@ -2,7 +2,7 @@ body			{ margin: 0;
 			  font-family: serif;
 			  background-color: #393939; }
 header			{ padding-top: 2em; }
-header h1		{ padding-top: 5%;
+header h1		{ padding-top: 1%;
 			  font-size: 56pt; 
 			  font-family: sans-serif;
 			  font-weight: normal;
@@ -24,10 +24,9 @@ article			{ color: #cecece;
 			  text-shadow: 1px 1px #333;
 			  font-size: 17pt; }
 footer			{ margin-top: 3em; 
-			  margin-left: 7%;
 			  font-size: 13pt;
-			  color: #6e6e6e;
-			  margin-right: 7%; }
+			  text-align: center;
+			  color: #6e6e6e; }
 .nm			{ color: #ff5a09; }
 a			{ text-decoration: none; 
 			  color: #ff9000; }
@@ -36,3 +35,6 @@ footer a		{ color: #cc9000; }
 section			{ text-shadow: none;
 			  font-size: 14pt;
 			  color: #8e8e8e; }
+nav[data-sblg-nav] ul	{ list-style-type: none; 
+			  color: #aeaeae; 
+			  padding: 0; }

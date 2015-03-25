@@ -31,7 +31,7 @@
 				At the end of the experiment, their tickets are used in a lottery drawing to select winners.
 			</p>
 			<p>
-				<span class="nm">Gamelab</span> was developed for <a href="#">J&ouml;rgen Weibull</a> with financial support from the
+				<span class="nm">Gamelab</span> was developed for <a href="#">J&#x00f6;rgen Weibull</a> with financial support from the
 				<a href="#">Knut and Alice Wallenberg Research Foundation</a>.  The project design was guided by <a
 					href="#">Eskil Forsell</a> and implemented by <a href="#">Kristaps Dzonsons</a>.
 			</p>
@@ -39,17 +39,24 @@
 				<p>
 					If you're interested in deploying a <span class="nm">gamelab</span> server of your own, consult the <a
 						href="manual.html">manual</a> on how to download, install, and administer experiments.
-					If you're interested in teaming up, or just want to share your experiences, contact J&ouml;rgen,
+					If you're interested in teaming up, or just want to share your experiences, contact J&#x00f6;rgen,
 					Kristaps, or Eskil.
 					In the spirit of academic sharing, <span class="nm">gamelab</span> is open source <a rel="license"
 						href="http://cvsweb.openbsd.org/cgi-bin/cvsweb/src/share/misc/license.template?rev=HEAD">ISC</a>
 					licensed, and we kindly suggest that experimenters <a href="gamelab.bib">cite</a> our work!
 				</p>
+				<nav data-sblg-nav="1" data-sblg-navsz="3" data-sblg-navcontent="1">
+					<div>
+						<time datetime="${sblg-date}">${sblg-date}</time>:
+						v<span class="version">${sblg-title}</span>
+					</div>
+					<div>${sblg-aside}</div>
+				</nav>
 			</section>
 		</article>
 		<footer>
 			<div>
-				&copy; 2015, <a href="http://www.kcons.eu"><i>k</i>-Consulting</a>
+				&#169; 2015, <a href="http://www.kcons.eu"><i>k</i>-Consulting</a>
 			</div>
 		</footer>
 	</body>

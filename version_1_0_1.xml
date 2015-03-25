@@ -1,0 +1,13 @@
+<article data-sblg-article="1" data-sblg-tags="version">
+	<header>
+		<h1>0.1.0</h1>
+		<address>Kristaps Dzonsons</address>
+		<time datetime="2015-03-25">2015-03-25</time>
+	</header>
+	<aside>
+		Second [non-public] release of the system.
+		The push behind this release is to reduce the load on the Gamelab server: a lot of HTML and JavaScript which previously had been
+		dynamically served is now statically served.
+		The paths in these files (which were previously filled-in by the server) are now hard-coded during compilation.
+	</aside>
+</article>
