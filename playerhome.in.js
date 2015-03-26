@@ -12,6 +12,7 @@ var res;
 var shownHistory;
 var shownLottery;
 var shownBimatrix;
+var shownGraph;
 
 /*
  * When we play games, we go through the [shuffled] array in "res".
@@ -582,10 +583,71 @@ function showHistory()
 	shownBimatrix = doUnhide('bimatrix' + game);
 }
 
+function showGraph(graph)
+{
+	var	 e;
+
+	if (null == (e = document.getElementById(graph)))
+		return;
+
+	if (null != shownGraph)
+		doHideNode(shownGraph);
+	else
+		doHide('historyGraphAccumRoundShell');
+
+	doUnhideNode(e);
+	shownGraph = e;
+}
+
+function updateGraphs()
+{
+	var	e, i, j, k, data, datas, graph, lot;
+
+	if (null == res)
+		return;
+
+	if (null != (e = doClear('historyGraphAccumRound'))) {
+		datas = [];
+		for (i = 0; i < res.history.length; i++) {
+			data = [];
+			for (k = 0.0, j = 0; j < res.history[i].roundups.length; j++) {
+				lot = res.lotteries[j].plays[res.gameorders[i]];
+				if (null != lot)
+					k += lot.poff;
+				data.push([j + 1, k]);
+			}
+			datas.push(data);
+		}
+		graph = Flotr.draw(e, datas, {
+			xaxis: { tickDecimals: 0, title: 'Round' }
+		});
+	}
+
+	if (null != (e = doClear('historyGraphPerRound'))) {
+		datas = [];
+		for (i = 0; i < res.history.length; i++) {
+			data = [];
+			for (j = 0; j < res.history[i].roundups.length; j++) {
+				lot = res.lotteries[j].plays[res.gameorders[i]];
+				if (null == lot)
+					data.push([j + 1, 0.0]);
+				else
+					data.push([j + 1, lot.poff]);
+			}
+			datas.push(data);
+		}
+		graph = Flotr.draw(e, datas, {
+			xaxis: { tickDecimals: 0, title: 'Round' }
+		});
+	}
+}
+
 function loadHistory(res)
 {
 	var histe, gamee, e, i, j, k, child, matrix, bmatrix, c, oc, 
-	    ravg, cavg, tbl, game, par, lot, list, listitem;
+	    ravg, cavg, tbl, game, par, lot, list, listitem, data, graph, datas;
+
+	updateGraphs();
 
 	c = res.rseed % colours.length;
 	oc = (0 == c % 2) ? c + 1 : c - 1;
@@ -834,7 +896,6 @@ function loadExprSuccess(resp)
 			doHide('exprFinishedLose');
 			doHide('exprFinishedWinRnums');
 			setTimeout(loadExpr, 1000 * 60);
-			console.log('Waiting...');
 		} else if (res.winner < 0) {
 			doUnhide('exprFinishedResults');
 			doHide('exprFinishedWinWait');

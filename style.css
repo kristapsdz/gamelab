@@ -11,6 +11,7 @@ header				{ background-color: #ccc;
 				  display: table;
 				  position: fixed;
 				  left: 0;
+				  z-index: 1;
 				  top: 0;
 				  width: 100%;
 				  border-bottom: thin solid #aaa; }
@@ -24,13 +25,18 @@ header > span			{ border-right: none;
 				  text-align: left; 
 				  width: 98%; }
 header a			{ color: #222; }
-.tab, .tab:target ~ #defaultTab	{ display: none; }
-#defaultTab, .tab:target 	{ display: block; }
+#defaultTab, .tab:target 	{ max-height: 1000em; padding-top: 3em; padding-bottom: 1em; }
+.tab, .tab:target ~ #defaultTab	{ max-height: 0; overflow: hidden; padding-top: 0; padding-bottom: 0; }
 #navParent			{ position: absolute; 
 				  display: block;
 				  text-align: left;
 				  top: 100%; 
 				  left: 0;}
+span.link			{ cursor: pointer; 
+				  color: #336699; }
+.links >*			{ border-right: thin solid #ccc; 
+				  padding-right: 1ex; }
+.links >*:last-child		{ border-right: none; }
 #nav a				{ font-size: 12pt; 
 			  	  color: #222; }
 #nav				{ padding: 0 2ex; 
@@ -62,10 +68,7 @@ h3				{ font-size: 14pt;
 h3 + div, h3 + p		{ margin-top: 1ex; }
 h4				{ font-size: inherit; }
 article				{ background-color: #fff;
-				  padding-bottom: 1em;
-				  padding-top: 3em;
-				  padding-left: 20%;
-				  padding-right: 20%; }
+				  padding: 3em 20% 1em 20%; }
 #login > article		{ background-color: inherit; 
 				  max-width: 1024px; 
 				  margin-left: auto;
@@ -250,7 +253,11 @@ div.canclose a 		 	{ text-align: right;
 sup				{ font-size: 8pt; 
 				  font-style: italic; }
 div.input input[readonly]	{ background-color: #ddd; }
-.noshow				{ display: none; }
+.noshow				{ max-height: 0 !important; 
+				  padding: 0 !important; 
+				  overflow: hidden; 
+				  margin: 0 !important;
+				  border: 0 !important; }
 .tabled 			{ display: table; border-spacing: 1ex; }
 .tabled > div 			{ display: table-row; }
 .tabled > div > * 		{ display: table-cell; }

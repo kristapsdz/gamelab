@@ -109,7 +109,7 @@ gamelab.bib: gamelab.in.bib
 	    -e "s!@VYEAR@!$(VYEAR)!g" gamelab.in.bib >$@
 
 update: all
-	install -m 0444 $(STATICS) $(BUILT) $(HTDOCS)
+	install -m 0444 $(STATICS) $(BUILT) flotr2.min.js $(HTDOCS)
 	install -m 0444 $(PAGES) $(BUILTPS) $(DATADIR)
 	install -m 0755 admin $(CGIBIN)/admin.cgi
 	install -m 0755 admin $(CGIBIN)
