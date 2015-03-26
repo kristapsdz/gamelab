@@ -636,6 +636,23 @@ main(void)
 			pages, PAGE__MAX, PAGE_INDEX))
 		return(EXIT_FAILURE);
 
+	switch (r.method) {
+	case (KMETHOD_GET):
+	case (KMETHOD_POST):
+		break;
+	case (KMETHOD_OPTIONS):
+		khttp_head(&r, kresps[KRESP_STATUS], 
+			"%s", khttps[KHTTP_200]);
+		khttp_head(&r, kresps[KRESP_ALLOW],
+			"GET POST OPTIONS");
+		khttp_body(&r);
+		goto out;
+	default:
+		http_open(&r, KHTTP_405);
+		khttp_body(&r);
+		goto out;
+	}
+
 	switch (r.mime) {
 	case (KMIME_TEXT_HTML):
 		bit = PERM_HTML;
