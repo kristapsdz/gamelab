@@ -33,7 +33,6 @@ function doSuccess(submitName, formName)
 
 function doError(err, submitName, errName) 
 {
-	var url = document.URL;
 
 	doValue(submitName, 'Submit');
 	switch (err) {
@@ -41,8 +40,7 @@ function doError(err, submitName, errName)
 		doUnhide(errName + 'Form');
 		break;
 	case 403:
-		url = url.substring(0, url.lastIndexOf("/"));
-		location.href = url + '/login.html#loggedout';
+		location.href = '@HTURI@/adminlogin.html#loggedout';
 		break;
 	case 409:
 		doUnhide(errName + 'State');
@@ -642,10 +640,8 @@ function loadExprSetup()
 
 function loadExprFailure(err)
 {
-	var url = document.URL;
 
-	url = url.substring(0, url.lastIndexOf("/"));
-	location.href = url + '/login.html#loggedout';
+	location.href = '@HTURI@/adminlogin.html#loggedout';
 }
 
 function loadExpr() 
