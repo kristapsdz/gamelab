@@ -279,8 +279,7 @@ mail_template_buf(size_t key, void *arg)
 		mail_putfile(mail->fname, mail);
 		break;
 	case (MAILKEY_LABURL):
-		assert(NULL != mail->fname);
-		mail_putfile(HTURI "/playerlogin.html", mail);
+		mail_puts(HTURI "/playerlogin.html", mail);
 		break;
 	default:
 		abort();

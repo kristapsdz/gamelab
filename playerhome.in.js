@@ -896,7 +896,7 @@ function loadExprFirst()
 function loadExpr() 
 {
 
-	sendQuery('@CGIBIN@/doloadexpr.json', 
+	sendQuery('@LABURI@/doloadexpr.json', 
 		loadExprSetup, loadExprSuccess, loadExprFailure);
 }
 

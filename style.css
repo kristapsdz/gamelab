@@ -82,7 +82,7 @@ footer a			{ color: #666;
 footer a:last-child		{ border-right: none; 
 				  padding-right: 0; }
 footer a:hover			{ color: #222; }
-section section			{ border: thin solid #ddd;
+section section	{ border: thin solid #ddd;
 				  margin: 1em 0; }
 section section >*		{ margin: 1em; }
 section section >h3		{ margin: 0;

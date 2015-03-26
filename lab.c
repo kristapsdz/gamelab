@@ -654,7 +654,12 @@ main(void)
 	}
 
 	if ((perms[r.page] & PERM_LOGIN) && ! sess_valid(&r, &id)) {
-		send303(&r, HTURI "/playerlogin.html", PAGE__MAX, 1);
+		if (KMIME_TEXT_HTML != r.mime) {
+			http_open(&r, KHTTP_403);
+			khttp_body(&r);
+		} else
+			send303(&r, HTURI "/playerlogin.html", 
+				PAGE__MAX, 1);
 		goto out;
 	}
 
