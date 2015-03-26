@@ -58,6 +58,7 @@ struct	mail {
 	char		 date[27]; /* current date string */
 	char		*pass; /* new-user password */
 	char		*login; /* new-user login url */
+	const char	*uri; /* full login url (or NULL) */
 	char		*fname; /* backup fname (or NULL) */
 	struct buf	 b; /* buffer to read/write */
 };
@@ -279,7 +280,8 @@ mail_template_buf(size_t key, void *arg)
 		mail_putfile(mail->fname, mail);
 		break;
 	case (MAILKEY_LABURL):
-		mail_puts(HTURI "/playerlogin.html", mail);
+		assert(NULL != mail->uri);
+		mail_puts(mail->uri, mail);
 		break;
 	default:
 		abort();
@@ -349,7 +351,7 @@ mail_init(struct mail *mail, struct ktemplate *t)
  * depending on the conditions.
  */
 void 
-mail_players(const char *uri)
+mail_players(const char *uri, const char *loginuri)
 {
 	CURL		  *curl;
 	CURLcode 	   res;
@@ -363,12 +365,14 @@ mail_players(const char *uri)
 	if (NULL == (curl = mail_init(&m, &t)))
 		return;
 
+	m.uri = uri;
+
 	while (NULL != (m.to = db_player_next_new(&id, &m.pass))) {
 		assert(NULL != m.pass);
 		encto = kutil_urlencode(m.to);
 		encpass = kutil_urlencode(m.pass);
 		kasprintf(&m.login, "%s?email=%s&password=%s", 
-			uri, encto, encpass);
+			loginuri, encto, encpass);
 		free(encto);
 		free(encpass);
 

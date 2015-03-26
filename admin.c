@@ -833,7 +833,7 @@ static void
 senddoresetpasswordss(struct kreq *r)
 {
 	pid_t		 pid;
-	char		*sv;
+	char		*loginuri, *uri;
 	struct expr	*expr;
 
 	if (NULL == (expr = db_expr_get())) {
@@ -851,7 +851,9 @@ senddoresetpasswordss(struct kreq *r)
 
 	http_open(r, KHTTP_200);
 	khttp_body(r);
-	sv = kstrdup(expr->loginuri);
+	loginuri = kstrdup(expr->loginuri);
+	kasprintf(&uri, "http://%s" HTURI 
+		"/playerlogin.html", r->host);
 	db_expr_free(expr);
 	db_close();
 
@@ -860,23 +862,25 @@ senddoresetpasswordss(struct kreq *r)
 	} else if (0 == pid) {
 		khttp_child_free(r);
 		if (0 == (pid = fork())) {
-			mail_players(sv);
+			mail_players(uri, loginuri);
 			db_close();
 		} else if (pid < 0) 
 			perror(NULL);
-		free(sv);
+		free(loginuri);
+		free(uri);
 		_exit(EXIT_SUCCESS);
 	} else 
 		waitpid(pid, NULL, 0);
 
-	free(sv);
+	free(loginuri);
+	free(uri);
 }
 
 static void
 senddoresendmail(struct kreq *r)
 {
 	pid_t		 pid;
-	char		*sv;
+	char		*loginuri, *uri;
 	struct expr	*expr;
 
 	if (NULL == (expr = db_expr_get())) {
@@ -889,7 +893,9 @@ senddoresendmail(struct kreq *r)
 
 	http_open(r, KHTTP_200);
 	khttp_body(r);
-	sv = kstrdup(expr->loginuri);
+	loginuri = kstrdup(expr->loginuri);
+	kasprintf(&uri, "http://%s" HTURI 
+		"/playerlogin.html", r->host);
 	db_expr_free(expr);
 	db_close();
 
@@ -898,23 +904,25 @@ senddoresendmail(struct kreq *r)
 	} else if (0 == pid) {
 		khttp_child_free(r);
 		if (0 == (pid = fork())) {
-			mail_players(sv);
+			mail_players(uri, loginuri);
 			db_close();
 		} else if (pid < 0) 
 			perror(NULL);
-		free(sv);
+		free(loginuri);
+		free(uri);
 		_exit(EXIT_SUCCESS);
 	} else 
 		waitpid(pid, NULL, 0);
 
-	free(sv);
+	free(loginuri);
+	free(uri);
 }
 
 static void
 senddostartexpr(struct kreq *r)
 {
 	pid_t	 pid;
-	char	*sv;
+	char	*loginuri, *uri;
 
 	if (kpairbad(r, KEY_DATE) ||
 		kpairbad(r, KEY_TIME) ||
@@ -946,7 +954,9 @@ senddostartexpr(struct kreq *r)
 	http_open(r, KHTTP_200);
 	khttp_body(r);
 
-	sv = kstrdup(r->fieldmap[KEY_URI]->parsed.s);
+	loginuri = kstrdup(r->fieldmap[KEY_URI]->parsed.s);
+	kasprintf(&uri, "http://%s" HTURI 
+		"/playerlogin.html", r->host);
 
 	db_close();
 	if (-1 == (pid = fork())) {
@@ -954,16 +964,18 @@ senddostartexpr(struct kreq *r)
 	} else if (0 == pid) {
 		khttp_child_free(r);
 		if (0 == (pid = fork())) {
-			mail_players(sv);
+			mail_players(uri, loginuri);
 			db_close();
 		} else if (pid < 0) 
 			fprintf(stderr, "cannot double-fork!\n");
-		free(sv);
+		free(loginuri);
+		free(uri);
 		_exit(EXIT_SUCCESS);
 	} else 
 		waitpid(pid, NULL, 0);
 
-	free(sv);
+	free(loginuri);
+	free(uri);
 }
 
 static void

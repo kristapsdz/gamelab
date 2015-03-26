@@ -9,5 +9,6 @@
 		The push behind this release is to reduce the load on the Gamelab server: a lot of HTML and JavaScript which previously had been
 		dynamically served is now statically served.
 		The paths in these files (which were previously filled-in by the server) are now hard-coded during compilation.
+		Also added some informative bits to the login pages regarding browser usage and the login URI to the player e-mails.
 	</aside>
 </article>

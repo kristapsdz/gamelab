@@ -249,7 +249,7 @@ int		 db_winners(struct expr **, size_t, int64_t, size_t);
 struct winner	*db_winners_get(int64_t);
 void		 db_winners_free(struct winner *);
 
-void		 mail_players(const char *);
+void		 mail_players(const char *, const char *);
 void		 mail_backup(void);
 void		 mail_wipe(void);
 void		 mail_test(void);
