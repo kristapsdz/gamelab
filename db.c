@@ -653,7 +653,7 @@ db_winners(struct expr **expr, size_t winnersz, int64_t seed, size_t count)
 			score = sqlite3_column_int(stmt, 2);
 			fprintf(stderr, "Checking: %" PRId64 
 				" < %" PRId64 "\n", top, sum + score);
-			if (top < sum + score)
+			if (top >= sum && top < sum + score)
 				break;
 		}
 		sqlite3_reset(stmt);
