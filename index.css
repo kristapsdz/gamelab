@@ -14,7 +14,7 @@ header div		{ color: #ff5a09;
 			  margin-left: 7%;
 		   	  margin-right: 7%;
 			  font-size: 14pt; }
-header span		{ padding-left: 1ex;
+header div > span	{ padding-left: 1ex;
 			  padding-right: 1ex; }
 header span:first-child	{ padding-left: 0; }
 article			{ color: #cecece; 
@@ -38,3 +38,6 @@ section			{ text-shadow: none;
 nav[data-sblg-nav] ul	{ list-style-type: none; 
 			  color: #aeaeae; 
 			  padding: 0; }
+@media only screen and (max-width: 480px), only screen and (max-device-width: 480px) {
+header span span	{ display: none; }
+}

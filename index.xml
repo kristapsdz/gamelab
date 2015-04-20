@@ -11,13 +11,20 @@
 		<header>
 			<div>
 				<span>Version @VERSION@</span>
-				<span><a title="Contact" href="mailto:kristaps@kcons.eu"><i class="fa fa-envelope-o"></i></a></span>
 				<span>
+					<span>Contact</span>
+					<a title="Contact" href="mailto:kristaps@kcons.eu"><i class="fa fa-envelope-o"></i></a>
+				</span>
+				<span>
+					<span>Sources</span>
 					<a title="Source Code" href="snapshots/gamelab.tgz"><i class="fa fa-gears"></i></a>
 					<a title="Source Checksum" href="snapshots/gamelab.tgz.sha512"><i class="fa fa-lock"></i></a>
 					<a title="Source Archive" href="snapshots"><i class="fa fa-archive"></i></a>
 				</span>
-				<span><a title="BibTeX Citation" href="gamelab.bib"><i class="fa fa-bookmark"></i></a></span>
+				<span>
+					<span>Cite</span>
+					<a title="BibTeX Citation" href="gamelab.bib"><i class="fa fa-bookmark"></i></a>
+				</span>
 			</div>
 			<h1>gamelab</h1>
 		</header>

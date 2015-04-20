@@ -54,16 +54,14 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 #include <errno.h>
-#include <limits.h>
-#include <stdlib.h>
 
 #define INVALID 	1
 #define TOOSMALL 	2
 #define TOOLARGE 	3
 
-long long
-strtonum(const char *numstr, long long minval, long long maxval,
-    const char **errstrp)
+static long long
+strtonum(const char *numstr, long long minval, 
+	long long maxval, const char **errstrp)
 {
 	long long ll = 0;
 	char *ep;

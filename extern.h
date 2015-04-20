@@ -181,9 +181,11 @@ int		 db_admin_valid_pass(const char *);
 struct sess	*db_admin_sess_alloc(void);
 int		 db_admin_sess_valid(int64_t, int64_t);
 
-void		 db_close(void);
+int		 db_backup(const char *);
 
 mpq_t		*db_choices_get(int64_t, int64_t, int64_t, size_t *);
+
+void		 db_close(void);
 
 int		 db_expr_checkstate(enum estate);
 int		 db_expr_start(int64_t, int64_t, int64_t, 
@@ -191,12 +193,8 @@ int		 db_expr_start(int64_t, int64_t, int64_t,
 void		 db_expr_free(struct expr *);
 struct expr	*db_expr_get(void);
 void		 db_expr_wipe(void);
-int		 db_backup(const char *);
 void		 db_expr_setinstr(const char *, const char *);
 void		 db_expr_finish(struct expr **, size_t);
-
-struct interval	*db_interval_get(int64_t);
-void		 db_interval_free(struct interval *);
 
 struct game	*db_game_alloc(const char *,
 			const char *, int64_t, int64_t);
@@ -211,6 +209,9 @@ size_t		 db_game_round_count_done(int64_t, int64_t, size_t);
 void		 db_game_load_all(gamef fp, void *);
 void		 db_game_load_player(int64_t, 
 			int64_t, gameroundf, void *);
+
+struct interval	*db_interval_get(int64_t);
+void		 db_interval_free(struct interval *);
 
 int		 db_payoff_get(int64_t, int64_t, int64_t, mpq_t);
 

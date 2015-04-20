@@ -14,7 +14,7 @@ LIBS		 =
 STATIC		 = 
 
 # Linux testing.
-LIBS		 = -lbsd -lm
+# LIBS		 = -lbsd -lm
 
 # OpenBSD production.
 #PREFIX		 = /var/www

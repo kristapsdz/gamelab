@@ -50,3 +50,6 @@ img.shadow		{ border-radius: 8px;
 			  margin-right: auto; }
 .gamepanes td		{ padding: 0 1ex; 
 			  text-align: center; }
+@media only screen and (max-width: 480px), only screen and (max-device-width: 480px) {
+body > nav > span span	{ display: none; }
+}

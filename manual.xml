@@ -13,13 +13,20 @@
 		</header>
 		<nav>
 			<span>Version @VERSION@</span>
-			<span><a title="Contact" href="mailto:kristaps@kcons.eu"><i class="fa fa-envelope-o"></i></a></span>
 			<span>
+				<span>Contact</span>
+				<a title="Contact" href="mailto:kristaps@kcons.eu"><i class="fa fa-envelope-o"></i></a>
+			</span>
+			<span>
+				<span>Sources</span>
 				<a title="Source Code" href="snapshots/gamelab.tgz"><i class="fa fa-gears"></i></a>
 				<a title="Source Checksum" href="snapshots/gamelab.tgz.sha512"><i class="fa fa-lock"></i></a>
 				<a title="Source Archive" href="snapshots"><i class="fa fa-archive"></i></a>
 			</span>
-			<span><a title="BibTeX Citation" href="gamelab.bib"><i class="fa fa-bookmark"></i></a></span>
+			<span>
+				<span>Cite</span>
+				<a title="BibTeX Citation" href="gamelab.bib"><i class="fa fa-bookmark"></i></a>
+			</span>
 		</nav>
 		<article>
 			<p>
@@ -112,6 +119,7 @@
 						<li><a href="http://kristaps.bsd.lv">kcgi</a> (the CGI framework),</li>
 						<li><a href="https://gmplib.org">GMP</a> (rational number library),</li>
 						<li><a href="https://sqlite.org">SQLite</a> (database), and</li>
+						<li><a href="http://libbsd.freedesktop.org/wiki/">libbsd</a> (Linux compatibility, if applicable), and</li>
 						<li><a href="http://curl.haxx.se/libcurl/">libcURL</a> (e-mailing).</li>
 					</ul>
 					<p>
@@ -387,7 +395,7 @@
 						Now that you've set your e-mail and administrator credentials as described in <a
 							href="#firstlogin">First Login</a>, you're ready to configure an experiment.
 						Don't worry&mdash;you don't need to start your experiment immediately.
-						You can slowly add the players and games you want til you're ready to deploy the experiment
+						You can slowly add the players and games you want until you're ready to deploy the experiment
 						itself.
 						Start with the following.
 					</p>
@@ -399,8 +407,8 @@
 							A set of players identified by e-mail address.
 							The more, the merrier, but you'll need two at a minimum.
 							Make sure the e-mail addresses are real!
-							Enter these names into the <q>Players</q> section.
-							You'll be able to and and remove these before the experiment, so no worries.
+							Enter these e-mails into the <q>Players</q> section.
+							You'll be able to add and remove e-mails before the experiment, so no worries.
 							Moreover, if you start an experiment with mistaken e-mails, you'll be able to disable them.
 						</li>
 						<li>
@@ -567,7 +575,10 @@
 								<dt id="db-winner-winrank"><var>winrank</var></dt>
 								<dd>If the player is a winner, the rank (first, second, third draw...) of their winning.</dd>
 								<dt id="db-winner-rnum"><var>rnum</var></dt>
-								<dd>The random number used for this winning draw.</dd>
+								<dd>
+									The random number modulo the total number of tickts used for this winning draw.
+									In other words, this is the winning lottery ticket.
+								</dd>
 								<dt id="db-winner-id"><var>id</var></dt>
 								<dd>Unique identifier.</dd>
 							</dl>
@@ -595,7 +606,7 @@
 								<dd>A non-zero cryptographically random number given to the player when created.</dd>
 								<dt id="db-player-role"><var>role</var></dt>
 								<dd>The player role (<var>0</var> for row player, <var>1</var> for column
-									player) set set when the <a
+									player) set when the <a
 										href="#db-experiment"><code>experiment</code></a> <a
 										href="#db-experiment-state"><var>state</var></a> is
 									&gt;0.</dd>
@@ -726,8 +737,7 @@
 										href="#db-player-role"><var>role</var></a>.</dd>
 								<dt id="db-choice-playerid"><var>playerid</var></dt>
 								<dd>A foreign key reference to the <a href="#db-player"><code>player</code></a>
-									<a href="#db-player-id"><var>id</var></a>. When this equals the number
-									of games, the player has played all games for a round.</dd>
+									<a href="#db-player-id"><var>id</var></a>.</dd>
 								<dt id="db-choice-gameid"><var>gameid</var></dt>
 								<dd>A foreign key reference to the <a href="#db-game"><code>game</code></a>
 									<a href="#db-game-id"><var>id</var></a>.</dd>
@@ -876,7 +886,7 @@
 								<dt id="db-past-currentsp1"><var>currentsp1</var></dt>
 								<dd>For the row player, the average strategy mixture of the current round.
 									Strategy mixtures are only considered for <a
-										href="#db-choice"><code>code</code></a> rows where the <a
+										href="#db-choice"><code>choice</code></a> rows where the <a
 										href="#db-player"><code>player</code></a> played all games
 									for the round, so this will be a set of zeroes if no players completed
 									all games.
