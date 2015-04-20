@@ -79,6 +79,7 @@ enum	cntt {
  * Input form field names.
  */
 enum	key {
+	KEY_AUTOADD,
 	KEY_DATE,
 	KEY_TIME,
 	KEY_ROUNDS,
@@ -100,7 +101,6 @@ enum	key {
 	KEY_PAYOFFS,
 	KEY_PLAYERID,
 	KEY_PLAYERS,
-	KEY_PLAYERSSELF,
 	KEY_SERVER,
 	KEY_SESSCOOKIE,
 	KEY_SESSID,
@@ -181,6 +181,7 @@ static int kvalid_minutes(struct kpair *);
 static int kvalid_time(struct kpair *);
 
 static const struct kvalid keys[KEY__MAX] = {
+	{ kvalid_int, "autoadd" }, /* KEY_AUTOADD */
 	{ kvalid_date, "date" }, /* KEY_DATE */
 	{ kvalid_time, "time" }, /* KEY_TIME */
 	{ kvalid_rounds, "rounds" }, /* KEY_ROUNDS */
@@ -202,7 +203,6 @@ static const struct kvalid keys[KEY__MAX] = {
 	{ kvalid_stringne, "payoffs" }, /* KEY_PAYOFFS */
 	{ kvalid_int, "pid" }, /* KEY_PLAYERID */
 	{ kvalid_stringne, "players" }, /* KEY_PLAYERS */
-	{ kvalid_int, "playersself" }, /* KEY_PLAYERSSELF */
 	{ kvalid_stringne, "server" }, /* KEY_SERVER */
 	{ kvalid_int, "sesscookie" }, /* KEY_SESSCOOKIE */
 	{ kvalid_int, "sessid" }, /* KEY_SESSID */
@@ -704,15 +704,16 @@ senddoaddplayers(struct kreq *r)
 	http_open(r, KHTTP_200);
 	khttp_body(r);
 
-	if (NULL != r->fieldmap[KEY_PLAYERSSELF])
+	if (NULL != r->fieldmap[KEY_AUTOADD])
 		db_expr_setautoadd
-			(r->fieldmap[KEY_PLAYERSSELF]->parsed.i);
+			(r->fieldmap[KEY_AUTOADD]->parsed.i);
 
 	if (NULL == r->fieldmap[KEY_PLAYERS])
 		return;
 
 	buf = sv = kstrdup
 		(r->fieldmap[KEY_PLAYERS]->parsed.s);
+
 	while (NULL != (tok = strsep(&buf, " \t\n\r"))) {
 		if (*tok == '\0')
 			continue;
@@ -762,9 +763,12 @@ senddoloadplayers(struct kreq *r)
 	http_open(r, KHTTP_200);
 	khttp_body(r);
 	kjson_open(&req, r);
-	kjson_array_open(&req);
+	kjson_obj_open(&req);
+	kjson_putintp(&req, "autoadd", db_expr_getautoadd());
+	kjson_arrayp_open(&req, "players");
 	db_player_load_all(senddoloadplayer, &req);
 	kjson_array_close(&req);
+	kjson_obj_close(&req);
 	kjson_close(&req);
 }
 

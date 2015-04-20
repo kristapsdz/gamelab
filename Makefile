@@ -70,6 +70,7 @@ SRCS	 = Makefile \
 	   mail.c \
 	   mpq.c \
 	   playerautoadd.in.html \
+	   playerautoadd.in.js \
 	   playerhome.in.html \
 	   playerhome.in.js \
 	   playerlogin.in.html \
@@ -77,6 +78,7 @@ SRCS	 = Makefile \
 BUILT	 = adminhome.js \
 	   adminlogin.html \
 	   playerautoadd.html \
+	   playerautoadd.js \
 	   playerhome.html \
 	   playerhome.js \
 	   playerlogin.html \

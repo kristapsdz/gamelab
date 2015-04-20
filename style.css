@@ -132,10 +132,8 @@ div.input >*:first-child	{ border-bottom-left-radius: 0.5ex;
 				  border-top-left-radius: 0.5ex; }
 div.input i			{ text-align: center; 
 				  width: 1%; }
-div.input i[class~="fa-toggle-off"]
-				{ color: black; }
-div.input i[class~="fa-toggle-on"]
-				{ color: green; }
+i[class~="fa-toggle-off"]	{ color: black; }
+i[class~="fa-toggle-on"]	{ color: green; }
 div.input button,
 div.input textarea,
 div.input input			{ -webkit-appearance: none;

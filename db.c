@@ -1124,7 +1124,9 @@ db_game_alloc(const char *poffs,
 	rops = kcalloc(maxcount, sizeof(mpq_t));
 	count = 0;
 
-	while (NULL != (tok = strsep(&buf, " \t\n\r")))
+	while (NULL != (tok = strsep(&buf, " \t\n\r"))) {
+		if ('\0' == *tok)
+			continue;
 		if (count >= maxcount) {
 			fprintf(stderr, "Game allocated with too "
 				"many strategies: %zu >= %zu\n",
@@ -1135,6 +1137,7 @@ db_game_alloc(const char *poffs,
 				"bad rational %s\n", tok);
 			goto err;
 		}
+	}
 
 	free(sv);
 	sv = NULL;
@@ -1204,10 +1207,11 @@ db_player_create(const char *email, char **pass)
 
 	hash = db_crypt_mkpass();
 	stmt = db_stmt("INSERT INTO player "
-		"(email,rseed,hash) VALUES (?,?,?)");
+		"(email,rseed,hash,autoadd) VALUES (?,?,?,?)");
 	db_bind_text(stmt, 1, email);
 	db_bind_int(stmt, 2, arc4random_uniform(INT32_MAX) + 1);
 	db_bind_text(stmt, 3, hash);
+	db_bind_int(stmt, 4, NULL != pass);
 	rc = db_step(stmt, DB_STEP_CONSTRAINT);
 	sqlite3_finalize(stmt);
 	if (SQLITE_DONE == rc) {
@@ -1395,8 +1399,8 @@ db_player_next_new(int64_t *id, char **pass)
 	char		*email;
 
 	email = *pass = NULL;
-	stmt = db_stmt("SELECT email,id FROM player "
-		"WHERE state=0 AND enabled=1 LIMIT 1");
+	stmt = db_stmt("SELECT email,id FROM player WHERE "
+		"state=0 AND enabled=1 AND autoadd=0 LIMIT 1");
 
 	if (SQLITE_ROW == db_step(stmt, 0)) {
 		email = kstrdup((char *)

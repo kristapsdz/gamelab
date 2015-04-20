@@ -62,7 +62,7 @@ function doSetup(submitName, errName)
 
 function loadNewPlayersSuccess(resp) 
 {
-	var e, li, i, results, icon, link, span, count, pspan, fa;
+	var e, li, i, results, players, icon, link, span, count, pspan, fa;
 
 	e = doClearNode(document.getElementById('loadNewPlayers'));
 	if (null == e)
@@ -77,7 +77,20 @@ function loadNewPlayersSuccess(resp)
 		return;
 	}
 
-	if (0 == results.length) {
+	document.getElementById('autoaddToggle').classList.remove('fa-toggle-off');
+	document.getElementById('autoaddToggle').classList.remove('fa-toggle-on');
+
+	if (results.autoadd) {
+		document.getElementById('autoaddToggle').classList.add('fa-toggle-on');
+		doValue('autoadd', 1);
+	} else {
+		document.getElementById('autoaddToggle').classList.add('fa-toggle-off');
+		doValue('autoadd', 0);
+	}
+
+	players = results.players;
+
+	if (0 == players.length) {
 		li = document.createElement('li');
 		span = document.createElement('span');
 		span.setAttribute('class', 'error');
@@ -96,21 +109,21 @@ function loadNewPlayersSuccess(resp)
 	li = document.createElement('li');
 	e.appendChild(li);
 
-	for (count = i = 0; i < results.length; i++) {
-		if (results[i].enabled)
+	for (count = i = 0; i < players.length; i++) {
+		if (players[i].enabled)
 			count++;
 
 		span = document.createElement('span');
-		span.setAttribute('id', 'player' + results[i].id);
+		span.setAttribute('id', 'player' + players[i].id);
 
 		icon = document.createElement('a');
 		icon.setAttribute('class', 'fa fa-remove');
 		icon.setAttribute('href', '#;');
-		icon.setAttribute('id', 'playerDelete' + results[i].id);
-		icon.setAttribute('onclick', 'doDeletePlayer(' + results[i].id + '); return false;');
+		icon.setAttribute('id', 'playerDelete' + players[i].id);
+		icon.setAttribute('onclick', 'doDeletePlayer(' + players[i].id + '); return false;');
 		span.appendChild(icon);
 		span.appendChild(document.createTextNode(' '));
-		span.appendChild(document.createTextNode(results[i].mail));
+		span.appendChild(document.createTextNode(players[i].mail));
 		li.appendChild(span);
 	}
 
@@ -170,7 +183,7 @@ function doShowPlayer(name)
 
 function loadPlayersSuccess(resp) 
 {
-	var e, li, i, results, icon, link, span, link, sup;
+	var e, li, i, results, players, icon, link, span, link, sup;
 
 	e = doClearNode(document.getElementById('loadPlayers'));
 	if (null == e)
@@ -185,7 +198,9 @@ function loadPlayersSuccess(resp)
 		return;
 	}
 
-	if (0 == results.length) {
+	players = results.players;
+
+	if (0 == players.length) {
 		li = document.createElement('li');
 		span = document.createElement('span');
 		span.setAttribute('class', 'error');
@@ -203,36 +218,36 @@ function loadPlayersSuccess(resp)
 	li = document.createElement('li');
 	e.appendChild(li);
 
-	for (i = 0; i < results.length; i++) {
+	for (i = 0; i < players.length; i++) {
 		span = document.createElement('span');
 
 		icon = document.createElement('a');
 		icon.setAttribute('href', '#');
-		icon.setAttribute('id', 'playerLoad' + results[i].id);
-		if (0 == results[i].enabled) {
+		icon.setAttribute('id', 'playerLoad' + players[i].id);
+		if (0 == players[i].enabled) {
 			icon.setAttribute('class', 'fa fa-toggle-off');
-			icon.setAttribute('onclick', 'doEnablePlayer(' + results[i].id + '); return false;');
+			icon.setAttribute('onclick', 'doEnablePlayer(' + players[i].id + '); return false;');
 		} else {
 			icon.setAttribute('class', 'fa fa-toggle-on');
-			icon.setAttribute('onclick', 'doDisablePlayer(' + results[i].id + '); return false;');
+			icon.setAttribute('onclick', 'doDisablePlayer(' + players[i].id + '); return false;');
 		}
 		span.appendChild(icon);
 		span.appendChild(document.createTextNode(' '));
 
-		span.setAttribute('id', 'player' + results[i].id);
-		span.setAttribute('data-gamelab-status', results[i].status);
-		span.setAttribute('data-gamelab-mail', results[i].mail);
-		span.setAttribute('data-gamelab-enabled', results[i].enabled);
-		span.setAttribute('data-gamelab-playerid', results[i].id);
+		span.setAttribute('id', 'player' + players[i].id);
+		span.setAttribute('data-gamelab-status', players[i].status);
+		span.setAttribute('data-gamelab-mail', players[i].mail);
+		span.setAttribute('data-gamelab-enabled', players[i].enabled);
+		span.setAttribute('data-gamelab-playerid', players[i].id);
 
 		link = document.createElement('a');
 		link.setAttribute('href', '#');
-		link.setAttribute('onclick', 'doShowPlayer("player' + results[i].id + '"); return false;');
-		link.appendChild(document.createTextNode(results[i].mail));
+		link.setAttribute('onclick', 'doShowPlayer("player' + players[i].id + '"); return false;');
+		link.appendChild(document.createTextNode(players[i].mail));
 		span.appendChild(link);
 
 		sup = document.createElement('i');
-		if (0 == parseInt(results[i].role))
+		if (0 == parseInt(players[i].role))
 			sup.setAttribute('class', 'fa fa-bars');
 		else
 			sup.setAttribute('class', 'fa fa-columns');
@@ -814,13 +829,13 @@ checkWipeButton(e)
 }
 
 function
-checkSelfAddPlayers()
+toggler(input, toggle)
 {
 	var e, i;
 
-	if (null == (e = document.getElementById('addPlayersSelf')))
+	if (null == (e = document.getElementById(input)))
 		return;
-	if (null == (i = document.getElementById('addPlayersSelfToggle')))
+	if (null == (i = document.getElementById(toggle)))
 		return;
 
 	i.classList.remove('fa-toggle-off');

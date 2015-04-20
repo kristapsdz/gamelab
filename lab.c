@@ -134,6 +134,9 @@ static int
 player_valid(struct kreq *r, int64_t *playerid)
 {
 
+	fprintf(stderr, "email: %p\n", r->fieldmap[KEY_EMAIL]);
+	fprintf(stderr, "pass: %p\n", r->fieldmap[KEY_PASSWORD]);
+
 	if (kpairbad(r, KEY_EMAIL) || kpairbad(r, KEY_PASSWORD))
 		return(0);
 
@@ -364,7 +367,6 @@ senddoautoadd(struct kreq *r)
 	} else {
 		http_open(r, KHTTP_200);
 		khttp_body(r);
-		khttp_puts(r, hash);
 		kjson_open(&req, r);
 		kjson_obj_open(&req);
 		kjson_putstringp(&req, "email", 
