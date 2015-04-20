@@ -88,7 +88,11 @@
 						<div>
 							You'll need to enter the <i class="fa fa-link"></i> address for logging in (sent in players'
 							welcome email &mdash; you probably don't want to change this), the <i class="fa
-								fa-calendar"></i> start date and <i class="fa fa-clock-o"></i> time in GMT, the
+								fa-calendar"></i> start date and <i class="fa fa-clock-o"></i> time in GMT
+							<script>
+								var now = new Date();
+								document.write('(' + (now.getTimezoneOffset() / 60) + ' hours)');
+							</script>, the
 							<i class="fa fa-gears"></i> number of rounds, and the <i class="fa fa-history"></i> minutes per round.
 							You can also change the <i class="fa fa-code"></i> instructions (in HTML5 markup) that
 							will be shown to players.
@@ -115,9 +119,28 @@
 								<i class="fa fa-fw fa-calendar"></i>
 								<input required="required" type="date" name="date" placeholder="yyyy-mm-dd" />
 							</div>
+							<div class="inputheader">
+								Current GMT date:
+								<script>
+									var now = new Date();
+									document.write
+										(now.getUTCFullYear() + '-' +
+										 ('0' + (now.getUTCMonth()+1)).slice(-2) + '-' +
+										 ('0' + now.getUTCDate()).slice(-2));
+								</script>
+							</div>
 							<div class="input">
 								<i class="fa fa-fw fa-clock-o"></i>
 								<input required="required" type="time" name="time" placeholder="hh:mm GMT" />
+							</div>
+							<div class="inputheader">
+								Current GMT time: 
+								<script>
+									var now = new Date();
+									document.write
+										(('0' + now.getUTCHours()).slice(-2) + ':' +
+										 ('0' + now.getUTCMinutes()).slice(-2));
+								</script>
 							</div>
 							<div class="input">
 								<i class="fa fa-fw fa-gears"></i>

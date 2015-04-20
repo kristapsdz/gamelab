@@ -110,6 +110,9 @@ fieldset			{ display: table;
 				  padding: 0;
 				  border: 0;
 				  border-spacing: 0 1ex; }
+div.inputheader			{ margin-top: -2pt; 
+				  color: #666;
+				  font-size: 11pt; }
 div.input			{ display: table-row; }
 div.input >*			{ display: table-cell; 
 				  background-color: #ddd;
