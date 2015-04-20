@@ -13,6 +13,9 @@ RDATADIR	 = $(PREFIX)
 LIBS		 = 
 STATIC		 = 
 
+# Linux testing.
+LIBS		 = -lbsd -lm
+
 # OpenBSD production.
 #PREFIX		 = /var/www
 #HTDOCS		 = $(PREFIX)/htdocs/gamelab
@@ -49,10 +52,7 @@ STATICS	 = adminlogin.css \
 	   playerlogin.css \
 	   style.css \
 	   script.js
-OBJS	 = compat-strtonum.o \
-	   compat-strlcat.o \
-	   compat-strlcpy.o \
-	   db.o \
+OBJS	 = db.o \
 	   json.o \
 	   mail.o \
 	   mpq.o
@@ -62,9 +62,6 @@ SRCS	 = Makefile \
 	   adminhome-new.in.html \
 	   adminhome-started.in.html \
 	   adminlogin.in.html \
-	   compat-strlcat.c \
-	   compat-strlcpy.c \
-	   compat-strtonum.c \
 	   db.c \
 	   extern.h \
 	   gamelab.sql \
@@ -75,10 +72,7 @@ SRCS	 = Makefile \
 	   playerhome.in.html \
 	   playerhome.in.js \
 	   playerlogin.in.html \
-	   privacy.in.html \
-	   test-strlcat.c \
-	   test-strlcpy.c \
-	   test-strtonum.c
+	   privacy.in.html
 BUILT	 = adminhome.js \
 	   adminlogin.html \
 	   playerhome.html \
@@ -95,11 +89,7 @@ admin: admin.o $(OBJS)
 lab: lab.o $(OBJS)
 	$(CC) $(STATIC) -L/usr/local/lib -o $@ lab.o $(OBJS) -lsqlite3 -lkcgi -lkcgijson -lz -lgmp `curl-config --libs` $(LIBS)
 
-admin.o lab.o $(OBJS): extern.h config.h
-
-config.h: config.h.pre config.h.post configure $(TESTS)
-	rm -f config.log
-	CC="$(CC)" CFLAGS="$(CFLAGS)" ./configure
+admin.o lab.o $(OBJS): extern.h
 
 www: index.html manual.html gamelab.tgz gamelab.tgz.sha512 gamelab.bib gamelab.png
 
@@ -122,7 +112,6 @@ install: update gamelab.db
 gamelab.tgz:
 	mkdir -p .dist/gamelab-$(VERSION)
 	cp $(SRCS) $(PAGES) $(STATICS) .dist/gamelab-$(VERSION)
-	cp configure config.h.pre config.h.post .dist/gamelab-$(VERSION)
 	(cd .dist && tar zcf ../$@ gamelab-$(VERSION))
 	rm -rf .dist
 
@@ -164,7 +153,7 @@ index.html: index.xml
 		-e "s!@HTURI@!$(HTURI)!g" $< >$@
 
 clean:
-	rm -f admin admin.o gamelab.db lab lab.o $(OBJS) config.h config.log 
+	rm -f admin admin.o gamelab.db lab lab.o $(OBJS)
 	rm -f $(BUILT) $(BUILTPS) 
 	rm -f index.html manual.html gamelab.tgz gamelab.tgz.sha512 gamelab.bib gamelab.png
 	rm -rf *.dSYM

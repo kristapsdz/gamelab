@@ -14,8 +14,6 @@
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
-#include "config.h" 
-
 #include <sys/param.h>
 
 #include <assert.h>
@@ -24,6 +22,9 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#ifdef __linux__
+#include <bsd/stdlib.h>
+#endif
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
@@ -600,7 +601,6 @@ db_winners(struct expr **expr, size_t winnersz, int64_t seed, size_t count)
 		top = random() % (*expr)->total;
 		fprintf(stderr, "Winning ticket: %" PRId64 "\n", top);
 		id = 0;
-		sum = 0;
 		while (SQLITE_ROW == db_step(stmt, 0)) {
 			id = sqlite3_column_int(stmt, 0);
 			sum = sqlite3_column_int(stmt, 1);
