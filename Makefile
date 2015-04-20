@@ -69,12 +69,14 @@ SRCS	 = Makefile \
 	   lab.c \
 	   mail.c \
 	   mpq.c \
+	   playerautoadd.in.html \
 	   playerhome.in.html \
 	   playerhome.in.js \
 	   playerlogin.in.html \
 	   privacy.in.html
 BUILT	 = adminhome.js \
 	   adminlogin.html \
+	   playerautoadd.html \
 	   playerhome.html \
 	   playerhome.js \
 	   playerlogin.html \

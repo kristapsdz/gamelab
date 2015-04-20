@@ -375,13 +375,6 @@ db_sess_free(struct sess *sess)
 	free(sess);
 }
 
-static const char *
-db_crypt_hash(const char *pass)
-{
-
-	return(pass);
-}
-
 static char *
 db_crypt_mkpass(void)
 {
@@ -408,7 +401,7 @@ db_admin_set_pass(const char *pass)
 	sqlite3_stmt	*stmt;
 
 	stmt = db_stmt("UPDATE admin SET hash=?");
-	db_bind_text(stmt, 1, db_crypt_hash(pass));
+	db_bind_text(stmt, 1, pass);
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);
 	fprintf(stderr, "Administrator set password\n");
@@ -1184,34 +1177,47 @@ err:
 	return(NULL);
 }
 
+/*
+ * Create a player, automatically setting a password for them.
+ * Returns -1 if the experiment isn't in ESTATE_NEW, 0 if the player
+ * already exists (nothing changed), and 1 on new player creation.
+ * Fills in the "pass" pointer (if set) with the player's password or
+ * NULL if errors have occurred.
+ */
 int
-db_player_create(const char *email)
+db_player_create(const char *email, char **pass)
 {
 	sqlite3_stmt	*stmt;
 	int		 rc;
-	int64_t		 id;
+	char		*hash;
+
+	if (NULL != pass)
+		*pass = NULL;
 
 	db_trans_begin(0);
 	if ( ! db_expr_checkstate(ESTATE_NEW)) {
 		db_trans_rollback();
 		fprintf(stderr, "Player (%s) could not be "
 			"created: bad state\n", email);
-		return(0);
+		return(-1);
 	}
 
+	hash = db_crypt_mkpass();
 	stmt = db_stmt("INSERT INTO player "
-		"(email,rseed) VALUES (?,?)");
+		"(email,rseed,hash) VALUES (?,?,?)");
 	db_bind_text(stmt, 1, email);
 	db_bind_int(stmt, 2, arc4random_uniform(INT32_MAX) + 1);
+	db_bind_text(stmt, 3, hash);
 	rc = db_step(stmt, DB_STEP_CONSTRAINT);
 	sqlite3_finalize(stmt);
 	if (SQLITE_DONE == rc) {
-		id = sqlite3_last_insert_rowid(db);
-		fprintf(stderr, "Player %" PRId64 " "
-			"created: %s\n", id, email);
+		fprintf(stderr, "Player %" PRId64 " created: %s\n", 
+			sqlite3_last_insert_rowid(db), email);
+		if (NULL != pass)
+			*pass = kstrdup(hash);
 	}
 	db_trans_commit();
-	return(1);
+	return(SQLITE_DONE == rc);
 }
 
 int
@@ -1225,6 +1231,41 @@ db_expr_checkstate(enum estate state)
 	rc = db_step(stmt, 0);
 	sqlite3_finalize(stmt);
 	return(rc == SQLITE_ROW);
+}
+
+/*
+ * Get whether the experiment is in auto-add mode.
+ * This can occur in any state.
+ * Returns zero if FALSE, non-zero if TRUE.
+ */
+int
+db_expr_getautoadd(void)
+{
+	sqlite3_stmt	*stmt;
+	int		 rc;
+
+	stmt = db_stmt("SELECT * FROM experiment WHERE autoadd=1");
+	rc = db_step(stmt, 0);
+	sqlite3_finalize(stmt);
+	return(SQLITE_ROW == rc);
+}
+
+/*
+ * Set the "auto-add" facility.
+ * This can be done at any time, but only really makes sense when
+ * ESTATE_NEW is in effect.
+ */
+void
+db_expr_setautoadd(int64_t autoadd)
+{
+	sqlite3_stmt	*stmt;
+
+	stmt = db_stmt("UPDATE experiment SET autoadd=?");
+	db_bind_int(stmt, 1, autoadd);
+	db_step(stmt, 0);
+	sqlite3_finalize(stmt);
+	fprintf(stderr, "Administrator %s auto-add\n",
+		autoadd ? "enabled" : "disabled");
 }
 
 void
@@ -1340,7 +1381,7 @@ db_player_set_mailed(int64_t id, const char *pass)
 
 	stmt = db_stmt("UPDATE player SET state=?,hash=? WHERE id=?");
 	db_bind_int(stmt, 1, PSTATE_MAILED);
-	db_bind_text(stmt, 2, db_crypt_hash(pass));
+	db_bind_text(stmt, 2, pass);
 	db_bind_int(stmt, 3, id);
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);
@@ -2231,6 +2272,12 @@ db_interval_get(int64_t round)
 	return(intv);
 }
 
+/*
+ * Get a configured experiment.
+ * This will return NULL if the experiment has not been started (i.e.,
+ * is in ESTATE_NEW).
+ * Call db_expr_free() with the returned structure.
+ */
 struct expr *
 db_expr_get(void)
 {
@@ -2238,8 +2285,9 @@ db_expr_get(void)
 	struct expr	*expr;
 	int		 rc;
 
-	stmt = db_stmt("SELECT start,rounds,minutes,loginuri,"
-		"state,instr,state,total,instrWin FROM experiment");
+	stmt = db_stmt("SELECT start,rounds,minutes,"
+		"loginuri,state,instr,state,total,"
+		"instrWin,autoadd FROM experiment");
 	rc = db_step(stmt, 0);
 	assert(SQLITE_ROW == rc);
 	if (ESTATE_NEW == sqlite3_column_int(stmt, 4)) {
@@ -2257,6 +2305,7 @@ db_expr_get(void)
 	expr->end = expr->start + (expr->rounds * expr->minutes * 60);
 	expr->total = sqlite3_column_int(stmt, 7);
 	expr->instrWin = kstrdup((char *)sqlite3_column_text(stmt, 8));
+	expr->autoadd = sqlite3_column_int(stmt, 8);
 
 	sqlite3_finalize(stmt);
 	return(expr);
@@ -2291,8 +2340,15 @@ db_expr_wipe(void)
 	db_exec("DELETE FROM tickets");
 	db_exec("UPDATE player SET instr=1,state=0,"
 		"enabled=1,finalrank=0,finalscore=0,hash=''");
-	db_exec("UPDATE experiment SET state=0,rounds=0,total='0/1',"
-		"minutes=0,loginuri=\'\',instr=\'\',instrWin=\'\'");
+	db_exec("UPDATE experiment SET "
+		"autoadd=0,"
+		"state=0,"
+		"rounds=0,"
+		"total='0/1',"
+		"minutes=0,"
+		"loginuri=\'\',"
+		"instr=\'\',"
+		"instrWin=\'\'");
 	stmt = db_stmt("SELECT id FROM player");
 	stmt2 = db_stmt("UPDATE player SET rseed=? WHERE id=?");
 	while (SQLITE_ROW == db_step(stmt, 0)) {

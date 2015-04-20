@@ -124,6 +124,7 @@ div.input >*			{ display: table-cell;
 				  border-top: thin solid #ccc;
 				  border-bottom: thin solid #ccc;
 				  vertical-align: middle; }
+div.input-check >*:last-child	{ background-color: #eee; }
 div.input >*:last-child		{ border-right: thin solid #ccc; 
 				  border-bottom-right-radius: 0.5ex;
 				  border-top-right-radius: 0.5ex; }
@@ -131,6 +132,10 @@ div.input >*:first-child	{ border-bottom-left-radius: 0.5ex;
 				  border-top-left-radius: 0.5ex; }
 div.input i			{ text-align: center; 
 				  width: 1%; }
+div.input i[class~="fa-toggle-off"]
+				{ color: black; }
+div.input i[class~="fa-toggle-on"]
+				{ color: green; }
 div.input button,
 div.input textarea,
 div.input input			{ -webkit-appearance: none;
@@ -140,6 +145,7 @@ div.input input			{ -webkit-appearance: none;
 				  font-size: 13pt;
 				  font-family: inherit;
 				  box-sizing: border-box; }
+div.input-check >*		{ cursor: pointer; }
 div.input textarea		{ height: 10ex; }
 div.input textarea.bigtext	{ height: 30ex; }
 div.input-submit >*		{ background-color: #666; 

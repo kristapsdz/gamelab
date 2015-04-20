@@ -139,6 +139,7 @@ json_putexpr(struct kjsonreq *r, const struct expr *expr)
 	kjson_putintp(r, "tilnext", (int64_t)tilnext);
 	kjson_putintp(r, "postwin", ESTATE_POSTWIN == expr->state);
 	kjson_putintp(r, "round", round);
+	kjson_putintp(r, "autoadd", expr->autoadd);
 	kjson_obj_close(r);
 }
 

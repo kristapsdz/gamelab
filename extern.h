@@ -43,6 +43,7 @@ struct	expr {
 	char		*instr; /* instruction markup */
 	char		*instrWin; /* instructions for winner */
 	int64_t		 total; /* total winnings (>ESTATE_STARTED) */
+	int64_t		 autoadd; /* auto-adding players */
 };
 
 /*
@@ -188,13 +189,15 @@ mpq_t		*db_choices_get(int64_t, int64_t, int64_t, size_t *);
 void		 db_close(void);
 
 int		 db_expr_checkstate(enum estate);
+void		 db_expr_finish(struct expr **, size_t);
+void		 db_expr_free(struct expr *);
+int		 db_expr_getautoadd(void);
+struct expr	*db_expr_get(void);
+void		 db_expr_setautoadd(int64_t);
+void		 db_expr_setinstr(const char *, const char *);
 int		 db_expr_start(int64_t, int64_t, int64_t, 
 			const char *, const char *, const char *);
-void		 db_expr_free(struct expr *);
-struct expr	*db_expr_get(void);
 void		 db_expr_wipe(void);
-void		 db_expr_setinstr(const char *, const char *);
-void		 db_expr_finish(struct expr **, size_t);
 
 struct game	*db_game_alloc(const char *,
 			const char *, int64_t, int64_t);
@@ -215,27 +218,27 @@ void		 db_interval_free(struct interval *);
 
 int		 db_payoff_get(int64_t, int64_t, int64_t, mpq_t);
 
+size_t		 db_player_count_all(void);
+int		 db_player_create(const char *, char **);
+int		 db_player_delete(int64_t);
+void		 db_player_disable(int64_t);
+void		 db_player_enable(int64_t);
+void		 db_player_free(struct player *);
+struct player	*db_player_load(int64_t);
+void		 db_player_load_all(playerf, void *);
+int		 db_player_lottery(int64_t, int64_t, mpq_t, mpq_t, size_t);
+char		*db_player_next_new(int64_t *, char **);
+struct sess	*db_player_sess_alloc(int64_t);
+int		 db_player_sess_valid(int64_t *, int64_t, int64_t);
+int		 db_player_play(int64_t, int64_t, 
+			int64_t, mpq_t *, size_t);
 void		 db_player_reset_all(void);
 void		 db_player_reset_error(void);
 void		 db_player_set_instr(int64_t, int64_t);
 void		 db_player_set_mailed(int64_t, const char *);
 void		 db_player_set_state(int64_t, enum pstate);
-size_t		 db_player_count_all(void);
-int		 db_player_create(const char *);
-void		 db_player_enable(int64_t);
-int		 db_player_delete(int64_t);
-void		 db_player_disable(int64_t);
-struct player	*db_player_load(int64_t);
-void		 db_player_load_all(playerf, void *);
-char		*db_player_next_new(int64_t *, char **);
-struct sess	*db_player_sess_alloc(int64_t);
 int		 db_player_valid(int64_t *, 
 			const char *, const char *);
-int		 db_player_sess_valid(int64_t *, int64_t, int64_t);
-void		 db_player_free(struct player *);
-int		 db_player_play(int64_t, int64_t, 
-			int64_t, mpq_t *, size_t);
-int		 db_player_lottery(int64_t, int64_t, mpq_t, mpq_t, size_t);
 
 void		 db_sess_delete(int64_t);
 void		 db_sess_free(struct sess *);

@@ -366,6 +366,7 @@ You will be contacted by the experimenter shortly.
 					<aside>
 						Add players to the game using this form.
 						Players consist of e-mail addresses separated by white-space (newlines, tabs, spaces, whatever).
+						If you set the <q>Self-Adding</q> toggle, then players may add themselves.
 						Players will not be contacted until you start the game.
 					</aside>
 					<form action="@ADMINURI@/doaddplayers.json" method="post" id="addPlayers" onsubmit="return(addPlayers(this));">
@@ -380,12 +381,17 @@ You will be contacted by the experimenter shortly.
 						<fieldset>
 							<div class="input">
 								<i class="fa fa-fw fa-users"></i>
-								<textarea required="required" name="players" placeholder="Space-separated player e-mail addresses..."></textarea>
+								<textarea name="players" placeholder="Space-separated player e-mail addresses..."></textarea>
+							</div>
+							<div class="input input-check">
+								<i onclick="checkSelfAddPlayers();" id="addPlayersSelfToggle" class="fa fa-fw"></i>
+								<span onclick="checkSelfAddPlayers();">Self-Adding Players</span>
 							</div>
 							<div class="input input-submit">
 								<i class="fa fa-fw fa-check"></i>
 								<input id="addPlayersSubmit" type="submit" value="Submit" />
 							</div>
+							<input type="hidden" id="addPlayersSelf" name="playersself" value="0" />
 						</fieldset>
 					</form>
 				</section>

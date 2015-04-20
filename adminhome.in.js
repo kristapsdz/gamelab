@@ -812,3 +812,25 @@ checkWipeButton(e)
 	else
 		document.getElementById('wipeExprButton').disabled='disabled';
 }
+
+function
+checkSelfAddPlayers()
+{
+	var e, i;
+
+	if (null == (e = document.getElementById('addPlayersSelf')))
+		return;
+	if (null == (i = document.getElementById('addPlayersSelfToggle')))
+		return;
+
+	i.classList.remove('fa-toggle-off');
+	i.classList.remove('fa-toggle-on');
+
+	if (0 == parseInt(e.value)) {
+		i.classList.add('fa-toggle-on');
+		e.value = 1;
+	} else {
+		i.classList.add('fa-toggle-off');
+		e.value = 0;
+	}
+}

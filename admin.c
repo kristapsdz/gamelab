@@ -100,6 +100,7 @@ enum	key {
 	KEY_PAYOFFS,
 	KEY_PLAYERID,
 	KEY_PLAYERS,
+	KEY_PLAYERSSELF,
 	KEY_SERVER,
 	KEY_SESSCOOKIE,
 	KEY_SESSID,
@@ -201,6 +202,7 @@ static const struct kvalid keys[KEY__MAX] = {
 	{ kvalid_stringne, "payoffs" }, /* KEY_PAYOFFS */
 	{ kvalid_int, "pid" }, /* KEY_PLAYERID */
 	{ kvalid_stringne, "players" }, /* KEY_PLAYERS */
+	{ kvalid_int, "playersself" }, /* KEY_PLAYERSSELF */
 	{ kvalid_stringne, "server" }, /* KEY_SERVER */
 	{ kvalid_int, "sesscookie" }, /* KEY_SESSCOOKIE */
 	{ kvalid_int, "sessid" }, /* KEY_SESSID */
@@ -697,27 +699,29 @@ static void
 senddoaddplayers(struct kreq *r)
 {
 	char	*tok, *buf, *mail, *sv;
+	int	 rc;
 
-	/* 
-	 * FIXME: send the KHTTP_200 (or whatever) after the
-	 * db_player_create series, as we may be invoked in the midst of
-	 * the game starting, which causes db_player_create() to fail.
-	 */
 	http_open(r, KHTTP_200);
 	khttp_body(r);
+
+	if (NULL != r->fieldmap[KEY_PLAYERSSELF])
+		db_expr_setautoadd
+			(r->fieldmap[KEY_PLAYERSSELF]->parsed.i);
 
 	if (NULL == r->fieldmap[KEY_PLAYERS])
 		return;
 
-	buf = sv = kstrdup(r->fieldmap[KEY_PLAYERS]->parsed.s);
+	buf = sv = kstrdup
+		(r->fieldmap[KEY_PLAYERS]->parsed.s);
 	while (NULL != (tok = strsep(&buf, " \t\n\r"))) {
 		if (*tok == '\0')
 			continue;
 		if (NULL == (mail = valid_email(tok)))
 			continue;
-		if ( ! db_player_create(mail))
+		if ((rc = db_player_create(mail, NULL)) < 0)
 			break;
 	}
+
 	free(sv);
 }
 
@@ -919,8 +923,12 @@ senddoresendmail(struct kreq *r)
 static void
 senddostartexpr(struct kreq *r)
 {
-	pid_t	 pid;
-	char	*loginuri, *uri;
+	pid_t		 pid;
+	char		*loginuri, *uri;
+	struct smtp	*smtp;
+
+	smtp = db_smtp_get();
+	db_smtp_free(smtp);
 
 	if (kpairbad(r, KEY_DATE) ||
 		kpairbad(r, KEY_TIME) ||
@@ -931,6 +939,7 @@ senddostartexpr(struct kreq *r)
 		kpairbad(r, KEY_URI) ||
 		r->fieldmap[KEY_DATE]->parsed.i +
 		r->fieldmap[KEY_TIME]->parsed.i <= (int64_t)time(NULL) ||
+		NULL == smtp ||
 		db_player_count_all() < 2 ||
 		db_game_count_all() < 1) {
 		http_open(r, KHTTP_400);

@@ -47,6 +47,7 @@ struct	poffstor {
  * Unique pages under the CGI "directory".
  */
 enum	page {
+	PAGE_DOAUTOADD,
 	PAGE_DOINSTR,
 	PAGE_DOLOADEXPR,
 	PAGE_DOLOGIN,
@@ -75,6 +76,7 @@ enum	key {
 #define	PERM_JSON	0x10
 
 static	unsigned int perms[PAGE__MAX] = {
+	PERM_JSON, /* PAGE_DOAUTOADD */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOINSTR */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOLOADEXPR */
 	PERM_JSON | PERM_HTML, /* PAGE_DOLOGIN */
@@ -84,6 +86,7 @@ static	unsigned int perms[PAGE__MAX] = {
 };
 
 static const char *const pages[PAGE__MAX] = {
+	"doautoadd", /* PAGE_DOAUTOADD */
 	"doinstr", /* PAGE_DOINSTR */
 	"doloadexpr", /* PAGE_DOLOADEXPR */
 	"dologin", /* PAGE_DOLOGIN */
@@ -321,6 +324,57 @@ senddoloadgame(const struct game *game, int64_t round, void *arg)
 	per = &p->intv->periods[i];
 	json_putroundup(req, "roundup", per->roundups[round - 1]);
 	kjson_obj_close(req);
+}
+
+/*
+ * Configure "auto-add" players: players enter the e-mail addresses in
+ * the configuration phase.
+ * Returns error 400 if the e-mail is bad.
+ * Returns error 403 if the e-mail is already registered.
+ * Returns error 404 if the experiment doesn't use auto-adding.
+ * Returns error 409 if the experiment has started.
+ * Otherwise returns error 200 and a JSON with the password and email.
+ */
+static void
+senddoautoadd(struct kreq *r)
+{
+	int		 rc;
+	char		*hash;
+	struct kjsonreq	 req;
+
+	if ( ! db_expr_getautoadd()) {
+		http_open(r, KHTTP_404);
+		khttp_body(r);
+		return;
+	} else if (NULL == r->fieldmap[KEY_EMAIL]) {
+		http_open(r, KHTTP_400);
+		khttp_body(r);
+		return;
+	} 
+
+	rc = db_player_create
+		(r->fieldmap[KEY_EMAIL]->parsed.s, &hash);
+
+	if (rc < 0) {
+		http_open(r, KHTTP_409);
+		khttp_body(r);
+	} else if (0 == rc) {
+		http_open(r, KHTTP_403);
+		khttp_body(r);
+	} else {
+		http_open(r, KHTTP_200);
+		khttp_body(r);
+		khttp_puts(r, hash);
+		kjson_open(&req, r);
+		kjson_obj_open(&req);
+		kjson_putstringp(&req, "email", 
+			r->fieldmap[KEY_EMAIL]->parsed.s);
+		kjson_putstringp(&req, "password", hash);
+		kjson_obj_close(&req);
+		kjson_close(&req);
+	}
+
+	free(hash);
 }
 
 static void
@@ -679,6 +733,9 @@ main(void)
 	}
 
 	switch (r.page) {
+	case (PAGE_DOAUTOADD):
+		senddoautoadd(&r);
+		break;
 	case (PAGE_DOINSTR):
 		senddoinstr(&r, id);
 		break;
