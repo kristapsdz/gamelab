@@ -13,7 +13,7 @@ function doClassLoading(name)
 	var e;
 	if (null == (e = document.getElementById(name)))
 		return;
-	e.className = 'fa fa-spinner fa-spin';
+	e.className = 'fa fa-spinner';
 }
 
 function doClassFail(name)
@@ -244,16 +244,6 @@ function loadPlayersSuccess(resp)
 	}
 }
 
-function loadGamesSuccess(resp) 
-{
-	loadGamesSuccessInner(resp, 1);
-}
-
-function loadNewGamesSuccess(resp) 
-{
-	loadGamesSuccessInner(resp, 0);
-}
-
 function loadGamesSuccessInner(resp, code) 
 {
 	var i, j, k, results, li, e, div, icon;
@@ -338,25 +328,6 @@ function loadError(err, name)
 	div.appendChild(document.createTextNode('An error occured.'));
 	li.appendChild(div);
 	e.appendChild(li);
-}
-
-function loadGamesError(err) 
-{
-
-	loadError(err, 'loadGames');
-}
-
-function loadNewPlayersError(err) 
-{
-
-	loadError(err, 'loadNewPlayers');
-}
-
-
-function loadPlayersError(err) 
-{
-
-	loadError(err, 'loadPlayers');
 }
 
 function doDisableEnablePlayer(id, url)
@@ -482,7 +453,9 @@ function loadSmtp()
 {
 
 	sendQuery('@ADMINURI@/dochecksmtp.json', 
-		loadSmtpSetup, loadSmtpSuccess, loadSmtpError);
+		loadSmtpSetup, 
+		loadSmtpSuccess, 
+		loadSmtpError);
 }
 
 function loadList(url, name, onsuccess, onerror) 
@@ -491,7 +464,7 @@ function loadList(url, name, onsuccess, onerror)
 
 	li = document.createElement('li');
 	ii = document.createElement('i');
-	ii.setAttribute('class', 'fa fa-spinner fa-spin');
+	ii.setAttribute('class', 'fa fa-spinner');
 	li.appendChild(ii);
 	doClear(name).appendChild(li);
 	sendQuery(url, null, onsuccess, onerror);
@@ -502,7 +475,8 @@ function loadNewPlayers()
 
 	doClassLoading('checkPlayersLoad');
 	loadList('@ADMINURI@/doloadplayers.json', 'loadNewPlayers', 
-		loadNewPlayersSuccess, loadNewPlayersError);
+		loadNewPlayersSuccess, 
+		function(err) { loadError(err, 'loadNewPlayers'); });
 }
 
 
@@ -510,7 +484,8 @@ function loadPlayers()
 {
 
 	loadList('@ADMINURI@/doloadplayers.json', 'loadPlayers', 
-		loadPlayersSuccess, loadPlayersError);
+		loadPlayersSuccess, 
+		function(err) { loadError(err, 'loadPlayers'); });
 }
 
 function loadNewGames() 
@@ -518,7 +493,8 @@ function loadNewGames()
 
 	doClassLoading('checkGameLoad');
 	loadList('@ADMINURI@/doloadgames.json', 'loadGames', 
-		loadNewGamesSuccess, loadGamesError);
+		function(resp) { loadGamesSuccessInner(resp, 0); },
+		function(err) { loadError(err, 'loadGames'); });
 }
 
 function loadGames() 
@@ -526,7 +502,8 @@ function loadGames()
 
 	doClassLoading('checkGameLoad');
 	loadList('@ADMINURI@/doloadgames.json', 'loadGames', 
-		loadGamesSuccess, loadGamesError);
+		function(resp) { loadGamesSuccessInner(resp, 1); },
+		function(err) { loadError(err, 'loadGames'); });
 }
 
 function loadExprSuccess(resp) 
@@ -638,31 +615,13 @@ function loadExprSetup()
 	doHide('statusExprProg');
 }
 
-function loadExprFailure(err)
-{
-
-	location.href = '@HTURI@/adminlogin.html#loggedout';
-}
-
 function loadExpr() 
 {
 
 	sendQuery('@ADMINURI@/dogetexpr.json', 
-		loadExprSetup, loadExprSuccess, loadExprFailure);
-}
-
-function doStartExprSetup() 
-{
-
-	doSetup('startExprSubmit', 'startExprErr');
-	doValue('startExprSubmit', 'Starting...');
-}
-
-function doStartExprError(err) 
-{
-
-	doError(err, 'startExprSubmit', 'startExprErr');
-	doValue('startExprSubmit', 'Start');
+		loadExprSetup, 
+		loadExprSuccess, 
+		function() { location.href = '@HTURI@/adminlogin.html#loggedout'; });
 }
 
 function doStartExprSuccess(resp) 
@@ -676,60 +635,28 @@ function doStartExprSuccess(resp)
 function startExpr(form)
 {
 
-	return(sendForm(form, doStartExprSetup, 
-		doStartExprError, doStartExprSuccess));
-}
-
-function doAddGameSetup() 
-{
-
-	doSetup('addGameSubmit', 'addGameErr');
-}
-
-function doAddGameError(err) 
-{
-
-	doError(err, 'addGameSubmit', 'addGameErr');
-}
-
-function doAddGameSuccess(resp) 
-{
-
-	doSuccess('addGameSubmit', 'addGame');
-	loadNewGames();
+	return(sendForm(form, 
+		function() { doSetup('startExprSubmit', 'startExprErr'); doValue('startExprSubmit', 'Starting...'); },
+		function(err) { doError(err, 'startExprSubmit', 'startExprErr'); doValue('startExprSubmit', 'Start'); },
+		doStartExprSuccess));
 }
 
 function addGame(form)
 {
 
-	return(sendForm(form, doAddGameSetup, 
-		doAddGameError, doAddGameSuccess));
-}
-
-function doAddPlayersSetup() 
-{
-
-	doSetup('addPlayersSubmit', 'addPlayersErr');
-}
-
-function doAddPlayersError(err) 
-{
-
-	doError(err, 'addPlayersSubmit', 'addPlayersErr');
-}
-
-function doAddPlayersSuccess(resp) 
-{
-
-	doSuccess('addPlayersSubmit', 'addPlayers');
-	loadNewPlayers();
+	return(sendForm(form, 
+		function() { doSetup('addGameSubmit', 'addGameErr'); },
+		function(err) { doError(err, 'addGameSubmit', 'addGameErr'); },
+		function() { doSuccess('addGameSubmit', 'addGame'); loadNewGames(); }));
 }
 
 function addPlayers(form)
 {
 
-	return(sendForm(form, doAddPlayersSetup, 
-		doAddPlayersError, doAddPlayersSuccess));
+	return(sendForm(form, 
+		function() { doSetup('addPlayersSubmit', 'addPlayersErr'); },
+		function(err) { doError(err, 'addPlayersSubmit', 'addPlayersErr'); },
+		function () { doSuccess('addPlayersSubmit', 'addPlayers'); loadNewPlayers(); }));
 }
 
 function doWinnersSetup()
@@ -738,39 +665,6 @@ function doWinnersSetup()
 	doHide('statusExprFinishedWinError');
 	doHide('statusExprFinishedWinForm');
 	doValue('winnersButton', 'Computing...');
-}
-
-function doBackupSetup()
-{
-
-	doClearReplace('backupButton', 'Backing up...');
-}
-
-
-function doWipeExprSetup()
-{
-
-	doHide('wipeExprResults');
-	doClearReplace('wipeExprButton', 'Wiping...');
-}
-
-function doResetPasswordsSetup()
-{
-
-	doClearReplace('resetPasswordsButton', 'Resetting All Passwords...');
-}
-
-function doReTestSmtpSetup()
-{
-
-	doClearReplace('recheckSmtpButton', 'Resending...');
-}
-
-function doTestSmtpSetup()
-{
-
-	doHide('testSmtpResults');
-	doClearReplace('checkSmtpButton', 'Mailing test...');
 }
 
 function doWinnersError(code)
@@ -783,38 +677,50 @@ function doWinnersError(code)
 		doUnhide('statusExprFinishedWinError');
 }
 
-function doWinnersSuccess(resp)
+function sendWinners(form) 
 {
 
-	doValue('winnersButton', 'Compute Winners');
-	window.location.reload(true);
+	return(sendForm(form, 
+		doWinnersSetup, 
+		doWinnersError, 
+		function() { doValue('winnersButton', 'Compute Winners'); window.location.reload(true); }));
 }
 
-function doBackupSuccess(resp)
+function backup() 
 {
 
-	doClearReplace('backupButton', 'Backup Experiment');
+	sendQuery('@ADMINURI@/dobackup.json', 
+		function() { doClearReplace('backupButton', 'Backing up...'); },
+		function() { doClearReplace('backupButton', 'Backup Experiment'); },
+		null);
 }
 
-function doWipeExprSuccess(resp)
+
+function wipeExpr() 
 {
 
-	doClearReplace('wipeExprButton', 'Wipe Experiment');
-	doUnhide('wipeExprResults');
+	sendQuery('@ADMINURI@/dowipe.json', 
+		function() { doHide('wipeExprResults'); doClearReplace('wipeExprButton', 'Wiping...'); },
+		function() { doClearReplace('wipeExprButton', 'Wipe Experiment'); doUnhide('wipeExprResults'); },
+		null);
 }
 
-function doResetPasswordsSuccess(resp)
+function resetPasswords() 
 {
 
-	doClearReplace('resetPasswordsButton', 'Reset All Password');
-	loadPlayers();
+	sendQuery('@ADMINURI@/doresetpasswords', 
+		function() { doClearReplace('resetPasswordsButton', 'Resetting All Passwords...'); },
+		function() { doClearReplace('resetPasswordsButton', 'Reset All Password'); loadPlayers(); },
+		null);
 }
 
-function doReTestSmtpSuccess(resp)
+function reTestSmtp() 
 {
 
-	doClearReplace('recheckSmtpButton', 'Resend Error Mails');
-	loadPlayers();
+	sendQuery('@ADMINURI@/doresendemail.json', 
+		function() { doClearReplace('recheckSmtpButton', 'Resending...'); },
+		function() { doClearReplace('recheckSmtpButton', 'Resend Error Mails'); loadPlayers(); },
+		null);
 }
 
 function doTestSmtpSuccess(resp)
@@ -833,173 +739,57 @@ function doTestSmtpSuccess(resp)
 	doUnhide('testSmtpResults');
 }
 
-function sendWinners(form) 
-{
-
-	return(sendForm(form, doWinnersSetup, 
-		doWinnersError, doWinnersSuccess));
-}
-
-function backup() 
-{
-
-	sendQuery('@ADMINURI@/dobackup.json', 
-		doBackupSetup, doBackupSuccess, null);
-}
-
-
-function wipeExpr() 
-{
-
-	sendQuery('@ADMINURI@/dowipe.json', 
-		doWipeExprSetup, doWipeExprSuccess, null);
-}
-
-function resetPasswords() 
-{
-
-	sendQuery('@ADMINURI@/doresetpasswords', 
-		doResetPasswordsSetup, doResetPasswordsSuccess, null);
-}
-
-function reTestSmtp() 
-{
-
-	sendQuery('@ADMINURI@/doresendemail.json', 
-		doReTestSmtpSetup, doReTestSmtpSuccess, null);
-}
-
 function testSmtp() 
 {
 
 	sendQuery('@ADMINURI@/dotestsmtp.json', 
-		doTestSmtpSetup, doTestSmtpSuccess, null);
-}
-
-function doChangeInstrSetup() 
-{
-
-	doSetup('changeInstrSubmit', 'changeInstrErr');
-}
-
-
-function doChangeMailSetup() 
-{
-
-	doSetup('changeMailSubmit', 'changeMailErr');
-}
-
-function doChangeInstrError(err) 
-{
-
-	doError(err, 'changeInstrSubmit', 'changeInstrErr');
-}
-
-function doChangeMailError(err) 
-{
-
-	doError(err, 'changeMailSubmit', 'changeMailErr');
-}
-
-function doChangeInstrSuccess(resp) 
-{
-
-	doSuccess('changeInstrSubmit', 'changeInstr');
-	location.href = '@ADMINURI@';
-}
-
-
-function doChangeMailSuccess(resp) 
-{
-
-	doSuccess('changeMailSubmit', 'changeMail');
-	loadExpr();
+		function() { doHide('testSmtpResults'); doClearReplace('checkSmtpButton', 'Mailing test...'); },
+		doTestSmtpSuccess, 
+		null);
 }
 
 function changeInstr(form)
 {
 
-	return(sendForm(form, doChangeInstrSetup, 
-		doChangeInstrError, doChangeInstrSuccess));
+	return(sendForm(form, 
+		function() { doSetup('changeInstrSubmit', 'changeInstrErr'); },
+		function(err) { doError(err, 'changeInstrSubmit', 'changeInstrErr'); },
+		function() { doSuccess('changeInstrSubmit', 'changeInstr'); location.href = '@ADMINURI@'; }));
 }
-
 
 function changeMail(form)
 {
 
-	return(sendForm(form, doChangeMailSetup, 
-		doChangeMailError, doChangeMailSuccess));
-}
-
-function doChangePassSetup() 
-{
-
-	doSetup('changePassSubmit', 'changePassErr');
-}
-
-function doChangePassError(err) 
-{
-
-	doError(err, 'changePassSubmit', 'changePassErr');
-}
-
-function doChangePassSuccess(resp) 
-{
-
-	doSuccess('changePassSubmit', 'changePass');
-	location.href = '@ADMINURI@';
+	return(sendForm(form, 
+		function() { doSetup('changeMailSubmit', 'changeMailErr'); },
+		function(err) { doError(err, 'changeMailSubmit', 'changeMailErr'); },
+		function() { doSuccess('changeMailSubmit', 'changeMail'); loadExpr(); }));
 }
 
 function changePass(form)
 {
-	return(sendForm(form, doChangePassSetup, 
-		doChangePassError, doChangePassSuccess));
-}
-
-function doResetPassSetup() 
-{
-
-	doValue('resetPasswordButton', 'Resetting Password...');
-}
-
-function doChangeSmtpSetup() 
-{
-
-	doSetup('changeSmtpSubmit', 'changeSmtpErr');
-}
-
-function doChangeSmtpError(err) 
-{
-
-	doError(err, 'changeSmtpSubmit', 'changeSmtpErr');
-}
-
-function doResetPassSuccess(resp) 
-{
-
-	doValue('resetPasswordButton', 'Reset Password');
-	loadPlayers();
-}
-
-function doChangeSmtpSuccess(resp) 
-{
-
-	doSuccess('changeSmtpSubmit', 'changeSmtp');
-	loadSmtp();
+	return(sendForm(form, 
+		function() { doSetup('changePassSubmit', 'changePassErr'); },
+		function(err) { doError(err, 'changePassSubmit', 'changePassErr'); },
+		function() { doSuccess('changePassSubmit', 'changePass'); location.href = '@ADMINURI@'; }));
 }
 
 function changeSmtp(form)
 {
 
-	return(sendForm(form, doChangeSmtpSetup, 
-		doChangeSmtpError, doChangeSmtpSuccess));
+	return(sendForm(form, 
+		function() { doSetup('changeSmtpSubmit', 'changeSmtpErr'); },
+		function(err) { doError(err, 'changeSmtpSubmit', 'changeSmtpErr'); },
+		function() { doSuccess('changeSmtpSubmit', 'changeSmtp'); loadSmtp(); }));
 }
 
 function resetPass(form)
 {
 
-	return(sendForm(form, doResetPassSetup, 
-		null, doResetPassSuccess));
+	return(sendForm(form, 
+		function() { doValue('resetPasswordButton', 'Resetting Password...'); },
+		null, 
+		function() { doValue('resetPasswordButton', 'Reset Password'); loadPlayers(); }));
 }
 
 function
