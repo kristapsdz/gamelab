@@ -33,6 +33,51 @@
 
 #include "extern.h"
 
+void
+mpq_str2mpqinit(const unsigned char *v, mpq_t val)
+{
+	int	 rc;
+
+	mpq_init(val);
+	rc = mpq_set_str(val, (const char *)v, 10);
+	assert(0 == rc);
+	mpq_canonicalize(val);
+}
+
+mpq_t *
+mpq_str2mpqsinit(const unsigned char *v, size_t sz)
+{
+	mpq_t	*p;
+	size_t	 i;
+	char	*buf, *tok, *sv;
+	int	 rc;
+
+	p = kcalloc(sz, sizeof(mpq_t));
+
+	if (1 == sz) {
+		mpq_init(p[0]);
+		rc = mpq_set_str(p[0], (const char *)v, 10);
+		assert(0 == rc);
+		mpq_canonicalize(p[0]);
+		return(p);
+	}
+
+	buf = sv = kstrdup((const char *)v);
+
+	i = 0;
+	while (NULL != (tok = strsep(&buf, " \t\n\r"))) {
+		assert(i < sz);
+		mpq_init(p[i]);
+		rc = mpq_set_str(p[i], tok, 10);
+		assert(0 == rc);
+		mpq_canonicalize(p[i]);
+		i++;
+	}
+
+	free(sv);
+	return(p);
+}
+
 int
 mpq_str2mpq(const char *v, mpq_t q)
 {

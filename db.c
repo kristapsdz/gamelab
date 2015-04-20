@@ -42,6 +42,9 @@
  */
 static sqlite3		*db;
 
+/*
+ * This should be called via atexit() or manually invoked.
+ */
 void
 db_close(void)
 {
@@ -53,7 +56,7 @@ db_close(void)
 	db = NULL;
 }
 
-void
+static void
 db_tryopen(void)
 {
 	size_t	 attempt;
@@ -272,55 +275,6 @@ db_count_all(const char *p)
 	count = (size_t)sqlite3_column_int(stmt, 0);
 	sqlite3_finalize(stmt);
 	return(count);
-}
-
-/*
- * Assign the string value into "val".
- * NOTE: "val" is initialised here!
- */
-static void
-db_str2mpq_single(const unsigned char *v, mpq_t val)
-{
-	int	 rc;
-
-	mpq_init(val);
-	rc = mpq_set_str(val, (const char *)v, 10);
-	assert(0 == rc);
-	mpq_canonicalize(val);
-}
-
-static mpq_t *
-db_str2mpq(const unsigned char *v, size_t sz)
-{
-	mpq_t	*p;
-	size_t	 i;
-	char	*buf, *tok, *sv;
-	int	 rc;
-
-	p = kcalloc(sz, sizeof(mpq_t));
-
-	if (1 == sz) {
-		mpq_init(p[0]);
-		rc = mpq_set_str(p[0], (const char *)v, 10);
-		assert(0 == rc);
-		mpq_canonicalize(p[0]);
-		return(p);
-	}
-
-	buf = sv = kstrdup((const char *)v);
-
-	i = 0;
-	while (NULL != (tok = strsep(&buf, " \t\n\r"))) {
-		assert(i < sz);
-		mpq_init(p[i]);
-		rc = mpq_set_str(p[i], tok, 10);
-		assert(0 == rc);
-		mpq_canonicalize(p[i]);
-		i++;
-	}
-
-	free(sv);
-	return(p);
 }
 
 void
@@ -1045,7 +999,7 @@ db_game_load_player(int64_t playerid,
 		game.p1 = sqlite3_column_int(stmt, 1);
 		game.p2 = sqlite3_column_int(stmt, 2);
 		maxcount = game.p1 * game.p2 * 2;
-		game.payoffs = db_str2mpq
+		game.payoffs = mpq_str2mpqsinit
 			(sqlite3_column_text(stmt, 0), maxcount);
 		game.name = strdup((char *)sqlite3_column_text(stmt, 3));
 		assert(NULL != game.name);
@@ -1114,7 +1068,7 @@ db_game_load(int64_t gameid)
 		game = kcalloc(1, sizeof(struct game));
 		game->p1 = sqlite3_column_int(stmt, 1);
 		game->p2 = sqlite3_column_int(stmt, 2);
-		game->payoffs = db_str2mpq
+		game->payoffs = mpq_str2mpqsinit
 			(sqlite3_column_text(stmt, 0), 
 			 game->p1 * game->p2 * 2);
 		game->name = kstrdup((char *)
@@ -1139,7 +1093,7 @@ db_game_load_all(gamef fp, void *arg)
 		memset(&game, 0, sizeof(struct game));
 		game.p1 = sqlite3_column_int(stmt, 1);
 		game.p2 = sqlite3_column_int(stmt, 2);
-		game.payoffs = db_str2mpq
+		game.payoffs = mpq_str2mpqsinit
 			(sqlite3_column_text(stmt, 0), 
 			 game.p1 * game.p2 * 2);
 		game.name = kstrdup((char *)
@@ -1610,8 +1564,8 @@ again:
 	db_bind_int(stmt, 1, pid);
 	db_bind_int(stmt, 2, round);
 	if (SQLITE_ROW == (rc = db_step(stmt, 0))) {
-		db_str2mpq_single(sqlite3_column_text(stmt, 0), aggr);
-		db_str2mpq_single(sqlite3_column_text(stmt, 1), cur);
+		mpq_str2mpqinit(sqlite3_column_text(stmt, 0), aggr);
+		mpq_str2mpqinit(sqlite3_column_text(stmt, 1), cur);
 	}
 	sqlite3_finalize(stmt);
 
@@ -1695,7 +1649,7 @@ db_payoff_get(int64_t round,
 	db_bind_int(stmt, 2, round);
 	db_bind_int(stmt, 3, gameid);
 	if (SQLITE_ROW == (rc = db_step(stmt, 0)))
-		db_str2mpq_single(sqlite3_column_text(stmt, 0), mpq);
+		mpq_str2mpqinit(sqlite3_column_text(stmt, 0), mpq);
 	sqlite3_finalize(stmt);
 	return(SQLITE_ROW == rc);
 }
@@ -1714,7 +1668,8 @@ db_choices_get(int64_t round,
 	db_bind_int(stmt, 3, gameid);
 	if (SQLITE_ROW == db_step(stmt, 0)) {
 		*sz = sqlite3_column_int(stmt, 0);
-		mpq = db_str2mpq(sqlite3_column_text(stmt, 1), *sz);
+		mpq = mpq_str2mpqsinit
+			(sqlite3_column_text(stmt, 1), *sz);
 	}
 	sqlite3_finalize(stmt);
 	return(mpq);
@@ -1794,7 +1749,7 @@ db_roundup_players(int64_t round, const struct roundup *r,
 	 * Insert that as the payoff for the given player.
 	 */
 	while (SQLITE_ROW == db_step(stmt, 0)) {
-		qs = db_str2mpq
+		qs = mpq_str2mpqsinit
 			(sqlite3_column_text(stmt, 0), r->p1sz);
 		playerid = sqlite3_column_int(stmt, 1);
 		mpq_set_ui(sum, 0, 1);
@@ -1850,7 +1805,7 @@ db_roundup_players(int64_t round, const struct roundup *r,
 	 * Insert that as the payoff for the given player.
 	 */
 	while (SQLITE_ROW == db_step(stmt, 0)) {
-		qs = db_str2mpq
+		qs = mpq_str2mpqsinit
 			(sqlite3_column_text(stmt, 0), r->p2sz);
 		playerid = sqlite3_column_int(stmt, 1);
 		mpq_set_ui(sum, 0, 1);
@@ -1949,18 +1904,18 @@ db_roundup_get(int64_t round, const struct game *game)
 	db_bind_int(stmt, 2, r->gameid);
 
 	if (SQLITE_ROW == db_step(stmt, 0)) {
-		r->aggrp1 = db_str2mpq
+		r->aggrp1 = mpq_str2mpqsinit
 			(sqlite3_column_text
 			 (stmt, 0), r->p1sz);
-		r->aggrp2 = db_str2mpq
+		r->aggrp2 = mpq_str2mpqsinit
 			(sqlite3_column_text
 			 (stmt, 1), r->p2sz);
 		r->skip = sqlite3_column_int(stmt, 2);
 		r->roundcount = sqlite3_column_int(stmt, 3);
-		r->curp1 = db_str2mpq
+		r->curp1 = mpq_str2mpqsinit
 			(sqlite3_column_text
 			 (stmt, 4), r->p1sz);
-		r->curp2 = db_str2mpq
+		r->curp2 = mpq_str2mpqsinit
 			(sqlite3_column_text
 			 (stmt, 5), r->p2sz);
 		sqlite3_finalize(stmt);

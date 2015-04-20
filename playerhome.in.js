@@ -599,6 +599,12 @@ function showGraph(graph)
 	shownGraph = e;
 }
 
+/*
+ * This re-creates the graphs showing (1) payoffs as they are
+ * accumulated over all rounds and (2) "instantaneous" payoffs in the
+ * given round.
+ * It uses the flotr2 library for drawing.
+ */
 function updateGraphs()
 {
 	var	e, i, j, k, data, datas, graph, lot;
@@ -606,40 +612,38 @@ function updateGraphs()
 	if (null == res)
 		return;
 
-	if (null != (e = doClear('historyGraphAccumRound'))) {
-		datas = [];
-		for (i = 0; i < res.history.length; i++) {
-			data = [];
-			for (k = 0.0, j = 0; j < res.history[i].roundups.length; j++) {
-				lot = res.lotteries[j].plays[res.gameorders[i]];
-				if (null != lot)
-					k += lot.poff;
-				data.push([j + 1, k]);
-			}
-			datas.push(data);
+	e = doClear('historyGraphAccumRound');
+	datas = [];
+	for (i = 0; i < res.history.length; i++) {
+		data = [];
+		for (k = 0.0, j = 0; j < res.history[i].roundups.length; j++) {
+			lot = res.lotteries[j].plays[res.gameorders[i]];
+			if (null != lot)
+				k += lot.poff;
+			data.push([j + 1, k]);
 		}
-		graph = Flotr.draw(e, datas, {
-			xaxis: { tickDecimals: 0, title: 'Round' }
-		});
+		datas.push(data);
 	}
+	graph = Flotr.draw(e, datas, {
+		xaxis: { tickDecimals: 0, title: 'Round' }
+	});
 
-	if (null != (e = doClear('historyGraphPerRound'))) {
-		datas = [];
-		for (i = 0; i < res.history.length; i++) {
-			data = [];
-			for (j = 0; j < res.history[i].roundups.length; j++) {
-				lot = res.lotteries[j].plays[res.gameorders[i]];
-				if (null == lot)
-					data.push([j + 1, 0.0]);
-				else
-					data.push([j + 1, lot.poff]);
-			}
-			datas.push(data);
+	e = doClear('historyGraphPerRound');
+	datas = [];
+	for (i = 0; i < res.history.length; i++) {
+		data = [];
+		for (j = 0; j < res.history[i].roundups.length; j++) {
+			lot = res.lotteries[j].plays[res.gameorders[i]];
+			if (null == lot)
+				data.push([j + 1, 0.0]);
+			else
+				data.push([j + 1, lot.poff]);
 		}
-		graph = Flotr.draw(e, datas, {
-			xaxis: { tickDecimals: 0, title: 'Round' }
-		});
+		datas.push(data);
 	}
+	graph = Flotr.draw(e, datas, {
+		xaxis: { tickDecimals: 0, title: 'Round' }
+	});
 }
 
 function loadHistory(res)
