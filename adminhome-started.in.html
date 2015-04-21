@@ -8,6 +8,13 @@
 		<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet" />
 		<script src="@HTURI@/script.js"></script>
 		<script src="@HTURI@/adminhome.js"></script>
+		<style>
+			article > section > section { margin: 1ex 0; }
+			article > section > section > h3 { color: #ddd; cursor: pointer; padding: 1ex; }
+			article > section > section > h3:hover { color: #fff; }
+			article > section > section.rolled >*:not(h3) { padding: 0; max-height: 0; margin: 0; overflow: hidden; }
+			article > section > section >*:not(h3) { max-height: 1000em; }
+		</style>
 	</head>
 	<body onload="loadGames(); loadPlayers(); loadExpr(); loadSmtp();" onclick="onNavUp();">
 		<header>
@@ -94,7 +101,7 @@
 					</div>
 					<aside>
 						You may backup or wipe the database by clicking the button below.
-						When you back up, the <a href="#changeMailSection">administrator</a> is mailed a redacted copy of the database.
+						When you back up, the administrator is mailed a redacted copy of the database.
 						Wiping will delete all but the SMTP configuration, list of players, and list of games.
 						(Wiping will trigger the backup as well.)
 						You must verify that you really, really want to wipe by clicking the
@@ -116,14 +123,14 @@
 						Please wait a little bit, then <a href="#" onclick="window.location.reload(true);">reload</a>.
 					</div>
 				</section>
-				<section>
-					<h3>Experiment Games</h3>
+				<section class="rolled">
+					<h3 onclick="unroll(this.firstChild, this.parentNode);"><i class="fa fa-fw fa-chevron-circle-right"></i> Experiment Games</h3>
 					<ul id="loadGames">
 						<li><i class="fa fa-spinner"></i></li>
 					</ul>
 				</section>
-				<section>
-					<h3>Experiment Players</h3>
+				<section class="rolled">
+					<h3 onclick="unroll(this.firstChild, this.parentNode);"><i class="fa fa-fw fa-chevron-circle-right"></i> Experiment Players</h3>
 					<aside>
 						Players in your experiment.
 						Click on a player to see their status.
@@ -160,8 +167,8 @@
 						</div>
 					</fieldset>
 				</section>
-				<section id="changeInstrSection">
-					<h3>Change Instructions</h3>
+				<section class="rolled">
+					<h3 onclick="unroll(this.firstChild, this.parentNode);"><i class="fa fa-fw fa-chevron-circle-right"></i> Change Instructions</h3>
 					<aside>
 						You may change the experiment instructions here.
 						<b>Warning</b>: this means that you've already messed up.
@@ -195,8 +202,8 @@
 						</fieldset>
 					</form>
 				</section>
-				<section id="changeMailSection">
-					<h3>Change E-mail</h3>
+				<section class="rolled">
+					<h3 onclick="unroll(this.firstChild, this.parentNode);"><i class="fa fa-fw fa-chevron-circle-right"></i> Change E-mail</h3>
 					<aside>
 						You should set the e-mail address to your address, as the system (or system administrator) will
 						mail you if it has issues.
@@ -231,8 +238,8 @@
 						</fieldset>
 					</form>
 				</section>
-				<section id="changePassSection">
-					<h3>Change Password</h3>
+				<section class="rolled">
+					<h3 onclick="unroll(this.firstChild, this.parentNode);"><i class="fa fa-fw fa-chevron-circle-right"></i> Change Password</h3>
 					<aside>
 						Set your password (at least one character) here.
 						You should do this when you first use the system, as the default is too easy.
@@ -268,8 +275,8 @@
 						</fieldset>
 					</form>
 				</section>
-				<section id="changeSmtpSection">
-					<h3>Change SMTP</h3>
+				<section class="rolled">
+					<h3 onclick="unroll(this.firstChild, this.parentNode);"><i class="fa fa-fw fa-chevron-circle-right"></i> Change SMTP</h3>
 					<aside>
 						In order to send e-mails to players, you need to configure a valid e-mail sending
 						service.

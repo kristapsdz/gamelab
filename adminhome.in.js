@@ -861,3 +861,16 @@ toggler(input, toggle)
 		e.value = 0;
 	}
 }
+
+function unroll(child, parnt) {
+	child.classList.remove('fa-chevron-circle-right');
+	child.classList.remove('fa-chevron-circle-down');
+
+	if (parnt.classList.contains('rolled')) {
+		parnt.classList.remove('rolled');
+		child.classList.add('fa-chevron-circle-down');
+	} else {
+		parnt.classList.add('rolled');
+		child.classList.add('fa-chevron-circle-right');
+	}
+}
