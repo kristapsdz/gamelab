@@ -939,18 +939,6 @@ function loadExprSetup()
 	doHide('playGameErrorState');
 }
 
-function sendLoggedOut()
-{
-
-	location.href = '@HTURI@/playerlogin.html#loggedout';
-}
-
-function loadExprFailure(err)
-{
-
-	sendLoggedOut();
-}
-
 function loadExprFirst() 
 {
 
@@ -962,7 +950,8 @@ function loadExpr()
 {
 
 	sendQuery('@LABURI@/doloadexpr.json', 
-		loadExprSetup, loadExprSuccess, loadExprFailure);
+		loadExprSetup, loadExprSuccess, 
+		function() { location.href = '@HTURI@/playerlogin.html#loggedout'; });
 }
 
 function doPlayGameSetup()
@@ -983,7 +972,7 @@ function doPlayGameError(err)
 		doUnhide('playGameErrorForm');
 		break;
 	case 404:
-		sendLoggedOut();
+		location.href = '@HTURI@/playerlogin.html#loggedout';
 		break;
 	case 409:
 		doUnhide('playGameErrorState');
@@ -1034,27 +1023,18 @@ function doPlayGameSuccess(resp)
 	e.appendChild(div);
 }
 
-function updateInstrSetup(resp)
+function playGame(form)
 {
 
-}
-
-function updateInstrSuccess(resp)
-{
-
-	window.location.reload(true);
+	return(sendForm(form, 
+		doPlayGameSetup,
+		doPlayGameError, 
+		doPlayGameSuccess));
 }
 
 function updateInstr(form)
 {
 
-	return(sendForm(form, updateInstrSetup,
-		null, updateInstrSuccess));
-}
-
-function playGame(form)
-{
-
-	return(sendForm(form, doPlayGameSetup,
-		doPlayGameError, doPlayGameSuccess));
+	return(sendForm(form, null, null, 
+		function() { window.location.reload(true); }));
 }

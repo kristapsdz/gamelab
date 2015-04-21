@@ -179,10 +179,10 @@ send303(struct kreq *r, const char *pg, enum page dest, int st)
 	if (NULL == pg) {
 		page = kutil_urlpart(r, r->pname, 
 			ksuffixes[r->mime], pages[dest], NULL);
-		full = kutil_urlabs(KSCHEME_HTTP, r->host, r->port, page);
+		full = kutil_urlabs(r->scheme, r->host, r->port, page);
 	} else {
 		page = NULL;
-		full = kutil_urlabs(KSCHEME_HTTP, r->host, r->port, pg);
+		full = kutil_urlabs(r->scheme, r->host, r->port, pg);
 	}
 
 	khttp_head(r, kresps[KRESP_LOCATION], "%s", full);

@@ -279,10 +279,10 @@ send303(struct kreq *r, const char *pg, enum page dest, int st)
 	if (NULL == pg) {
 		page = kutil_urlpart(r, r->pname, 
 			ksuffixes[r->mime], pages[dest], NULL);
-		full = kutil_urlabs(KSCHEME_HTTP, r->host, r->port, page);
+		full = kutil_urlabs(r->scheme, r->host, r->port, page);
 	} else {
 		page = NULL;
-		full = kutil_urlabs(KSCHEME_HTTP, r->host, r->port, pg);
+		full = kutil_urlabs(r->scheme, r->host, r->port, pg);
 	}
 
 	khttp_head(r, kresps[KRESP_LOCATION], "%s", full);
@@ -858,8 +858,9 @@ senddoresetpasswordss(struct kreq *r)
 	http_open(r, KHTTP_200);
 	khttp_body(r);
 	loginuri = kstrdup(expr->loginuri);
-	kasprintf(&uri, "http://%s" HTURI 
-		"/playerlogin.html", r->host);
+	kasprintf(&uri, "%s://%s" HTURI 
+		"/playerlogin.html", 
+		kschemes[r->scheme], r->host);
 	db_expr_free(expr);
 	db_close();
 
@@ -900,8 +901,9 @@ senddoresendmail(struct kreq *r)
 	http_open(r, KHTTP_200);
 	khttp_body(r);
 	loginuri = kstrdup(expr->loginuri);
-	kasprintf(&uri, "http://%s" HTURI 
-		"/playerlogin.html", r->host);
+	kasprintf(&uri, "%s://%s" HTURI 
+		"/playerlogin.html", 
+		kschemes[r->scheme], r->host);
 	db_expr_free(expr);
 	db_close();
 
@@ -966,8 +968,9 @@ senddostartexpr(struct kreq *r)
 	khttp_body(r);
 
 	loginuri = kstrdup(r->fieldmap[KEY_URI]->parsed.s);
-	kasprintf(&uri, "http://%s" HTURI 
-		"/playerlogin.html", r->host);
+	kasprintf(&uri, "%s://%s" HTURI 
+		"/playerlogin.html", 
+		kschemes[r->scheme], r->host);
 
 	db_close();
 	if (-1 == (pid = fork())) {
