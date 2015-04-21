@@ -27,7 +27,7 @@ function doLogErr(err)
 {
 
 	doValue('loggingin', 'Login');
-	doUnhide(400 == err ? 'loginError' : 'loginSysError');
+	doUnhide(409 == err ? 'loginError' : 'loginSysError');
 }
 
 function doLogOk() 

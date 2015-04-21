@@ -192,14 +192,37 @@ send303(struct kreq *r, const char *pg, enum page dest, int st)
 	free(page);
 }
 
+/*
+ * Log in a player.
+ * This depends on whether we're using JSON or HTML.
+ * In the latter case, we need to format error messages; in the former
+ * case, we can just return the right HTTP error code.
+ * Returns error 409 if the experiment hasn't started (and JSON).
+ * Returns error 303 if the experiment hasn't started (and HTML).
+ * Returns error 303 if the player login is bad (and HTML).
+ * Returns error 400 if the player login is bad (and JSON).
+ * Returns error 200 otherwise.
+ */
 static void
 senddologin(struct kreq *r)
 {
 	struct sess	*sess;
 	int64_t	 	 playerid;
+	struct expr	*expr;
 
-	if (player_valid(r, &playerid)) {
+	sess = NULL;
+
+	if (NULL == (expr = db_expr_get())) {
+		if (KMIME_TEXT_HTML == r->mime) {
+			http_open(r, KHTTP_303);
+			send303(r, HTURI "/playerlogin.html", PAGE__MAX, 0);
+		} else {
+			http_open(r, KHTTP_409);
+			khttp_body(r);
+		}
+	} else if (player_valid(r, &playerid)) {
 		sess = db_player_sess_alloc(playerid);
+		assert(NULL != sess);
 		if (KMIME_TEXT_HTML == r->mime) 
 			http_open(r, KHTTP_303);
 		else
@@ -214,7 +237,6 @@ senddologin(struct kreq *r)
 			send303(r, HTURI "/playerhome.html", PAGE__MAX, 0);
 		else
 			khttp_body(r);
-		db_sess_free(sess);
 	} else {
 		if (KMIME_TEXT_HTML == r->mime) {
 			http_open(r, KHTTP_303);
@@ -225,6 +247,8 @@ senddologin(struct kreq *r)
 		}
 	}
 
+	db_expr_free(expr);
+	db_sess_free(sess);
 }
 
 static void
@@ -413,8 +437,11 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 	struct kjsonreq	 req;
 
 	/* All response have at least the following. */
-	expr = db_expr_get();
-	assert(NULL != expr);
+	if (NULL == (expr = db_expr_get())) {
+		http_open(r, KHTTP_409);
+		khttp_body(r);
+		return;
+	}
 	player = db_player_load(playerid);
 	assert(NULL != player);
 	memset(&stor, 0, sizeof(struct intvstor));
