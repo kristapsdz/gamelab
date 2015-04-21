@@ -26,7 +26,27 @@
 				url = url.replace('admin', 'lab');
 				e.value = url + '/dologin.html';
 			}
+
+			function unroll(child, parnt) {
+				child.classList.remove('fa-chevron-circle-right');
+				child.classList.remove('fa-chevron-circle-down');
+
+				if (parnt.classList.contains('rolled')) {
+					parnt.classList.remove('rolled');
+					child.classList.add('fa-chevron-circle-down');
+				} else {
+					parnt.classList.add('rolled');
+					child.classList.add('fa-chevron-circle-right');
+				}
+			}
 		</script>
+		<style>
+			article > section > section { margin: 1ex 0; }
+			article > section > section > h3 { color: #ddd; cursor: pointer; padding: 1ex; }
+			article > section > section > h3:hover { color: #fff; }
+			article > section > section.rolled >*:not(h3) { padding: 0; max-height: 0; margin: 0; overflow: hidden; }
+			article > section > section >*:not(h3) { max-height: 1000em; }
+		</style>
 	</head>
 	<body onload="onLoad(); loadNewGames(); loadNewPlayers(); loadSmtp();" onclick="onNavUp();">
 		<header>
@@ -43,28 +63,283 @@
 		</header>
 		<article>
 			<p>
-				To deploy a <span class="name">gamelab</span> experiment, follow these steps.
+				Welcome to <a href="http://www.kcons.eu/gamelab">gamelab</a> (version @VERSION@), the on-line game theory laboratory.
+				To deploy an experiment, complete the form below.
+				Use the on-line <a href="http://www.kcons.eu/gamelab/manual.html">manual</a> for help.
+				Gold luck!
 			</p>
-			<ol>
-				<li>
-					Change your <a href="#changePassSection">password</a> and <a href="#changeMailSection">mail</a>.
-				</li>
-				<li>
-					Add your experiment <a href="#addGameSection">games</a>.
-				</li>
-				<li>
-					Add any experiment <a href="#addPlayersSection">participants</a>.
-				</li>
-				<li>
-					Configure your <a href="#changeSmtpSection">SMTP</a> settings.
-				</li>
-				<li>
-					<a href="#startExprSection">Deploy</a> your experiment.
-				</li>
-			</ol>
 			<section>
-				<section id="startExprSection">
-					<h3>Experiment Parameters</h3>
+				<section class="rolled" id="changePassSection">
+					<h3 onclick="unroll(this.firstChild, this.parentNode);"><i class="fa fa-fw fa-chevron-circle-right"></i> 1. Change Password</h3>
+					<aside>
+						Set your password (at least one character) here.
+						You should do this when you first use the system, as the default is too easy.
+						It's up to you to make sure your password is secure.
+						You will be logged out after doing so.
+					</aside>
+					<form action="@ADMINURI@/dochangepass.json" method="post" id="changePass" onsubmit="return(changePass(this));">
+						<div class="error">
+							<div class="noshow" id="changePassErrSystem">
+								An unexpected error occurred.
+							</div>
+							<div class="noshow" id="changePassErrForm">
+								Invalid new or existing password.
+							</div>
+						</div>
+						<fieldset>
+							<div class="input">
+								<i class="fa fa-fw fa-lock"></i>
+								<input required="required" type="password" name="password1" placeholder="Existing Password"/>
+							</div>
+							<div class="input">
+								<i class="fa fa-fw fa-lock"></i>
+								<input required="required" type="password" name="password2" placeholder="New Password"/>
+							</div>
+							<div class="input">
+								<i class="fa fa-fw fa-lock"></i>
+								<input required="required" type="password" name="password3" placeholder="Repeat New Password"/>
+							</div>
+							<div class="input input-submit">
+								<i class="fa fa-fw fa-check"></i>
+								<input id="changePassSubmit" type="submit" value="Submit" />
+							</div>
+						</fieldset>
+					</form>
+				</section>
+				<section class="rolled" id="changeMailSection">
+					<h3 onclick="unroll(this.firstChild, this.parentNode);"><i class="fa fa-fw fa-chevron-circle-right"></i> 2. Change E-mail</h3>
+					<aside>
+						You should set the e-mail address to your address, as the system (or system administrator) will
+						mail you if it has issues.
+						You will be logged out after doing so.
+					</aside>
+					<form action="@ADMINURI@/dochangemail.json" method="post" id="changeMail" onsubmit="return(changeMail(this));">
+						<div class="error">
+							<div class="noshow" id="changeMailErrSystem">
+								An unexpected error occurred.
+							</div>
+							<div class="noshow" id="changeMailErrForm">
+								Invalid new or existing e-mail address.
+							</div>
+						</div>
+						<fieldset>
+							<div class="input">
+								<i class="fa fa-fw fa-envelope"></i>
+								<input required="required" type="email" name="email1" placeholder="Existing E-mail"/>
+							</div>
+							<div class="input">
+								<i class="fa fa-fw fa-envelope-o"></i>
+								<input required="required" type="email" name="email2" placeholder="New E-mail"/>
+							</div>
+							<div class="input">
+								<i class="fa fa-fw fa-envelope-o"></i>
+								<input required="required" type="email" name="email3" placeholder="Repeat New E-mail"/>
+							</div>
+							<div class="input input-submit">
+								<i class="fa fa-fw fa-check"></i>
+								<input id="changeMailSubmit" type="submit" value="Submit" />
+							</div>
+						</fieldset>
+					</form>
+				</section>
+				<section class="rolled" id="changeSmtpSection">
+					<h3 onclick="unroll(this.firstChild, this.parentNode);"><i class="fa fa-fw fa-chevron-circle-right"></i> 
+						3. Change SMTP
+						<i id="checkSmtpLoad2" class="fa fa-spinner"></i>
+					</h3>
+					<aside>
+						In order to send e-mails to players, you need to configure a valid e-mail sending
+						service.
+						If you mess up, you can always fix this information after the game starts and re-try e-mails
+						that failed to send.
+					</aside>
+					<div id="checkSmtpResults" class="noshow">
+						<h4>Current Values</h4>
+						<aside>
+							<div>
+								The following are your SMTP parameters.
+								Click <q>Send Test</q> to send a test message to the administrator account
+								(<em>not</em> the <q>from address</q>!).
+							</div>
+						</aside>
+						<fieldset>
+							<div class="input">
+								<i class="fa fa-fw fa-database"></i>
+								<input disabled="disabled" id="checkSmtpResultsServer" type="text" />
+							</div>
+							<div class="input">
+								<i class="fa fa-fw fa-user"></i>
+								<input disabled="disabled" id="checkSmtpResultsUser" type="text" />
+							</div>
+							<div class="input">
+								<i class="fa fa-fw fa-envelope"></i>
+								<input disabled="disabled" id="checkSmtpResultsFrom" type="text" />
+							</div>
+							<div class="input input-submit">
+								<i class="fa fa-send"></i>
+								<button type="button" class="send" id="checkSmtpButton" onclick="testSmtp();">Send Test</button>
+							</div>
+						</fieldset>
+					</div>
+					<div id="testSmtpResults" class="noshow canclose">
+						<h4>Results</h4>
+						<a href="#" class="close" onclick="doHideNode(this.parentNode); return false;"><i class="fa fa-minus-square"></i></a>
+						A test e-mail has been sent to <span id="testSmtpResultsMail"></span>.
+						If you do not receive it in a little while, please fix your mail settings.
+					</div>
+					<div id="checkSmtpResultsNone" class="noshow error">
+						<i class="fa fa-warning"></i>
+						<span>You have not yet configured your e-mail server.</span>
+					</div>
+					<div id="checkSmtpResultsLoad">
+						<i class="fa fa-spinner"></i>
+					</div>
+					<aside>
+						<div>
+							The e-mail address <i class="fa fa-envelope"></i> will appear as the <q>from</q> address
+							on all e-mails the system sends out.
+							Make sure this is a real address so participants can write to you!
+							The server <i class="fa fa-database"></i> is your SMTP server.
+							It must be encrypted (SSL/TLS), and be in the form
+							<q>smtp://the.server.name:port</q>, where the port is usually 25, 465, or 587.
+							(It can be anything, though.)
+							The username <i class="fa fa-user"></i> and password <i class="fa fa-lock"></i> are used
+							to log into your server.
+							<em>Your password is stored on the gamelab server</em>:
+							make sure it's something random and not used elsewhere!
+						</div>
+					</aside>
+					<form action="@ADMINURI@/dochangesmtp.json" method="post" id="changeSmtp" onsubmit="return(changeSmtp(this));">
+						<div class="error">
+							<div class="noshow" id="changeSmtpErrSystem">
+								An unexpected error occurred.
+							</div>
+							<div class="noshow" id="changeSmtpErrForm">
+								Invalid new or existing parameters.
+							</div>
+						</div>
+						<fieldset>
+							<div class="input">
+								<i class="fa fa-fw fa-envelope"></i>
+								<input required="required" type="email" name="email" placeholder="you@example.com"/>
+							</div>
+							<div class="input">
+								<i class="fa fa-fw fa-database"></i>
+								<input required="required" type="text" name="server" placeholder="smtp://example.com:587"/>
+							</div>
+							<div class="input">
+								<i class="fa fa-fw fa-user"></i>
+								<input required="required" type="text" name="user" placeholder="SMTP User"/>
+							</div>
+							<div class="input">
+								<i class="fa fa-fw fa-lock"></i>
+								<input required="required" type="password" name="password" placeholder="SMTP Password"/>
+							</div>
+							<div class="input input-submit">
+								<i class="fa fa-fw fa-check"></i>
+								<input id="changeSmtpSubmit" type="submit" value="Submit" />
+							</div>
+						</fieldset>
+					</form>
+				</section>
+				<section class="rolled" id="addGameSection">
+					<h3 onclick="unroll(this.firstChild, this.parentNode);"><i class="fa fa-fw fa-chevron-circle-right"></i> 
+						4. Games <i id="checkGameLoad2" class="fa fa-spinner"></i>
+					</h3>
+					<aside>
+						The following are your games.
+						To delete a game, click the <i class="fa fa-remove"></i> symbol alongside.
+					</aside>
+					<ul id="loadGames">
+						<li><i class="fa fa-spinner"></i></li>
+					</ul>
+					<aside>
+						You may add games by specifying a name and payoffs.
+						Payoffs must follow the usual top-left to bottom-right order, one payoff per player (row player first).
+					</aside>
+					<form action="@ADMINURI@/doaddgame.json" method="post" id="addGame" onsubmit="return(addGame(this));">
+						<div class="error">
+							<div class="noshow" id="addGameErrSystem">
+								An unexpected system error occurred.
+							</div>
+							<div class="noshow" id="addGameErrForm">
+								Invalid game payoffs, name, or strategy count.
+							</div>
+							<div class="noshow" id="addGameErrState">
+								Experiment already started!
+							</div>
+						</div>
+						<fieldset>
+							<div class="input">
+								<i class="fa fa-fw fa-bars"></i>
+								<input required="required" type="number" min="2" step="1" name="p1" value="2"/>
+							</div>
+							<div class="input">
+								<i class="fa fa-fw fa-columns"></i>
+								<input required="required" type="number" min="2" step="1" name="p2" value="2"/>
+							</div>
+							<div class="input">
+								<i class="fa fa-fw"></i>
+								<input required="required" type="text" name="name" placeholder="Game Name"/>
+							</div>
+							<div class="input">
+								<i class="fa fa-fw"></i>
+								<input required="required" type="text" name="payoffs" placeholder="Space-separated values (top-left to bottom-right)"/>
+							</div>
+							<div class="input input-submit">
+								<i class="fa fa-fw fa-check"></i>
+								<input id="addGameSubmit" type="submit" value="Submit" />
+							</div>
+						</fieldset>
+					</form>
+				</section>
+				<section class="rolled" id="addPlayersSection">
+					<h3 onclick="unroll(this.firstChild, this.parentNode);"><i class="fa fa-fw fa-chevron-circle-right"></i> 
+						5. Players
+						<i id="checkPlayersLoad2" class="fa fa-spinner"></i>
+					</h3>
+					<aside>
+						Players in your experiment.
+						To delete a player, just click the <i class="fa fa-remove"></i> symbol alongisde.
+					</aside>
+					<ul id="loadNewPlayers">
+						<li><i class="fa fa-spinner"></i></li>
+					</ul>
+					<aside id="nonautoaddAside">
+						Add players to the game using this form.
+						Players consist of e-mail addresses separated by white-space (newlines, tabs, spaces, whatever).
+						If you set the <q>Auto-Add</q> toggle, then players may add themselves.
+						Auto-added players will not be e-mailed when the experiment is started; manually-added players
+						will be mailed.
+					</aside>
+					<form action="@ADMINURI@/doaddplayers.json" method="post" id="addPlayers" onsubmit="return(addPlayers(this));">
+						<div class="error">
+							<div class="noshow" id="addPlayersErrSystem">
+								An unexpected system error occurred.
+							</div>
+							<div class="noshow" id="addPlayersErrState">
+								Experiment already started!
+							</div>
+						</div>
+						<fieldset>
+							<div class="input">
+								<i class="fa fa-fw fa-users"></i>
+								<textarea name="players" placeholder="Space-separated player e-mail addresses..."></textarea>
+							</div>
+							<div class="input input-check">
+								<i onclick="toggler('autoadd', 'autoaddToggle');" id="autoaddToggle" class="fa fa-fw fa-toggle-off"></i>
+								<span onclick="toggler('autoadd', 'autoaddToggle');">Self-Adding Players</span>
+							</div>
+							<div class="input input-submit">
+								<i class="fa fa-fw fa-check"></i>
+								<input id="addPlayersSubmit" type="submit" value="Submit" />
+							</div>
+							<input type="hidden" id="autoadd" name="autoadd" value="0" />
+						</fieldset>
+					</form>
+				</section>
+				<section class="rolled" id="startExprSection">
+					<h3 onclick="unroll(this.firstChild, this.parentNode);"><i class="fa fa-fw fa-chevron-circle-right"></i> 6. Experiment Parameters</h3>
 					<aside>
 						<div>
 							Commit your experiment parameters and start here.
@@ -299,269 +574,6 @@ You will be contacted by the experimenter shortly.
 								<a href="#" class="close" onclick="doHideNode(this.parentNode); return false;"><i class="fa fa-minus-square"></i></a>
 								<div id="previewInstrInner">
 								</div>
-							</div>
-						</fieldset>
-					</form>
-				</section>
-			</section>
-			<section>
-				<section id="addGameSection">
-					<h3>Games</h3>
-					<aside>
-						The following are your games.
-						To delete a game, click the <i class="fa fa-remove"></i> symbol alongside.
-					</aside>
-					<ul id="loadGames">
-						<li><i class="fa fa-spinner"></i></li>
-					</ul>
-					<aside>
-						You may add games by specifying a name and payoffs.
-						Payoffs must follow the usual top-left to bottom-right order, one payoff per player (row player first).
-					</aside>
-					<form action="@ADMINURI@/doaddgame.json" method="post" id="addGame" onsubmit="return(addGame(this));">
-						<div class="error">
-							<div class="noshow" id="addGameErrSystem">
-								An unexpected system error occurred.
-							</div>
-							<div class="noshow" id="addGameErrForm">
-								Invalid game payoffs, name, or strategy count.
-							</div>
-							<div class="noshow" id="addGameErrState">
-								Experiment already started!
-							</div>
-						</div>
-						<fieldset>
-							<div class="input">
-								<i class="fa fa-fw fa-bars"></i>
-								<input required="required" type="number" min="2" step="1" name="p1" value="2"/>
-							</div>
-							<div class="input">
-								<i class="fa fa-fw fa-columns"></i>
-								<input required="required" type="number" min="2" step="1" name="p2" value="2"/>
-							</div>
-							<div class="input">
-								<i class="fa fa-fw"></i>
-								<input required="required" type="text" name="name" placeholder="Game Name"/>
-							</div>
-							<div class="input">
-								<i class="fa fa-fw"></i>
-								<input required="required" type="text" name="payoffs" placeholder="Space-separated values (top-left to bottom-right)"/>
-							</div>
-							<div class="input input-submit">
-								<i class="fa fa-fw fa-check"></i>
-								<input id="addGameSubmit" type="submit" value="Submit" />
-							</div>
-						</fieldset>
-					</form>
-				</section>
-				<section id="addPlayersSection">
-					<h3>Players</h3>
-					<aside>
-						Players in your experiment.
-						To delete a player, just click the <i class="fa fa-remove"></i> symbol alongisde.
-					</aside>
-					<ul id="loadNewPlayers">
-						<li><i class="fa fa-spinner"></i></li>
-					</ul>
-					<aside id="nonautoaddAside">
-						Add players to the game using this form.
-						Players consist of e-mail addresses separated by white-space (newlines, tabs, spaces, whatever).
-						If you set the <q>Auto-Add</q> toggle, then players may add themselves.
-						Auto-added players will not be e-mailed when the experiment is started; manually-added players
-						will be mailed.
-					</aside>
-					<form action="@ADMINURI@/doaddplayers.json" method="post" id="addPlayers" onsubmit="return(addPlayers(this));">
-						<div class="error">
-							<div class="noshow" id="addPlayersErrSystem">
-								An unexpected system error occurred.
-							</div>
-							<div class="noshow" id="addPlayersErrState">
-								Experiment already started!
-							</div>
-						</div>
-						<fieldset>
-							<div class="input">
-								<i class="fa fa-fw fa-users"></i>
-								<textarea name="players" placeholder="Space-separated player e-mail addresses..."></textarea>
-							</div>
-							<div class="input input-check">
-								<i onclick="toggler('autoadd', 'autoaddToggle');" id="autoaddToggle" class="fa fa-fw fa-toggle-off"></i>
-								<span onclick="toggler('autoadd', 'autoaddToggle');">Self-Adding Players</span>
-							</div>
-							<div class="input input-submit">
-								<i class="fa fa-fw fa-check"></i>
-								<input id="addPlayersSubmit" type="submit" value="Submit" />
-							</div>
-							<input type="hidden" id="autoadd" name="autoadd" value="0" />
-						</fieldset>
-					</form>
-				</section>
-				<section id="changeMailSection">
-					<h3>Change E-mail</h3>
-					<aside>
-						You should set the e-mail address to your address, as the system (or system administrator) will
-						mail you if it has issues.
-						You will be logged out after doing so.
-					</aside>
-					<form action="@ADMINURI@/dochangemail.json" method="post" id="changeMail" onsubmit="return(changeMail(this));">
-						<div class="error">
-							<div class="noshow" id="changeMailErrSystem">
-								An unexpected error occurred.
-							</div>
-							<div class="noshow" id="changeMailErrForm">
-								Invalid new or existing e-mail address.
-							</div>
-						</div>
-						<fieldset>
-							<div class="input">
-								<i class="fa fa-fw fa-envelope"></i>
-								<input required="required" type="email" name="email1" placeholder="Existing E-mail"/>
-							</div>
-							<div class="input">
-								<i class="fa fa-fw fa-envelope-o"></i>
-								<input required="required" type="email" name="email2" placeholder="New E-mail"/>
-							</div>
-							<div class="input">
-								<i class="fa fa-fw fa-envelope-o"></i>
-								<input required="required" type="email" name="email3" placeholder="Repeat New E-mail"/>
-							</div>
-							<div class="input input-submit">
-								<i class="fa fa-fw fa-check"></i>
-								<input id="changeMailSubmit" type="submit" value="Submit" />
-							</div>
-						</fieldset>
-					</form>
-				</section>
-				<section id="changePassSection">
-					<h3>Change Password</h3>
-					<aside>
-						Set your password (at least one character) here.
-						You should do this when you first use the system, as the default is too easy.
-						It's up to you to make sure your password is secure.
-						You will be logged out after doing so.
-					</aside>
-					<form action="@ADMINURI@/dochangepass.json" method="post" id="changePass" onsubmit="return(changePass(this));">
-						<div class="error">
-							<div class="noshow" id="changePassErrSystem">
-								An unexpected error occurred.
-							</div>
-							<div class="noshow" id="changePassErrForm">
-								Invalid new or existing password.
-							</div>
-						</div>
-						<fieldset>
-							<div class="input">
-								<i class="fa fa-fw fa-lock"></i>
-								<input required="required" type="password" name="password1" placeholder="Existing Password"/>
-							</div>
-							<div class="input">
-								<i class="fa fa-fw fa-lock"></i>
-								<input required="required" type="password" name="password2" placeholder="New Password"/>
-							</div>
-							<div class="input">
-								<i class="fa fa-fw fa-lock"></i>
-								<input required="required" type="password" name="password3" placeholder="Repeat New Password"/>
-							</div>
-							<div class="input input-submit">
-								<i class="fa fa-fw fa-check"></i>
-								<input id="changePassSubmit" type="submit" value="Submit" />
-							</div>
-						</fieldset>
-					</form>
-				</section>
-				<section id="changeSmtpSection">
-					<h3>Change SMTP</h3>
-					<aside>
-						In order to send e-mails to players, you need to configure a valid e-mail sending
-						service.
-						If you mess up, you can always fix this information after the game starts and re-try e-mails
-						that failed to send.
-					</aside>
-					<div id="checkSmtpResults" class="noshow">
-						<h4>Current Values</h4>
-						<aside>
-							<div>
-								The following are your SMTP parameters.
-								Click <q>Send Test</q> to send a test message to the administrator account
-								(<em>not</em> the <q>from address</q>!).
-							</div>
-						</aside>
-						<fieldset>
-							<div class="input">
-								<i class="fa fa-fw fa-database"></i>
-								<input disabled="disabled" id="checkSmtpResultsServer" type="text" />
-							</div>
-							<div class="input">
-								<i class="fa fa-fw fa-user"></i>
-								<input disabled="disabled" id="checkSmtpResultsUser" type="text" />
-							</div>
-							<div class="input">
-								<i class="fa fa-fw fa-envelope"></i>
-								<input disabled="disabled" id="checkSmtpResultsFrom" type="text" />
-							</div>
-							<div class="input input-submit">
-								<i class="fa fa-send"></i>
-								<button type="button" class="send" id="checkSmtpButton" onclick="testSmtp();">Send Test</button>
-							</div>
-						</fieldset>
-					</div>
-					<div id="testSmtpResults" class="noshow canclose">
-						<h4>Results</h4>
-						<a href="#" class="close" onclick="doHideNode(this.parentNode); return false;"><i class="fa fa-minus-square"></i></a>
-						A test e-mail has been sent to <span id="testSmtpResultsMail"></span>.
-						If you do not receive it in a little while, please fix your mail settings.
-					</div>
-					<div id="checkSmtpResultsNone" class="noshow error">
-						<i class="fa fa-warning"></i>
-						<span>You have not yet configured your e-mail server.</span>
-					</div>
-					<div id="checkSmtpResultsLoad">
-						<i class="fa fa-spinner"></i>
-					</div>
-					<aside>
-						<div>
-							The e-mail address <i class="fa fa-envelope"></i> will appear as the <q>from</q> address
-							on all e-mails the system sends out.
-							Make sure this is a real address so participants can write to you!
-							The server <i class="fa fa-database"></i> is your SMTP server.
-							It must be encrypted (SSL/TLS), and be in the form
-							<q>smtp://the.server.name:port</q>, where the port is usually 25, 465, or 587.
-							(It can be anything, though.)
-							The username <i class="fa fa-user"></i> and password <i class="fa fa-lock"></i> are used
-							to log into your server.
-							<em>Your password is stored on the gamelab server</em>:
-							make sure it's something random and not used elsewhere!
-						</div>
-					</aside>
-					<form action="@ADMINURI@/dochangesmtp.json" method="post" id="changeSmtp" onsubmit="return(changeSmtp(this));">
-						<div class="error">
-							<div class="noshow" id="changeSmtpErrSystem">
-								An unexpected error occurred.
-							</div>
-							<div class="noshow" id="changeSmtpErrForm">
-								Invalid new or existing parameters.
-							</div>
-						</div>
-						<fieldset>
-							<div class="input">
-								<i class="fa fa-fw fa-envelope"></i>
-								<input required="required" type="email" name="email" placeholder="you@example.com"/>
-							</div>
-							<div class="input">
-								<i class="fa fa-fw fa-database"></i>
-								<input required="required" type="text" name="server" placeholder="smtp://example.com:587"/>
-							</div>
-							<div class="input">
-								<i class="fa fa-fw fa-user"></i>
-								<input required="required" type="text" name="user" placeholder="SMTP User"/>
-							</div>
-							<div class="input">
-								<i class="fa fa-fw fa-lock"></i>
-								<input required="required" type="password" name="password" placeholder="SMTP Password"/>
-							</div>
-							<div class="input input-submit">
-								<i class="fa fa-fw fa-check"></i>
-								<input id="changeSmtpSubmit" type="submit" value="Submit" />
 							</div>
 						</fieldset>
 					</form>

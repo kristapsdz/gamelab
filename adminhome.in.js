@@ -21,7 +21,7 @@ function doClassFail(name)
 	var e;
 	if (null == (e = document.getElementById(name)))
 		return;
-	e.className = 'fa fa-warning';
+	e.className = 'fa fa-exclamation-circle';
 }
 
 function doSuccess(submitName, formName) 
@@ -102,6 +102,7 @@ function loadNewPlayersSuccess(resp)
 		li.appendChild(span);
 		e.appendChild(li);
 		doClassFail('checkPlayersLoad');
+		doClassFail('checkPlayersLoad2');
 		return;
 	}
 
@@ -127,10 +128,13 @@ function loadNewPlayersSuccess(resp)
 		li.appendChild(span);
 	}
 
-	if (count >= 2)
+	if (count >= 2) {
 		doClassOk('checkPlayersLoad');
-	else
+		doClassOk('checkPlayersLoad2');
+	} else {
 		doClassFail('checkPlayersLoad');
+		doClassFail('checkPlayersLoad2');
+	}
 }
 
 function doShowPlayer(name)
@@ -288,10 +292,12 @@ function loadGamesSuccessInner(resp, code)
 		div.appendChild(document.createTextNode('No games.'));
 		li.appendChild(div);
 		doClassFail('checkGameLoad');
+		doClassFail('checkGameLoad2');
 		return;
 	}
 
 	doClassOk('checkGameLoad');
+	doClassOk('checkGameLoad2');
 
 	for (i = 0; i < results.length; i++) {
 		li = document.createElement('li');
@@ -431,6 +437,7 @@ function loadSmtpSetup()
 	doHide('checkSmtpResults');
 	doHide('checkSmtpResultsNone');
 	doClassLoading('checkSmtpLoad');
+	doClassLoading('checkSmtpLoad2');
 	doUnhide('checkSmtpResultsLoad');
 }
 
@@ -439,6 +446,7 @@ function loadSmtpSuccess(resp)
 	var results;
 
 	doClassOk('checkSmtpLoad');
+	doClassOk('checkSmtpLoad2');
 
 	try {
 		results = JSON.parse(resp);
@@ -460,6 +468,7 @@ function loadSmtpError(err)
 		return;
 
 	doClassFail('checkSmtpLoad');
+	doClassFail('checkSmtpLoad2');
 	doHide('checkSmtpResultsLoad');
 	doUnhide('checkSmtpResultsNone');
 }
@@ -489,6 +498,7 @@ function loadNewPlayers()
 {
 
 	doClassLoading('checkPlayersLoad');
+	doClassLoading('checkPlayersLoad2');
 	loadList('@ADMINURI@/doloadplayers.json', 'loadNewPlayers', 
 		loadNewPlayersSuccess, 
 		function(err) { loadError(err, 'loadNewPlayers'); });
@@ -507,6 +517,7 @@ function loadNewGames()
 {
 
 	doClassLoading('checkGameLoad');
+	doClassLoading('checkGameLoad2');
 	loadList('@ADMINURI@/doloadgames.json', 'loadGames', 
 		function(resp) { loadGamesSuccessInner(resp, 0); },
 		function(err) { loadError(err, 'loadGames'); });
@@ -516,6 +527,7 @@ function loadGames()
 {
 
 	doClassLoading('checkGameLoad');
+	doClassLoading('checkGameLoad2');
 	loadList('@ADMINURI@/doloadgames.json', 'loadGames', 
 		function(resp) { loadGamesSuccessInner(resp, 1); },
 		function(err) { loadError(err, 'loadGames'); });

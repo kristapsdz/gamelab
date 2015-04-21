@@ -309,7 +309,7 @@ div.input input[readonly]	{ background-color: #ddd; }
 	#login article > section > form		
 				{ padding: 0; }
 	#login > article	{ padding: 0; }
-	h2, h3, h4		{ text-align: center; }
+	/*h2, h3, h4		{ text-align: center; }*/
 	article ul li > span	{ display: block; 
 				  margin: 1ex 0; }
 	article ul li > div	{ margin: 1ex 0; }
@@ -318,8 +318,7 @@ div.input input[readonly]	{ background-color: #ddd; }
 	article ul li > span:last-child
 				{ margin-right: 0; }
 	section section >*	{ margin: 1em 0.5em 1em 0.5em; }
-	section section >h3	{ text-align: center; 
-				  font-size: 14pt;
+	section section >h3	{ font-size: 14pt;
 				  padding: 1ex; }
 	article			{ padding-bottom: 1em;
 				  padding-left: 0.5ex;
