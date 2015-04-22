@@ -926,7 +926,7 @@ function unroll(child, parnt) {
  */
 function exprStartTime(val)
 {
-	var now = new Date();
+	var t, d, now;
 
 	now = new Date();
 	t = document.getElementById('time');
