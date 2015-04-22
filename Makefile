@@ -2,36 +2,36 @@
 
 # Mac OSX testing.
 # This is useful when running in a userdir.
-PREFIX		 = /Users/kristaps/Sites
-HTDOCS		 = $(PREFIX)
-HTURI		 = /~kristaps
-LABURI		 = /~kristaps/lab.cgi
-ADMINURI	 = /~kristaps/admin.cgi
-CGIBIN		 = $(PREFIX)
-DATADIR		 = $(PREFIX)
-RDATADIR	 = $(PREFIX)
-LIBS		 = 
-STATIC		 = 
+#PREFIX		 = /Users/kristaps/Sites
+#HTDOCS		 = $(PREFIX)
+#HTURI		 = /~kristaps
+#LABURI		 = /~kristaps/lab.cgi
+#ADMINURI	 = /~kristaps/admin.cgi
+#CGIBIN		 = $(PREFIX)
+#DATADIR		 = $(PREFIX)
+#RDATADIR	 = $(PREFIX)
+#LIBS		 = 
+#STATIC		 = 
 
 # Linux testing.
 # LIBS		 = -lbsd -lm
 
 # OpenBSD production.
-#PREFIX		 = /var/www
-#HTDOCS		 = $(PREFIX)/htdocs/gamelab
-#HTURI		 = /gamelab
-#CGIBIN		 = $(PREFIX)/cgi-bin/gamelab
-#LABURI		 = /cgi-bin/gamelab/lab
-#ADMINURI	 = /cgi-bin/gamelab/admin
-#DATADIR	 	 = $(PREFIX)/data/gamelab
-#RDATADIR	 = /data/gamelab
-#LIBS		 = -lintl -liconv -lm
-#STATIC		 = -static
+PREFIX		 = /var/www
+HTDOCS		 = $(PREFIX)/htdocs/gamelab
+HTURI		 = /gamelab
+CGIBIN		 = $(PREFIX)/cgi-bin/gamelab
+LABURI		 = /cgi-bin/gamelab/lab
+ADMINURI	 = /cgi-bin/gamelab/admin
+DATADIR	 	 = $(PREFIX)/data/gamelab
+RDATADIR	 = /data/gamelab
+LIBS		 = -lintl -liconv -lm
+STATIC		 = -static
 
 # You really don't want to change anything below this line.
 
-VERSION	 = 1.0.1
-VMONTH	 = March
+VERSION	 = 1.0.2
+VMONTH	 = April
 VYEAR	 = 2015
 CFLAGS 	+= -g -W -Wall -Wstrict-prototypes -Wno-unused-parameter -Wwrite-strings -I/usr/local/include
 CFLAGS	+= -DDATADIR=\"$(RDATADIR)\" -DHTURI=\"$(HTURI)\"

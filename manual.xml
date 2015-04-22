@@ -260,8 +260,10 @@
 							These files are identical but for the suffix.
 							These must resolve to <a href="#laburi"><code>LABURI</code></a>.
 						</dd>
+						<dt><span class="file">adminhome.css</span></dt>
 						<dt><span class="file">adminhome.js</span></dt>
 						<dt><span class="file">adminlogin.html</span></dt>
+						<dt><span class="file">playerautoadd.html</span></dt>
 						<dt><span class="file">playerhome.js</span></dt>
 						<dt><span class="file">playerhome.html</span></dt>
 						<dt><span class="file">playerlogin.html</span></dt>
@@ -410,6 +412,10 @@
 							Enter these e-mails into the <q>Players</q> section.
 							You'll be able to add and remove e-mails before the experiment, so no worries.
 							Moreover, if you start an experiment with mistaken e-mails, you'll be able to disable them.
+							If you specify <q>Auto-Add</q>, participants can register (i.e., add) themselves by
+							accessing the <span class="file">playerautoadd.html</span> URL.
+							Auto-added players are special in that they are <strong>never</strong> e-mailed.
+							They will be shown with a special symbol.
 						</li>
 						<li>
 							A set of normal form bimatrix games.
@@ -485,6 +491,7 @@
 						Once you hit the <q>Start</q> button, the experiment has begun.
 						It won't be playable until the time and date you specified, but the players are notified
 						immediately with their login credentials.
+						Only players you add are e-mailed: auto-added players are not e-mailed.
 					</p>
 				</section>
 				<section id="runningexperiments">
@@ -503,7 +510,8 @@
 					<p>
 						If a player forgets her password, you can reset it by clicking on the player's email address and
 						selecting the <q>Reset Password</q> option.
-						You can reset all players' passwords with the <q>Reset All Passwords</q> option.
+						(Auto-added players are <strong>not</strong> affected.)
+						You can reset all non-auto-added players' passwords with the <q>Reset All Passwords</q> option.
 						If a player is misbehaving, you can disable her login by toggling the button next to her e-mail
 						address.
 						Once toggled, she'll no longer be able to log in.
@@ -591,6 +599,11 @@
 								experiment is wiped.
 							</p>
 							<dl>
+								<dt id="db-player-autoadd"><var>autoadd</var></dt>
+								<dd>
+									Player was auto-added (i.e., auto-added herself).
+									These players are never e-mailed.
+								</dd>
 								<dt id="db-player-email"><var>email</var></dt>
 								<dd>Player e-mail address.  This is unique in the set of all players.</dd>
 								<dt id="db-player-state"><var>state</var></dt>
@@ -753,6 +766,8 @@
 								It is initialised to default values.
 							</p>
 							<dl>
+								<dt id="db-experiment-autoadd"><var>autoadd</var></dt>
+								<dd>The experiment is currently accepting (or did accept) auto-added players.</dd>
 								<dt id="db-experiment-state"><var>state</var></dt>
 								<dd>The running state of the experiment, being either <var>0</var>, for new
 									(still in the configuration stage); <var>1</var>, for started (players

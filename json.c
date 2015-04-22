@@ -95,7 +95,6 @@ json_putexpr(struct kjsonreq *r, const struct expr *expr)
 	 */
 	if (ESTATE_NEW == expr->state) {
 		round = -1;
-		tilnext = tilstart = 0;
 	} else if ((tt = time(NULL)) > expr->start) {
 		round = (tt - expr->start) / (expr->minutes * 60);
 		if (tt >= expr->end) {

@@ -2,7 +2,7 @@
 	<header>
 		<h1>1.0.2</h1>
 		<address>Kristaps Dzonsons</address>
-		<time datetime="2015-04-21">2015-04-21</time>
+		<time datetime="2015-04-22">2015-04-22</time>
 	</header>
 	<aside>
 		Added an <q>auto-add</q> mode where, upon being set by the administrator, participants can register themselves for games.

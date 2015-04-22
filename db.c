@@ -2412,9 +2412,7 @@ db_expr_wipe(void)
 	db_exec("UPDATE player SET instr=1,state=0,"
 		"enabled=1,finalrank=0,finalscore=0,hash=''");
 	db_exec("UPDATE experiment SET "
-		"autoadd=0,"
-		"state=0,"
-		"total='0/1',");
+		"autoadd=0,state=0,total='0/1'");
 	stmt = db_stmt("SELECT id FROM player");
 	stmt2 = db_stmt("UPDATE player SET rseed=? WHERE id=?");
 	while (SQLITE_ROW == db_step(stmt, 0)) {
