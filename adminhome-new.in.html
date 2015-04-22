@@ -28,7 +28,7 @@
 			}
 		</script>
 	</head>
-	<body onload="onLoad(); loadNewGames(); loadNewPlayers(); loadSmtp();" onclick="onNavUp();">
+	<body onload="onLoad(); loadNewGames(); loadNewPlayers(); loadNewExpr(); loadSmtp();" onclick="onNavUp();">
 		<header>
 			<a id="navButton" href="#" onclick="return(onNav(event));"><i class="fa fa-navicon"></i></a>
 			<h1>gamelab</h1>
@@ -374,11 +374,11 @@
 							</span>
 							<div class="input">
 								<i class="fa fa-fw fa-gears"></i>
-								<input required="required" type="number" name="rounds" min="1" step="1" value="14" />
+								<input required="required" type="number" id="rounds" name="rounds" min="1" step="1" value="14" />
 							</div>
 							<div class="input">
 								<i class="fa fa-fw fa-history"></i>
-								<input required="required" type="number" name="minutes" max="1440" min="1" step="1" value="1440" />
+								<input required="required" type="number" name="minutes" id="minutes" max="1440" min="1" step="1" value="1440" />
 							</div>
 							<div class="input">
 								<i class="fa fa-fw fa-code"></i>
@@ -514,13 +514,14 @@ column players played <q>B</q> was 0.650.
 This means that you have won prize number <span id="exprFinishedWinRank"></span>!
 You will be contacted by the experimenter shortly.</textarea>
 							</div>
-							<!-- div class="input input-submit">
+							<div class="input input-submit">
 								<i class="fa fa-save"></i>
-								<input id="startExprSubmit" type="submit" name="submit" value="Save" gamelab-submit-pending="Saving..." />
-							</div -->
+								<input type="button" onclick="startExprTo(document.getElementById('startExpr'), '@ADMINURI@/dosaveexpr.json');" 
+									value="Save" gamelab-submit-pending="Saving..." id="startExprSave" />
+							</div>
 							<div class="input input-submit">
 								<i class="fa fa-check"></i>
-								<input id="startExprSubmit" type="submit" name="submit" value="Start" gamelab-submit-pending="Starting..." />
+								<input id="startExprSubmit" type="submit" value="Start" gamelab-submit-pending="Starting..." />
 							</div>
 						</fieldset>
 					</form>

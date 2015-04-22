@@ -93,7 +93,10 @@ json_putexpr(struct kjsonreq *r, const struct expr *expr)
 	 * time til start (if applicable), and time til next play (if
 	 * applicable).
 	 */
-	if ((tt = time(NULL)) > expr->start) {
+	if (ESTATE_NEW == expr->state) {
+		round = -1;
+		tilnext = tilstart = 0;
+	} else if ((tt = time(NULL)) > expr->start) {
 		round = (tt - expr->start) / (expr->minutes * 60);
 		if (tt >= expr->end) {
 			round = expr->rounds;
@@ -133,7 +136,9 @@ json_putexpr(struct kjsonreq *r, const struct expr *expr)
 	kjson_putintp(r, "start", (int64_t)expr->start);
 	kjson_putintp(r, "end", (int64_t)expr->end);
 	kjson_putintp(r, "rounds", expr->rounds);
+	kjson_putintp(r, "minutes", expr->minutes);
 	kjson_putstringp(r, "instrWin", expr->instrWin);
+	kjson_putstringp(r, "loginURI", expr->loginuri);
 	kjson_putdoublep(r, "progress", frac);
 	kjson_putintp(r, "tilstart", (int64_t)tilstart);
 	kjson_putintp(r, "tilnext", (int64_t)tilnext);

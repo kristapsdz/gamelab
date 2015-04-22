@@ -28,10 +28,20 @@ function doSuccess(submitName, formName)
 	document.getElementById(formName).reset();
 }
 
+/*
+ * This is called by most sendForm() functions when we tear down the
+ * sending process and post an error.
+ * It resets the submission value to the default and unhides a
+ * corresponding error message.
+ */
 function doError(err, submitName, errName) 
 {
+	var e;
 
-	doValue(submitName, 'Submit');
+	if (null != (e = document.getElementById(submitName)))
+		if (e.hasAttribute('gamelab-submit-default'))
+			e.value = e.getAttribute('gamelab-submit-default');
+
 	switch (err) {
 	case 400:
 		doUnhide(errName + 'Form');
@@ -529,6 +539,31 @@ function loadGames()
 		function(err) { loadError(err, 'loadGames'); });
 }
 
+function loadNewExprSuccess(resp) 
+{
+	var res, e, expr;
+
+	console.log('resp = ' + resp);
+
+	try  { 
+		res = JSON.parse(resp);
+	} catch (error) {
+		return;
+	}
+
+	expr = res.expr;
+	if (0 != expr.start) 
+		exprStartAbsoluteTime(expr.start);
+	if (0 != expr.rounds)
+		document.getElementById('rounds').value = expr.rounds;
+	if (0 != expr.minutes)
+		document.getElementById('minutes').value = expr.minutes;
+	if ('' != expr.instr)
+		doClearReplace('instrText', expr.instr);
+	if ('' != expr.instrWin)
+		doClearReplace('instrWinText', expr.instrWin);
+}
+
 function loadExprSuccess(resp) 
 {
 	var res, e, i, chld, expr, li, div, href, span;
@@ -640,6 +675,13 @@ function loadExprSetup()
 	doHide('statusExprProg');
 }
 
+function loadNewExpr() 
+{
+
+	sendQuery('@ADMINURI@/dogetnewexpr.json', 
+		null, loadNewExprSuccess, null);
+}
+
 function loadExpr() 
 {
 
@@ -655,6 +697,15 @@ function doStartExprSuccess(resp)
 	doValue('startExprSubmit', 'Started!  Reloading...');
 	document.getElementById('startExpr').reset();
 	window.location.reload(true);
+}
+
+function startExprTo(form, to)
+{
+
+	return(sendFormTo(form, to,
+		function() { doSetup('startExprSave', 'startExprErr'); },
+		function(err) { doError(err, 'startExprSave', 'startExprErr'); },
+		function() { window.location.reload(true); }));
 }
 
 function startExpr(form)
@@ -869,7 +920,31 @@ function unroll(child, parnt) {
 	}
 }
 
+/*
+ * Set the experiment start time to be now plus the given number of
+ * milliseconds (yes, MILLISECONDS).
+ */
 function exprStartTime(val)
+{
+	var now = new Date();
+
+	now = new Date();
+	t = document.getElementById('time');
+	d = document.getElementById('date');
+
+	now.setTime(now.getTime() + val);
+
+	d.value = (now.getUTCFullYear() + '-' + 
+		   ('0' + (now.getUTCMonth()+1)).slice(-2) + '-' + 
+		   ('0' + now.getUTCDate()).slice(-2));
+	t.value = (('0' + now.getUTCHours()).slice(-2) + ':' +
+		   ('0' + now.getUTCMinutes()).slice(-2));
+}
+
+/*
+ * Set the experiment start time to be the given time (in SECONDS).
+ */
+function exprStartAbsoluteTime(val)
 {
 	var t, d, now;
 
@@ -877,7 +952,7 @@ function exprStartTime(val)
 	t = document.getElementById('time');
 	d = document.getElementById('date');
 
-	now.setTime(now.getTime() + val);
+	now.setTime(val * 1000);
 
 	d.value = (now.getUTCFullYear() + '-' + 
 		   ('0' + (now.getUTCMonth()+1)).slice(-2) + '-' + 

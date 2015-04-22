@@ -188,7 +188,7 @@ function sendQuery(url, setup, success, error)
 	xmlhttp.send(null);
 }
 
-function sendForm(oFormElement, setup, error, success) 
+function sendFormTo(oFormElement, action, setup, error, success) 
 {
 	var xmlhttp = new XMLHttpRequest();
 	var formdata = new FormData(oFormElement);
@@ -202,7 +202,14 @@ function sendForm(oFormElement, setup, error, success)
 			error(xmlhttp.status);
 	} 
 
-	xmlhttp.open(oFormElement.method, oFormElement.action, true);
+	xmlhttp.open(oFormElement.method, action, true);
 	xmlhttp.send(formdata);
 	return(false);
+}
+
+function sendForm(oFormElement, setup, error, success) 
+{
+
+	return(sendFormTo(oFormElement, 
+		oFormElement.action, setup, error, success));
 }

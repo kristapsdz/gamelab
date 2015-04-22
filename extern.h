@@ -193,9 +193,12 @@ int		 db_expr_checkstate(enum estate);
 void		 db_expr_finish(struct expr **, size_t);
 void		 db_expr_free(struct expr *);
 int		 db_expr_getautoadd(void);
-struct expr	*db_expr_get(void);
+struct expr	*db_expr_get(int);
 void		 db_expr_setautoadd(int64_t);
 void		 db_expr_setinstr(const char *, const char *);
+int		 db_expr_setminutes(int64_t);
+int		 db_expr_setrounds(int64_t);
+int		 db_expr_setstart(int64_t);
 int		 db_expr_start(int64_t, int64_t, int64_t, 
 			const char *, const char *, const char *);
 void		 db_expr_wipe(void);

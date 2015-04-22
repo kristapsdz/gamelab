@@ -212,7 +212,7 @@ senddologin(struct kreq *r)
 
 	sess = NULL;
 
-	if (NULL == (expr = db_expr_get())) {
+	if (NULL == (expr = db_expr_get(1))) {
 		if (KMIME_TEXT_HTML == r->mime) {
 			http_open(r, KHTTP_303);
 			send303(r, HTURI "/playerlogin.html", PAGE__MAX, 0);
@@ -437,7 +437,7 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 	struct kjsonreq	 req;
 
 	/* All response have at least the following. */
-	if (NULL == (expr = db_expr_get())) {
+	if (NULL == (expr = db_expr_get(1))) {
 		http_open(r, KHTTP_409);
 		khttp_body(r);
 		return;

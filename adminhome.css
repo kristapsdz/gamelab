@@ -160,6 +160,7 @@ div.input-submit >*		{ background-color: #666;
 				  border-top: thin solid #000;
 				  border-bottom: thin solid #000; }
 div.input-submit button,
+div.input-submit input[type=button],
 div.input-submit input		{ background-color: #333; 
 				  text-align: left; }
 div.input-submit >*:last-child	{ border-right: thin solid #000; }
@@ -168,6 +169,7 @@ div.input-submit input:active	{ background-color: #444; }
 div.input-submit button:hover,
 div.input-submit input:hover	{ color: #ddd; }
 div.input button,
+div.input input[type=button],
 div.input input[type=date],
 div.input input[type=submit]	{ width: auto; }
 div.input input[type=number]	{ width: 20ex; }

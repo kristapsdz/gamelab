@@ -49,6 +49,7 @@ enum	page {
 	PAGE_DODISABLEPLAYER,
 	PAGE_DOENABLEPLAYER,
 	PAGE_DOGETEXPR,
+	PAGE_DOGETNEWEXPR,
 	PAGE_DOLOADGAMES,
 	PAGE_DOLOADPLAYERS,
 	PAGE_DOLOGIN,
@@ -129,6 +130,7 @@ static	unsigned int perms[PAGE__MAX] = {
 	PERM_JSON | PERM_LOGIN, /* PAGE_DODISABLEPLAYER */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOENABLEPLAYER */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOGETEXPR */
+	PERM_JSON | PERM_LOGIN, /* PAGE_DOGETNEWEXPR */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOLOADGAMES */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOLOADPLAYERS */
 	PERM_JSON, /* PAGE_DOLOGIN */
@@ -158,6 +160,7 @@ static const char *const pages[PAGE__MAX] = {
 	"dodisableplayer", /* PAGE_DODISABLEPLAYER */
 	"doenableplayer", /* PAGE_DOENABLEPLAYER */
 	"dogetexpr", /* PAGE_DOGETEXPR */
+	"dogetnewexpr", /* PAGE_DOGETNEWEXPR */
 	"doloadgames", /* PAGE_DOLOADGAMES */
 	"doloadplayers", /* PAGE_DOLOADPLAYERS */
 	"dologin", /* PAGE_DOLOGIN */
@@ -342,6 +345,24 @@ senddogetexprgame(const struct game *game, void *arg)
 }
 
 static void
+senddogetnewexpr(struct kreq *r)
+{
+	struct expr	*expr;
+	struct kjsonreq	 req;
+
+	expr = db_expr_get(0);
+	assert(NULL != expr);
+	http_open(r, KHTTP_200);
+	khttp_body(r);
+	kjson_open(&req, r);
+	kjson_obj_open(&req);
+	json_putexpr(&req, expr);
+	kjson_obj_close(&req);
+	kjson_close(&req);
+	db_expr_free(expr);
+}
+
+static void
 senddogetexpr(struct kreq *r)
 {
 	struct expr	*expr;
@@ -350,7 +371,7 @@ senddogetexpr(struct kreq *r)
 	time_t		 t;
 	size_t		 gamesz, round;
 
-	if (NULL == (expr = db_expr_get())) {
+	if (NULL == (expr = db_expr_get(1))) {
 		http_open(r, KHTTP_409);
 		khttp_body(r);
 		return;
@@ -822,7 +843,7 @@ senddosetinstr(struct kreq *r)
 		http_open(r, KHTTP_400);
 		khttp_body(r);
 		return;
-	} else if (NULL == (expr = db_expr_get())) {
+	} else if (NULL == (expr = db_expr_get(1))) {
 		http_open(r, KHTTP_409);
 		khttp_body(r);
 		return;
@@ -846,7 +867,7 @@ senddoresetpasswordss(struct kreq *r)
 	char		*loginuri, *uri;
 	struct expr	*expr;
 
-	if (NULL == (expr = db_expr_get())) {
+	if (NULL == (expr = db_expr_get(1))) {
 		http_open(r, KHTTP_409);
 		khttp_body(r);
 		return;
@@ -894,7 +915,7 @@ senddoresendmail(struct kreq *r)
 	char		*loginuri, *uri;
 	struct expr	*expr;
 
-	if (NULL == (expr = db_expr_get())) {
+	if (NULL == (expr = db_expr_get(1))) {
 		http_open(r, KHTTP_409);
 		khttp_body(r);
 		return;
@@ -930,9 +951,38 @@ senddoresendmail(struct kreq *r)
 	free(uri);
 }
 
+/*
+ * Save components of an experiment.
+ * Here we try to set each of the experiment values.
+ * Returns error 409 if any setting failed, i.e., if the experiment has
+ * already been started.
+ * Returns error 200 otherwise.
+ */
 static void
 senddosaveexpr(struct kreq *r)
 {
+	int	 rc = 0;
+
+	if ( ! kpairbad(r, KEY_DATE) && kpairbad(r, KEY_TIME))
+		rc += ! db_expr_setstart
+			(r->fieldmap[KEY_DATE]->parsed.i);
+	if ( ! kpairbad(r, KEY_DATE) && ! kpairbad(r, KEY_TIME)) 
+		rc += ! db_expr_setstart
+			(r->fieldmap[KEY_TIME]->parsed.i +
+			 r->fieldmap[KEY_DATE]->parsed.i);
+	if ( ! kpairbad(r, KEY_ROUNDS))
+		rc += ! db_expr_setrounds
+			(r->fieldmap[KEY_ROUNDS]->parsed.i);
+	if ( ! kpairbad(r, KEY_MINUTES))
+		rc += ! db_expr_setminutes
+			(r->fieldmap[KEY_MINUTES]->parsed.i);
+	if ( ! kpairbad(r, KEY_INSTR) && ! kpairbad(r, KEY_INSTRWIN))
+		db_expr_setinstr
+			(r->fieldmap[KEY_INSTR]->parsed.s,
+			 r->fieldmap[KEY_INSTRWIN]->parsed.s);
+
+	http_open(r, rc ? KHTTP_409 : KHTTP_200);
+	khttp_body(r);
 }
 
 static void
@@ -1028,7 +1078,7 @@ senddowinners(struct kreq *r)
 		http_open(r, KHTTP_400);
 		khttp_body(r);
 		return;
-	} else if (NULL == (expr = db_expr_get())) {
+	} else if (NULL == (expr = db_expr_get(1))) {
 		http_open(r, KHTTP_409);
 		khttp_body(r);
 		return;
@@ -1231,6 +1281,9 @@ main(void)
 		break;
 	case (PAGE_DOGETEXPR):
 		senddogetexpr(&r);
+		break;
+	case (PAGE_DOGETNEWEXPR):
+		senddogetnewexpr(&r);
 		break;
 	case (PAGE_DOLOADGAMES):
 		senddoloadgames(&r);

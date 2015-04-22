@@ -470,7 +470,7 @@ db_expr_finish(struct expr **expr, size_t count)
 again:
 	/* Reload the experiment and see if we've already tallied. */
 	db_expr_free(*expr);
-	*expr = db_expr_get();
+	*expr = db_expr_get(1);
 	assert(NULL != *expr);
 	if ((*expr)->state >= ESTATE_PREWIN)
 		return;
@@ -896,7 +896,7 @@ db_player_play(int64_t playerid, int64_t round,
 	 * microsecond and this doesn't change in the database.
 	 */
 	t = time(NULL);
-	expr = db_expr_get();
+	expr = db_expr_get(1);
 	assert(NULL != expr);
 
 	if (round > expr->rounds) {
@@ -1285,6 +1285,72 @@ db_expr_setinstr(const char *instr, const char *instrWin)
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);
 	fprintf(stderr, "Administrator changed instructions\n");
+}
+
+int
+db_expr_setrounds(int64_t rounds)
+{
+	sqlite3_stmt	*stmt;
+
+	db_trans_begin(0);
+	if ( ! db_expr_checkstate(ESTATE_NEW)) {
+		db_trans_rollback();
+		fprintf(stderr, "Saving experiment "
+			"rounds when already started\n");
+		return(0);
+	}
+
+	stmt = db_stmt("UPDATE experiment SET rounds=?");
+	db_bind_int(stmt, 1, rounds);
+	db_step(stmt, 0);
+	sqlite3_finalize(stmt);
+	db_trans_commit();
+	fprintf(stderr, "Experiment rounds saved\n");
+	return(1);
+}
+
+int
+db_expr_setminutes(int64_t mins)
+{
+	sqlite3_stmt	*stmt;
+
+	db_trans_begin(0);
+	if ( ! db_expr_checkstate(ESTATE_NEW)) {
+		db_trans_rollback();
+		fprintf(stderr, "Saving experiment "
+			"minutes when already started\n");
+		return(0);
+	}
+
+	stmt = db_stmt("UPDATE experiment SET minutes=?");
+	db_bind_int(stmt, 1, mins);
+	db_step(stmt, 0);
+	sqlite3_finalize(stmt);
+	db_trans_commit();
+	fprintf(stderr, "Experiment minutes saved\n");
+	return(1);
+}
+
+int
+db_expr_setstart(int64_t date)
+{
+	sqlite3_stmt	*stmt;
+
+	db_trans_begin(0);
+	if ( ! db_expr_checkstate(ESTATE_NEW)) {
+		db_trans_rollback();
+		fprintf(stderr, "Saving experiment "
+			"start date when already started\n");
+		return(0);
+	}
+
+	stmt = db_stmt("UPDATE experiment SET start=?");
+	db_bind_int(stmt, 1, date);
+	db_step(stmt, 0);
+	sqlite3_finalize(stmt);
+	db_trans_commit();
+	fprintf(stderr, "Experiment date saved\n");
+	return(1);
 }
 
 int
@@ -2280,12 +2346,12 @@ db_interval_get(int64_t round)
 
 /*
  * Get a configured experiment.
- * This will return NULL if the experiment has not been started (i.e.,
- * is in ESTATE_NEW).
+ * If "only_started" is specified, This will return NULL if the
+ * experiment has not been started (i.e., is in ESTATE_NEW).
  * Call db_expr_free() with the returned structure.
  */
 struct expr *
-db_expr_get(void)
+db_expr_get(int only_started)
 {
 	sqlite3_stmt	*stmt;
 	struct expr	*expr;
@@ -2296,7 +2362,7 @@ db_expr_get(void)
 		"instrWin,autoadd FROM experiment");
 	rc = db_step(stmt, 0);
 	assert(SQLITE_ROW == rc);
-	if (ESTATE_NEW == sqlite3_column_int(stmt, 4)) {
+	if (only_started && ESTATE_NEW == sqlite3_column_int(stmt, 4)) {
 		sqlite3_finalize(stmt);
 		return(NULL);
 	}
@@ -2311,8 +2377,7 @@ db_expr_get(void)
 	expr->end = expr->start + (expr->rounds * expr->minutes * 60);
 	expr->total = sqlite3_column_int(stmt, 7);
 	expr->instrWin = kstrdup((char *)sqlite3_column_text(stmt, 8));
-	expr->autoadd = sqlite3_column_int(stmt, 8);
-
+	expr->autoadd = sqlite3_column_int(stmt, 9);
 	sqlite3_finalize(stmt);
 	return(expr);
 }
