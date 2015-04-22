@@ -88,31 +88,28 @@ function loadNewPlayersSuccess(resp)
 		return;
 	}
 
-	document.getElementById('autoaddToggle').classList.remove('fa-toggle-off');
-	document.getElementById('autoaddToggle').classList.remove('fa-toggle-on');
-
-	if (results.autoadd) {
-		document.getElementById('autoaddToggle').classList.add('fa-toggle-on');
-		doValue('autoadd', 1);
-	} else {
-		document.getElementById('autoaddToggle').classList.add('fa-toggle-off');
-		doValue('autoadd', 0);
+	if (null != (icon = document.getElementById('autoaddToggle'))) {
+		icon.classList.remove('fa-toggle-off');
+		icon.classList.remove('fa-toggle-on');
+		if (results.autoadd) {
+			icon.classList.add('fa-toggle-on');
+			doValue('autoadd', 1);
+		} else {
+			icon.classList.add('fa-toggle-off');
+			doValue('autoadd', 0);
+		}
 	}
 
 	players = results.players;
 
 	if (0 == players.length) {
 		li = document.createElement('li');
-		span = document.createElement('span');
-		span.setAttribute('class', 'error');
-		span.appendChild(document.createTextNode('No players.'));
-		li.appendChild(span);
 		e.appendChild(li);
+		li.setAttribute('class', 'error');
+		li.appendChild(document.createTextNode('No players.'));
 		doClassFail('checkPlayersLoad2');
 		return;
 	}
-
-	e.className = '';
 
 	for (count = i = 0; i < players.length; i++) {
 		if (players[i].enabled)
@@ -127,6 +124,12 @@ function loadNewPlayersSuccess(resp)
 		span.appendChild(icon);
 		span.appendChild(document.createTextNode(' '));
 		span.appendChild(document.createTextNode(players[i].mail));
+		if (players[i].autoadd) {
+			icon = document.createElement('i');
+			icon.className = 'fa fa-globe';
+			span.appendChild(document.createTextNode(' '));
+			span.appendChild(icon);
+		}
 		e.appendChild(span);
 	}
 

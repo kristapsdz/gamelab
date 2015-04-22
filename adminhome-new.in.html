@@ -265,11 +265,12 @@
 					<div>
 						Players in your experiment.
 						To delete a player, just click the <i class="fa fa-remove"></i> symbol alongisde.
+						Players offset with <i class="fa fa-globe"></i> were auto-added.
 					</div>
 					<ul id="loadNewPlayers">
 						<li><i class="fa fa-spinner"></i></li>
 					</ul>
-					<div id="nonautoaddAside">
+					<div>
 						Add players to the game using this form.
 						Players consist of e-mail addresses separated by white-space (newlines, tabs, spaces, whatever).
 						If you set the <q>Auto-Add</q> toggle, then players may add themselves.
@@ -513,9 +514,13 @@ column players played <q>B</q> was 0.650.
 This means that you have won prize number <span id="exprFinishedWinRank"></span>!
 You will be contacted by the experimenter shortly.</textarea>
 							</div>
+							<!-- div class="input input-submit">
+								<i class="fa fa-save"></i>
+								<input id="startExprSubmit" type="submit" name="submit" value="Save" gamelab-submit-pending="Saving..." />
+							</div -->
 							<div class="input input-submit">
 								<i class="fa fa-check"></i>
-								<input id="startExprSubmit" type="submit" value="Start" gamelab-submit-pending="Starting..." />
+								<input id="startExprSubmit" type="submit" name="submit" value="Start" gamelab-submit-pending="Starting..." />
 							</div>
 						</fieldset>
 					</form>

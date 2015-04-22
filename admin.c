@@ -740,6 +740,7 @@ senddoloadplayer(const struct player *player, void *arg)
 	kjson_putintp(r, "enabled", player->enabled);
 	kjson_putintp(r, "status", player->state);
 	kjson_putintp(r, "role", player->role);
+	kjson_putintp(r, "autoadd", player->autoadd);
 	kjson_obj_close(r);
 }
 

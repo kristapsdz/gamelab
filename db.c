@@ -824,7 +824,7 @@ db_player_load(int64_t id)
 	struct player	*player = NULL;
 
 	stmt = db_stmt("SELECT email,state,id,enabled,"
-		"role,rseed,instr,finalrank,finalscore "
+		"role,rseed,instr,finalrank,finalscore,autoadd "
 		"FROM player WHERE id=?");
 	db_bind_int(stmt, 1, id);
 
@@ -840,6 +840,7 @@ db_player_load(int64_t id)
 		player->instr = sqlite3_column_int(stmt, 6);
 		player->finalrank = sqlite3_column_int(stmt, 7);
 		player->finalscore = sqlite3_column_int(stmt, 8);
+		player->autoadd = sqlite3_column_int(stmt, 9);
 	} 
 
 	sqlite3_finalize(stmt);
@@ -853,7 +854,7 @@ db_player_load_all(playerf fp, void *arg)
 	struct player	 player;
 
 	stmt = db_stmt("SELECT email,state,id,enabled,"
-		"role,rseed,instr,finalrank,finalscore "
+		"role,rseed,instr,finalrank,finalscore,autoadd "
 		"FROM player");
 	while (SQLITE_ROW == db_step(stmt, 0)) {
 		memset(&player, 0, sizeof(struct player));
@@ -867,6 +868,7 @@ db_player_load_all(playerf fp, void *arg)
 		player.instr = sqlite3_column_int(stmt, 6);
 		player.finalrank = sqlite3_column_int(stmt, 7);
 		player.finalscore = sqlite3_column_int(stmt, 8);
+		player.autoadd = sqlite3_column_int(stmt, 9);
 		(*fp)(&player, arg);
 		free(player.mail);
 	}

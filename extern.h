@@ -134,6 +134,7 @@ struct	player {
 	char		*mail; /* e-mail address */
 	enum pstate	 state; /* state of participant */
 	int		 enabled; /* whether can login */
+	int		 autoadd; /* whether auto-added */
 	int64_t		 role; /* row/column player role */
 	int64_t		 rseed; /* random seed */
 	int64_t		 instr; /* show instructions? */
