@@ -4,17 +4,10 @@
 		<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
 		<meta charset="utf-8" /> 
 		<title>Gamelab Administration</title>
-		<link rel="stylesheet" href="@HTURI@/style.css" type="text/css" />
+		<link rel="stylesheet" href="@HTURI@/adminhome.css" type="text/css" />
 		<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet" />
 		<script src="@HTURI@/script.js"></script>
 		<script src="@HTURI@/adminhome.js"></script>
-		<style>
-			article > section > section { margin: 1ex 0; }
-			article > section > section > h3 { color: #ddd; cursor: pointer; padding: 1ex; }
-			article > section > section > h3:hover { color: #fff; }
-			article > section > section.rolled >*:not(h3) { padding: 0; max-height: 0; margin: 0; overflow: hidden; }
-			article > section > section >*:not(h3) { max-height: 1000em; }
-		</style>
 	</head>
 	<body onload="loadGames(); loadPlayers(); loadExpr(); loadSmtp();" onclick="onNavUp();">
 		<header>
@@ -25,57 +18,53 @@
 			</span>
 			<div id="navParent">
 				<nav id="nav">
-					<ul>
-						<li><a href="@ADMINURI@/dologout.html"><i class="fa fa-sign-out"></i> Logout</a></li>
-					</ul>
+					<a href="@ADMINURI@/dologout.html"><i class="fa fa-sign-out"></i> Logout</a>
 				</nav>
 			</div>
 		</header>
 		<article>
-			<section>
-				<section id="statusExpr">
-					<h3>Experiment Status</h3>
-					<div id="statusExprProg">
+			<section class="intro">
+				<div id="statusExprProg">
+					<p>
+						Welcome!  Your experiment is in round 
+						<span id="statusExprPRound"></span> of <span id="statusExprPMax"></span>.
+					</p>
+					<progress max="1.0" id="statusExprPBar"></progress>
+					<div class="table">
 						<div>
-							Round: <span id="statusExprPRound"></span>/<span id="statusExprPMax"></span>
+							<div class="table-left-head">Complete row plays:</div>
+							<div id="statusExprFrow"></div>
 						</div>
-						<progress max="1.0" id="statusExprPBar"></progress>
-						<div class="tabled">
-							<div>
-								<div>Complete row plays:</div>
-								<div id="statusExprFrow"></div>
-							</div>
-							<div>
-								<div>Complete column plays:</div>
-								<div id="statusExprFcol"></div>
-							</div>
-						</div>
-						<div class="tabled" id="statusExprPGames">
+						<div>
+							<div class="table-left-head">Complete column plays:</div>
+							<div id="statusExprFcol"></div>
 						</div>
 					</div>
-					<div id="statusExprWaiting">
-						Waiting for experiment to begin.
+					<div class="table" id="statusExprPGames">
 					</div>
-					<div id="statusExprFinished">
-						<p>
-							Your experiment has finished.
-							What follows are the winners and their rankings.
-						</p>
-						<ul id="statusExprFinishedWinners"></ul>
-						<form id="statusExprFinishedWin" action="@ADMINURI@/dowinners.json" method="post" onsubmit="return(sendWinners(this));">
-							<aside>
-								<div>
-									You may now compute winnings.
-								</div>
-							</aside>
-							<div class="error">
-								<div class="noshow" id="statusExprFinishedWinError">
-									An error occurred: the experiment hasn't begun, hasn't ended, or has zero tickets.
-								</div>
-								<div class="noshow" id="statusExprFinishedWinForm">
-									Malformed input: try again.
-								</div>
-							</div>
+				</div>
+				<div id="statusExprWaiting">
+					<p>
+						Welcome!  Waiting for experiment to begin...
+					</p>
+				</div>
+				<div id="statusExprFinished">
+					<p>
+						Welcome!  Your experiment has finished.
+						What follows are the winners and their rankings.
+					</p>
+					<ul id="statusExprFinishedWinners"></ul>
+					<div id="statusExprFinishedWin">
+						<div>
+							You may now compute winnings.
+						</div>
+						<div class="error noshow" id="statusExprFinishedWinError">
+							An error occurred: the experiment hasn't begun, hasn't ended, or has zero tickets.
+						</div>
+						<div class="error noshow" id="statusExprFinishedWinForm">
+							Malformed input: try again.
+						</div>
+						<form action="@ADMINURI@/dowinners.json" method="post" onsubmit="return(sendWinners(this));">
 							<fieldset>
 								<div class="input">
 									<i class="fa fa-fw fa-cubes"></i>
@@ -91,22 +80,31 @@
 								</div>
 							</fieldset>
 						</form>
-						<div>
-							You can now download and analyse the results, and players can still log in and see their
-							play history.
-						</div>
 					</div>
-					<div id="statusExprLoading">
+					<div>
+						You can now download and analyse the results, and players can still log in and see their
+						play history.
+					</div>
+				</div>
+				<div id="statusExprLoading">
+					<p>
 						<i class="fa fa-spinner"></i>
+					</p>
+				</div>
+			</section>
+			<section>
+				<section class="rolled">
+					<h3 onclick="unroll(this.firstChild, this.parentNode);"><i class="fa fa-fw fa-chevron-circle-right"></i> Experiment Control</h3>
+					<div>
+						Backup or wipe the database by clicking the button below.
+						When you back up, you're e-mailed a redacted copy of the database.
+						When you wipe, the experiment data (but not configuration) is wiped.
+						Wiping will trigger a backup as well.
 					</div>
-					<aside>
-						You may backup or wipe the database by clicking the button below.
-						When you back up, the administrator is mailed a redacted copy of the database.
-						Wiping will delete all but the SMTP configuration, list of players, and list of games.
-						(Wiping will trigger the backup as well.)
-						You must verify that you really, really want to wipe by clicking the
-						<div id="wipeExprCheckbox"><input type="checkbox" onclick="checkWipeButton(this);" /> checkbox</div>.
-					</aside>
+					<div>
+						To wipe, first verify that you really intend to do this by clicking the
+						<span id="wipeExprCheckbox"><input type="checkbox" onclick="checkWipeButton(this);" /> checkbox</span>.
+					</div>
 					<fieldset>
 						<div class="input input-submit">
 							<i class="fa fa-fw fa-recycle"></i>
@@ -130,22 +128,26 @@
 					</ul>
 				</section>
 				<section class="rolled">
-					<h3 onclick="unroll(this.firstChild, this.parentNode);"><i class="fa fa-fw fa-chevron-circle-right"></i> Experiment Players</h3>
-					<aside>
+					<h3 onclick="unroll(this.firstChild, this.parentNode);"><i class="fa fa-fw fa-chevron-circle-right"></i> 
+						Experiment Players
+					</h3>
+					<div>
 						Players in your experiment.
 						Click on a player to see their status.
 						Enable or disable a player by toggling the icon.
 						Row players are noted with <i class="fa fa-bars"></i>, column players with
 						<i class="fa fa-columns"></i>.
-					</aside>
+					</div>
 					<ul id="loadPlayers">
 						<li><i class="fa fa-spinner"></i></li>
 					</ul>
 					<div id="playerInfo" class="canclose noshow">
 						<a href="#" class="close" onclick="doHideNode(this.parentNode); return false;"><i class="fa fa-minus-square"></i></a>
-						<span id="playerInfoEmail"></span>: 
-						<span id="playerInfoStatus"></span>, 
-						<span id="playerInfoEnabled"></span>
+						<div>
+							<span id="playerInfoEmail"></span>: 
+							<span id="playerInfoStatus"></span>, 
+							<span id="playerInfoEnabled"></span>
+						</div>
 						<form action="@ADMINURI@/doresetpasswords.json" method="post" onsubmit="return(resetPass(this));">
 							<input type="hidden" id="playerInfoId" name="pid" />
 							<fieldset>
@@ -168,24 +170,24 @@
 					</fieldset>
 				</section>
 				<section class="rolled">
-					<h3 onclick="unroll(this.firstChild, this.parentNode);"><i class="fa fa-fw fa-chevron-circle-right"></i> Change Instructions</h3>
-					<aside>
+					<h3 onclick="unroll(this.firstChild, this.parentNode);"><i class="fa fa-fw fa-chevron-circle-right"></i> 
+						Change Instructions
+					</h3>
+					<div>
 						You may change the experiment instructions here.
 						<b>Warning</b>: this means that you've already messed up.
 						Be very, very careful about what you do here: you are changing a live experiment!
-					</aside>
+					</div>
+					<div class="error noshow" id="changeInstrErrSystem">
+						An unexpected error occurred.
+					</div>
+					<div class="error noshow" id="changeInstrErrForm">
+						Invalid instructions.
+					</div>
+					<div class="error noshow" id="changeInstrErrState">
+						Experiment has already ended&mdash;what's the point?
+					</div>
 					<form action="@ADMINURI@/dosetinstr.json" method="post" id="changeInstr" onsubmit="return(changeInstr(this));">
-						<div class="error">
-							<div class="noshow" id="changeInstrErrSystem">
-								An unexpected error occurred.
-							</div>
-							<div class="noshow" id="changeInstrErrForm">
-								Invalid instructions.
-							</div>
-							<div class="noshow" id="changeInstrErrState">
-								Experiment has already ended&mdash;what's the point?
-							</div>
-						</div>
 						<fieldset>
 							<div class="input">
 								<i class="fa fa-fw fa-code"></i>
@@ -203,21 +205,21 @@
 					</form>
 				</section>
 				<section class="rolled">
-					<h3 onclick="unroll(this.firstChild, this.parentNode);"><i class="fa fa-fw fa-chevron-circle-right"></i> Change E-mail</h3>
-					<aside>
+					<h3 onclick="unroll(this.firstChild, this.parentNode);"><i class="fa fa-fw fa-chevron-circle-right"></i> 
+						Change E-mail
+					</h3>
+					<div>
 						You should set the e-mail address to your address, as the system (or system administrator) will
 						mail you if it has issues.
 						You will be logged out after doing so.
-					</aside>
+					</div>
+					<div class="error noshow" id="changeMailErrSystem">
+						An unexpected error occurred.
+					</div>
+					<div class="error noshow" id="changeMailErrForm">
+						Invalid new or existing e-mail address.
+					</div>
 					<form action="@ADMINURI@/dochangemail.json" method="post" id="changeMail" onsubmit="return(changeMail(this));">
-						<div class="error">
-							<div class="noshow" id="changeMailErrSystem">
-								An unexpected error occurred.
-							</div>
-							<div class="noshow" id="changeMailErrForm">
-								Invalid new or existing e-mail address.
-							</div>
-						</div>
 						<fieldset>
 							<div class="input">
 								<i class="fa fa-fw fa-envelope"></i>
@@ -239,22 +241,22 @@
 					</form>
 				</section>
 				<section class="rolled">
-					<h3 onclick="unroll(this.firstChild, this.parentNode);"><i class="fa fa-fw fa-chevron-circle-right"></i> Change Password</h3>
-					<aside>
+					<h3 onclick="unroll(this.firstChild, this.parentNode);"><i class="fa fa-fw fa-chevron-circle-right"></i> 
+						Change Password
+					</h3>
+					<div>
 						Set your password (at least one character) here.
 						You should do this when you first use the system, as the default is too easy.
 						It's up to you to make sure your password is secure.
 						You will be logged out after doing so.
-					</aside>
+					</div>
+					<div class="error noshow" id="changePassErrSystem">
+						An unexpected error occurred.
+					</div>
+					<div class="error noshow" id="changePassErrForm">
+						Invalid new or existing password.
+					</div>
 					<form action="@ADMINURI@/dochangepass.json" method="post" id="changePass" onsubmit="return(changePass(this));">
-						<div class="error">
-							<div class="noshow" id="changePassErrSystem">
-								An unexpected error occurred.
-							</div>
-							<div class="noshow" id="changePassErrForm">
-								Invalid new or existing password.
-							</div>
-						</div>
 						<fieldset>
 							<div class="input">
 								<i class="fa fa-fw fa-lock"></i>
@@ -276,22 +278,21 @@
 					</form>
 				</section>
 				<section class="rolled">
-					<h3 onclick="unroll(this.firstChild, this.parentNode);"><i class="fa fa-fw fa-chevron-circle-right"></i> Change SMTP</h3>
-					<aside>
+					<h3 onclick="unroll(this.firstChild, this.parentNode);"><i class="fa fa-fw fa-chevron-circle-right"></i> 
+						Change SMTP
+					</h3>
+					<div>
 						In order to send e-mails to players, you need to configure a valid e-mail sending
 						service.
 						If you mess up, you can always fix this information after the game starts and re-try e-mails
 						that failed to send.
-					</aside>
+					</div>
 					<div id="checkSmtpResults" class="noshow">
-						<h4>Current Values</h4>
-						<aside>
-							<div>
-								The following are your SMTP parameters.
-								Click <q>Send Test</q> to send a test message to the administrator account
-								(<em>not</em> the <q>from address</q>!).
-							</div>
-						</aside>
+						<div>
+							The following are your SMTP parameters.
+							Click <q>Send Test</q> to send a test message to the administrator account
+							(<em>not</em> the <q>from address</q>!).
+						</div>
 						<fieldset>
 							<div class="input">
 								<i class="fa fa-fw fa-database"></i>
@@ -316,37 +317,26 @@
 						A test e-mail has been sent to <span id="testSmtpResultsMail"></span>.
 						If you do not receive it in a little while, please fix your mail settings.
 					</div>
-					<div id="checkSmtpResultsNone" class="noshow error">
-						<i class="fa fa-warning"></i>
-						<span>You have not yet configured your e-mail server.</span>
+					<div>
+						The e-mail address <i class="fa fa-envelope"></i> will appear as the <q>from</q> address
+						on all e-mails the system sends out.
+						Make sure this is a real address so participants can write to you!
+						The server <i class="fa fa-database"></i> is your SMTP server.
+						It must be encrypted (SSL/TLS), and be in the form
+						<q>smtp://the.server.name:port</q>, where the port is usually 25, 465, or 587.
+						(It can be anything, though.)
+						The username <i class="fa fa-user"></i> and password <i class="fa fa-lock"></i> are used
+						to log into your server.
+						<em>Your password is stored on the gamelab server</em>:
+						make sure it's something random and not used elsewhere!
 					</div>
-					<div id="checkSmtpResultsLoad">
-						<i class="fa fa-spinner"></i>
+					<div class="error noshow" id="changeSmtpErrSystem">
+						An unexpected error occurred.
 					</div>
-					<aside>
-						<div>
-							The e-mail address <i class="fa fa-envelope"></i> will appear as the <q>from</q> address
-							on all e-mails the system sends out.
-							Make sure this is a real address so participants can write to you!
-							The server <i class="fa fa-database"></i> is your SMTP server.
-							It must be encrypted (SSL/TLS), and be in the form
-							<q>smtp://the.server.name:port</q>, where the port is usually 25, 465, or 587.
-							(It can be anything, though.)
-							The username <i class="fa fa-user"></i> and password <i class="fa fa-lock"></i> are used
-							to log into your server.
-							<em>Your password is stored on the gamelab server</em>:
-							make sure it's something random and not used elsewhere!
-						</div>
-					</aside>
+					<div class="error noshow" id="changeSmtpErrForm">
+						Invalid new or existing parameters.
+					</div>
 					<form action="@ADMINURI@/dochangesmtp.json" method="post" id="changeSmtp" onsubmit="return(changeSmtp(this));">
-						<div class="error">
-							<div class="noshow" id="changeSmtpErrSystem">
-								An unexpected error occurred.
-							</div>
-							<div class="noshow" id="changeSmtpErrForm">
-								Invalid new or existing parameters.
-							</div>
-						</div>
 						<fieldset>
 							<div class="input">
 								<i class="fa fa-fw fa-envelope"></i>

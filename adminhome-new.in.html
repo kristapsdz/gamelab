@@ -4,7 +4,7 @@
 		<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
 		<meta charset="utf-8" /> 
 		<title>Gamelab Administration</title>
-		<link rel="stylesheet" href="@HTURI@/style.css" type="text/css" />
+		<link rel="stylesheet" href="@HTURI@/adminhome.css" type="text/css" />
 		<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet" />
 		<script src="@HTURI@/script.js"></script>
 		<script src="@HTURI@/adminhome.js"></script>
@@ -27,13 +27,6 @@
 				e.value = url + '/dologin.html';
 			}
 		</script>
-		<style>
-			article > section > section { margin: 1ex 0; }
-			article > section > section > h3 { color: #ddd; cursor: pointer; padding: 1ex; }
-			article > section > section > h3:hover { color: #fff; }
-			article > section > section.rolled >*:not(h3) { padding: 0; max-height: 0; margin: 0; overflow: hidden; }
-			article > section > section >*:not(h3) { max-height: 1000em; }
-		</style>
 	</head>
 	<body onload="onLoad(); loadNewGames(); loadNewPlayers(); loadSmtp();" onclick="onNavUp();">
 		<header>
@@ -42,9 +35,7 @@
 			<div id="exprCountdown">Not started</div>
 			<div id="navParent">
 				<nav id="nav">
-					<ul>
-						<li><a href="@ADMINURI@/dologout.html"><i class="fa fa-sign-out"></i> Logout</a></li>
-					</ul>
+					<a href="@ADMINURI@/dologout.html"><i class="fa fa-sign-out"></i> Logout</a>
 				</nav>
 			</div>
 		</header>
@@ -53,26 +44,26 @@
 				Welcome to <a href="http://www.kcons.eu/gamelab">gamelab</a> (version @VERSION@), the on-line game theory laboratory.
 				To deploy an experiment, complete the form below.
 				Use the on-line <a href="http://www.kcons.eu/gamelab/manual.html">manual</a> for help.
-				Gold luck!
+				Good luck!
 			</p>
 			<section>
 				<section class="rolled" id="changePassSection">
-					<h3 onclick="unroll(this.firstChild, this.parentNode);"><i class="fa fa-fw fa-chevron-circle-right"></i> 1. Change Password</h3>
-					<aside>
+					<h3 onclick="unroll(this.firstChild, this.parentNode);"><i class="fa fa-fw fa-chevron-circle-right"></i> 
+						<span>1. Change Password</span>
+					</h3>
+					<div>
 						Set your password (at least one character) here.
 						You should do this when you first use the system, as the default is too easy.
 						It's up to you to make sure your password is secure.
 						You will be logged out after doing so.
-					</aside>
+					</div>
+					<div class="noshow error" id="changePassErrSystem">
+						An unexpected error occurred.
+					</div>
+					<div class="noshow error" id="changePassErrForm">
+						Invalid new or existing password.
+					</div>
 					<form action="@ADMINURI@/dochangepass.json" method="post" id="changePass" onsubmit="return(changePass(this));">
-						<div class="error">
-							<div class="noshow" id="changePassErrSystem">
-								An unexpected error occurred.
-							</div>
-							<div class="noshow" id="changePassErrForm">
-								Invalid new or existing password.
-							</div>
-						</div>
 						<fieldset>
 							<div class="input">
 								<i class="fa fa-fw fa-lock"></i>
@@ -94,21 +85,21 @@
 					</form>
 				</section>
 				<section class="rolled" id="changeMailSection">
-					<h3 onclick="unroll(this.firstChild, this.parentNode);"><i class="fa fa-fw fa-chevron-circle-right"></i> 2. Change E-mail</h3>
-					<aside>
+					<h3 onclick="unroll(this.firstChild, this.parentNode);"><i class="fa fa-fw fa-chevron-circle-right"></i>
+						<span>2. Change E-mail</span>
+					</h3>
+					<div>
 						You should set the e-mail address to your address, as the system (or system administrator) will
 						mail you if it has issues.
 						You will be logged out after doing so.
-					</aside>
+					</div>
+					<div class="error noshow" id="changeMailErrSystem">
+						An unexpected error occurred.
+					</div>
+					<div class="error noshow" id="changeMailErrForm">
+						Invalid new or existing e-mail address.
+					</div>
 					<form action="@ADMINURI@/dochangemail.json" method="post" id="changeMail" onsubmit="return(changeMail(this));">
-						<div class="error">
-							<div class="noshow" id="changeMailErrSystem">
-								An unexpected error occurred.
-							</div>
-							<div class="noshow" id="changeMailErrForm">
-								Invalid new or existing e-mail address.
-							</div>
-						</div>
 						<fieldset>
 							<div class="input">
 								<i class="fa fa-fw fa-envelope"></i>
@@ -131,24 +122,21 @@
 				</section>
 				<section class="rolled" id="changeSmtpSection">
 					<h3 onclick="unroll(this.firstChild, this.parentNode);"><i class="fa fa-fw fa-chevron-circle-right"></i> 
-						3. Change SMTP
+						<span>3. Change SMTP</span>
 						<i id="checkSmtpLoad2" class="fa fa-spinner"></i>
 					</h3>
-					<aside>
+					<div>
 						In order to send e-mails to players, you need to configure a valid e-mail sending
 						service.
 						If you mess up, you can always fix this information after the game starts and re-try e-mails
 						that failed to send.
-					</aside>
+					</div>
 					<div id="checkSmtpResults" class="noshow">
-						<h4>Current Values</h4>
-						<aside>
-							<div>
-								The following are your SMTP parameters.
-								Click <q>Send Test</q> to send a test message to the administrator account
-								(<em>not</em> the <q>from address</q>!).
-							</div>
-						</aside>
+						<div>
+							The following are your SMTP parameters.
+							Click <q>Send Test</q> to send a test message to the administrator account
+							(<em>not</em> the <q>from address</q>!).
+						</div>
 						<fieldset>
 							<div class="input">
 								<i class="fa fa-fw fa-database"></i>
@@ -168,43 +156,33 @@
 							</div>
 						</fieldset>
 					</div>
-					<div id="testSmtpResults" class="noshow canclose">
-						<h4>Results</h4>
+					<div id="testSmtpResults" class="canclose noshow">
 						<a href="#" class="close" onclick="doHideNode(this.parentNode); return false;"><i class="fa fa-minus-square"></i></a>
-						A test e-mail has been sent to <span id="testSmtpResultsMail"></span>.
-						If you do not receive it in a little while, please fix your mail settings.
-					</div>
-					<div id="checkSmtpResultsNone" class="noshow error">
-						<i class="fa fa-warning"></i>
-						<span>You have not yet configured your e-mail server.</span>
-					</div>
-					<div id="checkSmtpResultsLoad">
-						<i class="fa fa-spinner"></i>
-					</div>
-					<aside>
 						<div>
-							The e-mail address <i class="fa fa-envelope"></i> will appear as the <q>from</q> address
-							on all e-mails the system sends out.
-							Make sure this is a real address so participants can write to you!
-							The server <i class="fa fa-database"></i> is your SMTP server.
-							It must be encrypted (SSL/TLS), and be in the form
-							<q>smtp://the.server.name:port</q>, where the port is usually 25, 465, or 587.
-							(It can be anything, though.)
-							The username <i class="fa fa-user"></i> and password <i class="fa fa-lock"></i> are used
-							to log into your server.
-							<em>Your password is stored on the gamelab server</em>:
-							make sure it's something random and not used elsewhere!
+							A test e-mail has been sent to <span id="testSmtpResultsMail"></span>.
+							If you do not receive it in a little while, please fix your mail settings.
 						</div>
-					</aside>
+					</div>
+					<div>
+						The e-mail address <i class="fa fa-envelope"></i> will appear as the <q>from</q> address
+						on all e-mails the system sends out.
+						Make sure this is a real address so participants can write to you!
+						The server <i class="fa fa-database"></i> is your SMTP server.
+						It must be encrypted (SSL/TLS), and be in the form
+						<q>smtp://the.server.name:port</q>, where the port is usually 25, 465, or 587.
+						(It can be anything, though.)
+						The username <i class="fa fa-user"></i> and password <i class="fa fa-lock"></i> are used
+						to log into your server.
+						<em>Your password is stored on the gamelab server</em>:
+						make sure it's something random and not used elsewhere!
+					</div>
+					<div class="error noshow" id="changeSmtpErrSystem">
+						An unexpected error occurred.
+					</div>
+					<div class="error noshow" id="changeSmtpErrForm">
+						Invalid new or existing parameters.
+					</div>
 					<form action="@ADMINURI@/dochangesmtp.json" method="post" id="changeSmtp" onsubmit="return(changeSmtp(this));">
-						<div class="error">
-							<div class="noshow" id="changeSmtpErrSystem">
-								An unexpected error occurred.
-							</div>
-							<div class="noshow" id="changeSmtpErrForm">
-								Invalid new or existing parameters.
-							</div>
-						</div>
 						<fieldset>
 							<div class="input">
 								<i class="fa fa-fw fa-envelope"></i>
@@ -231,31 +209,30 @@
 				</section>
 				<section class="rolled" id="addGameSection">
 					<h3 onclick="unroll(this.firstChild, this.parentNode);"><i class="fa fa-fw fa-chevron-circle-right"></i> 
-						4. Games <i id="checkGameLoad2" class="fa fa-spinner"></i>
+						<span>4. Games</span>
+					       	<i id="checkGameLoad2" class="fa fa-spinner"></i>
 					</h3>
-					<aside>
+					<div>
 						The following are your games.
 						To delete a game, click the <i class="fa fa-remove"></i> symbol alongside.
-					</aside>
+					</div>
 					<ul id="loadGames">
 						<li><i class="fa fa-spinner"></i></li>
 					</ul>
-					<aside>
+					<div>
 						You may add games by specifying a name and payoffs.
 						Payoffs must follow the usual top-left to bottom-right order, one payoff per player (row player first).
-					</aside>
+					</div>
+					<div class="error noshow" id="addGameErrSystem">
+						An unexpected system error occurred.
+					</div>
+					<div class="error noshow" id="addGameErrForm">
+						Invalid game payoffs, name, or strategy count.
+					</div>
+					<div class="error noshow" id="addGameErrState">
+						Experiment already started!
+					</div>
 					<form action="@ADMINURI@/doaddgame.json" method="post" id="addGame" onsubmit="return(addGame(this));">
-						<div class="error">
-							<div class="noshow" id="addGameErrSystem">
-								An unexpected system error occurred.
-							</div>
-							<div class="noshow" id="addGameErrForm">
-								Invalid game payoffs, name, or strategy count.
-							</div>
-							<div class="noshow" id="addGameErrState">
-								Experiment already started!
-							</div>
-						</div>
 						<fieldset>
 							<div class="input">
 								<i class="fa fa-fw fa-bars"></i>
@@ -282,32 +259,30 @@
 				</section>
 				<section class="rolled" id="addPlayersSection">
 					<h3 onclick="unroll(this.firstChild, this.parentNode);"><i class="fa fa-fw fa-chevron-circle-right"></i> 
-						5. Players
+						<span>5. Players</span>
 						<i id="checkPlayersLoad2" class="fa fa-spinner"></i>
 					</h3>
-					<aside>
+					<div>
 						Players in your experiment.
 						To delete a player, just click the <i class="fa fa-remove"></i> symbol alongisde.
-					</aside>
+					</div>
 					<ul id="loadNewPlayers">
 						<li><i class="fa fa-spinner"></i></li>
 					</ul>
-					<aside id="nonautoaddAside">
+					<div id="nonautoaddAside">
 						Add players to the game using this form.
 						Players consist of e-mail addresses separated by white-space (newlines, tabs, spaces, whatever).
 						If you set the <q>Auto-Add</q> toggle, then players may add themselves.
 						Auto-added players will not be e-mailed when the experiment is started; manually-added players
 						will be mailed.
-					</aside>
+					</div>
+					<div class="error noshow" id="addPlayersErrSystem">
+						An unexpected system error occurred.
+					</div>
+					<div class="error noshow" id="addPlayersErrState">
+						Experiment already started!
+					</div>
 					<form action="@ADMINURI@/doaddplayers.json" method="post" id="addPlayers" onsubmit="return(addPlayers(this));">
-						<div class="error">
-							<div class="noshow" id="addPlayersErrSystem">
-								An unexpected system error occurred.
-							</div>
-							<div class="noshow" id="addPlayersErrState">
-								Experiment already started!
-							</div>
-						</div>
 						<fieldset>
 							<div class="input">
 								<i class="fa fa-fw fa-users"></i>
@@ -326,62 +301,43 @@
 					</form>
 				</section>
 				<section class="rolled" id="startExprSection">
-					<h3 onclick="unroll(this.firstChild, this.parentNode);"><i class="fa fa-fw fa-chevron-circle-right"></i> 6. Experiment Parameters</h3>
-					<aside>
-						<div>
-							Commit your experiment parameters and start here.
-							Once you start your experiment, you cannot change these.
-							Checklist:
+					<h3 onclick="unroll(this.firstChild, this.parentNode);"><i class="fa fa-fw fa-chevron-circle-right"></i> 
+						<span>6. Experiment Parameters</span>
+					</h3>
+					<div>
+						Commit your experiment parameters and start here.
+						Once you start your experiment, you can't reconfigure.
+					</div>
+					<div>
+						You'll need to enter the <i class="fa fa-link"></i> address for logging in (sent in players'
+						welcome email &mdash; you probably don't want to change this), the <i class="fa
+							fa-calendar"></i> start date and <i class="fa fa-clock-o"></i> time in GMT
+						<script>
+							var now = new Date();
+							document.write('(' + (now.getTimezoneOffset() / 60) + ' hours)');
+						</script>, the
+						<i class="fa fa-gears"></i> number of rounds, and the <i class="fa fa-history"></i> minutes per round.
+						You can also change the <i class="fa fa-code"></i> instructions (in HTML5 markup) that
+						will be shown to players.
+					</div>
+					<div class="error">
+						<div class="noshow" id="startExprErrSystem">
+							An unexpected error occurred.
 						</div>
-						<ol>
-							<li>
-								Entered <a href="#changeSmtpSection">SMTP</a> data? 
-								<i id="checkSmtpLoad" class="fa fa-spinner"></i>
-							</li>
-							<li>
-								Entered 2+ enabled <a href="#addPlayersSection">players</a>? 
-								<i id="checkPlayersLoad" class="fa fa-spinner"></i>
-							</li>
-							<li>
-								Entered 1+ <a href="#addGameSection">games</a>? 
-								<i id="checkGameLoad" class="fa fa-spinner"></i>
-							</li>
-						</ol>
-						<div>
-							You'll need to enter the <i class="fa fa-link"></i> address for logging in (sent in players'
-							welcome email &mdash; you probably don't want to change this), the <i class="fa
-								fa-calendar"></i> start date and <i class="fa fa-clock-o"></i> time in GMT
-							<script>
-								var now = new Date();
-								document.write('(' + (now.getTimezoneOffset() / 60) + ' hours)');
-							</script>, the
-							<i class="fa fa-gears"></i> number of rounds, and the <i class="fa fa-history"></i> minutes per round.
-							You can also change the <i class="fa fa-code"></i> instructions (in HTML5 markup) that
-							will be shown to players.
+						<div class="noshow" id="startExprErrForm">
+							Can't start: start date in the past, not enough days, no e-mail setup, or no no participants or games.
 						</div>
-					</aside>
+						<div class="noshow" id="startExprErrState">
+							Experiment already started!
+						</div>
+					</div>
 					<form action="@ADMINURI@/dostartexpr.json" method="post" id="startExpr" onsubmit="return(startExpr(this));">
-						<div class="error">
-							<div class="noshow" id="startExprErrSystem">
-								An unexpected error occurred.
-							</div>
-							<div class="noshow" id="startExprErrForm">
-								Can't start: start date in the past, not enough days, no e-mail setup, or no no participants or games.
-							</div>
-							<div class="noshow" id="startExprErrState">
-								Experiment already started!
-							</div>
-						</div>
 						<fieldset>
 							<div class="input">
 								<i class="fa fa-fw fa-link"></i>
 								<input required="required" id="loginURI" type="url" name="uri" />
 							</div>
-							<div class="input">
-								<i class="fa fa-fw fa-calendar"></i>
-								<input required="required" type="date" name="date" placeholder="yyyy-mm-dd" />
-							</div>
-							<div class="inputheader">
+							<span class="inputheader">
 								Current GMT date:
 								<script>
 									var now = new Date();
@@ -390,12 +346,12 @@
 										 ('0' + (now.getUTCMonth()+1)).slice(-2) + '-' +
 										 ('0' + now.getUTCDate()).slice(-2));
 								</script>
-							</div>
+							</span>
 							<div class="input">
-								<i class="fa fa-fw fa-clock-o"></i>
-								<input required="required" type="time" name="time" placeholder="hh:mm GMT" />
+								<i class="fa fa-fw fa-calendar"></i>
+								<input required="required" id="date" type="date" name="date" placeholder="yyyy-mm-dd" />
 							</div>
-							<div class="inputheader">
+							<span class="inputheader">
 								Current GMT time: 
 								<script>
 									var now = new Date();
@@ -403,7 +359,18 @@
 										(('0' + now.getUTCHours()).slice(-2) + ':' +
 										 ('0' + now.getUTCMinutes()).slice(-2));
 								</script>
+							</span>
+							<div class="input">
+								<i class="fa fa-fw fa-clock-o"></i>
+								<input required="required" id="time" type="time" name="time" placeholder="hh:mm GMT" />
 							</div>
+							<span>
+								...or start in 
+								<a href="#" onclick="exprStartTime(60 * 1000); return false;">one minute</a>, 
+								<a href="#" onclick="exprStartTime(60 * 10 * 1000); return false;">ten minutes</a>, 
+								<a href="#" onclick="exprStartTime(60 * 60 * 1000); return false;">one hour</a>, or
+								<a href="#" onclick="exprStartTime(24 * 60 * 60 * 1000); return false;">one day</a> from now.
+							</span>
 							<div class="input">
 								<i class="fa fa-fw fa-gears"></i>
 								<input required="required" type="number" name="rounds" min="1" step="1" value="14" />
@@ -538,29 +505,17 @@ From the history table we see that the share of plays ending in the combination 
 share of plays ending in <q>a</q> and <q>B</q> was 0.585. 
 Looking at the numbers in the gray cells we see that the share of plays in which row players played <q>a</q> was 0.9, and the share in which
 column players played <q>B</q> was 0.650.
-</p>
-								</textarea>
+</p></textarea>
 							</div>
 							<div class="input">
 								<i class="fa fa-fw fa-code"></i>
 								<textarea id="instrWinText" required="required" name="instrWin">
 This means that you have won prize number <span id="exprFinishedWinRank"></span>!
-You will be contacted by the experimenter shortly.
-								</textarea>
+You will be contacted by the experimenter shortly.</textarea>
 							</div>
 							<div class="input input-submit">
 								<i class="fa fa-check"></i>
-								<input id="startExprSubmit" type="submit" value="Start" />
-							</div>
-							<div class="input input-submit">
-								<i class="fa fa-check"></i>
-								<button type="button" onclick="previewInstr();">Preview Instructions</button>
-							</div>
-							<div id="previewInstr" class="canclose noshow">
-								<h4>Preview Instructions</h4>
-								<a href="#" class="close" onclick="doHideNode(this.parentNode); return false;"><i class="fa fa-minus-square"></i></a>
-								<div id="previewInstrInner">
-								</div>
+								<input id="startExprSubmit" type="submit" value="Start" gamelab-submit-pending="Starting..." />
 							</div>
 						</fieldset>
 					</form>

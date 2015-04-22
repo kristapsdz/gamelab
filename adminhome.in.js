@@ -3,25 +3,22 @@
 function doClassOk(name)
 {
 	var e;
-	if (null == (e = document.getElementById(name)))
-		return;
-	e.className = 'fa fa-check';
+	if (null != (e = document.getElementById(name)))
+		e.className = 'fa fa-check';
 }
 
 function doClassLoading(name)
 {
 	var e;
-	if (null == (e = document.getElementById(name)))
-		return;
-	e.className = 'fa fa-spinner';
+	if (null != (e = document.getElementById(name)))
+		e.className = 'fa fa-spinner';
 }
 
 function doClassFail(name)
 {
 	var e;
-	if (null == (e = document.getElementById(name)))
-		return;
-	e.className = 'fa fa-exclamation-circle';
+	if (null != (e = document.getElementById(name)))
+		e.className = 'fa fa-exclamation-circle';
 }
 
 function doSuccess(submitName, formName) 
@@ -51,29 +48,43 @@ function doError(err, submitName, errName)
 	}
 }
 
+/*
+ * This is called by most sendForm() functions as the setup argument.
+ * It's given the ID of the submit button (submitName) and the common
+ * prefix shared by errors (errName).
+ * If found, it sets the submit button's value to the
+ * "gamelab-submit-pending" attribute, saving the existing value in
+ * "gamelab-submit-default", and hides the errors.
+ */
 function doSetup(submitName, errName) 
 {
+	var e;
 
-	doValue(submitName, 'Submitting...');
+	if (null != (e = document.getElementById(submitName))) 
+		if (e.hasAttribute('gamelab-submit-pending')) {
+			e.setAttribute('gamelab-submit-default', e.value);
+			e.value = e.getAttribute('gamelab-submit-pending');
+		}
+
 	doHide(errName + 'Form');
 	doHide(errName + 'System');
 	doHide(errName + 'State');
 }
 
+/*
+ * This is called by loadNewPlayers() when the AJAX request has
+ * completed with the list response.
+ * We must now fill in the list of names.
+ */
 function loadNewPlayersSuccess(resp) 
 {
 	var e, li, i, results, players, icon, link, span, count, pspan, fa;
 
 	e = doClearNode(document.getElementById('loadNewPlayers'));
-	if (null == e)
-		return;
 
 	try  { 
 		results = JSON.parse(resp);
 	} catch (error) {
-		li = document.createElement('li');
-		li.appendChild(document.createTextNode('Parse error.'));
-		e.appendChild(li);
 		return;
 	}
 
@@ -94,29 +105,20 @@ function loadNewPlayersSuccess(resp)
 		li = document.createElement('li');
 		span = document.createElement('span');
 		span.setAttribute('class', 'error');
-		icon = document.createElement('i');
-		icon.setAttribute('class', 'fa fa-warning');
-		span.appendChild(icon);
-		span.appendChild(document.createTextNode(' '));
 		span.appendChild(document.createTextNode('No players.'));
 		li.appendChild(span);
 		e.appendChild(li);
-		doClassFail('checkPlayersLoad');
 		doClassFail('checkPlayersLoad2');
 		return;
 	}
 
 	e.className = '';
-	li = document.createElement('li');
-	e.appendChild(li);
 
 	for (count = i = 0; i < players.length; i++) {
 		if (players[i].enabled)
 			count++;
-
-		span = document.createElement('span');
+		span = document.createElement('li');
 		span.setAttribute('id', 'player' + players[i].id);
-
 		icon = document.createElement('a');
 		icon.setAttribute('class', 'fa fa-remove');
 		icon.setAttribute('href', '#;');
@@ -125,14 +127,12 @@ function loadNewPlayersSuccess(resp)
 		span.appendChild(icon);
 		span.appendChild(document.createTextNode(' '));
 		span.appendChild(document.createTextNode(players[i].mail));
-		li.appendChild(span);
+		e.appendChild(span);
 	}
 
 	if (count >= 2) {
-		doClassOk('checkPlayersLoad');
 		doClassOk('checkPlayersLoad2');
 	} else {
-		doClassFail('checkPlayersLoad');
 		doClassFail('checkPlayersLoad2');
 	}
 }
@@ -185,81 +185,81 @@ function doShowPlayer(name)
 	doUnhide('playerInfo');
 }
 
+/*
+ * Used by the "running" experiment page to show the list of all players
+ * and bits about their status.
+ */
 function loadPlayersSuccess(resp) 
 {
 	var e, li, i, results, players, icon, link, span, link, sup;
 
 	e = doClearNode(document.getElementById('loadPlayers'));
-	if (null == e)
-		return;
 
 	try  { 
 		results = JSON.parse(resp);
 	} catch (error) {
-		li = document.createElement('li');
-		li.appendChild(document.createTextNode('Parse error.'));
-		e.appendChild(li);
 		return;
 	}
 
 	players = results.players;
 
+	/* We have no players... */
 	if (0 == players.length) {
 		li = document.createElement('li');
-		span = document.createElement('span');
-		span.setAttribute('class', 'error');
-		icon = document.createElement('i');
-		icon.setAttribute('class', 'fa fa-warning');
-		span.appendChild(icon);
-		span.appendChild(document.createTextNode(' '));
-		span.appendChild(document.createTextNode('No players.'));
-		li.appendChild(span);
+		li.setAttribute('class', 'error');
+		li.appendChild(document.createTextNode('No players.'));
 		e.appendChild(li);
 		return;
 	}
 
-	e.className = '';
-	li = document.createElement('li');
-	e.appendChild(li);
-
 	for (i = 0; i < players.length; i++) {
-		span = document.createElement('span');
-
-		icon = document.createElement('a');
-		icon.setAttribute('href', '#');
-		icon.setAttribute('id', 'playerLoad' + players[i].id);
-		if (0 == players[i].enabled) {
-			icon.setAttribute('class', 'fa fa-toggle-off');
-			icon.setAttribute('onclick', 'doEnablePlayer(' + players[i].id + '); return false;');
-		} else {
-			icon.setAttribute('class', 'fa fa-toggle-on');
-			icon.setAttribute('onclick', 'doDisablePlayer(' + players[i].id + '); return false;');
-		}
-		span.appendChild(icon);
-		span.appendChild(document.createTextNode(' '));
-
+		/*
+		 * The row element contains the information about the
+		 * player for later use: status, e-mail, etc.
+		 */
+		span = document.createElement('li');
+		e.appendChild(span);
 		span.setAttribute('id', 'player' + players[i].id);
 		span.setAttribute('data-gamelab-status', players[i].status);
 		span.setAttribute('data-gamelab-mail', players[i].mail);
 		span.setAttribute('data-gamelab-enabled', players[i].enabled);
 		span.setAttribute('data-gamelab-playerid', players[i].id);
 
-		link = document.createElement('a');
-		link.setAttribute('href', '#');
-		link.setAttribute('onclick', 'doShowPlayer("player' + players[i].id + '"); return false;');
-		link.appendChild(document.createTextNode(players[i].mail));
-		span.appendChild(link);
+		/*
+		 * Append the toggle-able link for enabling or disable
+		 * the current player.
+		 */
+		icon = document.createElement('a');
+		icon.setAttribute('href', '#');
+		icon.setAttribute('id', 'playerLoad' + players[i].id);
+		if (0 == players[i].enabled) {
+			icon.className = 'fa fa-fw fa-toggle-off';
+			icon.setAttribute('onclick', 'doEnablePlayer(' + 
+				players[i].id + '); return false;');
+		} else {
+			icon.className = 'fa fa-fw fa-toggle-on';
+			icon.setAttribute('onclick', 'doDisablePlayer(' + 
+				players[i].id + '); return false;');
+		}
+		span.appendChild(icon);
+		span.appendChild(document.createTextNode(' '));
 
+		/* Append whether the player is a row or column role. */
 		sup = document.createElement('i');
 		if (0 == parseInt(players[i].role))
-			sup.setAttribute('class', 'fa fa-bars');
+			sup.className = 'fa fa-fw fa-bars';
 		else
-			sup.setAttribute('class', 'fa fa-columns');
-
+			sup.className = 'fa fa-fw fa-columns';
 		span.appendChild(document.createTextNode(' '));
 		span.appendChild(sup);
 
-		li.appendChild(span);
+		/* Append the link to show more information. */
+		link = document.createElement('a');
+		link.setAttribute('href', '#');
+		link.setAttribute('onclick', 'doShowPlayer("player' + 
+			players[i].id + '"); return false;');
+		link.appendChild(document.createTextNode(players[i].mail));
+		span.appendChild(link);
 	}
 }
 
@@ -268,8 +268,6 @@ function loadGamesSuccessInner(resp, code)
 	var i, j, k, results, li, e, div, icon;
 
 	e = doClearNode(document.getElementById('loadGames'));
-	if (null == e)
-		return;
 
 	try  { 
 		results = JSON.parse(resp);
@@ -285,18 +283,13 @@ function loadGamesSuccessInner(resp, code)
 		e.appendChild(li);
 		div = document.createElement('span');
 		div.setAttribute('class', 'error');
-		icon = document.createElement('i');
-		icon.setAttribute('class', 'fa fa-warning');
-		div.appendChild(icon);
 		div.appendChild(document.createTextNode(' '));
 		div.appendChild(document.createTextNode('No games.'));
 		li.appendChild(div);
-		doClassFail('checkGameLoad');
 		doClassFail('checkGameLoad2');
 		return;
 	}
 
-	doClassOk('checkGameLoad');
 	doClassOk('checkGameLoad2');
 
 	for (i = 0; i < results.length; i++) {
@@ -384,13 +377,17 @@ function doDeleteGame(id)
 		if (xrh.readyState==4 && xrh.status==200) {
 			if (null != (e = document.getElementById('game' + id)))
 				e.parentNode.removeChild(e);
-			loadNewPlayers();
+			loadNewGames();
 		}
 	} 
 	xrh.open('GET', '@ADMINURI@/dodeletegame.json?gid=' + id, true);
 	xrh.send(null);
 }
 
+/*
+ * This is called in the administratiev "new" phase to remove a player
+ * from the list of potential players.
+ */
 function doDeletePlayer(id)
 {
 	var xrh, e;
@@ -435,17 +432,13 @@ function loadSmtpSetup()
 {
 
 	doHide('checkSmtpResults');
-	doHide('checkSmtpResultsNone');
-	doClassLoading('checkSmtpLoad');
 	doClassLoading('checkSmtpLoad2');
-	doUnhide('checkSmtpResultsLoad');
 }
 
 function loadSmtpSuccess(resp)
 {
 	var results;
 
-	doClassOk('checkSmtpLoad');
 	doClassOk('checkSmtpLoad2');
 
 	try {
@@ -454,7 +447,6 @@ function loadSmtpSuccess(resp)
 		return;
 	}
 
-	doHide('checkSmtpResultsLoad');
 	doUnhide('checkSmtpResults');
 	doValue('checkSmtpResultsServer', results.server);
 	doValue('checkSmtpResultsUser', results.user);
@@ -467,10 +459,7 @@ function loadSmtpError(err)
 	if (400 != err)
 		return;
 
-	doClassFail('checkSmtpLoad');
 	doClassFail('checkSmtpLoad2');
-	doHide('checkSmtpResultsLoad');
-	doUnhide('checkSmtpResultsNone');
 }
 
 function loadSmtp() 
@@ -494,16 +483,18 @@ function loadList(url, name, onsuccess, onerror)
 	sendQuery(url, null, onsuccess, onerror);
 }
 
+/*
+ * Called at load time to load the list of players in the "new"
+ * administrative state.
+ */
 function loadNewPlayers() 
 {
 
-	doClassLoading('checkPlayersLoad');
 	doClassLoading('checkPlayersLoad2');
 	loadList('@ADMINURI@/doloadplayers.json', 'loadNewPlayers', 
 		loadNewPlayersSuccess, 
 		function(err) { loadError(err, 'loadNewPlayers'); });
 }
-
 
 function loadPlayers() 
 {
@@ -513,10 +504,13 @@ function loadPlayers()
 		function(err) { loadError(err, 'loadPlayers'); });
 }
 
+/*
+ * Called at load time to load the list of games in the "new"
+ * administrative state.
+ */
 function loadNewGames() 
 {
 
-	doClassLoading('checkGameLoad');
 	doClassLoading('checkGameLoad2');
 	loadList('@ADMINURI@/doloadgames.json', 'loadGames', 
 		function(resp) { loadGamesSuccessInner(resp, 0); },
@@ -526,7 +520,6 @@ function loadNewGames()
 function loadGames() 
 {
 
-	doClassLoading('checkGameLoad');
 	doClassLoading('checkGameLoad2');
 	loadList('@ADMINURI@/doloadgames.json', 'loadGames', 
 		function(resp) { loadGamesSuccessInner(resp, 1); },
@@ -607,12 +600,13 @@ function loadExprSuccess(resp)
 		e = doClear('statusExprPGames');
 		li = document.createElement('div');
 		div = document.createElement('div');
-		div.appendChild(document.createTextNode('Name'));
 		li.appendChild(div);
 		div = document.createElement('div');
+		div.className = 'table-top-head';
 		div.appendChild(document.createTextNode('Row Plays'));
 		li.appendChild(div);
 		div = document.createElement('div');
+		div.className = 'table-top-head';
 		div.appendChild(document.createTextNode('Column Plays'));
 		li.appendChild(div);
 		e.appendChild(li);
@@ -620,6 +614,7 @@ function loadExprSuccess(resp)
 		for (i = 0; i < res.games.length; i++) {
 			li = document.createElement('div');
 			div = document.createElement('div');
+			div.className = 'table-left-head';
 			div.appendChild(document.createTextNode(res.games[i].name));
 			li.appendChild(div);
 			div = document.createElement('div');
@@ -820,17 +815,6 @@ function resetPass(form)
 }
 
 function
-previewInstr()
-{
-	var e;
-
-	if (null == (e = document.getElementById('instrText')))
-		return;
-	doClearReplaceMarkup('previewInstrInner', e.value);
-	doUnhide('previewInstr');
-}
-
-function
 checkWipeButton(e)
 {
 
@@ -840,15 +824,17 @@ checkWipeButton(e)
 		document.getElementById('wipeExprButton').disabled='disabled';
 }
 
+/*
+ * Toggle functions.
+ * This is used in several places to "toggle" a "fa" image.
+ */
 function
 toggler(input, toggle)
 {
 	var e, i;
 
-	if (null == (e = document.getElementById(input)))
-		return;
-	if (null == (i = document.getElementById(toggle)))
-		return;
+	e = document.getElementById(input);
+	i = document.getElementById(toggle);
 
 	i.classList.remove('fa-toggle-off');
 	i.classList.remove('fa-toggle-on');
@@ -862,15 +848,37 @@ toggler(input, toggle)
 	}
 }
 
+/*
+ * Unroll a section of the administrative page.
+ */
 function unroll(child, parnt) {
 	child.classList.remove('fa-chevron-circle-right');
 	child.classList.remove('fa-chevron-circle-down');
 
 	if (parnt.classList.contains('rolled')) {
 		parnt.classList.remove('rolled');
+		parnt.classList.add('unrolled');
 		child.classList.add('fa-chevron-circle-down');
 	} else {
+		parnt.classList.remove('unrolled');
 		parnt.classList.add('rolled');
 		child.classList.add('fa-chevron-circle-right');
 	}
+}
+
+function exprStartTime(val)
+{
+	var t, d, now;
+
+	now = new Date();
+	t = document.getElementById('time');
+	d = document.getElementById('date');
+
+	now.setTime(now.getTime() + val);
+
+	d.value = (now.getUTCFullYear() + '-' + 
+		   ('0' + (now.getUTCMonth()+1)).slice(-2) + '-' + 
+		   ('0' + now.getUTCDate()).slice(-2));
+	t.value = (('0' + now.getUTCHours()).slice(-2) + ':' +
+		   ('0' + now.getUTCMinutes()).slice(-2));
 }

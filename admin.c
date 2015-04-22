@@ -56,6 +56,7 @@ enum	page {
 	PAGE_DORESENDEMAIL,
 	PAGE_DORESETPASSWORDS,
 	PAGE_DOSETINSTR,
+	PAGE_DOSAVEEXPR,
 	PAGE_DOSTARTEXPR,
 	PAGE_DOTESTSMTP,
 	PAGE_DOWINNERS,
@@ -135,6 +136,7 @@ static	unsigned int perms[PAGE__MAX] = {
 	PERM_JSON | PERM_LOGIN, /* PAGE_DORESENDEMAIL */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DORESETPASSWORDS */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOSETINSTR */
+	PERM_JSON | PERM_LOGIN, /* PAGE_DOSAVEEXPR */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOSTARTEXPR */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOTESTSMTP */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOWINNERS */
@@ -163,6 +165,7 @@ static const char *const pages[PAGE__MAX] = {
 	"doresendemail", /* PAGE_DORESENDEMAIL */
 	"doresetpasswords", /* PAGE_DORESETPASSWORDS */
 	"dosetinstr", /* PAGE_DOSETINSTR */
+	"dosaveexpr", /* PAGE_DOSAVEEXPR */
 	"dostartexpr", /* PAGE_DOSTARTEXPR */
 	"dotestsmtp", /* PAGE_DOTESTSMTP */
 	"dowinners", /* PAGE_DOWINNERS */
@@ -927,6 +930,11 @@ senddoresendmail(struct kreq *r)
 }
 
 static void
+senddosaveexpr(struct kreq *r)
+{
+}
+
+static void
 senddostartexpr(struct kreq *r)
 {
 	pid_t		 pid;
@@ -1234,6 +1242,9 @@ main(void)
 		break;
 	case (PAGE_DOLOGOUT):
 		senddologout(&r);
+		break;
+	case (PAGE_DOSAVEEXPR):
+		senddosaveexpr(&r);
 		break;
 	case (PAGE_DOSTARTEXPR):
 		senddostartexpr(&r);
