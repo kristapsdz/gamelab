@@ -123,7 +123,7 @@ function loadNewPlayersSuccess(resp)
 
 	for (count = i = 0; i < players.length; i++) {
 		player = players[i].player;
-		if (players[i].enabled)
+		if (player.enabled)
 			count++;
 		span = document.createElement('li');
 		span.setAttribute('id', 'player' + player.id);

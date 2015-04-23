@@ -607,7 +607,7 @@ function showGraph(graph)
  */
 function updateGraphs()
 {
-	var	e, i, j, k, data, datas, graph, lot;
+	var	e, i, j, k, data, datas, graph, lot, avg, len;
 
 	if (null == res)
 		return;
@@ -625,7 +625,8 @@ function updateGraphs()
 		datas.push(data);
 	}
 	graph = Flotr.draw(e, datas, {
-		xaxis: { tickDecimals: 0, title: 'Round' }
+		xaxis: { tickDecimals: 0, title: 'Round' },
+	        yaxis: { min: 0.0 }
 	});
 
 	e = doClear('historyGraphPerRound');
@@ -642,7 +643,34 @@ function updateGraphs()
 		datas.push(data);
 	}
 	graph = Flotr.draw(e, datas, {
-		xaxis: { tickDecimals: 0, title: 'Round' }
+		xaxis: { tickDecimals: 0, title: 'Round' },
+	        yaxis: { min: 0.0 }
+	});
+
+	e = doClear('historyGraphStrat');
+
+	len = 0 == res.player.role ? 
+		res.history[0].roundups[0].navgp2.length : 
+		res.history[0].roundups[0].navgp1.length;
+	datas = [];
+
+	for (i = 0; i < len; i++) {
+		data = [];
+		for (j = 0; j < res.history[0].roundups.length; j++) {
+			avg = 0 == res.player.role ? 
+				res.history[0].roundups[j].navgp2 : 
+				res.history[0].roundups[j].navgp1;
+			data.push([j + 1, avg[i]]);
+		}
+		datas.push({data: data, label: 'Strategy ' + String.fromCharCode(65 + i)});
+	}
+
+	graph = Flotr.draw(e, datas, { 
+		bars: { show: true, shadowSize: 0, stacked: true, barWidth: 0.6, lineWidth: 1, shadowSize: 0 }, 
+		grid: { horizontalLines: 1 },
+		xaxis: { tickDecimals: 0, title: 'Round' },
+	        yaxis: { max: 1.0, min: 0.0 },
+	        legend: { backgroundColor: '#D2E8FF' }
 	});
 }
 

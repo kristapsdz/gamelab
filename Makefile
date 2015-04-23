@@ -2,31 +2,31 @@
 
 # Mac OSX testing.
 # This is useful when running in a userdir.
-#PREFIX		 = /Users/kristaps/Sites
-#HTDOCS		 = $(PREFIX)
-#HTURI		 = /~kristaps
-#LABURI		 = /~kristaps/lab.cgi
-#ADMINURI	 = /~kristaps/admin.cgi
-#CGIBIN		 = $(PREFIX)
-#DATADIR		 = $(PREFIX)
-#RDATADIR	 = $(PREFIX)
-#LIBS		 = 
-#STATIC		 = 
+PREFIX		 = /Users/kristaps/Sites
+HTDOCS		 = $(PREFIX)
+HTURI		 = /~kristaps
+LABURI		 = /~kristaps/lab.cgi
+ADMINURI	 = /~kristaps/admin.cgi
+CGIBIN		 = $(PREFIX)
+DATADIR		 = $(PREFIX)
+RDATADIR	 = $(PREFIX)
+LIBS		 = 
+STATIC		 = 
 
 # Linux testing.
 # LIBS		 = -lbsd -lm
 
 # OpenBSD production.
-PREFIX		 = /var/www
-HTDOCS		 = $(PREFIX)/htdocs/gamelab
-HTURI		 = /gamelab
-CGIBIN		 = $(PREFIX)/cgi-bin/gamelab
-LABURI		 = /cgi-bin/gamelab/lab
-ADMINURI	 = /cgi-bin/gamelab/admin
-DATADIR	 	 = $(PREFIX)/data/gamelab
-RDATADIR	 = /data/gamelab
-LIBS		 = -lintl -liconv -lm
-STATIC		 = -static
+#PREFIX		 = /var/www
+#HTDOCS		 = $(PREFIX)/htdocs/gamelab
+#HTURI		 = /gamelab
+#CGIBIN		 = $(PREFIX)/cgi-bin/gamelab
+#LABURI		 = /cgi-bin/gamelab/lab
+#ADMINURI	 = /cgi-bin/gamelab/admin
+#DATADIR	 	 = $(PREFIX)/data/gamelab
+#RDATADIR	 = /data/gamelab
+#LIBS		 = -lintl -liconv -lm
+#STATIC		 = -static
 
 # You really don't want to change anything below this line.
 
@@ -50,6 +50,7 @@ SCREENS	 = screen-admin1.png \
 	   screen-admin7.png
 STATICS	 = adminhome.css \
 	   adminlogin.css \
+	   playerhome.css \
 	   playerlogin.css \
 	   style.css \
 	   script.js
@@ -85,7 +86,8 @@ BUILT	 = adminhome.js \
 	   playerlogin.html \
 	   privacy.html
 VERSIONS = version_1_0_1.xml \
-	   version_1_0_2.xml
+	   version_1_0_2.xml \
+	   version_1_0_3.xml
 
 all: admin lab $(BUILT) $(BUILTPS)
 

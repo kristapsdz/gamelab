@@ -4,16 +4,11 @@
 		<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
 		<meta charset="utf-8" /> 
 		<title>Gamelab</title>
-		<link rel="stylesheet" href="@HTURI@/style.css" type="text/css" />
+		<link rel="stylesheet" href="@HTURI@/playerhome.css" type="text/css" />
 		<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet" />
 		<style>
-			fieldset { box-shadow: none; }
-			form { margin-left: auto; margin-right: auto; max-width: 100%; }
-			section section	{ border: none; margin: 0; }
-			section section >* { margin: 0; }
-			section section >h3 { margin: 1em 0; font-weight: bold; padding: 0; color: inherit; background-color: inherit; }
-			#historyGraphPerRoundShell, #historyGraphAccumRoundShell { padding: 1ex; }
-			#historyGraphPerRound, #historyGraphAccumRound { width: 100%; height: 384px; z-index: 0; }
+			#historyGraphPerRoundShell, #historyGraphAccumRoundShell, #historyGraphStratShell { padding: 1ex; }
+			#historyGraphPerRound, #historyGraphAccumRound, #historyGraphStrat { width: 100%; height: 384px; z-index: 0; }
 		</style>
 		<script src="@HTURI@/script.js"></script>
 		<script src="@HTURI@/playerhome.js"></script>
@@ -51,12 +46,16 @@
 							<div class="links"> 
 								<span class="link" onclick="showGraph('historyGraphAccumRoundShell');">Accumulated Payoffs</span>
 								<span class="link" onclick="showGraph('historyGraphPerRoundShell');">Per-Round Payoffs</span>
+								<span class="link" onclick="showGraph('historyGraphStratShell');">Strategy Averages</span>
 							</div> 
 							<div id="historyGraphAccumRoundShell">
 								<div id="historyGraphAccumRound"></div>
 							</div>
 							<div id="historyGraphPerRoundShell" class="noshow">
 								<div id="historyGraphPerRound"></div>
+							</div>
+							<div id="historyGraphStratShell" class="noshow">
+								<div id="historyGraphStrat"></div>
 							</div>
 						</div>
 						<nav id="historyNav">
@@ -188,7 +187,6 @@
 							</div>
 							<div id="exprHistoryMatrix"></div>
 						</div>
-						</aside>
 						<div class="caption">
 							Payoff bimatrix:
 							<a href="#" onclick="doUnhide('bimatrixHelp'); return false;"><i class="fa fa-question-circle"></i></a>
