@@ -782,6 +782,13 @@
 								<dd>An epoch-encoded (seconds) time and date when the experiment when the last
 									round of the experiment concludes.  This also corresponds to the
 									starting time plus the number of rounds times round duration.</dd>
+								<dt id="db-experiment-round"><var>round</var></dt>
+								<dd>
+									The current round of the experiment, or -1 if the rounds have not begun incrementing.
+									This will be set to <a
+										href="#db-experiment-rounds"><var>rounds</var></a> when the
+									experiment concludes.
+								</dd>
 								<dt id="db-experiment-rounds"><var>rounds</var></dt>
 								<dd>The number of rounds that will be played.  Minimum of one.</dd>
 								<dt id="db-experiment-minutes"><var>minutes</var></dt>

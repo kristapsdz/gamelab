@@ -103,6 +103,7 @@ progress			{ display: block;
 .canclose			{ position: relative; 
 				  padding: 1ex;
 				  padding-top: 2ex;
+				  border: thin solid #666;
 				  border-radius: 1ex;
 				  background-color: #ccc; }
 .canclose a			{ position: absolute;

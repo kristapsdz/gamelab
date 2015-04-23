@@ -227,7 +227,7 @@ function loadPlayersSuccess(resp)
 	}
 
 	for (i = 0; i < players.length; i++) {
-		players = players[i].player;
+		player = players[i].player;
 		/*
 		 * The row element contains the information about the
 		 * player for later use: status, e-mail, etc.
