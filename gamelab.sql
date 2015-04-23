@@ -80,6 +80,7 @@ CREATE TABLE experiment (
 	state INTEGER NOT NULL,
 	start INTEGER DEFAULT(0),
 	rounds INTEGER DEFAULT(0),
+	round INTEGER DEFAULT(-1),
 	minutes INTEGER DEFAULT(0),
 	autoadd INTEGER NOT NULL DEFAULT(0),
 	loginuri TEXT DEFAULT(''),

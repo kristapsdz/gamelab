@@ -88,7 +88,7 @@ function doSetup(submitName, errName)
  */
 function loadNewPlayersSuccess(resp) 
 {
-	var e, li, i, results, players, icon, link, span, count, pspan, fa;
+	var e, li, i, results, players, icon, link, span, count, pspan, fa, player;
 
 	e = doClearNode(document.getElementById('loadNewPlayers'));
 
@@ -122,19 +122,20 @@ function loadNewPlayersSuccess(resp)
 	}
 
 	for (count = i = 0; i < players.length; i++) {
+		player = players[i].player;
 		if (players[i].enabled)
 			count++;
 		span = document.createElement('li');
-		span.setAttribute('id', 'player' + players[i].id);
+		span.setAttribute('id', 'player' + player.id);
 		icon = document.createElement('a');
 		icon.setAttribute('class', 'fa fa-remove');
 		icon.setAttribute('href', '#;');
-		icon.setAttribute('id', 'playerDelete' + players[i].id);
-		icon.setAttribute('onclick', 'doDeletePlayer(' + players[i].id + '); return false;');
+		icon.setAttribute('id', 'playerDelete' + player.id);
+		icon.setAttribute('onclick', 'doDeletePlayer(' + player.id + '); return false;');
 		span.appendChild(icon);
 		span.appendChild(document.createTextNode(' '));
-		span.appendChild(document.createTextNode(players[i].mail));
-		if (players[i].autoadd) {
+		span.appendChild(document.createTextNode(player.mail));
+		if (player.autoadd) {
 			icon = document.createElement('i');
 			icon.className = 'fa fa-globe';
 			span.appendChild(document.createTextNode(' '));
@@ -204,7 +205,7 @@ function doShowPlayer(name)
  */
 function loadPlayersSuccess(resp) 
 {
-	var e, li, i, results, players, icon, link, span, link, sup;
+	var e, li, i, results, players, icon, link, span, link, sup, player;
 
 	e = doClearNode(document.getElementById('loadPlayers'));
 
@@ -226,17 +227,18 @@ function loadPlayersSuccess(resp)
 	}
 
 	for (i = 0; i < players.length; i++) {
+		players = players[i].player;
 		/*
 		 * The row element contains the information about the
 		 * player for later use: status, e-mail, etc.
 		 */
 		span = document.createElement('li');
 		e.appendChild(span);
-		span.setAttribute('id', 'player' + players[i].id);
-		span.setAttribute('data-gamelab-status', players[i].status);
-		span.setAttribute('data-gamelab-mail', players[i].mail);
-		span.setAttribute('data-gamelab-enabled', players[i].enabled);
-		span.setAttribute('data-gamelab-playerid', players[i].id);
+		span.setAttribute('id', 'player' + player.id);
+		span.setAttribute('data-gamelab-status', player.status);
+		span.setAttribute('data-gamelab-mail', player.mail);
+		span.setAttribute('data-gamelab-enabled', player.enabled);
+		span.setAttribute('data-gamelab-playerid', player.id);
 
 		/*
 		 * Append the toggle-able link for enabling or disable
@@ -244,22 +246,22 @@ function loadPlayersSuccess(resp)
 		 */
 		icon = document.createElement('a');
 		icon.setAttribute('href', '#');
-		icon.setAttribute('id', 'playerLoad' + players[i].id);
-		if (0 == players[i].enabled) {
+		icon.setAttribute('id', 'playerLoad' + player.id);
+		if (0 == player.enabled) {
 			icon.className = 'fa fa-fw fa-toggle-off';
 			icon.setAttribute('onclick', 'doEnablePlayer(' + 
-				players[i].id + '); return false;');
+				player.id + '); return false;');
 		} else {
 			icon.className = 'fa fa-fw fa-toggle-on';
 			icon.setAttribute('onclick', 'doDisablePlayer(' + 
-				players[i].id + '); return false;');
+				player.id + '); return false;');
 		}
 		span.appendChild(icon);
 		span.appendChild(document.createTextNode(' '));
 
 		/* Append whether the player is a row or column role. */
 		sup = document.createElement('i');
-		if (0 == parseInt(players[i].role))
+		if (0 == parseInt(player.role))
 			sup.className = 'fa fa-fw fa-bars';
 		else
 			sup.className = 'fa fa-fw fa-columns';
@@ -270,8 +272,8 @@ function loadPlayersSuccess(resp)
 		link = document.createElement('a');
 		link.setAttribute('href', '#');
 		link.setAttribute('onclick', 'doShowPlayer("player' + 
-			players[i].id + '"); return false;');
-		link.appendChild(document.createTextNode(players[i].mail));
+			player.id + '"); return false;');
+		link.appendChild(document.createTextNode(player.mail));
 		span.appendChild(link);
 	}
 }

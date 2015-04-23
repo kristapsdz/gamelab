@@ -134,9 +134,6 @@ static int
 player_valid(struct kreq *r, int64_t *playerid)
 {
 
-	fprintf(stderr, "email: %p\n", r->fieldmap[KEY_EMAIL]);
-	fprintf(stderr, "pass: %p\n", r->fieldmap[KEY_PASSWORD]);
-
 	if (kpairbad(r, KEY_EMAIL) || kpairbad(r, KEY_PASSWORD))
 		return(0);
 
@@ -431,8 +428,7 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 	struct poffstor	 pstor;
 	struct winner	*win;
 	mpq_t		 cur, aggr;
-	time_t		 t;
-	int64_t	 	 i, round;
+	int64_t	 	 i;
 	size_t		 gamesz;
 	struct kjsonreq	 req;
 
@@ -446,7 +442,6 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 	assert(NULL != player);
 	memset(&stor, 0, sizeof(struct intvstor));
 	memset(&pstor, 0, sizeof(struct poffstor));
-	t = time(NULL);
 
 	http_open(r, KHTTP_200);
 	khttp_body(r);
@@ -457,22 +452,12 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 	 * If the experiment hasn't started yet, have it contain nothing
 	 * other than the experiment data itself.
 	 */
-	if (t < expr->start) {
+	if (expr->round < 0) {
 		json_putexpr(&req, expr);
 		kjson_putnullp(&req, "winner");
-		kjson_putintp(&req, "colour", playerid % 12);
-		kjson_putintp(&req, "ocolour", (playerid + 6) % 12);
-		kjson_putintp(&req, "rseed", player->rseed);
-		kjson_putintp(&req, "role", player->role);
-		kjson_putintp(&req, "instr", player->instr);
-		kjson_putintp(&req, "finalrank", player->finalrank);
-		kjson_putintp(&req, "finalscore", player->finalscore);
+		json_putplayer(&req, player);
 		goto out;
 	}
-
-	/* Compute current round. */
-	round = t >= expr->end ?  expr->rounds :
-		(t - expr->start) / (expr->minutes * 60);
 
 	/*
 	 * This invokes the underlying "roundup" machinery.
@@ -481,7 +466,7 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 	 * It returns NULL if and only if we have no history.
 	 */
 	stor.req = &req;
-	if (NULL != (stor.intv = db_interval_get(round - 1)))
+	if (NULL != (stor.intv = db_interval_get(expr->round - 1)))
 		gamesz = stor.intv->periodsz;
 	else
 		gamesz = db_game_count_all();
@@ -491,7 +476,7 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 	 * refresh the experiment object to reflect the total number of
 	 * lottery tickets.
 	 */
-	if (t >= expr->end && expr->state < ESTATE_PREWIN) {
+	if (expr->round >= expr->rounds && expr->state < ESTATE_PREWIN) {
 		db_expr_finish(&expr, gamesz);
 		/* Reload with new final ranking... */
 		db_player_free(player);
@@ -514,20 +499,14 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 	} else
 		kjson_putnullp(&req, "winner");
 
-	kjson_putintp(&req, "finalrank", player->finalrank);
-	kjson_putintp(&req, "finalscore", player->finalscore);
-	kjson_putintp(&req, "colour", playerid % 12);
-	kjson_putintp(&req, "ocolour", (playerid + 6) % 12);
-	kjson_putintp(&req, "rseed", player->rseed);
-	kjson_putintp(&req, "role", player->role);
-	kjson_putintp(&req, "instr", player->instr);
+	json_putplayer(&req, player);
 
 	/*
 	 * This invokes the underlying lottery computation.
 	 * This will compute the lottery for (right now) only the last
 	 * lottery sequence.
 	 */
-	if (db_player_lottery(round - 1, playerid, cur, aggr, gamesz)) {
+	if (db_player_lottery(expr->round - 1, playerid, cur, aggr, gamesz)) {
 		kjson_putdoublep(&req, "curlottery", mpq_get_d(cur));
 		kjson_putdoublep(&req, "aggrlottery", mpq_get_d(aggr));
 		mpq_clear(cur);
@@ -545,7 +524,7 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 	kjson_putintp(&req, "gamesz", gamesz);
 	kjson_arrayp_open(&req, "games");
 	db_game_load_player(playerid, 
-		round, senddoloadgame, &stor);
+		expr->round, senddoloadgame, &stor);
 	kjson_array_close(&req);
 
 	/*
@@ -559,7 +538,7 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 	pstor.playerid = playerid;
 	pstor.req = &req;
 	kjson_arrayp_open(&req, "lotteries");
-	for (i = 0; i < round; i++) {
+	for (i = 0; i < expr->round; i++) {
 		db_player_lottery(i, playerid, cur, aggr, gamesz);
 		kjson_obj_open(&req);
 		kjson_putdoublep(&req, "curlottery", mpq_get_d(cur));
@@ -760,6 +739,8 @@ main(void)
 				PAGE__MAX, 1);
 		goto out;
 	}
+
+	db_expr_advance();
 
 	switch (r.page) {
 	case (PAGE_DOAUTOADD):

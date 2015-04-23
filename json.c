@@ -77,11 +77,28 @@ json_instructions(size_t key, void *arg)
 }
 
 void
+json_putplayer(struct kjsonreq *r, const struct player *p)
+
+{
+	kjson_objp_open(r, "player");
+	kjson_putstringp(r, "mail", p->mail);
+	kjson_putintp(r, "rseed", p->rseed);
+	kjson_putintp(r, "role", p->role);
+	kjson_putintp(r, "instr", p->instr);
+	kjson_putintp(r, "id", p->id);
+	kjson_putintp(r, "autoadd", p->autoadd);
+	kjson_putintp(r, "status", p->state);
+	kjson_putintp(r, "enabled", p->enabled);
+	kjson_putintp(r, "finalrank", p->finalrank);
+	kjson_putintp(r, "finalscore", p->finalscore);
+	kjson_obj_close(r);
+}
+
+void
 json_putexpr(struct kjsonreq *r, const struct expr *expr)
 {
 	double	 	 frac;
 	time_t	 	 tt, tilstart, tilnext;
-	int64_t	 	 round;
 	struct ktemplate t;
 	struct jsoncache c;
 
@@ -93,24 +110,21 @@ json_putexpr(struct kjsonreq *r, const struct expr *expr)
 	 * time til start (if applicable), and time til next play (if
 	 * applicable).
 	 */
-	if (ESTATE_NEW == expr->state) {
-		round = -1;
-	} else if ((tt = time(NULL)) > expr->start) {
-		round = (tt - expr->start) / (expr->minutes * 60);
-		if (tt >= expr->end) {
-			round = expr->rounds;
-			frac = 1.0;
-			tilstart = tilnext = -1;
-		} else {
-			frac = (tt - expr->start) / 
-				(double)(expr->end - expr->start);
-			tilnext = ((round + 1) * 
-				(expr->minutes * 60)) - 
-				(tt - expr->start);
-		}
+	tt = time(NULL);
+	if (expr->round >= 0 && expr->round < expr->rounds) {
+		frac = (tt - expr->start) / 
+			(double)(expr->end - expr->start);
+		tilnext = ((expr->round + 1) * 
+			(expr->minutes * 60)) - (tt - expr->start);
+		if (tilnext < 0)
+			tilnext = 0;
+	} else if (expr->round >= 0) {
+		frac = 1.0;
+		tilnext = tilstart = -1;
 	} else {
-		round = -1;
 		tilnext = tilstart = expr->start - tt;
+		if (tilnext < 0)
+			tilnext = tilstart = 0;
 	}
 
 	kjson_objp_open(r, "expr");
@@ -142,7 +156,7 @@ json_putexpr(struct kjsonreq *r, const struct expr *expr)
 	kjson_putintp(r, "tilstart", (int64_t)tilstart);
 	kjson_putintp(r, "tilnext", (int64_t)tilnext);
 	kjson_putintp(r, "postwin", ESTATE_POSTWIN == expr->state);
-	kjson_putintp(r, "round", round);
+	kjson_putintp(r, "round", expr->round);
 	kjson_putintp(r, "autoadd", expr->autoadd);
 	kjson_obj_close(r);
 }

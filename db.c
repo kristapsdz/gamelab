@@ -416,6 +416,83 @@ db_winners_free(struct winner *win)
 	free(win);
 }
 
+/*
+ * This is one of the more important functions.
+ * It is called often (once per invocation) by both the administrator
+ * and players to advance the round.
+ * Rounds, for now, advance according to time.
+ */
+void
+db_expr_advance(void)
+{
+	struct expr	*expr;
+	time_t		 t;
+	int64_t		 round;
+	sqlite3_stmt	*stmt;
+
+	/* Do nothing if we'we not started. */
+	if (NULL == (expr = db_expr_get(1)))
+		return;
+
+	/* Do nothing if we're not running. */
+	if ((t = time(NULL)) < expr->start) {
+		db_expr_free(expr);
+		return;
+	} 
+
+	/* Compute the expected round. */
+	round = t >= expr->end ? expr->rounds : 
+		(t - expr->start) / (expr->minutes * 60);
+
+	if (round < expr->round) {
+		fprintf(stderr, "Round-advance time warp: "
+			"computed %" PRId64 ", have %" 
+			PRId64 "\n", round, expr->round);
+		db_expr_free(expr);
+		return;
+	} else if (round == expr->round) {
+		db_expr_free(expr);
+		return;
+	}
+
+	db_expr_free(expr);
+
+	/* 
+	 * At this exact point, our computed round is ahead of the
+	 * experiment's round.
+	 * Try to increment it, not clobbering existing people.
+	 */
+	stmt = db_stmt("UPDATE experiment SET round=?");
+	db_bind_int(stmt, 1, round);
+
+	db_trans_begin(1);
+	expr = db_expr_get(1);
+	assert(NULL != expr);
+	if (round < expr->round) {
+		db_trans_rollback();
+		fprintf(stderr, "Round-advance time warp "
+			"(commit): computed %" PRId64 " have %"
+			PRId64 "\n", expr->round, round);
+	} else if (round == expr->round) {
+		db_trans_rollback();
+		fprintf(stderr, "Round-advance to %" 
+			PRId64 " during break\n", round);
+	} else {
+		db_step(stmt, 0);
+		db_trans_commit();
+		fprintf(stderr, "Round-advance ok: %" PRId64 " "
+			"to %" PRId64 "\n", expr->round, round);
+		if (0 == round)
+			fprintf(stderr, "Round-advance is at "
+				"start of experiment\n");
+		else if (round == expr->rounds)
+			fprintf(stderr, "Round-advance is at "
+				"conclusion of experiment\n");
+	}
+	sqlite3_finalize(stmt);
+	db_expr_free(expr);
+}
+
 struct winner *
 db_winners_get(int64_t playerid)
 {
@@ -2359,7 +2436,7 @@ db_expr_get(int only_started)
 
 	stmt = db_stmt("SELECT start,rounds,minutes,"
 		"loginuri,state,instr,state,total,"
-		"instrWin,autoadd FROM experiment");
+		"instrWin,autoadd,round FROM experiment");
 	rc = db_step(stmt, 0);
 	assert(SQLITE_ROW == rc);
 	if (only_started && ESTATE_NEW == sqlite3_column_int(stmt, 4)) {
@@ -2378,6 +2455,7 @@ db_expr_get(int only_started)
 	expr->total = sqlite3_column_int(stmt, 7);
 	expr->instrWin = kstrdup((char *)sqlite3_column_text(stmt, 8));
 	expr->autoadd = sqlite3_column_int(stmt, 9);
+	expr->round = sqlite3_column_int(stmt, 10);
 	sqlite3_finalize(stmt);
 	return(expr);
 }
@@ -2412,7 +2490,7 @@ db_expr_wipe(void)
 	db_exec("UPDATE player SET instr=1,state=0,"
 		"enabled=1,finalrank=0,finalscore=0,hash=''");
 	db_exec("UPDATE experiment SET "
-		"autoadd=0,state=0,total='0/1'");
+		"autoadd=0,state=0,total='0/1',round=-1");
 	stmt = db_stmt("SELECT id FROM player");
 	stmt2 = db_stmt("UPDATE player SET rseed=? WHERE id=?");
 	while (SQLITE_ROW == db_step(stmt, 0)) {

@@ -44,6 +44,7 @@ struct	expr {
 	char		*instrWin; /* instructions for winner */
 	int64_t		 total; /* total winnings (>ESTATE_STARTED) */
 	int64_t		 autoadd; /* auto-adding players */
+	int64_t		 round;
 };
 
 /*
@@ -189,6 +190,7 @@ mpq_t		*db_choices_get(int64_t, int64_t, int64_t, size_t *);
 
 void		 db_close(void);
 
+void		 db_expr_advance(void);
 int		 db_expr_checkstate(enum estate);
 void		 db_expr_finish(struct expr **, size_t);
 void		 db_expr_free(struct expr *);
@@ -262,6 +264,7 @@ void		 mail_backup(void);
 void		 mail_wipe(void);
 void		 mail_test(void);
 
+void		 json_putplayer(struct kjsonreq *, const struct player *);
 void		 json_putmpqp(struct kjsonreq *, const char *, const mpq_t);
 void		 json_putmpq(struct kjsonreq *, mpq_t);
 void		 json_putmpqs(struct kjsonreq *, 

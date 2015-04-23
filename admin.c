@@ -368,7 +368,6 @@ senddogetexpr(struct kreq *r)
 	struct expr	*expr;
 	struct kjsonreq	 req;
 	struct exprget	 get;
-	time_t		 t;
 	size_t		 gamesz, round;
 
 	if (NULL == (expr = db_expr_get(1))) {
@@ -384,16 +383,16 @@ senddogetexpr(struct kreq *r)
 	kjson_obj_open(&req);
 	json_putexpr(&req, expr);
 	kjson_arrayp_open(&req, "games");
-	if ((t = time(NULL)) >= expr->start && t < expr->end) {
-		get.round = (t - expr->start) / (expr->minutes * 60);
+	if (expr->round >= 0 && expr->round < expr->rounds) {
+		get.round = expr->round;
 		get.req = &req;
 		db_game_load_all(senddogetexprgame, &get);
 	} 
 	kjson_array_close(&req);
 
-	if (t >= expr->start && t < expr->end) {
+	if (expr->round >= 0 && expr->round < expr->rounds) {
 		gamesz = db_game_count_all();
-		round = (t - expr->start) / (expr->minutes * 60);
+		round = expr->round;
 		kjson_putintp(&req, "frow",
 			db_game_round_count_done(round, 0, gamesz));
 		kjson_putintp(&req, "fcol",
@@ -756,12 +755,7 @@ senddoloadplayer(const struct player *player, void *arg)
 	struct kjsonreq	*r = arg;
 
 	kjson_obj_open(r);
-	kjson_putstringp(r, "mail", player->mail);
-	kjson_putintp(r, "id", player->id);
-	kjson_putintp(r, "enabled", player->enabled);
-	kjson_putintp(r, "status", player->state);
-	kjson_putintp(r, "role", player->role);
-	kjson_putintp(r, "autoadd", player->autoadd);
+	json_putplayer(r, player);
 	kjson_obj_close(r);
 }
 
@@ -837,7 +831,6 @@ static void
 senddosetinstr(struct kreq *r)
 {
 	struct expr	*expr;
-	time_t		 t;
 
 	if (kpairbad(r, KEY_INSTR) || kpairbad(r, KEY_INSTRWIN)) {
 		http_open(r, KHTTP_400);
@@ -849,7 +842,7 @@ senddosetinstr(struct kreq *r)
 		return;
 	}
 
-	if ((t = time(NULL)) < expr->end) {
+	if (expr->round < expr->rounds) {
 		db_expr_setinstr(r->fieldmap[KEY_INSTR]->parsed.s,
 			r->fieldmap[KEY_INSTRWIN]->parsed.s);
 		http_open(r, KHTTP_200);
@@ -1082,7 +1075,7 @@ senddowinners(struct kreq *r)
 		http_open(r, KHTTP_409);
 		khttp_body(r);
 		return;
-	} else if (time(NULL) < expr->end) {
+	} else if (expr->round < expr->rounds) {
 		db_expr_free(expr);
 		http_open(r, KHTTP_409);
 		khttp_body(r);
@@ -1244,6 +1237,8 @@ main(void)
 		send303(&r, HTURI "/adminlogin.html", PAGE__MAX, 1);
 		goto out;
 	}
+	
+	db_expr_advance();
 
 	switch (r.page) {
 	case (PAGE_DOADDGAME):

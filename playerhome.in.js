@@ -412,23 +412,23 @@ function loadGame()
 	}
 
 	/* Transpose the matrix, if necessary. */
-	matrix = 0 == res.role ? 
+	matrix = 0 == res.player.role ? 
 		bimatrixCreate(game.payoffs) : 
 		bimatrixCreateTranspose(game.payoffs);
 	hmatrix = null;
 
 	if (null != game.roundup) {
 		/* Transpose vectors and matrix. */
-		ravg = 0 == res.role ? 
+		ravg = 0 == res.player.role ? 
 			game.roundup.navgp1 : game.roundup.navgp2;
-		cavg = 0 == res.role ? 
+		cavg = 0 == res.player.role ? 
 			game.roundup.navgp2 : game.roundup.navgp1;
-		hmatrix = 0 == res.role ? 
+		hmatrix = 0 == res.player.role ? 
 			matrixCreate(game.roundup.navgs) : 
 			matrixCreateTranspose(game.roundup.navgs);
 	} 
 
-	c = res.rseed % colours.length;
+	c = res.player.rseed % colours.length;
 	oc = (0 == c % 2) ? c + 1 : c - 1;
 
 	appendBimatrix(doClear('exprMatrix'), 1, matrix, c, oc, 
@@ -653,7 +653,7 @@ function loadHistory(res)
 
 	updateGraphs();
 
-	c = res.rseed % colours.length;
+	c = res.player.rseed % colours.length;
 	oc = (0 == c % 2) ? c + 1 : c - 1;
 
 	doClearReplace('historyLottery', res.aggrlottery.toFixed(2));
@@ -691,7 +691,7 @@ function loadHistory(res)
 		tbl = document.createElement('div');
 		gamee.appendChild(tbl);
 		tbl.setAttribute('id', 'bimatrix' + res.gameorders[i]);
-		bmatrix = 0 == res.role ? 
+		bmatrix = 0 == res.player.role ? 
 			bimatrixCreate(game.payoffs) : 
 			bimatrixCreateTranspose(game.payoffs);
 		appendBimatrix(tbl, 0,
@@ -706,13 +706,13 @@ function loadHistory(res)
 				res.gameorders[i] + 'round' + j);
 			doHideNode(tbl);
 			histe.appendChild(tbl);
-			ravg = 0 == res.role ? 
+			ravg = 0 == res.player.role ? 
 				game.roundups[j].navgp1 : 
 				game.roundups[j].navgp2;
-			cavg = 0 == res.role ? 
+			cavg = 0 == res.player.role ? 
 				game.roundups[j].navgp2 : 
 				game.roundups[j].navgp1;
-			matrix = 0 == res.role ?
+			matrix = 0 == res.player.role ?
 				matrixCreate(game.roundups[j].navgs) :
 				matrixCreateTranspose
 				(game.roundups[j].navgs);
@@ -788,8 +788,8 @@ function loadExprSuccess(resp)
 	expr = res.expr;
 
 	document.getElementById('instructionsPromptYes').checked = 
-		res.instr ? 'checked' : '';
-	if (0 == res.instr && '' == window.location.hash)
+		res.player.instr ? 'checked' : '';
+	if (0 == res.player.instr && '' == window.location.hash)
 		window.location.hash = '#play';
 
 	doHide('exprLoading');
@@ -801,7 +801,7 @@ function loadExprSuccess(resp)
 	doClearReplaceMarkup('instructionsLoaded', expr.instr);
 	doClearReplaceMarkup('exprFinishedWin', expr.instrWin);
 
-	c = res.rseed % colours.length;
+	c = res.player.rseed % colours.length;
 	oc = (0 == c % 2) ? c + 1 : c - 1;
 
 	elems = document.getElementsByClassName('gamelab-colour');
@@ -816,24 +816,24 @@ function loadExprSuccess(resp)
 		res.gameorders = new Array(res.history.length);
 		for (j = 0; j < res.gameorders.length; j++)
 			res.gameorders[j] = j;
-		shuffle(res.gameorders, res.rseed);
+		shuffle(res.gameorders, res.player.rseed);
 		res.roworders = new Array(res.history.length);
 		res.colorders = new Array(res.history.length);
 		for (i = 0; i < res.roworders.length; i++) {
 			res.roworders[i] = new Array
-				(0 == res.role ?  
+				(0 == res.player.role ?  
 				 res.history[i].p1 : 
 				 res.history[i].p2);
 			res.colorders[i] = new Array
-				(0 == res.role ?  
+				(0 == res.player.role ?  
 				 res.history[i].p2 : 
 				 res.history[i].p1);
 			for (j = 0; j < res.roworders[i].length; j++)
 				res.roworders[i][j] = j;
 			for (j = 0; j < res.colorders[i].length; j++)
 				res.colorders[i][j] = j;
-			shuffle(res.roworders[i], res.rseed);
-			shuffle(res.colorders[i], res.rseed);
+			shuffle(res.roworders[i], res.player.rseed);
+			shuffle(res.colorders[i], res.player.rseed);
 		}
 	} else {
 		res.roworders = null;
@@ -888,9 +888,9 @@ function loadExprSuccess(resp)
 		}
 		doClearReplace('exprFinishedScore', res.aggrlottery.toFixed(2));
 		doClearReplace('exprFinishedTicketsMax', expr.maxtickets);
-		doClearReplace('exprFinishedFinalRank', res.finalrank);
-		doClearReplace('exprFinishedTickets', res.finalscore);
-		v = res.finalrank + res.finalscore;
+		doClearReplace('exprFinishedFinalRank', res.player.finalrank);
+		doClearReplace('exprFinishedTickets', res.player.finalscore);
+		v = res.player.finalrank + res.player.finalscore;
 		doClearReplace('exprFinishedFinalRankEnd', v);
 		doClearReplace('exprCountdown', 'finished');
 		if (null == res.winner) {
