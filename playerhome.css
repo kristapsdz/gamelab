@@ -247,8 +247,7 @@ div.input input[type=time]	{ width: 20ex; }
 	h1			{ font-size: 18pt; }
 	h2			{ font-size: 14pt; }
 	h3			{ font-size: 13pt; }
-	h1, h2, h3		{ text-align: center;
-				  margin-top: 0.5em; 
+	h1, h2, h3		{ margin-top: 0.5em; 
 				  margin-bottom: 0.5em; }
 	.graphin		{ height: 240px; }
 }
