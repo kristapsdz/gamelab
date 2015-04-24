@@ -6,10 +6,6 @@
 		<title>Gamelab</title>
 		<link rel="stylesheet" href="@HTURI@/playerhome.css" type="text/css" />
 		<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet" />
-		<style>
-			#historyGraphPerRoundShell, #historyGraphAccumRoundShell, #historyGraphStratShell { padding: 1ex; }
-			#historyGraphPerRound, #historyGraphAccumRound, #historyGraphStrat { width: 100%; height: 384px; z-index: 0; }
-		</style>
 		<script src="@HTURI@/script.js"></script>
 		<script src="@HTURI@/playerhome.js"></script>
 		<script src="@HTURI@/flotr2.min.js"></script>
@@ -40,36 +36,43 @@
 				<h2>History of play</h2>
 				<div id="historyLoading"><i class="fa fa-spinner"></i></div>
 				<div id="historyLoaded" class="noshow">
-					<section id="historyPlay" class="noshow">
-						<div>
-							<h3>Payoff History</h3>
-							<div class="links"> 
-								<span class="link" onclick="showGraph('historyGraphAccumRoundShell');">Accumulated Payoffs</span>
-								<span class="link" onclick="showGraph('historyGraphPerRoundShell');">Per-Round Payoffs</span>
-								<span class="link" onclick="showGraph('historyGraphStratShell');">Strategy Averages</span>
-							</div> 
-							<div id="historyGraphAccumRoundShell">
-								<div id="historyGraphAccumRound"></div>
+					<div id="historyPlay" class="noshow">
+						<section>
+							<h3>Total payoffs</h3>
+							<p>Your total payoff from all rounds and games: <span id="historyLottery"></span></p>
+						</section>
+						<section>
+							<h3>
+								Overview:
+								<select onchange="showGraph(this.options[selectedIndex].value);">
+									<optgroup>
+										<option value="historyGraphAccumRoundShell">Accumulated Payoffs</option>
+										<option value="historyGraphPerRoundShell">Per-Round Payoffs</option>
+										<option value="historyGraphStratShell">Opponent Strategy</option>
+									</optgroup>
+								</select>
+							</h3>
+							<div class="graphout" id="historyGraphAccumRoundShell">
+								<div class="graphin" id="historyGraphAccumRound"></div>
 							</div>
-							<div id="historyGraphPerRoundShell" class="noshow">
-								<div id="historyGraphPerRound"></div>
+							<div class="graphout noshow" id="historyGraphPerRoundShell">
+								<div class="graphin" id="historyGraphPerRound"></div>
 							</div>
-							<div id="historyGraphStratShell" class="noshow">
-								<div id="historyGraphStrat"></div>
+							<div class="graphout noshow" id="historyGraphStratShell">
+								<div class="graphin" id="historyGraphStrat"></div>
 							</div>
-						</div>
-						<nav id="historyNav">
-							Game 
-							<a href="#" onclick='showHistoryGamePrev(); return false;'><i class="fa fa-arrow-circle-left"></i></a>
-							<select id="historySelectGame" onchange="showHistory();"></select>
-							<a href="#" onclick='showHistoryGameNext(); return false;'><i class="fa fa-arrow-circle-right"></i></a>,
-							Round 
-							<a href="#" onclick='showHistoryRoundPrev(); return false;'><i class="fa fa-toggle-left"></i></a>
-							<select id="historySelectRound" onchange="showHistory();"></select>
-							<a href="#" onclick='showHistoryRoundNext(); return false;'><i class="fa fa-toggle-right"></i></a>
-						</nav>
-						<div>
-							<h3>Game and round specifics</h3>
+						</section>
+						<section>
+							<h3>
+								Game 
+								<a href="#" onclick='showHistoryGamePrev(); return false;'><i class="fa fa-caret-left"></i></a>
+								<select id="historySelectGame" onchange="showHistory();"></select>
+								<a href="#" onclick='showHistoryGameNext(); return false;'><i class="fa fa-caret-right"></i></a>
+								round 
+								<a href="#" onclick='showHistoryRoundPrev(); return false;'><i class="fa fa-caret-left"></i></a>
+								<select id="historySelectRound" onchange="showHistory();"></select>
+								<a href="#" onclick='showHistoryRoundNext(); return false;'><i class="fa fa-caret-right"></i></a>
+							</h3>
 							<div class="caption">
 								Payoff bimatrix:
 							</div>
@@ -87,24 +90,22 @@
 								associated with each row in the previous round.
 							</div>
 							<div id="historyRoundups"></div>
-						</div>
-						<h3>Round specifics</h3>
-						<div id="lotteryRoundups"></div>
-						<h2>Total payoffs</h2>
-						<p>
-							Your total payoff from all rounds and games: <span id="historyLottery"></span>
-						</p>
-					</section>
-					<section id="historyNotYet" class="noshow">
+						</section>
+						<section>
+							<h3>Round specifics</h3>
+							<p id="lotteryRoundups"></p>
+						</section>
+					</div>
+					<div id="historyNotYet" class="noshow">
 						<p>
 							This is the first round, there is no history to report yet.
 						</p>
-					</section>
-					<section id="historyNotStarted" class="noshow">
+					</div>
+					<div id="historyNotStarted" class="noshow">
 						<p>
 							Waiting for game to start.
 						</p>
-					</section>
+					</div>
 				</div>
 			</article>
 			<article id="play" class="tab">
@@ -126,20 +127,21 @@
 						</p>
 					</section>
 					<section id="exprFinished" class="noshow">
-						<div>
-							<p>
-								The experiment is finished.
-								Your payoff of <span id="exprFinishedScore"></span> earned you <span
-									id="exprFinishedTickets"></span> tickets out of a total of <span
-									id="exprFinishedTicketsMax"></span>.
-								Your lottery tickets are in the interval 
-								<span id="exprFinishedFinalRank"></span>&ndash;<span id="exprFinishedFinalRankEnd"></span>.
-							</p>
-							<p>
-								Results are computed by drawing a random integer within the total number of awarded
-								tickets. 
-							</p>
-						</div>
+						<h3>
+							Rounds finished
+						</h3>
+						<p>
+							The experiment is finished.
+							Your payoff of <span id="exprFinishedScore"></span> earned you <span
+								id="exprFinishedTickets"></span> tickets out of a total of <span
+								id="exprFinishedTicketsMax"></span>.
+							Your lottery tickets are in the interval 
+							<span id="exprFinishedFinalRank"></span>&ndash;<span id="exprFinishedFinalRankEnd"></span>.
+						</p>
+						<p>
+							Results are computed by drawing a random integer within the total number of awarded
+							tickets. 
+						</p>
 						<p id="exprFinishedWinRnums">
 							The draw has been finished and the winning number is <span id="exprFinishedRnums"></span>.
 						</p>
