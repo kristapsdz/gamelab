@@ -26,9 +26,10 @@
 				url = url.replace('admin', 'lab');
 				e.value = url + '/dologin.html';
 			}
+			window.addEventListener('load', onLoad);
 		</script>
 	</head>
-	<body onload="onLoad(); loadNewGames(); loadNewPlayers(); loadNewExpr(); loadSmtp();" onclick="onNavUp();">
+	<body onload="loadNewGames(); loadNewPlayers(); loadNewExpr(); loadSmtp();" onclick="onNavUp();">
 		<header>
 			<a id="navButton" href="#" onclick="return(onNav(event));"><i class="fa fa-navicon"></i></a>
 			<h1>gamelab</h1>

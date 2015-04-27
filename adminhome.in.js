@@ -275,6 +275,12 @@ function loadPlayersSuccess(resp)
 			player.id + '"); return false;');
 		link.appendChild(document.createTextNode(player.mail));
 		span.appendChild(link);
+		if (player.autoadd) {
+			icon = document.createElement('i');
+			icon.className = 'fa fa-globe';
+			span.appendChild(document.createTextNode(' '));
+			span.appendChild(icon);
+		}
 	}
 }
 

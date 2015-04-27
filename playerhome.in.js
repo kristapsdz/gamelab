@@ -562,41 +562,31 @@ function showHistoryGameNext()
 
 function showHistory()
 {
-	var e, round, game;
+	var e, round, game, graph;
 
 	e = document.getElementById('historySelectRound');
-	if (null == e)
-		return;
 	round = e.options[e.selectedIndex].value;
 	e = document.getElementById('historySelectGame');
-	if (null == e)
-		return;
 	game = e.options[e.selectedIndex].value;
+	e = document.getElementById('historySelectGraph');
+	graph = e.options[e.selectedIndex].value;
+
 	if (null != shownHistory)
 		doHideNode(shownHistory);
 	shownHistory = doUnhide('game' + game + 'round' + round);
+
 	if (null != shownLottery)
 		doHideNode(shownLottery);
 	shownLottery = doUnhide('lottery' + round);
+
 	if (null != shownBimatrix)
 		doHideNode(shownBimatrix);
 	shownBimatrix = doUnhide('bimatrix' + game);
-}
-
-function showGraph(graph)
-{
-	var	 e;
-
-	if (null == (e = document.getElementById(graph)))
-		return;
 
 	if (null != shownGraph)
 		doHideNode(shownGraph);
-	else
-		doHide('historyGraphAccumRoundShell');
+	shownGraph = doUnhide(graph + game);
 
-	doUnhideNode(e);
-	shownGraph = e;
 }
 
 /*
@@ -605,9 +595,9 @@ function showGraph(graph)
  * given round.
  * It uses the flotr2 library for drawing.
  */
-function updateGraphs()
+function loadGraphs()
 {
-	var	e, i, j, k, data, datas, graph, lot, avg, len;
+	var	e, c, i, j, k, data, datas, graph, lot, avg, len;
 
 	if (null == res)
 		return;
@@ -617,58 +607,96 @@ function updateGraphs()
 	 * For this, we go from the first to the last round and sum the
 	 * payoffs for ourselves over each game.
 	 */
-	e = doClear('historyGraphAccumRound');
-	datas = [];
+	e = doClear('historyGraphs');
+
 	for (i = 0; i < res.history.length; i++) {
+		c = document.createElement('div');
+		e.appendChild(c);
+		c.setAttribute('class', 'graphin');
+		c.setAttribute('id', 'historyGraphAccumRound' + res.gameorders[i]);
 		data = [];
-		k = 0.0;
-		for (j = 0; j < res.history[i].roundups.length; j++) {
+		data.push([0, 0.0]);
+		for (k = 0.0, j = 0; j < res.history[i].roundups.length; j++) {
 			lot = res.lotteries[j].plays[res.gameorders[i]];
 			if (null != lot)
 				k += lot.poff;
 			data.push([j + 1, k]);
 		}
-		datas.push({
-			data: data, 
-			label: 'Game ' + (res.gameorders[i] + 1)
-		});
+		graph = Flotr.draw(c, 
+			[{ data: data, label: 'Game ' + (res.gameorders[i] + 1) }], 
+			{ xaxis: { tickDecimals: 0 },
+			  yaxis: { min: 0.0 },
+		          legend: { backgroundColor: '#D2E8FF' }});
+		doHideNode(c);
 	}
-	graph = Flotr.draw(e, datas, {
-		xaxis: { tickDecimals: 0 },
-	        yaxis: { min: 0.0 },
-	        legend: { backgroundColor: '#D2E8FF' }
-	});
 
 	/*
 	 * Next, show the instantaneous payoff for each round.
 	 * This is the same as above, but without accumulating.
 	 */
-	e = doClear('historyGraphPerRound');
-	datas = [];
 	for (i = 0; i < res.history.length; i++) {
+		c = document.createElement('div');
+		e.appendChild(c);
+		c.setAttribute('class', 'graphin');
+		c.setAttribute('id', 'historyGraphPerRound' + res.gameorders[i]);
 		data = [];
 		for (j = 0; j < res.history[i].roundups.length; j++) {
 			lot = res.lotteries[j].plays[res.gameorders[i]];
 			data.push([j + 1, null == lot ? 0.0 : lot.poff]);
 		}
-		datas.push({
-			data: data, 
-			label: 'Game ' + (res.gameorders[i] + 1)
-		});
+		graph = Flotr.draw(c, 
+			[{ data: data, label: 'Game ' + (res.gameorders[i] + 1) }],
+			{ xaxis: { tickDecimals: 0, title: 'Round' },
+			  yaxis: { min: 0.0 },
+			  legend: { backgroundColor: '#D2E8FF' }});
+		doHideNode(c);
 	}
-	graph = Flotr.draw(e, datas, {
-		xaxis: { tickDecimals: 0, title: 'Round' },
-	        yaxis: { min: 0.0 },
-	        legend: { backgroundColor: '#D2E8FF' }
-	});
+
+	/*
+	 * Print the bar graph of our strategy.
+	 */
+	for (k = 0; k < res.history.length; k++) {
+		c = document.createElement('div');
+		e.appendChild(c);
+		c.setAttribute('class', 'graphin');
+		c.setAttribute('id', 'historyGraphOwnStrat' + res.gameorders[k]);
+		datas = [];
+		len = 0 == res.player.role ? 
+			res.history[k].roundups[0].navgp1.length : 
+			res.history[k].roundups[0].navgp2.length;
+		for (i = 0; i < len; i++) {
+			data = [];
+			for (j = 0; j < res.history[k].roundups.length; j++) {
+				avg = 0 == res.player.role ? 
+					res.history[k].roundups[j].navgp1 : 
+					res.history[k].roundups[j].navgp2;
+				data.push([(j + 1), avg[i]]);
+			}
+			datas.push({
+				data: data, 
+				label: 'Strategy ' + String.fromCharCode
+					(97 + res.roworders[res.gameorders[k]][i])
+			});
+		}
+		graph = Flotr.draw(c, datas, { 
+			bars: { show: true , shadowSize: 0, stacked: true, barWidth: 1.0, lineWidth: 1 }, 
+			grid: { horizontalLines: 1 },
+			xaxis: { tickDecimals: 0, title: 'Round' },
+			yaxis: { max: 1.0, min: 0.0 },
+			legend: { backgroundColor: '#D2E8FF' }
+		});
+		doHideNode(c);
+	}
 
 	/*
 	 * Lastly, print the bar graph of opponent strategy.
 	 */
-	e = doClear('historyGraphStrat');
-	datas = [];
-
 	for (k = 0; k < res.history.length; k++) {
+		c = document.createElement('div');
+		e.appendChild(c);
+		c.setAttribute('class', 'graphin');
+		c.setAttribute('id', 'historyGraphStrat' + res.gameorders[k]);
+		datas = [];
 		len = 0 == res.player.role ? 
 			res.history[k].roundups[0].navgp2.length : 
 			res.history[k].roundups[0].navgp1.length;
@@ -678,23 +706,22 @@ function updateGraphs()
 				avg = 0 == res.player.role ? 
 					res.history[k].roundups[j].navgp2 : 
 					res.history[k].roundups[j].navgp1;
-				data.push([1 + (j * len) + (k / res.history.length), avg[i]]);
+				data.push([(j + 1), avg[i]]);
 			}
 			datas.push({
 				data: data, 
-				label: 'Game ' + (res.gameorders[k] + 1) + 
-				       ', Strategy ' + String.fromCharCode(65 + i)
+				label: 'Strategy ' + String.fromCharCode(65 + i)
 			});
 		}
+		graph = Flotr.draw(c, datas, { 
+			bars: { show: true , shadowSize: 0, stacked: true, barWidth: 1.0, lineWidth: 1 }, 
+			grid: { horizontalLines: 1 },
+			xaxis: { tickDecimals: 0, title: 'Round' },
+			yaxis: { max: 1.0, min: 0.0 },
+			legend: { backgroundColor: '#D2E8FF' }
+		});
+		doHideNode(c);
 	}
-
-	graph = Flotr.draw(e, datas, { 
-		bars: { show: true, shadowSize: 0, stacked: true, barWidth: 0.45, lineWidth: 1, shadowSize: 0 }, 
-		grid: { horizontalLines: 1 },
-		xaxis: { tickDecimals: 0, title: 'Round' },
-	        yaxis: { max: 1.0, min: 0.0 },
-	        legend: { backgroundColor: '#D2E8FF' }
-	});
 }
 
 function loadHistory(res)
@@ -702,7 +729,7 @@ function loadHistory(res)
 	var histe, gamee, e, i, j, k, child, matrix, bmatrix, c, oc, 
 	    ravg, cavg, tbl, game, par, lot, list, listitem, data, graph, datas;
 
-	updateGraphs();
+	loadGraphs();
 
 	c = res.player.rseed % colours.length;
 	oc = (0 == c % 2) ? c + 1 : c - 1;
