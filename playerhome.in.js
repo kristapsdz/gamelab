@@ -678,7 +678,7 @@ function updateGraphs()
 				avg = 0 == res.player.role ? 
 					res.history[k].roundups[j].navgp2 : 
 					res.history[k].roundups[j].navgp1;
-				data.push([(j * len) + (k / res.history.length), avg[i]]);
+				data.push([1 + (j * len) + (k / res.history.length), avg[i]]);
 			}
 			datas.push({
 				data: data, 

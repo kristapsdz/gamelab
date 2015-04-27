@@ -1323,7 +1323,7 @@ main(void)
 			sendcontent(&r, CNTT_HTML_HOME_NEW);
 		break;
 	case (PAGE_INDEX):
-		send303(&r, NULL, PAGE_HOME, 1);
+		send303(&r, HTURI "/adminlogin.html", PAGE__MAX, 1);
 		break;
 	default:
 		send404(&r);

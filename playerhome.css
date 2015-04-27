@@ -173,7 +173,10 @@ div.input input[readonly]	{ background-color: #ddd; }
 				  border-radius: 1ex; }
 #bimatrixRoundups		{ margin-bottom: 1em; }
 .graphout			{ padding: 1ex; }
-.graphin			{ width: 100%; height: 384px; z-index: 0; }
+.graphin			{ width: 80%; 
+				  margin-left: auto; 
+			  	  margin-right: auto;
+			  	  height: 300px; z-index: 0; }
 
 /*
  * Now layout the specific components. 
@@ -249,5 +252,6 @@ div.input input[type=time]	{ width: 20ex; }
 	h3			{ font-size: 13pt; }
 	h1, h2, h3		{ margin-top: 0.5em; 
 				  margin-bottom: 0.5em; }
-	.graphin		{ height: 240px; }
+	.graphin		{ height: 240px; 
+				  width: 100%; }
 }
