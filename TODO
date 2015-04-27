@@ -1,0 +1,7 @@
+- accumulated payoff needs to start at 0
+- bar charts have funky round domain
+- have "game" choice above "overview"
+- have payoff bimatrix under plot
+- have "row" choice under payoff bimatrix
+- have play in selected under "row"
+- add "own strategy" bar graph (in same style)
