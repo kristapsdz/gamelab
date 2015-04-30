@@ -3,10 +3,10 @@
 	<header>
 		<h1>1.0.3</h1>
 		<address>Kristaps Dzonsons</address>
-		<time datetime="2015-04-22">2015-04-22</time>
+		<time datetime="2015-04-30">2015-04-30</time>
 	</header>
 	<aside>
 		Consolidate round-advancement into a single location, opening the door for more advanced round progression.
-		Restructure the player page with additional graphs and information.
+		Restructure the player page with additional graphs, replacing all tabular information.
 	</aside>
 </article>

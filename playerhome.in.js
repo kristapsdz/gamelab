@@ -8,7 +8,10 @@
  */
 var res;
 
-/* Yech... */
+/* 
+ * FIXME: store these as names, then if we reload the game, show the
+ * given bimatrix and graph.
+ */
 var shownBimatrix;
 var shownGraph;
 
@@ -48,16 +51,35 @@ function shuffle(o, seed)
         return o;
 };
 
+/*
+ * Append a payoff matrix as a "div.history" to "e", setting its maximum
+ * width to be 10em per payoff column.
+ * This is a complicated function because it must not only show the
+ * payoffs, but also the expected utility (payoff) for the row player if
+ * playing her pure strategy (per row).
+ * Moroever, all rows and columns are randomised per player, so we must
+ * de-scramble them.
+ * Variables:
+ *  - matrix: the row-ordered payoff matrix with each cell consisting of
+ *    a pair of payoffs, row player being 0, column player being 1
+ *    (see matrixCreate() and matrixCreateTranspose())
+ *  - rorder: the displayed row order index for each given row index
+ *  - corder: the displayed column order index for each given column
+ *  - ravg: the averages for the given row strategies
+ *  - cavg: the averages for the given column strategies
+ *  - payoffs: the multiplication of ravg*cavg per cell
+ *  - colour: our (row player's) colour
+ */
 function appendMatrix(e, matrix, rorder, corder, ravg, cavg, payoffs, colour)
 {
 	var table, row, cell, i, j, poff, rowinner, sum, span;
 
 	table = document.createElement('div');
 	e.appendChild(table);
-
 	table.setAttribute('class', 'history');
-	table.setAttribute('style', 
-		'max-width: ' + (matrix[0].length * 10) + 'em;');
+	/* Let us be 10em per column. */
+	table.setAttribute('style', 'max-width: ' + 
+		(matrix[0].length * 10) + 'em;');
 
 	row = document.createElement('div');
 	table.appendChild(row);
@@ -77,21 +99,28 @@ function appendMatrix(e, matrix, rorder, corder, ravg, cavg, payoffs, colour)
 		row.appendChild(cell);
 	}
 
+	/*
+	 * Create the top-most row.
+	 * This will have our table headers.
+	 */
 	cell = document.createElement('div');
 	cell.setAttribute('class', 'sumaside');
 	cell.setAttribute('style', 'width: ' + 
 		((100.0 / (matrix[0].length + 1)) - 1) + '%;');
 	cell.appendChild(document.createTextNode('\u2211'));
-	if (null != payoffs) {
-		cell.appendChild(document.createTextNode(' ['));
-		span = document.createElement('span');
-		span.setAttribute('style', 'color: ' + colours[colour]);
-		span.appendChild(document.createTextNode('U'));
-		cell.appendChild(span);
-		cell.appendChild(document.createTextNode(']'));
-	}
+	cell.appendChild(document.createTextNode(' ['));
+	span = document.createElement('span');
+	span.setAttribute('style', 'color: ' + colours[colour]);
+	span.appendChild(document.createTextNode('U'));
+	cell.appendChild(span);
+	cell.appendChild(document.createTextNode(']'));
 	row.appendChild(cell);
 
+	/*
+	 * Now create the rows themselves.
+	 * These end in a column with row averages and the expected
+	 * utility if the player plays that row as a pure strategy.
+	 */
 	for (i = 0; i < matrix.length; i++) {
 		row = document.createElement('div');
 		table.appendChild(row);
@@ -102,7 +131,7 @@ function appendMatrix(e, matrix, rorder, corder, ravg, cavg, payoffs, colour)
 			(String.fromCharCode(97 + i)));
 		row.appendChild(cell);
 
-		sum = 0;
+		sum = 0.0;
 		for (j = 0; j < matrix[rorder[i]].length; j++) {
 			cell = document.createElement('div');
 			cell.setAttribute('class', 'mix');
@@ -110,9 +139,8 @@ function appendMatrix(e, matrix, rorder, corder, ravg, cavg, payoffs, colour)
 			cell.appendChild
 				(document.createTextNode
 				 (matrix[rorder[i]][corder[j]].toFixed(2)));
-			if (null != payoffs)
-				sum += cavg[corder[j]] * 
-					payoffs[rorder[i]][corder[j]][0];
+			sum += cavg[corder[j]] * 
+				payoffs[rorder[i]][corder[j]][0];
 		}
 
 		cell = document.createElement('div');
@@ -133,6 +161,9 @@ function appendMatrix(e, matrix, rorder, corder, ravg, cavg, payoffs, colour)
 		row.appendChild(cell);
 	}
 
+	/*
+	 * The trailing row has the column averages.
+	 */
 	row = document.createElement('div');
 	table.appendChild(row);
 
@@ -208,6 +239,14 @@ function prowClick(source, id)
 		e.parentNode.classList.remove('ihover');
 }
 
+/*
+ * Append the game matrix, which consists only of the strategy (and
+ * payoff) available to given players.
+ * This is like appendBimatrix.
+ * If this is "active", then we allow the rows to be clicked upon,
+ * raising the prowClick() function (onclick), prowOver (onmouseover),
+ * and prowOut (onmouseout) events.
+ */
 function appendBimatrix(e, active, matrix, colour, ocolour, rorder, corder)
 {
 	var table, row, cell, i, j, poff, inputs;
