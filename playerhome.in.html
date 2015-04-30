@@ -47,51 +47,20 @@
 								<a href="#" onclick='showHistoryGamePrev(); return false;'><i class="fa fa-caret-left"></i></a>
 								<select id="historySelectGame" onchange="showHistory();"></select>
 								<a href="#" onclick='showHistoryGameNext(); return false;'><i class="fa fa-caret-right"></i></a>
+								bimatrix and statistics
 							</h3>
-							<section>
-								<h4>
-									Payoff bimatrix
-								</h4>
-								<div id="bimatrixRoundups"></div>
-							</section>
-							<section>
-								<h4>
-									Overview:
-									<select id="historySelectGraph" onchange="showHistory();">
-										<optgroup>
-											<option value="historyGraphPerRound">Real Payoffs</option>
-											<option value="historyGraphAccumRound">Accumulated Real Payoffs</option>
-											<option value="historyGraphPurePoffs">Hypothetical Payoffs</option>
-											<option value="historyGraphStrat">Column-player Strategy Average</option>
-											<option value="historyGraphOwnStrat">Row-player Strategy Average</option>
-											<option value="historyGraphSelfStrat">My Strategy</option>
-										</optgroup>
-									</select>
-								</h4>
-								<div class="graphout" id="historyGraphs"></div>
-							</section>
-							<section>
-								<h4>
-									Round 
-									<a href="#" onclick='showHistoryRoundPrev(); return false;'><i class="fa fa-caret-left"></i></a>
-									<select id="historySelectRound" onchange="showHistory();"></select>
-									<a href="#" onclick='showHistoryRoundNext(); return false;'><i class="fa fa-caret-right"></i></a>
-								</h4>
-								<p id="lotteryRoundups"></p>
-								<div class="caption">
-									Play in the selected round:
-									<a href="#" onclick="doUnhide('historyHelp'); return false;"><i class="fa fa-question-circle"></i></a>
-								</div>
-								<div id="historyHelp" class="noshow canclose">
-									<a href="#" class="close" onclick="doHideNode(this.parentNode); return false;"><i class="fa fa-times"></i></a>
-									The number in the white cells in the matrix shows the share of plays that ended in that
-									cell in the selected round. The first number in the gray cells shows in what share of
-									plays that row or column strategy was used. The number in brackets in the gray cells to
-									the right show your payoff, represented by [U], should you have played the pure strategy
-									associated with each row in the previous round.
-								</div>
-								<div id="historyRoundups"></div>
-							</section>
+							<div id="bimatrixRoundups"></div>
+							<select id="historySelectGraph" onchange="showHistory();">
+								<optgroup>
+									<option value="historyGraphPerRound">Real Payoffs</option>
+									<option value="historyGraphAccumRound">Accumulated Real Payoffs</option>
+									<option value="historyGraphPurePoffs">Hypothetical Payoffs</option>
+									<option value="historyGraphStrat">Column-player Strategy Average</option>
+									<option value="historyGraphOwnStrat">Row-player Strategy Average</option>
+									<option value="historyGraphSelfStrat">My Strategy</option>
+								</optgroup>
+							</select>
+							<div class="graphout" id="historyGraphs"></div>
 						</section>
 					</div>
 					<div id="historyNotYet" class="noshow">

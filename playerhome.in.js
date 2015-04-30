@@ -9,8 +9,6 @@
 var res;
 
 /* Yech... */
-var shownHistory;
-var shownLottery;
 var shownBimatrix;
 var shownGraph;
 
@@ -508,32 +506,6 @@ function loadGame()
 	e.appendChild(div);
 }
 
-function showHistoryRoundPrev()
-{
-	var e;
-
-	e = document.getElementById('historySelectRound');
-	if (null == e)
-		return;
-	if (0 == e.selectedIndex)
-		return;
-	e.selectedIndex--;
-	showHistory();
-}
-
-function showHistoryRoundNext()
-{
-	var e;
-
-	e = document.getElementById('historySelectRound');
-	if (null == e)
-		return;
-	if (e.selectedIndex == e.options.length - 1)
-		return;
-	e.selectedIndex++;
-	showHistory();
-}
-
 function showHistoryGamePrev()
 {
 	var e;
@@ -562,22 +534,12 @@ function showHistoryGameNext()
 
 function showHistory()
 {
-	var e, round, game, graph;
+	var e, game, graph;
 
-	e = document.getElementById('historySelectRound');
-	round = e.options[e.selectedIndex].value;
 	e = document.getElementById('historySelectGame');
 	game = e.options[e.selectedIndex].value;
 	e = document.getElementById('historySelectGraph');
 	graph = e.options[e.selectedIndex].value;
-
-	if (null != shownHistory)
-		doHideNode(shownHistory);
-	shownHistory = doUnhide('game' + game + 'round' + round);
-
-	if (null != shownLottery)
-		doHideNode(shownLottery);
-	shownLottery = doUnhide('lottery' + round);
 
 	if (null != shownBimatrix)
 		doHideNode(shownBimatrix);
@@ -803,7 +765,7 @@ function loadGraphs()
 
 function loadHistory(res)
 {
-	var histe, gamee, e, i, j, k, child, matrix, bmatrix, c, oc, 
+	var gamee, e, i, j, k, child, matrix, bmatrix, c, oc, 
 	    ravg, cavg, tbl, game, par, lot, list, listitem, data, graph, datas;
 
 	loadGraphs();
@@ -825,19 +787,6 @@ function loadHistory(res)
 		}
 	} 
 
-	if (null != (e = doClear('historySelectRound'))) {
-		for (i = 0; i < res.history[0].roundups.length; i++) {
-			child = document.createElement('option');
-			child.appendChild
-				(document.createTextNode((i + 1)));
-			child.value = i;
-			e.appendChild(child);
-		}
-		if (null != child)
-			child.setAttribute('selected', 'selected');
-	} 
-
-	histe = doClear('historyRoundups');
 	gamee = doClear('bimatrixRoundups');
 
 	for (i = 0; i < res.history.length; i++) {
@@ -853,67 +802,6 @@ function loadHistory(res)
 			bmatrix, c, oc, 
 			res.roworders[res.gameorders[i]],
 			res.colorders[res.gameorders[i]]);
-		doHideNode(tbl);
-
-		for (j = 0; j < game.roundups.length; j++) {
-			tbl = document.createElement('div');
-			tbl.setAttribute('id', 'game' + 
-				res.gameorders[i] + 'round' + j);
-			doHideNode(tbl);
-			histe.appendChild(tbl);
-			ravg = 0 == res.player.role ? 
-				game.roundups[j].navgp1 : 
-				game.roundups[j].navgp2;
-			cavg = 0 == res.player.role ? 
-				game.roundups[j].navgp2 : 
-				game.roundups[j].navgp1;
-			matrix = 0 == res.player.role ?
-				matrixCreate(game.roundups[j].navgs) :
-				matrixCreateTranspose
-				(game.roundups[j].navgs);
-			appendMatrix(tbl, matrix, 
-				res.roworders[res.gameorders[i]], 
-				res.colorders[res.gameorders[i]], 
-				ravg, cavg, bmatrix, c);
-
-			par = document.createElement('p');
-			tbl.appendChild(par);
-			lot = res.lotteries[j].plays[res.gameorders[i]];
-			if (null == lot) {
-				par.appendChild(document.createTextNode
-					('No plays for this round and game.'));
-				continue;
-			}
-			par.appendChild(document.createTextNode
-				('Your strategy mix was: '));
-			list = document.createElement('ul');
-			list.setAttribute('class', 'stratplays');
-			par.appendChild(list);
-			for (k = 0; k < lot.strats.length; k++) {
-				listitem = document.createElement('li');
-				listitem.appendChild(document.createTextNode
-					(String.fromCharCode(97 + k) + ' \u2013 '));
-				listitem.appendChild(document.createTextNode
-					(lot.strats[res.roworders[res.gameorders[i]][k]]));
-				list.appendChild(listitem);
-			}
-
-			par = document.createElement('p');
-			tbl.appendChild(par);
-			par.appendChild(document.createTextNode
-				('Your payoff was: '));
-			par.appendChild(document.createTextNode(lot.poff.toFixed(2)));
-		}
-	}
-
-	e = doClear('lotteryRoundups');
-	for (i = 0; i < res.lotteries.length; i++) {
-		tbl = document.createElement('span');
-		e.appendChild(tbl);
-		tbl.setAttribute('id', 'lottery' + i);
-		tbl.setAttribute('style', 'display: block;');
-		tbl.appendChild(document.createTextNode
-			('Round payoff: ' + res.lotteries[i].curlottery.toFixed(2)));
 		doHideNode(tbl);
 	}
 

@@ -55,18 +55,13 @@ header a			{ color: #222; }
 i.fa-warning + span		{ margin-left: 0.5ex; }
 h1				{ }
 h2				{ font-size: 16pt; }
-h3				{ font-size: 14pt; }
-h4				{ font-size: 12pt; }
-h3 select,
-h4 select,
-h3 optgroup,
-h4 optgroup,
-h3 option,
-h4 option			{ font-size: inherit; 
+h3				{ font-size: 15pt; }
+select,
+optgroup,
+option				{ font-size: inherit; 
 				  padding: 1px;
 			  	  font-family: inherit; }
-h3 a,
-h4 a				{ color: #333; }
+h3 a				{ color: #333; }
 article				{ background-color: #fff;
 				  padding: 3em 20% 1em 20%; }
 footer				{ text-align: center; 
@@ -253,9 +248,8 @@ div.input input[type=time]	{ width: 20ex; }
 				  border-spacing: 0.25ex; }
 	header span		{ font-size: 12pt; }
 	h1			{ font-size: 18pt; }
-	h2			{ font-size: 14pt; }
-	h3			{ font-size: 13pt; }
-	h4			{ font-size: 13pt; }
+	h2			{ font-size: 15pt; }
+	h3			{ font-size: 14pt; }
 	h1, h2, h3		{ margin-top: 0.5em; 
 				  margin-bottom: 0.5em; }
 	.graphin		{ height: 240px; 
