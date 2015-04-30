@@ -2472,6 +2472,12 @@ db_expr_free(struct expr *expr)
 	free(expr);
 }
 
+/*
+ * Wipe a database, effectively putting us in the initial state.
+ * We essentially remove all state as well as "captive" players.
+ * While here, we also scrub the random seed attached to each
+ * (remaining) player.
+ */
 void
 db_expr_wipe(void)
 {
@@ -2487,12 +2493,18 @@ db_expr_wipe(void)
 	db_exec("DELETE FROM lottery");
 	db_exec("DELETE FROM winner");
 	db_exec("DELETE FROM tickets");
+	db_exec("DELETE FROM player WHERE autoadd=1");
 	db_exec("UPDATE player SET instr=1,state=0,"
 		"enabled=1,finalrank=0,finalscore=0,hash=''");
 	db_exec("UPDATE experiment SET "
 		"autoadd=0,state=0,total='0/1',round=-1");
 	stmt = db_stmt("SELECT id FROM player");
 	stmt2 = db_stmt("UPDATE player SET rseed=? WHERE id=?");
+	/* 
+	 * Re-assign the random seed of each player.
+	 * This was created when the player was created, and we don't
+	 * want it to be inherited between experiment runs.
+	 */
 	while (SQLITE_ROW == db_step(stmt, 0)) {
 		db_bind_int(stmt2, 1, arc4random_uniform(INT32_MAX) + 1);
 		db_bind_int(stmt2, 2, sqlite3_column_int(stmt, 0));
@@ -2504,6 +2516,14 @@ db_expr_wipe(void)
 	db_trans_commit();
 }
 
+/*
+ * This follows almost exactly from the sqlite3 example.
+ * Basically, open a new database and backup the existing database page
+ * by page.
+ * This (apparently) handles consistency issues.
+ * We dont' really care about performance: this is only going to be run
+ * after a game has completed.
+ */
 int 
 db_backup(const char *zFilename)
 {
@@ -2557,8 +2577,28 @@ db_backup(const char *zFilename)
 		goto err;
 	}
 
+	/*
+	 * Before we exit, let's scrub the database a little.
+	 * Redact all password hashes (just in case), the SMTP stored
+	 * password, and the administrator password.
+	 */
 	rc = sqlite3_prepare_v2(pFile, 
 		"UPDATE player SET hash=''", -1, &stmt, NULL);
+	if (SQLITE_OK != rc) {
+		fprintf(stderr, "sqlite3_prepare_v2: %s\n", 
+			sqlite3_errmsg(pFile));
+		sqlite3_finalize(stmt);
+		goto err;
+	} else if (SQLITE_DONE != sqlite3_step(stmt)) {
+		fprintf(stderr, "sqlite3_prepare_v2: %s\n", 
+			sqlite3_errmsg(pFile));
+		sqlite3_finalize(stmt);
+		goto err;
+	}
+	sqlite3_finalize(stmt);
+
+	rc = sqlite3_prepare_v2(pFile, 
+		"UPDATE admin SET hash=''", -1, &stmt, NULL);
 	if (SQLITE_OK != rc) {
 		fprintf(stderr, "sqlite3_prepare_v2: %s\n", 
 			sqlite3_errmsg(pFile));

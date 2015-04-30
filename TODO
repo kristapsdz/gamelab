@@ -1,1 +1,11 @@
-(Nothing to see here now.)
+- Remove round payoffs (below round selector)
+- Remove "Your Payoff" 
+- Make "opponent" be "column strategy mixture"
+- Make "own" be "row strategy mixture"
+- Add in "hypothetical" payoff (given playing pure strategies)
+- Put payoff bimatrix above graphs
+- Remove "text" part total
+
+- auto-add -> captive players
+- captive players can't log out
+- allow admin to see passwords (captive players only)

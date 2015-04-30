@@ -597,7 +597,8 @@ function showHistory()
  */
 function loadGraphs()
 {
-	var	e, c, i, j, k, data, datas, graph, lot, avg, len;
+	var	e, c, i, j, k, l, data, datas, graph, lot, 
+		avg, len, len2, matrix, sum;
 
 	if (null == res)
 		return;
@@ -623,10 +624,9 @@ function loadGraphs()
 			data.push([j + 1, k]);
 		}
 		graph = Flotr.draw(c, 
-			[{ data: data, label: 'Game ' + (res.gameorders[i] + 1) }], 
+			[{ data: data }],
 			{ xaxis: { tickDecimals: 0 },
-			  yaxis: { min: 0.0 },
-		          legend: { backgroundColor: '#D2E8FF' }});
+			  yaxis: { min: 0.0 }});
 		doHideNode(c);
 	}
 
@@ -645,37 +645,38 @@ function loadGraphs()
 			data.push([j + 1, null == lot ? 0.0 : lot.poff]);
 		}
 		graph = Flotr.draw(c, 
-			[{ data: data, label: 'Game ' + (res.gameorders[i] + 1) }],
+			[{ data: data }],
 			{ xaxis: { tickDecimals: 0, title: 'Round' },
-			  yaxis: { min: 0.0 },
-			  legend: { backgroundColor: '#D2E8FF' }});
+			  yaxis: { min: 0.0 }});
 		doHideNode(c);
 	}
 
 	/*
-	 * Print the bar graph of our strategy.
+	 * Print the bar graph of our player's strategy.
 	 */
-	for (k = 0; k < res.history.length; k++) {
+	for (i = 0; i < res.history.length; i++) {
 		c = document.createElement('div');
 		e.appendChild(c);
 		c.setAttribute('class', 'graphin');
-		c.setAttribute('id', 'historyGraphOwnStrat' + res.gameorders[k]);
+		c.setAttribute('id', 'historyGraphSelfStrat' + res.gameorders[i]);
 		datas = [];
 		len = 0 == res.player.role ? 
-			res.history[k].roundups[0].navgp1.length : 
-			res.history[k].roundups[0].navgp2.length;
-		for (i = 0; i < len; i++) {
+			res.history[res.gameorders[i]].roundups[0].navgp1.length : 
+			res.history[res.gameorders[i]].roundups[0].navgp2.length;
+		for (j = 0; j < len; j++) {
 			data = [];
-			for (j = 0; j < res.history[k].roundups.length; j++) {
-				avg = 0 == res.player.role ? 
-					res.history[k].roundups[j].navgp1 : 
-					res.history[k].roundups[j].navgp2;
-				data.push([(j + 1), avg[i]]);
+			for (k = 0; k < res.history[res.gameorders[i]].roundups.length; k++) {
+				lot = res.lotteries[k].plays[res.gameorders[i]];
+				if (null == lot) {
+					data.push([(k + 1), 0]);
+					continue;
+				}
+				data.push([(k + 1), lot.stratsd[j]]);
 			}
 			datas.push({
 				data: data, 
 				label: 'Strategy ' + String.fromCharCode
-					(97 + res.roworders[res.gameorders[k]][i])
+					(97 + res.roworders[res.gameorders[i]][j])
 			});
 		}
 		graph = Flotr.draw(c, datas, { 
@@ -689,28 +690,29 @@ function loadGraphs()
 	}
 
 	/*
-	 * Lastly, print the bar graph of opponent strategy.
+	 * Print the bar graph of our player population's strategy.
 	 */
-	for (k = 0; k < res.history.length; k++) {
+	for (i = 0; i < res.history.length; i++) {
 		c = document.createElement('div');
 		e.appendChild(c);
 		c.setAttribute('class', 'graphin');
-		c.setAttribute('id', 'historyGraphStrat' + res.gameorders[k]);
+		c.setAttribute('id', 'historyGraphOwnStrat' + res.gameorders[i]);
 		datas = [];
 		len = 0 == res.player.role ? 
-			res.history[k].roundups[0].navgp2.length : 
-			res.history[k].roundups[0].navgp1.length;
-		for (i = 0; i < len; i++) {
+			res.history[res.gameorders[i]].roundups[0].navgp1.length : 
+			res.history[res.gameorders[i]].roundups[0].navgp2.length;
+		for (j = 0; j < len; j++) {
 			data = [];
-			for (j = 0; j < res.history[k].roundups.length; j++) {
+			for (k = 0; k < res.history[res.gameorders[i]].roundups.length; k++) {
 				avg = 0 == res.player.role ? 
-					res.history[k].roundups[j].navgp2 : 
-					res.history[k].roundups[j].navgp1;
-				data.push([(j + 1), avg[i]]);
+					res.history[res.gameorders[i]].roundups[k].navgp1 : 
+					res.history[res.gameorders[i]].roundups[k].navgp2;
+				data.push([(k + 1), avg[j]]);
 			}
 			datas.push({
 				data: data, 
-				label: 'Strategy ' + String.fromCharCode(65 + i)
+				label: 'Strategy ' + String.fromCharCode
+					(97 + res.roworders[res.gameorders[i]][j])
 			});
 		}
 		graph = Flotr.draw(c, datas, { 
@@ -718,6 +720,81 @@ function loadGraphs()
 			grid: { horizontalLines: 1 },
 			xaxis: { tickDecimals: 0, title: 'Round' },
 			yaxis: { max: 1.0, min: 0.0 },
+			legend: { backgroundColor: '#D2E8FF' }
+		});
+		doHideNode(c);
+	}
+
+	/*
+	 * Now print the bar graph of opponent strategy.
+	 */
+	for (i = 0; i < res.history.length; i++) {
+		c = document.createElement('div');
+		e.appendChild(c);
+		c.setAttribute('class', 'graphin');
+		c.setAttribute('id', 'historyGraphStrat' + res.gameorders[i]);
+		datas = [];
+		len = 0 == res.player.role ? 
+			res.history[res.gameorders[i]].roundups[0].navgp2.length : 
+			res.history[res.gameorders[i]].roundups[0].navgp1.length;
+		for (j = 0; j < len; j++) {
+			data = [];
+			for (k = 0; k < res.history[res.gameorders[i]].roundups.length; k++) {
+				avg = 0 == res.player.role ? 
+					res.history[res.gameorders[i]].roundups[k].navgp2 : 
+					res.history[res.gameorders[i]].roundups[k].navgp1;
+				data.push([(k + 1), avg[j]]);
+			}
+			datas.push({
+				data: data, 
+				label: 'Strategy ' + String.fromCharCode(65 + j)
+			});
+		}
+		graph = Flotr.draw(c, datas, { 
+			bars: { show: true , shadowSize: 0, stacked: true, barWidth: 1.0, lineWidth: 1 }, 
+			grid: { horizontalLines: 1 },
+			xaxis: { tickDecimals: 0, title: 'Round' },
+			yaxis: { max: 1.0, min: 0.0 },
+			legend: { backgroundColor: '#D2E8FF' }
+		});
+		doHideNode(c);
+	}
+
+	for (i = 0; i < res.history.length; i++) {
+		c = document.createElement('div');
+		e.appendChild(c);
+		c.setAttribute('class', 'graphin');
+		c.setAttribute('id', 'historyGraphPurePoffs' + res.gameorders[i]);
+		matrix = 0 == res.player.role ?
+			bimatrixCreate(res.games[res.gameorders[i]].payoffs) :
+			bimatrixCreateTranspose(res.games[res.gameorders[i]].payoffs);
+		len = 0 == res.player.role ? 
+			res.history[res.gameorders[i]].roundups[0].navgp1.length : 
+			res.history[res.gameorders[i]].roundups[0].navgp2.length;
+		datas = [];
+		for (j = 0; j < len; j++) {
+			data = [];
+			sum = 0.0;
+			for (k = 0; k < res.history[res.gameorders[i]].roundups.length; k++) {
+				avg = 0 == res.player.role ?
+					res.history[res.gameorders[i]].roundups[k].navgp2 :
+					res.history[res.gameorders[i]].roundups[k].navgp1;
+				sum = 0.0;
+				for (l = 0; l < matrix[0].length; l++) {
+					sum += avg[res.colorders[res.gameorders[i]][l]] *
+						matrix[res.roworders[res.gameorders[i]][j]]
+						      [res.colorders[res.gameorders[i]][l]][0];
+				}
+				data.push([(k + 1), sum]);
+			}
+			datas.push({
+				data: data,
+				label: 'Strategy ' + String.fromCharCode(97 + j)
+			});
+		}
+		graph = Flotr.draw(c, datas, { 
+			grid: { horizontalLines: 1 },
+			xaxis: { tickDecimals: 0, title: 'Round' },
 			legend: { backgroundColor: '#D2E8FF' }
 		});
 		doHideNode(c);

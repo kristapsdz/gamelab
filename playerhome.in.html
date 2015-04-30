@@ -50,23 +50,25 @@
 							</h3>
 							<section>
 								<h4>
+									Payoff bimatrix
+								</h4>
+								<div id="bimatrixRoundups"></div>
+							</section>
+							<section>
+								<h4>
 									Overview:
 									<select id="historySelectGraph" onchange="showHistory();">
 										<optgroup>
-											<option value="historyGraphAccumRound">Accumulated Payoffs</option>
-											<option value="historyGraphPerRound">Per-Round Payoffs</option>
-											<option value="historyGraphStrat">Opponent Strategy</option>
-											<option value="historyGraphOwnStrat">Own Strategy</option>
+											<option value="historyGraphPerRound">Real Payoffs</option>
+											<option value="historyGraphAccumRound">Accumulated Real Payoffs</option>
+											<option value="historyGraphPurePoffs">Hypothetical Payoffs</option>
+											<option value="historyGraphStrat">Column-player Strategy Average</option>
+											<option value="historyGraphOwnStrat">Row-player Strategy Average</option>
+											<option value="historyGraphSelfStrat">My Strategy</option>
 										</optgroup>
 									</select>
 								</h4>
 								<div class="graphout" id="historyGraphs"></div>
-							</section>
-							<section>
-								<h4>
-									Payoff bimatrix
-								</h4>
-								<div id="bimatrixRoundups"></div>
 							</section>
 							<section>
 								<h4>
