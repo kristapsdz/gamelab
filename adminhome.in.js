@@ -568,8 +568,6 @@ function loadNewExprSuccess(resp)
 		document.getElementById('minutes').value = expr.minutes;
 	if ('' != expr.instr)
 		doClearReplace('instrText', expr.instr);
-	if ('' != expr.instrWin)
-		doClearReplace('instrWinText', expr.instrWin);
 }
 
 function loadExprSuccess(resp) 
@@ -585,7 +583,6 @@ function loadExprSuccess(resp)
 	expr = res.expr;
 
 	doClearReplace('instr', expr.instr);
-	doClearReplace('instrWin', expr.instrWin);
 
 	if (expr.round >= expr.rounds) {
 		doHide('statusExprProg');

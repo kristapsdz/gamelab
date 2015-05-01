@@ -42,7 +42,6 @@ struct	expr {
 	int64_t		 minutes; /* minutes per game play */
 	char		*loginuri; /* player login (email click) */
 	char		*instr; /* instruction markup */
-	char		*instrWin; /* instructions for winner */
 	int64_t		 total; /* total winnings (>ESTATE_STARTED) */
 	int64_t		 autoadd; /* auto-adding players */
 	int64_t		 round;
@@ -198,12 +197,11 @@ void		 db_expr_free(struct expr *);
 int		 db_expr_getautoadd(void);
 struct expr	*db_expr_get(int);
 void		 db_expr_setautoadd(int64_t);
-void		 db_expr_setinstr(const char *, const char *);
+void		 db_expr_setinstr(const char *);
 int		 db_expr_setminutes(int64_t);
 int		 db_expr_setrounds(int64_t);
 int		 db_expr_setstart(int64_t);
-int		 db_expr_start(int64_t, int64_t, int64_t, 
-			const char *, const char *, const char *);
+int		 db_expr_start(int64_t, int64_t, int64_t, const char *, const char *);
 void		 db_expr_wipe(void);
 
 struct game	*db_game_alloc(const char *,

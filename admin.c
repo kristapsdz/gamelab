@@ -92,7 +92,6 @@ enum	key {
 	KEY_EMAIL3,
 	KEY_GAMEID,
 	KEY_INSTR,
-	KEY_INSTRWIN,
 	KEY_NAME,
 	KEY_P1,
 	KEY_P2,
@@ -198,7 +197,6 @@ static const struct kvalid keys[KEY__MAX] = {
 	{ kvalid_email, "email3" }, /* KEY_EMAIL3 */
 	{ kvalid_int, "gid" }, /* KEY_GAMEID */
 	{ kvalid_stringne, "instr" }, /* KEY_INSTR */
-	{ kvalid_stringne, "instrWin" }, /* KEY_INSTRWIN */
 	{ kvalid_stringne, "name" }, /* KEY_NAME */
 	{ kvalid_int, "p1" }, /* KEY_P1 */
 	{ kvalid_int, "p2" }, /* KEY_P2 */
@@ -832,7 +830,7 @@ senddosetinstr(struct kreq *r)
 {
 	struct expr	*expr;
 
-	if (kpairbad(r, KEY_INSTR) || kpairbad(r, KEY_INSTRWIN)) {
+	if (kpairbad(r, KEY_INSTR)) {
 		http_open(r, KHTTP_400);
 		khttp_body(r);
 		return;
@@ -843,8 +841,7 @@ senddosetinstr(struct kreq *r)
 	}
 
 	if (expr->round < expr->rounds) {
-		db_expr_setinstr(r->fieldmap[KEY_INSTR]->parsed.s,
-			r->fieldmap[KEY_INSTRWIN]->parsed.s);
+		db_expr_setinstr(r->fieldmap[KEY_INSTR]->parsed.s);
 		http_open(r, KHTTP_200);
 	} else
 		http_open(r, KHTTP_409);
@@ -969,10 +966,8 @@ senddosaveexpr(struct kreq *r)
 	if ( ! kpairbad(r, KEY_MINUTES))
 		rc += ! db_expr_setminutes
 			(r->fieldmap[KEY_MINUTES]->parsed.i);
-	if ( ! kpairbad(r, KEY_INSTR) && ! kpairbad(r, KEY_INSTRWIN))
-		db_expr_setinstr
-			(r->fieldmap[KEY_INSTR]->parsed.s,
-			 r->fieldmap[KEY_INSTRWIN]->parsed.s);
+	if ( ! kpairbad(r, KEY_INSTR))
+		db_expr_setinstr(r->fieldmap[KEY_INSTR]->parsed.s);
 
 	http_open(r, rc ? KHTTP_409 : KHTTP_200);
 	khttp_body(r);
@@ -992,7 +987,6 @@ senddostartexpr(struct kreq *r)
 		kpairbad(r, KEY_TIME) ||
 		kpairbad(r, KEY_ROUNDS) ||
 		kpairbad(r, KEY_INSTR) ||
-		kpairbad(r, KEY_INSTRWIN) ||
 		kpairbad(r, KEY_MINUTES) ||
 		kpairbad(r, KEY_URI) ||
 		r->fieldmap[KEY_DATE]->parsed.i +
@@ -1009,7 +1003,6 @@ senddostartexpr(struct kreq *r)
 		 r->fieldmap[KEY_ROUNDS]->parsed.i,
 		 r->fieldmap[KEY_MINUTES]->parsed.i,
 		 r->fieldmap[KEY_INSTR]->parsed.s,
-		 r->fieldmap[KEY_INSTRWIN]->parsed.s,
 		 r->fieldmap[KEY_URI]->parsed.s)) {
 		http_open(r, KHTTP_409);
 		khttp_body(r);

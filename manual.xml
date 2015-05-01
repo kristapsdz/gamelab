@@ -413,9 +413,10 @@
 							Enter these e-mails into the <q>Players</q> section.
 							You'll be able to add and remove e-mails before the experiment, so no worries.
 							Moreover, if you start an experiment with mistaken e-mails, you'll be able to disable them.
-							If you specify <q>Auto-Add</q>, participants can register (i.e., add) themselves by
+							If you specify <q>Allow Captive Players</q>, participants can register themselves by
 							accessing the <span class="file">playerautoadd.html</span> URL.
-							Auto-added players are special in that they are <strong>never</strong> e-mailed.
+							They are captive in the sense that their logout button is disabled and that they are
+							<strong>never</strong> e-mailed, nor are they retained if the database is wiped.
 							They will be shown with a special symbol.
 						</li>
 						<li>
@@ -537,6 +538,7 @@
 						This will first back up the database (e-mailing it to you in the process), then wipe all by the
 						administrator credentials, listed games, and player identities (though not their play, of
 						course).
+						Note that captive players are not retained if the database is wiped.
 					</p>
 				</section>
 				<section id="analysingexperiments">
@@ -790,6 +792,12 @@
 										href="#db-experiment-rounds"><var>rounds</var></a> when the
 									experiment concludes.
 								</dd>
+								<dt id="db-experiment-roundbegan"><var>roundbegan</var></dt>
+								<dd>
+									If <a href="#db-experiment-round"><var>round</var></a> is non-negative,
+									then the timestamp (epoch) when the round was incremented.
+									Otherwise, this is zero.
+								</dd>
 								<dt id="db-experiment-rounds"><var>rounds</var></dt>
 								<dd>The number of rounds that will be played.  Minimum of one.</dd>
 								<dt id="db-experiment-minutes"><var>minutes</var></dt>
@@ -808,8 +816,6 @@
 									<code>@@gamelab-rounds@@</code> for the number of rounds; and
 									<code>@@gamelab-round-time@@</code>, a decimal number of the number of
 									hours per round.</dd>
-								<dt id="db-experiment-instrWin"><var>instrWin</var></dt>
-								<dd>The winner's instructions.  This must contain valid HTML5.</dd>
 								<dt id="db-experiment-total"><var>total</var></dt>
 								<dd>When the experiment finishes (i.e., when <a
 										href="#db-experiment-state"><var>state</var></a> is set to 2),

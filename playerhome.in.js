@@ -895,7 +895,6 @@ function loadExprSuccess(resp)
 	doUnhide('historyLoaded');
 	doUnhide('instructionsLoaded');
 	doClearReplaceMarkup('instructionsLoaded', expr.instr);
-	doClearReplaceMarkup('exprFinishedWin', expr.instrWin);
 
 	/* 
 	 * If the player is captive, don't let her log out.

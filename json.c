@@ -139,7 +139,6 @@ json_putexpr(struct kjsonreq *r, const struct expr *expr)
 	kjson_putintp(r, "end", (int64_t)expr->end);
 	kjson_putintp(r, "rounds", expr->rounds);
 	kjson_putintp(r, "minutes", expr->minutes);
-	kjson_putstringp(r, "instrWin", expr->instrWin);
 	kjson_putstringp(r, "loginURI", expr->loginuri);
 	kjson_putdoublep(r, "progress", frac);
 	kjson_putintp(r, "postwin", ESTATE_POSTWIN == expr->state);

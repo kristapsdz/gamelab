@@ -1353,13 +1353,12 @@ db_expr_setautoadd(int64_t autoadd)
 }
 
 void
-db_expr_setinstr(const char *instr, const char *instrWin)
+db_expr_setinstr(const char *instr)
 {
 	sqlite3_stmt	*stmt;
 
-	stmt = db_stmt("UPDATE experiment SET instr=?,instrWin=?");
+	stmt = db_stmt("UPDATE experiment SET instr=?");
 	db_bind_text(stmt, 1, instr);
-	db_bind_text(stmt, 2, instrWin);
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);
 	fprintf(stderr, "Administrator changed instructions\n");
@@ -1432,8 +1431,8 @@ db_expr_setstart(int64_t date)
 }
 
 int
-db_expr_start(int64_t date, int64_t rounds, int64_t minutes, 
-	const char *instr, const char *instrWin, const char *uri)
+db_expr_start(int64_t date, int64_t rounds, 
+	int64_t minutes, const char *instr, const char *uri)
 {
 	sqlite3_stmt	*stmt, *stmt2;
 	int64_t		 id;
@@ -1449,13 +1448,12 @@ db_expr_start(int64_t date, int64_t rounds, int64_t minutes,
 
 	stmt = db_stmt("UPDATE experiment SET "
 		"start=?,rounds=?,minutes=?,"
-		"loginuri=?,instr=?,instrWin=?,state=?");
+		"loginuri=?,instr=?,state=?");
 	db_bind_int(stmt, 1, date);
 	db_bind_int(stmt, 2, rounds);
 	db_bind_int(stmt, 3, minutes);
 	db_bind_text(stmt, 4, uri);
 	db_bind_text(stmt, 5, instr);
-	db_bind_text(stmt, 6, instrWin);
 	db_bind_int(stmt, 7, ESTATE_STARTED);
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);
@@ -2437,7 +2435,7 @@ db_expr_get(int only_started)
 
 	stmt = db_stmt("SELECT start,rounds,minutes,"
 		"loginuri,state,instr,state,total,"
-		"instrWin,autoadd,round,roundbegan FROM experiment");
+		"autoadd,round,roundbegan FROM experiment");
 	rc = db_step(stmt, 0);
 	assert(SQLITE_ROW == rc);
 	if (only_started && ESTATE_NEW == sqlite3_column_int(stmt, 4)) {
@@ -2454,7 +2452,6 @@ db_expr_get(int only_started)
 	expr->state = (time_t)sqlite3_column_int(stmt, 6);
 	expr->end = expr->start + (expr->rounds * expr->minutes * 60);
 	expr->total = sqlite3_column_int(stmt, 7);
-	expr->instrWin = kstrdup((char *)sqlite3_column_text(stmt, 8));
 	expr->autoadd = sqlite3_column_int(stmt, 9);
 	expr->round = sqlite3_column_int(stmt, 10);
 	expr->roundbegan = sqlite3_column_int(stmt, 11);
@@ -2470,7 +2467,6 @@ db_expr_free(struct expr *expr)
 
 	free(expr->loginuri);
 	free(expr->instr);
-	free(expr->instrWin);
 	free(expr);
 }
 
@@ -2499,7 +2495,8 @@ db_expr_wipe(void)
 	db_exec("UPDATE player SET instr=1,state=0,"
 		"enabled=1,finalrank=0,finalscore=0,hash=''");
 	db_exec("UPDATE experiment SET "
-		"autoadd=0,state=0,total='0/1',round=-1");
+		"autoadd=0,state=0,total='0/1',round=-1,"
+		"roundbegan=0");
 	stmt = db_stmt("SELECT id FROM player");
 	stmt2 = db_stmt("UPDATE player SET rseed=? WHERE id=?");
 	/* 
