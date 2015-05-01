@@ -32,20 +32,18 @@ function onNav(event)
 	return false;
 }
 
-function timerCountdown(donefunc, e, value, start)
+function timerCountdown(donefunc, e, value)
 {
-	var elapsed;
+	var now;
 
-	elapsed = new Date().getTime() - start;
-	value -= elapsed / 1000;
-	if (value < 0) {
+	now = Math.floor(new Date().getTime() / 1000);
+	if (now >= value) {
 		donefunc();
 		return;
 	}
-
 	doClearNode(e);
-	formatCountdown(value, e);
-	setTimeout(timerCountdown, 1000, donefunc, e, value, new Date().getTime());
+	formatCountdown(value - now, e);
+	setTimeout(timerCountdown, 1000, donefunc, e, value);
 }
 
 function doHideNode(e)
@@ -120,10 +118,18 @@ function doClearReplace(name, str)
 		e.appendChild(document.createTextNode(str));
 }
 
+/*
+ * Give a number of seconds "v", format the time as a human-readable
+ * string (e.g., 1d4h3m).
+ * Make sure that v is non-negative.
+ */
 function formatCountdown(v, e)
 {
 	var p, span, showseconds;
 
+	/* Clamp time. */
+	if (v < 0)
+		v = 0;
 	showseconds = v < 60;
 
 	span = document.createElement('span');

@@ -38,6 +38,7 @@ struct	expr {
 	time_t		 start; /* game-play begins */
 	time_t		 end; /* game-play ends (computed) */
 	int64_t		 rounds; /* number of game plays */
+	time_t		 roundbegan; /* number of game plays */
 	int64_t		 minutes; /* minutes per game play */
 	char		*loginuri; /* player login (email click) */
 	char		*instr; /* instruction markup */

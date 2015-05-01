@@ -436,6 +436,8 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 	int64_t	 	 i;
 	size_t		 gamesz;
 	struct kjsonreq	 req;
+	char		 buf[22];
+	const char	*cp;
 
 	/* All response have at least the following. */
 	if (NULL == (expr = db_expr_get(1))) {
@@ -443,12 +445,50 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 		khttp_body(r);
 		return;
 	}
+
+	/*
+	 * Cache optimisation.
+	 * If we're at the same round as the last time we asked for
+	 * data, then simply 304 the request and let the browser use the
+	 * cached version.
+	 * This significantly saves on our time digging around the db.
+	 */
+	if (NULL != r->reqmap[KREQU_IF_NONE_MATCH]) {
+		snprintf(buf, sizeof(buf), 
+			"\"%" PRIu64 "\"", expr->round);
+		cp = r->reqmap[KREQU_IF_NONE_MATCH]->val;
+		if (0 == strcmp(buf, cp)) {
+			khttp_head(r, kresps[KRESP_STATUS], 
+				"%s", khttps[KHTTP_304]);
+			khttp_body(r);
+			db_expr_free(expr);
+			return;
+		}
+	}
+
 	player = db_player_load(playerid);
 	assert(NULL != player);
 	memset(&stor, 0, sizeof(struct intvstor));
 	memset(&pstor, 0, sizeof(struct poffstor));
 
-	http_open(r, KHTTP_200);
+	khttp_head(r, kresps[KRESP_STATUS], 
+		"%s", khttps[KHTTP_200]);
+	khttp_head(r, kresps[KRESP_CONTENT_TYPE], 
+		"%s", kmimetypes[r->mime]);
+
+	/*
+	 * If the game has completed, then disallow the cache: the
+	 * amdinistrator can grant winnings whenever.
+	 */
+	if (expr->round >= expr->rounds) {
+		khttp_head(r, kresps[KRESP_CACHE_CONTROL], 
+			"%s", "no-cache, no-store");
+		khttp_head(r, kresps[KRESP_PRAGMA], 
+			"%s", "no-cache");
+	} else
+		khttp_head(r, kresps[KRESP_ETAG], 
+			"\"%" PRIu64 "\"", expr->round);
+
 	khttp_body(r);
 	kjson_open(&req, r);
 	kjson_obj_open(&req);

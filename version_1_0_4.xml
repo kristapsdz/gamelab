@@ -1,0 +1,14 @@
+
+<article data-sblg-article="1" data-sblg-tags="version">
+	<header>
+		<h1>1.0.3</h1>
+		<address>Kristaps Dzonsons</address>
+		<time datetime="2015-04-30">2015-04-30</time>
+	</header>
+	<aside>
+		Renamed <q>auto-added</q> players as <q>captive</q>.
+		Remove logout button for captive players.
+		Remove <q>remember whether to see instructions</q> for captive players.
+		Add cache-control mechanism for player JSON that depends on the current round.
+	</aside>
+</article>

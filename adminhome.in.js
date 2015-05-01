@@ -137,7 +137,7 @@ function loadNewPlayersSuccess(resp)
 		span.appendChild(document.createTextNode(player.mail));
 		if (player.autoadd) {
 			icon = document.createElement('i');
-			icon.className = 'fa fa-globe';
+			icon.className = 'fa fa-thumb-tack';
 			span.appendChild(document.createTextNode(' '));
 			span.appendChild(icon);
 		}
@@ -277,7 +277,7 @@ function loadPlayersSuccess(resp)
 		span.appendChild(link);
 		if (player.autoadd) {
 			icon = document.createElement('i');
-			icon.className = 'fa fa-globe';
+			icon.className = 'fa fa-thumb-tack';
 			span.appendChild(document.createTextNode(' '));
 			span.appendChild(icon);
 		}
@@ -574,7 +574,7 @@ function loadNewExprSuccess(resp)
 
 function loadExprSuccess(resp) 
 {
-	var res, e, i, chld, expr, li, div, href, span;
+	var res, e, i, chld, expr, li, div, href, span, next;
 
 	try  { 
 		res = JSON.parse(resp);
@@ -587,7 +587,7 @@ function loadExprSuccess(resp)
 	doClearReplace('instr', expr.instr);
 	doClearReplace('instrWin', expr.instrWin);
 
-	if (expr.tilstart < 0 && expr.tilnext < 0) {
+	if (expr.round >= expr.rounds) {
 		doHide('statusExprProg');
 		doHide('statusExprLoading');
 		doUnhide('statusExprFinished');
@@ -614,24 +614,21 @@ function loadExprSuccess(resp)
 		} else
 			doUnhide('statusExprFinishedWin');
 		doClearReplace('exprCountdown', 'finished');
-		return;
-	}
-
-	if (expr.tilstart > 0) {
+	}  else if (expr.round < 0) {
+		next = expr.start - Math.floor(new Date().getTime() / 1000);
 		doUnhide('statusExprWaiting');
 		doHide('statusExprLoading');
 		e = doClear('exprCountdown');
-		formatCountdown(expr.tilstart, e);
-		setTimeout(timerCountdown, 1000, loadExpr, 
-			e, expr.tilstart, new Date().getTime());
+		formatCountdown(next, e);
+		setTimeout(timerCountdown, 1000, loadExpr, e, expr.start);
 	} else {
-		if (0 == expr.tilstart) {
-			e = doClear('exprCountdown');
-			doHide('statusExprLoading');
-			formatCountdown(expr.tilnext, e);
-			setTimeout(timerCountdown, 1000, loadExpr, 
-				e, expr.tilnext, new Date().getTime());
-		}
+		next = (expr.roundbegan + (expr.minutes * 60)) -
+			Math.floor(new Date().getTime() / 1000);
+		e = doClear('exprCountdown');
+		doHide('statusExprLoading');
+		formatCountdown(next, e);
+		setTimeout(timerCountdown, 1000, loadExpr, e, 
+			expr.roundbegan + (expr.minutes * 60));
 
 		doUnhide('statusExprProg');
 		doClearReplace('statusExprPBar', 

@@ -98,12 +98,11 @@ void
 json_putexpr(struct kjsonreq *r, const struct expr *expr)
 {
 	double	 	 frac;
-	time_t	 	 tt, tilstart, tilnext;
+	time_t	 	 tt;
 	struct ktemplate t;
 	struct jsoncache c;
 
 	frac = 0.0;
-	tilstart = tilnext = 0;
 
 	/* 
 	 * First compute the fraction of completion, the current round,
@@ -111,21 +110,11 @@ json_putexpr(struct kjsonreq *r, const struct expr *expr)
 	 * applicable).
 	 */
 	tt = time(NULL);
-	if (expr->round >= 0 && expr->round < expr->rounds) {
+	if (expr->round >= 0 && expr->round < expr->rounds)
 		frac = (tt - expr->start) / 
 			(double)(expr->end - expr->start);
-		tilnext = ((expr->round + 1) * 
-			(expr->minutes * 60)) - (tt - expr->start);
-		if (tilnext < 0)
-			tilnext = 0;
-	} else if (expr->round >= 0) {
+	else if (expr->round >= 0)
 		frac = 1.0;
-		tilnext = tilstart = -1;
-	} else {
-		tilnext = tilstart = expr->start - tt;
-		if (tilnext < 0)
-			tilnext = tilstart = 0;
-	}
 
 	kjson_objp_open(r, "expr");
 	kjson_stringp_open(r, "instr");
@@ -153,10 +142,9 @@ json_putexpr(struct kjsonreq *r, const struct expr *expr)
 	kjson_putstringp(r, "instrWin", expr->instrWin);
 	kjson_putstringp(r, "loginURI", expr->loginuri);
 	kjson_putdoublep(r, "progress", frac);
-	kjson_putintp(r, "tilstart", (int64_t)tilstart);
-	kjson_putintp(r, "tilnext", (int64_t)tilnext);
 	kjson_putintp(r, "postwin", ESTATE_POSTWIN == expr->state);
 	kjson_putintp(r, "round", expr->round);
+	kjson_putintp(r, "roundbegan", expr->roundbegan);
 	kjson_putintp(r, "autoadd", expr->autoadd);
 	kjson_obj_close(r);
 }

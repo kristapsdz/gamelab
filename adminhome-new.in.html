@@ -266,7 +266,7 @@
 					<div>
 						Players in your experiment.
 						To delete a player, just click the <i class="fa fa-remove"></i> symbol alongisde.
-						Players offset with <i class="fa fa-globe"></i> were auto-added.
+						Players marked with <i class="fa fa-thumb-tack"></i> are captive.
 					</div>
 					<ul id="loadNewPlayers">
 						<li><i class="fa fa-spinner"></i></li>
@@ -274,9 +274,9 @@
 					<div>
 						Add players to the game using this form.
 						Players consist of e-mail addresses separated by white-space (newlines, tabs, spaces, whatever).
-						If you set the <q>Auto-Add</q> toggle, then players may add themselves.
-						Auto-added players will not be e-mailed when the experiment is started; manually-added players
-						will be mailed.
+						If you set the <q>Allow Captive Players</q> toggle, then players may add themselves.
+						Captive players will not be e-mailed when the experiment is started, nor will they be remembered
+						when the experiment is wiped.
 					</div>
 					<div class="error noshow" id="addPlayersErrSystem">
 						An unexpected system error occurred.
@@ -292,7 +292,7 @@
 							</div>
 							<div class="input input-check">
 								<i onclick="toggler('autoadd', 'autoaddToggle');" id="autoaddToggle" class="fa fa-fw fa-toggle-off"></i>
-								<span onclick="toggler('autoadd', 'autoaddToggle');">Self-Adding Players</span>
+								<span onclick="toggler('autoadd', 'autoaddToggle');">Allow Captive Players</span>
 							</div>
 							<div class="input input-submit">
 								<i class="fa fa-fw fa-check"></i>

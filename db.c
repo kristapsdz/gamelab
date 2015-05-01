@@ -462,8 +462,9 @@ db_expr_advance(void)
 	 * experiment's round.
 	 * Try to increment it, not clobbering existing people.
 	 */
-	stmt = db_stmt("UPDATE experiment SET round=?");
+	stmt = db_stmt("UPDATE experiment SET round=?,roundbegan=?");
 	db_bind_int(stmt, 1, round);
+	db_bind_int(stmt, 2, time(NULL));
 
 	db_trans_begin(1);
 	expr = db_expr_get(1);
@@ -2436,7 +2437,7 @@ db_expr_get(int only_started)
 
 	stmt = db_stmt("SELECT start,rounds,minutes,"
 		"loginuri,state,instr,state,total,"
-		"instrWin,autoadd,round FROM experiment");
+		"instrWin,autoadd,round,roundbegan FROM experiment");
 	rc = db_step(stmt, 0);
 	assert(SQLITE_ROW == rc);
 	if (only_started && ESTATE_NEW == sqlite3_column_int(stmt, 4)) {
@@ -2456,6 +2457,7 @@ db_expr_get(int only_started)
 	expr->instrWin = kstrdup((char *)sqlite3_column_text(stmt, 8));
 	expr->autoadd = sqlite3_column_int(stmt, 9);
 	expr->round = sqlite3_column_int(stmt, 10);
+	expr->roundbegan = sqlite3_column_int(stmt, 11);
 	sqlite3_finalize(stmt);
 	return(expr);
 }

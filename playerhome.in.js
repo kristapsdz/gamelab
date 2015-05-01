@@ -603,6 +603,8 @@ function loadGraphs()
 
 	if (null == res)
 		return;
+	else if (res.expr.round <= 0)
+		return;
 
 	/*
 	 * Begin with the accumulate payoffs.
@@ -627,6 +629,8 @@ function loadGraphs()
 		graph = Flotr.draw(c, 
 			[{ data: data }],
 			{ xaxis: { tickDecimals: 0 },
+			  lines: { show: true },
+		          points: { show: true },
 			  yaxis: { min: 0.0 }});
 		doHideNode(c);
 	}
@@ -648,6 +652,8 @@ function loadGraphs()
 		graph = Flotr.draw(c, 
 			[{ data: data }],
 			{ xaxis: { tickDecimals: 0, title: 'Round' },
+			  lines: { show: true },
+		          points: { show: true },
 			  yaxis: { min: 0.0 }});
 		doHideNode(c);
 	}
@@ -761,6 +767,11 @@ function loadGraphs()
 		doHideNode(c);
 	}
 
+	/*
+	 * Print "hypothetical" payoffs, i.e., the expected utility from
+	 * the player playing her pure strategies against the average of
+	 * the opponent.
+	 */
 	for (i = 0; i < res.history.length; i++) {
 		c = document.createElement('div');
 		e.appendChild(c);
@@ -796,6 +807,8 @@ function loadGraphs()
 		graph = Flotr.draw(c, datas, { 
 			grid: { horizontalLines: 1 },
 			xaxis: { tickDecimals: 0, title: 'Round' },
+			lines: { show: true },
+		        points: { show: true },
 			legend: { backgroundColor: '#D2E8FF' }
 		});
 		doHideNode(c);
@@ -849,7 +862,7 @@ function loadHistory(res)
 
 function loadExprSuccess(resp)
 {
-	var i, j, e, expr, c, oc, v, elems;
+	var i, j, e, expr, c, oc, v, elems, next;
 
 	resindex = 0;
 	res = null;
@@ -883,6 +896,14 @@ function loadExprSuccess(resp)
 	doUnhide('instructionsLoaded');
 	doClearReplaceMarkup('instructionsLoaded', expr.instr);
 	doClearReplaceMarkup('exprFinishedWin', expr.instrWin);
+
+	/* 
+	 * If the player is captive, don't let her log out.
+	 */
+	if (res.player.autoadd) {
+		doHide('logoutButton');
+		doHide('instructionsPrompt');
+	}
 
 	c = res.player.rseed % colours.length;
 	oc = (0 == c % 2) ? c + 1 : c - 1;
@@ -924,26 +945,28 @@ function loadExprSuccess(resp)
 		res.gameorders = null;
 	}
 
-	if (expr.tilstart > 0) {
+	if (expr.round < 0) {
 		/*
 		 * If we haven't yet started, then simply set our timer
 		 * and exit: we have nothing to show.
 		 */
+		next = expr.start - Math.floor(new Date().getTime() / 1000);
 		doUnhide('historyNotStarted');
 		e = doClear('exprCountdown');
-		formatCountdown(expr.tilstart, e);
-		setTimeout(timerCountdown, 1000, loadExpr, 
-			e, expr.tilstart, new Date().getTime());
+		formatCountdown(next, e);
+		setTimeout(timerCountdown, 1000, loadExpr, e, expr.start);
 		doUnhide('exprNotStarted');
-	} else if (0 == expr.tilstart) {
+	} else if (expr.round < expr.rounds) {
 		/*
 		 * Start by setting the countdown til the next
 		 * game-play.
 		 */
+		next = (expr.roundbegan + (expr.minutes * 60)) -
+			Math.floor(new Date().getTime() / 1000);
 		e = doClear('exprCountdown');
-		formatCountdown(expr.tilnext, e);
-		setTimeout(timerCountdown, 1000, loadExpr, 
-			e, expr.tilnext, new Date().getTime());
+		formatCountdown(next, e);
+		setTimeout(timerCountdown, 1000, loadExpr, e, 
+			expr.roundbegan + (expr.minutes * 60));
 		doValue('exprPlayRound', expr.round);
 		if (expr.round > 0) {
 			doUnhide('historyPlay');
@@ -1034,7 +1057,7 @@ function loadExpr()
 
 	sendQuery('@LABURI@/doloadexpr.json', 
 		loadExprSetup, loadExprSuccess, 
-		function() { location.href = '@HTURI@/playerlogin.html#loggedout'; });
+		function(err) { location.href = '@HTURI@/playerlogin.html#loggedout'; });
 }
 
 function doPlayGameSetup()
