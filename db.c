@@ -278,22 +278,36 @@ db_count_all(const char *p)
 	return(count);
 }
 
+/*
+ * We never really delete session records, as they contain valuable
+ * information which we can later reference.
+ * We simply zero the magic number associated with the session.
+ */
 void
 db_sess_delete(int64_t id)
 {
 	sqlite3_stmt	*stmt;
 
-	stmt = db_stmt("DELETE FROM sess WHERE id=?");
+	stmt = db_stmt
+		("UPDATE sess SET cookie=0 WHERE id=?");
 	db_bind_int(stmt, 1, id);
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);
 }
 
+/*
+ * See if the session for a player is valid.
+ * We never accept cookies being zero, as it means that the cookie has
+ * been invalidated.
+ */
 int
 db_player_sess_valid(int64_t *playerid, int64_t id, int64_t cookie)
 {
 	int	 	 rc;
 	sqlite3_stmt	*stmt;
+
+	if (0 == cookie)
+		return(0);
 
 	stmt = db_stmt
 		("SELECT playerid FROM sess "
@@ -318,6 +332,9 @@ db_admin_sess_valid(int64_t id, int64_t cookie)
 	int	 	 rc;
 	sqlite3_stmt	*stmt;
 
+	if (0 == cookie)
+		return(0);
+
 	stmt = db_stmt
 		("SELECT * FROM sess "
 		 "WHERE id=? AND cookie=? AND playerid IS NULL");
@@ -329,18 +346,23 @@ db_admin_sess_valid(int64_t id, int64_t cookie)
 }
 
 struct sess *
-db_player_sess_alloc(int64_t playerid)
+db_player_sess_alloc(int64_t playerid, const char *useragent)
 {
 	sqlite3_stmt	*stmt;
 	struct sess	*sess;
 
-	sess = calloc(1, sizeof(struct sess));
-	assert(NULL != sess);
-	sess->cookie = arc4random();
+	sess = kcalloc(1, sizeof(struct sess));
+	/* Never let the cookie be zero. */
+	do 
+		sess->cookie = arc4random();
+	while (0 == sess->cookie);
 	stmt = db_stmt("INSERT INTO sess "
-		"(cookie,playerid) VALUES(?,?)");
+		"(cookie,playerid,useragent,created) "
+		"VALUES(?,?,?,?)");
 	db_bind_int(stmt, 1, sess->cookie);
 	db_bind_int(stmt, 2, playerid);
+	db_bind_text(stmt, 3, useragent);
+	db_bind_int(stmt, 4, time(NULL));
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);
 	sess->id = sqlite3_last_insert_rowid(db);
@@ -350,16 +372,22 @@ db_player_sess_alloc(int64_t playerid)
 }
 
 struct sess *
-db_admin_sess_alloc(void)
+db_admin_sess_alloc(const char *useragent)
 {
 	sqlite3_stmt	*stmt;
 	struct sess	*sess;
 
-	sess = calloc(1, sizeof(struct sess));
-	assert(NULL != sess);
-	sess->cookie = arc4random();
-	stmt = db_stmt("INSERT INTO sess (cookie) VALUES(?)");
+	sess = kcalloc(1, sizeof(struct sess));
+	/* Never let the cookie be zero. */
+	do
+		sess->cookie = arc4random();
+	while (0 == sess->cookie);
+	stmt = db_stmt("INSERT INTO sess "
+		"(cookie,useragent,created) "
+		"VALUES(?,?,?)");
 	db_bind_int(stmt, 1, sess->cookie);
+	db_bind_text(stmt, 2, useragent);
+	db_bind_int(stmt, 3, time(NULL));
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);
 	sess->id = sqlite3_last_insert_rowid(db);
@@ -959,8 +987,8 @@ db_player_load_all(playerf fp, void *arg)
  * passed here.
  */
 int
-db_player_play(int64_t playerid, int64_t round, 
-	int64_t gameid, mpq_t *plays, size_t sz)
+db_player_play(int64_t playerid, int64_t sessid, 
+	int64_t round, int64_t gameid, mpq_t *plays, size_t sz)
 {
 	struct expr	*expr;
 	time_t		 t;
@@ -997,13 +1025,15 @@ db_player_play(int64_t playerid, int64_t round,
 
 	buf = mpq_mpq2str(plays, sz);
 	stmt = db_stmt("INSERT INTO choice "
-		"(round,playerid,gameid,strats,stratsz) "
-		"VALUES (?,?,?,?,?)");
+		"(round,playerid,gameid,strats,stratsz,created,sessid) "
+		"VALUES (?,?,?,?,?,?,?)");
 	db_bind_int(stmt, 1, round);
 	db_bind_int(stmt, 2, playerid);
 	db_bind_int(stmt, 3, gameid);
 	db_bind_text(stmt, 4, buf);
 	db_bind_int(stmt, 5, sz);
+	db_bind_int(stmt, 6, time(NULL));
+	db_bind_int(stmt, 7, sessid);
 	rc = db_step(stmt, DB_STEP_CONSTRAINT);
 	sqlite3_finalize(stmt);
 	free(buf);

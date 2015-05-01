@@ -218,7 +218,10 @@ senddologin(struct kreq *r)
 			khttp_body(r);
 		}
 	} else if (player_valid(r, &playerid)) {
-		sess = db_player_sess_alloc(playerid);
+		sess = db_player_sess_alloc
+			(playerid,
+			 NULL != r->reqmap[KREQU_USER_AGENT] ?
+			 r->reqmap[KREQU_USER_AGENT]->val : "");
 		assert(NULL != sess);
 		if (KMIME_TEXT_HTML == r->mime) 
 			http_open(r, KHTTP_303);
@@ -691,8 +694,11 @@ senddoplay(struct kreq *r, int64_t playerid)
 	 * This can fail for many reasons, in which case we kick to
 	 * KHTTP_400 and depend on the frontend.
 	 */
+	assert(NULL != r->cookiemap[KEY_SESSID]);
 	if ( ! db_player_play
-		(player->id, r->fieldmap[KEY_ROUND]->parsed.i,
+		(player->id, 
+		 r->cookiemap[KEY_SESSID]->parsed.i,
+		 r->fieldmap[KEY_ROUND]->parsed.i,
 		 game->id, mixes, strats))
 		http_open(r, KHTTP_409);
 	else

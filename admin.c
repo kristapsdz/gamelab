@@ -810,7 +810,9 @@ senddologin(struct kreq *r)
 	struct sess	*sess;
 
 	if (admin_valid(r)) {
-		sess = db_admin_sess_alloc();
+		sess = db_admin_sess_alloc
+			(NULL != r->reqmap[KREQU_USER_AGENT] ?
+			 r->reqmap[KREQU_USER_AGENT]->val : "");
 		http_open(r, KHTTP_200);
 		khttp_head(r, kresps[KRESP_SET_COOKIE],
 			"%s=%" PRId64 "; path=/; expires=", 
