@@ -1454,7 +1454,7 @@ db_expr_start(int64_t date, int64_t rounds,
 	db_bind_int(stmt, 3, minutes);
 	db_bind_text(stmt, 4, uri);
 	db_bind_text(stmt, 5, instr);
-	db_bind_int(stmt, 7, ESTATE_STARTED);
+	db_bind_int(stmt, 6, ESTATE_STARTED);
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);
 	db_trans_commit();
@@ -2452,9 +2452,9 @@ db_expr_get(int only_started)
 	expr->state = (time_t)sqlite3_column_int(stmt, 6);
 	expr->end = expr->start + (expr->rounds * expr->minutes * 60);
 	expr->total = sqlite3_column_int(stmt, 7);
-	expr->autoadd = sqlite3_column_int(stmt, 9);
-	expr->round = sqlite3_column_int(stmt, 10);
-	expr->roundbegan = sqlite3_column_int(stmt, 11);
+	expr->autoadd = sqlite3_column_int(stmt, 8);
+	expr->round = sqlite3_column_int(stmt, 9);
+	expr->roundbegan = sqlite3_column_int(stmt, 10);
 	sqlite3_finalize(stmt);
 	return(expr);
 }
