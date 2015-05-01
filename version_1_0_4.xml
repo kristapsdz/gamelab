@@ -10,5 +10,7 @@
 		Remove logout button for captive players.
 		Remove <q>remember whether to see instructions</q> for captive players.
 		Add cache-control mechanism for player JSON that depends on the current round.
+		Added several useful bits of information to the database: client user-agent to each session (and sessions are now retained
+		instead of deleted), creation time for each game-play, and link from game-play to active session (for source correlation).
 	</aside>
 </article>

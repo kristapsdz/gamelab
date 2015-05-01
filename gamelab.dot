@@ -30,7 +30,7 @@ digraph {
 		bgcolor="lightgray";
 	}
 	subgraph cluster_choice {
-		choice [style="filled,rounded"; color="white"; label="{round | strats | stratsz | id | <f1> gameid | <f0> playerid}"];
+		choice [style="filled,rounded"; color="white"; label="{round | created | strats | stratsz | id | <f2> sessid | | <f1> gameid | <f0> playerid}"];
 		label="choice";
 		bgcolor="lightgray";
 	}
@@ -41,14 +41,15 @@ digraph {
 		bgcolor="#336699";
 	}
 	subgraph cluster_experiment {
-		experiment [style="filled,rounded"; color="white"; label="{state | start | rounds | minutes | loginuri | instr | instrWin | total | autoadd | id}"];
+		experiment [style="filled,rounded"; color="white"; label="{state | start | round | roundbegan | rounds | minutes | loginuri | instr | total | autoadd | id}"];
 		label="experiment";
 		bgcolor="lightgray";
 	}
 	subgraph cluster_sess {
-		sess [style="filled,rounded"; color="white"; label="{cookie | id | <f0> playerid}"];
+		sess [style="filled,rounded"; color="white"; label="{created | useragent | cookie | id | <f0> playerid}"];
 		label="sess";
-		bgcolor="lightgray";
+		fontcolor=white;
+		bgcolor="#336699";
 	}
 	subgraph cluster_admin {
 		admin [style="filled,rounded"; color="white"; label="{email | hash | id}"];
@@ -78,6 +79,7 @@ digraph {
 	payoff:f1 -> game [lhead="cluster_game"];
 	choice:s:f0 -> player [lhead="cluster_player"];
 	choice:f1 -> game [lhead="cluster_game"];
+	choice:f2 -> sess [lhead="cluster_sess"];
 	sess:s:f0 -> player [lhead="cluster_player"];
 	past:s:f1 -> game [lhead="cluster_game"];
 	tickets:s:f1 -> game [lhead="cluster_game"];
