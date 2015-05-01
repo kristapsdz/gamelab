@@ -30,8 +30,8 @@ STATIC		 =
 
 # You really don't want to change anything below this line.
 
-VERSION	 = 1.0.3
-VMONTH	 = April
+VERSION	 = 1.0.4
+VMONTH	 = May
 VYEAR	 = 2015
 CFLAGS 	+= -g -W -Wall -Wstrict-prototypes -Wno-unused-parameter -Wwrite-strings -I/usr/local/include
 CFLAGS	+= -DDATADIR=\"$(RDATADIR)\" -DHTURI=\"$(HTURI)\"
@@ -87,7 +87,8 @@ BUILT	 = adminhome.js \
 	   privacy.html
 VERSIONS = version_1_0_1.xml \
 	   version_1_0_2.xml \
-	   version_1_0_3.xml
+	   version_1_0_3.xml \
+	   version_1_0_4.xml
 
 all: admin lab $(BUILT) $(BUILTPS)
 
@@ -146,7 +147,7 @@ gamelab.png: gamelab.dot
 manual.html: manual.xml
 	sed "s!@VERSION@!$(VERSION)!g" manual.xml >$@
 
-index.html: index.xml
+index.html: index.xml $(VERSIONS)
 	sblg -t index.xml -o- $(VERSIONS) | \
 		sed "s!@VERSION@!$(VERSION)!g" >$@
 
