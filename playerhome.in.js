@@ -778,8 +778,8 @@ function loadGraphs()
 		c.setAttribute('class', 'graphin');
 		c.setAttribute('id', 'historyGraphPurePoffs' + res.gameorders[i]);
 		matrix = 0 == res.player.role ?
-			bimatrixCreate(res.games[res.gameorders[i]].payoffs) :
-			bimatrixCreateTranspose(res.games[res.gameorders[i]].payoffs);
+			bimatrixCreate(res.history[res.gameorders[i]].payoffs) :
+			bimatrixCreateTranspose(res.history[res.gameorders[i]].payoffs);
 		len = 0 == res.player.role ? 
 			res.history[res.gameorders[i]].roundups[0].navgp1.length : 
 			res.history[res.gameorders[i]].roundups[0].navgp2.length;
