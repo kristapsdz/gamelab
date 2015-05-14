@@ -525,11 +525,19 @@ db_expr_advance(void)
 			roleplayers[played]++;
 		}
 		sqlite3_finalize(stmt);
+
 		if (roleplayers[0] / (double)allplayers[0] >= expr->roundpct &&
 			 roleplayers[1] / (double)allplayers[1] >= expr->roundpct) {
+			fprintf(stderr, "YES: %zu/%zu >= %g && %zu/%zu >= %g\n",
+				roleplayers[0], allplayers[0], expr->roundpct,
+				roleplayers[1], allplayers[1], expr->roundpct);
 			round = expr->round + 1;
 			goto advance;
 		}
+
+		fprintf(stderr, "NO: %zu/%zu >= %g && %zu/%zu >= %g\n",
+			roleplayers[0], allplayers[0], expr->roundpct,
+			roleplayers[1], allplayers[1], expr->roundpct);
 	} 
 
 	/*
@@ -539,15 +547,22 @@ db_expr_advance(void)
 	 * correct value!
 	 * However, this won't allow rounds to regress.
 	 */
-	round = t >= expr->end ? expr->rounds : 
-		(t - expr->start) / (expr->minutes * 60);
-	if (round < expr->round) {
-		fprintf(stderr, "Round-advance time warp: "
-			"computed %" PRId64 ", have %" 
-			PRId64 "\n", round, expr->round);
+	if (t < expr->roundbegan) {
+		fprintf(stderr, "Round-advance time warp!\n");
 		db_expr_free(expr);
 		return;
-	} else if (round == expr->round) {
+	} 
+
+	if (expr->round >= 0) 
+		round = expr->round +
+			(t - expr->roundbegan) / (expr->minutes * 60);
+	else 
+		round = (t - expr->start) / (expr->minutes * 60);
+
+	if (round > expr->rounds)
+		round = expr->rounds;
+
+	if (round == expr->round) {
 		db_expr_free(expr);
 		return;
 	}
@@ -970,6 +985,28 @@ db_player_count_all(void)
 	return(db_count_all("player"));
 }
 
+size_t
+db_player_count_plays(int64_t round, int64_t playerid)
+{
+	sqlite3_stmt	*stmt;
+	int		 rc;
+	int64_t		 val;
+
+	stmt = db_stmt("SELECT choices FROM gameplay "
+		"WHERE playerid=? AND round=?");
+	db_bind_int(stmt, 1, playerid);
+	db_bind_int(stmt, 2, round);
+	rc = db_step(stmt, 0);
+	if (SQLITE_DONE == rc) 
+		val = 0;
+	else
+		val = sqlite3_column_int(stmt, 0);
+	sqlite3_finalize(stmt);
+	assert(val >= 0);
+	fprintf(stderr, "val = %zu\n", (size_t)val);
+	return(val);
+}
+
 void
 db_player_free(struct player *player)
 {
@@ -1081,12 +1118,11 @@ db_player_play(int64_t playerid, int64_t sessid,
 			"round invalid (max %" PRId64 ")\n", 
 			playerid, gameid, round, expr->rounds);
 		return(0);
-	} else if (round != (t - expr->start) / (expr->minutes * 60)) {
+	} else if (round != expr->round) {
 		fprintf(stderr, "Player %" PRId64 " tried playing "
 			"game %" PRId64 " (round %" PRId64 "), but "
 			"round invalid (at %" PRId64 ")\n", 
-			playerid, gameid, round, 
-			(t - expr->start) / (expr->minutes * 60));
+			playerid, gameid, round, expr->round);
 		db_expr_free(expr);
 		return(0);
 	}

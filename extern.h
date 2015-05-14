@@ -226,6 +226,7 @@ void		 db_interval_free(struct interval *);
 int		 db_payoff_get(int64_t, int64_t, int64_t, mpq_t);
 
 size_t		 db_player_count_all(void);
+size_t		 db_player_count_plays(int64_t, int64_t);
 int		 db_player_create(const char *, char **);
 int		 db_player_delete(int64_t);
 void		 db_player_disable(int64_t);

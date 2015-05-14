@@ -456,10 +456,11 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 	 * cached version.
 	 * This significantly saves on our time digging around the db.
 	 */
-#if 0
-	if (NULL != r->reqmap[KREQU_IF_NONE_MATCH]) {
+	if (expr->round >= 0 && NULL != r->reqmap[KREQU_IF_NONE_MATCH]) {
 		snprintf(buf, sizeof(buf), 
-			"\"%" PRIu64 "\"", expr->round);
+			"\"%" PRIu64 "-%zu\"", expr->round,
+			db_player_count_plays(expr->round, playerid));
+		fprintf(stderr, "checking %s\n", buf);
 		cp = r->reqmap[KREQU_IF_NONE_MATCH]->val;
 		if (0 == strcmp(buf, cp)) {
 			khttp_head(r, kresps[KRESP_STATUS], 
@@ -469,7 +470,6 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 			return;
 		}
 	}
-#endif
 
 	player = db_player_load(playerid);
 	assert(NULL != player);
@@ -492,7 +492,8 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 			"%s", "no-cache");
 	} else
 		khttp_head(r, kresps[KRESP_ETAG], 
-			"\"%" PRIu64 "\"", expr->round);
+			"\"%" PRIu64 "-%zu\"", expr->round,
+			db_player_count_plays(expr->round, playerid));
 
 	khttp_body(r);
 	kjson_open(&req, r);
