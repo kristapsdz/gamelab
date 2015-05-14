@@ -88,9 +88,13 @@ BUILT	 = adminhome.js \
 VERSIONS = version_1_0_1.xml \
 	   version_1_0_2.xml \
 	   version_1_0_3.xml \
-	   version_1_0_4.xml
+	   version_1_0_4.xml \
+	   version_1_0_5.xml
 
 all: admin lab $(BUILT) $(BUILTPS)
+
+jsmin: jsmin.c
+	$(CC) $(CFLAGS) -o $@ jsmin.c
 
 admin: admin.o $(OBJS)
 	$(CC) $(STATIC) -L/usr/local/lib -o $@ admin.o $(OBJS) -lsqlite3 -lkcgi -lkcgijson -lz -lgmp `curl-config --libs` $(LIBS)
@@ -151,10 +155,12 @@ index.html: index.xml $(VERSIONS)
 	sblg -t index.xml -o- $(VERSIONS) | \
 		sed "s!@VERSION@!$(VERSION)!g" >$@
 
+adminhome.js playerautoadd.js playerhome.js: jsmin
+
 .in.js.js:
 	sed -e "s!@ADMINURI@!$(ADMINURI)!g" \
 		-e "s!@LABURI@!$(LABURI)!g" \
-		-e "s!@HTURI@!$(HTURI)!g" $< >$@
+		-e "s!@HTURI@!$(HTURI)!g" $< | ./jsmin >$@
 
 .in.html.html:
 	sed -e "s!@ADMINURI@!$(ADMINURI)!g" \
@@ -163,7 +169,7 @@ index.html: index.xml $(VERSIONS)
 		-e "s!@HTURI@!$(HTURI)!g" $< >$@
 
 clean:
-	rm -f admin admin.o gamelab.db lab lab.o $(OBJS)
+	rm -f admin admin.o gamelab.db lab lab.o $(OBJS) jsmin
 	rm -f $(BUILT) $(BUILTPS) 
 	rm -f index.html manual.html gamelab.tgz gamelab.tgz.sha512 gamelab.bib gamelab.png
 	rm -rf *.dSYM

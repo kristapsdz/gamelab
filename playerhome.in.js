@@ -26,7 +26,7 @@ var colours = [
 	"#CC0000",
 	"#009900",
 	"#0066CC",
-	"#FF8000",
+	"#FF8000"
 ];
 
 function random(object) {
@@ -49,7 +49,7 @@ function shuffle(o, seed)
 		j = Math.floor(random(object) * i), 
 		x = o[--i], o[i] = o[j], o[j] = x);
         return o;
-};
+}
 
 /*
  * Append a payoff matrix as a "div.history" to "e", setting its maximum

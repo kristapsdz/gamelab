@@ -62,6 +62,136 @@
 					</li>
 				</ul>
 			</nav>
+			<section id="intro">
+				<h2>Introduction</h2>
+				<p>
+					<span class="nm">Gamelab</span> is an online laboratory for conducting game theory experiments.
+					Experiments consist of an experimenter, an experiment configuration, participants, and a set of games.
+					The system is fully web-based and tailored for desktop and mobile devices.
+				</p>
+				<figure id="prog">
+					<span class="term"><span></span>Configure</span>
+					<span><i class="fa fa-fw fa-arrow-right"></i></span>
+					<span class="term"><span></span>Deploy</span>
+					<span><i class="fa fa-fw fa-arrow-right"></i></span>
+					<span class="term"><span></span>Game-play</span>
+					<span><i class="fa fa-fw fa-arrow-right"></i></span>
+					<span class="term"><span></span>Lottery</span>
+				</figure>
+				<p>
+					The experiment is conducted over a configuration: a sequence of rounds during which participants submit
+					strategy mixtures to the given games.
+					Once the experimenter deploys the experiment, players can log in and play, and rounds advance according
+					to time or by the number of players who have played within a round.
+					When the round advances, players earn points by computing the payoff from their submitted strategies
+					against the average mixture submited by participants playing the opponent player role.
+					After the last round, players' points earn lottery tickets, and winners are drawn by selecting lottery
+					tickets.
+				</p>
+				<section id="participants">
+					<h3>Participants</h3>
+					<p>
+						Experiment participants are identified by an e-mail address, or in <q>captive</q> configurations
+						(wherein participants register on-the-spot), by an opaque identifier.
+						Your game can have as many participants as the server (or the experimenter!) can handle.
+						In general, the more the merrier.
+					</p>
+					<p>
+						Participants join the system by being assigned by the experimenter or by assigning themselves in
+						a captive configuration: the experimenter chooses which (or a combination of both) during
+						experiment preparation.
+						In the former case, participants are e-mailed a password and login credentials when the
+						experimenter begins the experiment.
+						These participants can log in and log out over the course of the experiment.
+						In the latter case, participants are not e-mailed, and are assumed to be <q>captive</q> for the
+						duration of the experiment.
+					</p>
+					<p>
+						When the experiment begins, participants are randomly assigned a player role per game.
+						This defines whether the participant plays as the row or column player.
+						Experiments always have an equal assignment of row and column players unless the total number of
+						players is odd, in which case the extra player is assigned a random role.
+					</p>
+					<p>
+						<strong>Note</strong>: beyond their e-mail (as given), game-play, and the browser's reported
+						<q>user-agent</q>, no personal data for participants is retained by the system.
+					</p>
+				</section>
+				<section>
+					<h3>Games</h3>
+					<p>
+						A game in <span class="nm">gamelab</span> is simply a payoff bi-matrix.
+						There is no limit to the number of strategies for this matrix; however, in practise, only so
+						many columns fit neatly on a small screen.
+						Games larger than four or five strategies wide will look funny.
+						Each experiment can have as many games as desired.
+						Payoffs are real-valued, or more specifically, rationally-valued numbers.
+						They are internally represented as fractions so there is no round-off during computation.
+					</p>
+				</section>
+				<section>
+					<h3>Game-play</h3>
+					<p>
+						Once the experimenter deploys the experiment, participants can submit game-plays, one per game
+						per round.
+						A game-play consists of a strategy mixture: a set of probabilities assigned to each of the
+						player role's strategies.
+						The submitted probabilities are non-negative and rationally-valued, and always sum to one.
+						Participants submit these probabilites by clicking on rows in the game matrix (players appear to
+						play the row player regardless of their player role) and entering in a decimal or rational
+						number corresponding to the strategy.
+						Decimals may have at most four digits of precision (thousandths).
+					</p>
+					<p>
+						Participants can only play one game at a time, and each game only once per round.
+						If they log out and log back in (obviously they must be non-captive players), then the last game
+						to play is displayed (assuming the round has not advanced in the meantime).
+						Game matrices have their rows and columns randomly shuffled between participants, making it
+						slightly more difficult to compare strategies.
+						Moreover, the order in which games are displayed is randomised between participants.
+					</p>
+					<p>
+						At the conclusion of each round, players who have submitted mixtures for all games have their
+						payoffs computed as points.
+						(Rounds with incomplete games yield zero points.)
+						Points are computed by playing the participant's mixture against the average mixture of
+						participants in the opposing player role.
+						Only opposing role participants who have played all games are considered.
+						The points are then computed from the game payoffs.
+						All of these calculations are over rational numbers and are unaffected by rounding.
+						If not enough participants have played in a given player role, no points are tallied for the
+						round.
+					</p>
+					<p>
+						After the first round, participants can review the full history of play.
+						This includes the history of their own strategy mixture, the average opponent role mixture, and
+						the participant role's average mixture.
+						Moreover, it includes the participant's accumulation of points, points per round, and the
+						hypothetical points per round of playing pure strategies.
+					</p>
+				</section>
+				<section>
+					<h3>Lottery</h3>
+					<p>
+						When all rounds have concluded, the experiment accepts no more plays.
+						Participants may still log in and review the history, as well as see the total number of points
+						awarded and their lottery ticket allotment.
+					</p>
+					<p>
+						The experimenter may then trigger the lottery from the administration console.
+						This consists of seeding a deterministic random number generator with a given value.
+						Each of these values is mapped into the lottery tickets to choose a winner.
+						A participant is only chosen once for winning: if the random number re-selects a participant,
+						a new number is drawn (rejection sampling).
+					</p>
+					<p>
+						Upon triggering winner selection, winner participants are notified on their login screen, along
+						with the lottery ticket causing the win.
+						This is for transparency of the winner selection.
+						Non-winning participants are also notified.
+					</p>
+				</section>
+			</section>
 			<section id="server">
 				<h2>Server</h2>
 				<p>

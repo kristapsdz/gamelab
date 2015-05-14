@@ -460,7 +460,6 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 		snprintf(buf, sizeof(buf), 
 			"\"%" PRIu64 "-%zu\"", expr->round,
 			db_player_count_plays(expr->round, playerid));
-		fprintf(stderr, "checking %s\n", buf);
 		cp = r->reqmap[KREQU_IF_NONE_MATCH]->val;
 		if (0 == strcmp(buf, cp)) {
 			khttp_head(r, kresps[KRESP_STATUS], 
