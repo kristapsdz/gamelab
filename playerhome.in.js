@@ -807,6 +807,7 @@ function loadGraphs()
 		graph = Flotr.draw(c, datas, { 
 			grid: { horizontalLines: 1 },
 			xaxis: { tickDecimals: 0, title: 'Round' },
+		        yaxis: { min: 0.0 },
 			lines: { show: true },
 		        points: { show: true },
 			legend: { backgroundColor: '#D2E8FF' }

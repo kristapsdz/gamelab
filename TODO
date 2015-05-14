@@ -1,3 +1,13 @@
 - allow admin to see passwords (captive players only)
-- make sure that strategy order is consistent across matrix, chart legend, and chart "stack" position
+- make sure that strategy order is consistent across matrix, chart
+  legend, and chart "stack" position
 - consolidate "bar charts" and "line charts" to reduce clickable choices
+- record screen dimensions when logging in!
+
+- have a choice of round-advancement methods:
+  (1) the traditional max-time based system
+  (2) "roundpct" time with a "grace period"
+      a. if all players play within the grace period, bump round
+      b. otherwise, wait til end of grace period
+  (3) none, administrator does all
+  Administrator can override at any time.
