@@ -41,7 +41,7 @@ digraph {
 		bgcolor="#336699";
 	}
 	subgraph cluster_experiment {
-		experiment [style="filled,rounded"; color="white"; label="{state | start | round | roundbegan | rounds | minutes | loginuri | instr | total | autoadd | id}"];
+		experiment [style="filled,rounded"; color="white"; label="{state | start | round | roundpct | roundbegan | rounds | minutes | loginuri | instr | total | autoadd | id}"];
 		label="experiment";
 		bgcolor="lightgray";
 	}

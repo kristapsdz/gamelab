@@ -456,6 +456,7 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 	 * cached version.
 	 * This significantly saves on our time digging around the db.
 	 */
+#if 0
 	if (NULL != r->reqmap[KREQU_IF_NONE_MATCH]) {
 		snprintf(buf, sizeof(buf), 
 			"\"%" PRIu64 "\"", expr->round);
@@ -468,6 +469,7 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 			return;
 		}
 	}
+#endif
 
 	player = db_player_load(playerid);
 	assert(NULL != player);

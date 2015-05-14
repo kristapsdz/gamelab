@@ -192,6 +192,18 @@ db_bind_text(sqlite3_stmt *stmt, size_t pos, const char *val)
 }
 
 static void
+db_bind_double(sqlite3_stmt *stmt, size_t pos, double val)
+{
+
+	assert(pos > 0);
+	if (SQLITE_OK == sqlite3_bind_double(stmt, pos, val))
+		return;
+	fprintf(stderr, "sqlite3_bind_double: %s\n", sqlite3_errmsg(db));
+	sqlite3_finalize(stmt);
+	exit(EXIT_FAILURE);
+}
+
+static void
 db_bind_int(sqlite3_stmt *stmt, size_t pos, int64_t val)
 {
 
@@ -448,14 +460,18 @@ db_winners_free(struct winner *win)
  * This is one of the more important functions.
  * It is called often (once per invocation) by both the administrator
  * and players to advance the round.
- * Rounds, for now, advance according to time.
+ * Rounds either advance according to time or the percentage of players
+ * per role who have played all games.
  */
 void
 db_expr_advance(void)
 {
 	struct expr	*expr;
 	time_t		 t;
-	int64_t		 round;
+	int		 rc;
+	size_t		 games, allplayers[2];
+	size_t		 roleplayers[2];
+	int64_t		 round, played;
 	sqlite3_stmt	*stmt;
 
 	/* Do nothing if we'we not started. */
@@ -468,10 +484,63 @@ db_expr_advance(void)
 		return;
 	} 
 
-	/* Compute the expected round. */
+	if (expr->roundpct > 0.0 && expr->round >= 0) {
+		/*
+		 * Optional round advancement according to the number of
+		 * players per role who have played all games.
+		 */
+		/* FIXME: cache in experiment. */
+		games = db_game_count_all();
+		/*
+		 * First determine how many players exist per role.
+		 * FIXME: cache in experiment.
+		 */
+		stmt = db_stmt("SELECT count(*) FROM "
+			"player WHERE player.role=?");
+		db_bind_int(stmt, 1, 0);
+		rc = db_step(stmt, 0);
+		assert(SQLITE_ROW == rc);
+		allplayers[0] = sqlite3_column_int(stmt, 0);
+		sqlite3_reset(stmt);
+		db_bind_int(stmt, 1, 1);
+		rc = db_step(stmt, 0);
+		assert(SQLITE_ROW == rc);
+		allplayers[1] = sqlite3_column_int(stmt, 0);
+		sqlite3_finalize(stmt);
+		/*
+		 * Now increment the number of players per role who have
+		 * played all of their games.
+		 */
+		stmt = db_stmt("SELECT player.role FROM player "
+			"INNER JOIN gameplay ON "
+			" player.id = gameplay.playerid "
+			"WHERE gameplay.round=? AND "
+			" gameplay.choices=?");
+		db_bind_int(stmt, 1, expr->round);
+		db_bind_int(stmt, 2, games);
+		roleplayers[0] = roleplayers[1] = 0;
+		while (SQLITE_ROW == db_step(stmt, 0)) {
+			played = sqlite3_column_int(stmt, 0);
+			assert(played == 0 || played == 1);
+			roleplayers[played]++;
+		}
+		sqlite3_finalize(stmt);
+		if (roleplayers[0] / (double)allplayers[0] >= expr->roundpct &&
+			 roleplayers[1] / (double)allplayers[1] >= expr->roundpct) {
+			round = expr->round + 1;
+			goto advance;
+		}
+	} 
+
+	/*
+	 * Round advancement according to the system time.
+	 * (This is the fallback for the percentage case.)
+	 * Obviously this is sensitive to time(2) returning the
+	 * correct value!
+	 * However, this won't allow rounds to regress.
+	 */
 	round = t >= expr->end ? expr->rounds : 
 		(t - expr->start) / (expr->minutes * 60);
-
 	if (round < expr->round) {
 		fprintf(stderr, "Round-advance time warp: "
 			"computed %" PRId64 ", have %" 
@@ -483,8 +552,8 @@ db_expr_advance(void)
 		return;
 	}
 
+advance:
 	db_expr_free(expr);
-
 	/* 
 	 * At this exact point, our computed round is ahead of the
 	 * experiment's round.
@@ -1461,7 +1530,7 @@ db_expr_setstart(int64_t date)
 }
 
 int
-db_expr_start(int64_t date, int64_t rounds, 
+db_expr_start(int64_t date, int64_t roundpct, int64_t rounds, 
 	int64_t minutes, const char *instr, const char *uri)
 {
 	sqlite3_stmt	*stmt, *stmt2;
@@ -1476,15 +1545,21 @@ db_expr_start(int64_t date, int64_t rounds,
 		return(0);
 	}
 
+	if (roundpct < 0)
+		roundpct = 0;
+	if (roundpct > 100)
+		roundpct = 100;
+
 	stmt = db_stmt("UPDATE experiment SET "
 		"start=?,rounds=?,minutes=?,"
-		"loginuri=?,instr=?,state=?");
+		"loginuri=?,instr=?,state=?,roundpct=?");
 	db_bind_int(stmt, 1, date);
 	db_bind_int(stmt, 2, rounds);
 	db_bind_int(stmt, 3, minutes);
 	db_bind_text(stmt, 4, uri);
 	db_bind_text(stmt, 5, instr);
 	db_bind_int(stmt, 6, ESTATE_STARTED);
+	db_bind_double(stmt, 7, roundpct / 100.0);
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);
 	db_trans_commit();
@@ -2465,7 +2540,7 @@ db_expr_get(int only_started)
 
 	stmt = db_stmt("SELECT start,rounds,minutes,"
 		"loginuri,state,instr,state,total,"
-		"autoadd,round,roundbegan FROM experiment");
+		"autoadd,round,roundbegan,roundpct FROM experiment");
 	rc = db_step(stmt, 0);
 	assert(SQLITE_ROW == rc);
 	if (only_started && ESTATE_NEW == sqlite3_column_int(stmt, 4)) {
@@ -2485,6 +2560,7 @@ db_expr_get(int only_started)
 	expr->autoadd = sqlite3_column_int(stmt, 8);
 	expr->round = sqlite3_column_int(stmt, 9);
 	expr->roundbegan = sqlite3_column_int(stmt, 10);
+	expr->roundpct = sqlite3_column_double(stmt, 11);
 	sqlite3_finalize(stmt);
 	return(expr);
 }
@@ -2526,7 +2602,7 @@ db_expr_wipe(void)
 		"enabled=1,finalrank=0,finalscore=0,hash=''");
 	db_exec("UPDATE experiment SET "
 		"autoadd=0,state=0,total='0/1',round=-1,"
-		"roundbegan=0");
+		"roundbegan=0,roundpct=0.0");
 	stmt = db_stmt("SELECT id FROM player");
 	stmt2 = db_stmt("UPDATE player SET rseed=? WHERE id=?");
 	/* 

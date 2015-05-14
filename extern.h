@@ -39,6 +39,7 @@ struct	expr {
 	time_t		 end; /* game-play ends (computed) */
 	int64_t		 rounds; /* number of game plays */
 	time_t		 roundbegan; /* number of game plays */
+	double		 roundpct;
 	int64_t		 minutes; /* minutes per game play */
 	char		*loginuri; /* player login (email click) */
 	char		*instr; /* instruction markup */
@@ -201,7 +202,8 @@ void		 db_expr_setinstr(const char *);
 int		 db_expr_setminutes(int64_t);
 int		 db_expr_setrounds(int64_t);
 int		 db_expr_setstart(int64_t);
-int		 db_expr_start(int64_t, int64_t, int64_t, const char *, const char *);
+int		 db_expr_start(int64_t, int64_t, int64_t, 
+			int64_t, const char *, const char *);
 void		 db_expr_wipe(void);
 
 struct game	*db_game_alloc(const char *,

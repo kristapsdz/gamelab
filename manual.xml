@@ -485,6 +485,11 @@
 						itself.
 						Set the time and date when the experiment begins (<strong>remember</strong>: in GMT!) and the
 						number of rounds and duration of each round.
+						If you enter a non-zero percentage for the number of players per role, then the round will
+						advance if enough players have played.
+						For example, if set to 50%, then 50% or more players playing all games in both roles will cause
+						the round to advance regardless the amount of time left.
+						(If not enough players play, then round will advance by the given, and now maximum, time.)
 						You can edit the instructions given to players&mdash;in fact, that's a good idea, as you
 						probably want to tune the winnings.
 						Then hit <q>Start</q> and you're ready to go!
@@ -815,6 +820,14 @@
 									If <a href="#db-experiment-round"><var>round</var></a> is non-negative,
 									then the timestamp (epoch) when the round was incremented.
 									Otherwise, this is zero.
+								</dd>
+								<dt id="db-experiment-roundpct"><var>roundpct</var></dt>
+								<dd>
+									If &gt;0, this represents the fraction of players per role who play all
+									games and determine that the round automatically advances.
+									In other words, if set to 0.5 (50%), then from both player roles, if 50%
+									or more players have played all games, the round advances in advance of
+									the set round termination time.
 								</dd>
 								<dt id="db-experiment-rounds"><var>rounds</var></dt>
 								<dd>The number of rounds that will be played.  Minimum of one.</dd>

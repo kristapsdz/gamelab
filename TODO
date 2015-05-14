@@ -1,1 +1,3 @@
 - allow admin to see passwords (captive players only)
+- make sure that strategy order is consistent across matrix, chart legend, and chart "stack" position
+- consolidate "bar charts" and "line charts" to reduce clickable choices
