@@ -599,25 +599,28 @@ function showHistory()
 function loadGraphs()
 {
 	var	e, c, i, j, k, l, data, datas, graph, lot, 
-		avg, len, len2, matrix, sum;
+		avg, len, len2, matrix, sum, sub;
 
 	if (null == res)
 		return;
 	else if (res.expr.round <= 0)
 		return;
 
-	/*
-	 * Begin with the accumulate payoffs.
-	 * For this, we go from the first to the last round and sum the
-	 * payoffs for ourselves over each game.
-	 */
 	e = doClear('historyGraphs');
 
 	for (i = 0; i < res.history.length; i++) {
+		sub = document.createElement('div');
+		sub.setAttribute('id', 'historyLineGraphs' + res.gameorders[i]);
+		e.appendChild(sub);
+		doHideNode(sub);
+
+		/*
+		 * Begin with the accumulate payoffs.
+		 * For this, we go from the first to the last round and
+		 * sum the payoffs for ourselves over each game.
+		 */
 		c = document.createElement('div');
-		e.appendChild(c);
-		c.setAttribute('class', 'graphin');
-		c.setAttribute('id', 'historyGraphAccumRound' + res.gameorders[i]);
+		sub.appendChild(c);
 		data = [];
 		data.push([0, 0.0]);
 		for (k = 0.0, j = 0; j < res.history[i].roundups.length; j++) {
@@ -632,18 +635,13 @@ function loadGraphs()
 			  lines: { show: true },
 		          points: { show: true },
 			  yaxis: { min: 0.0 }});
-		doHideNode(c);
-	}
 
-	/*
-	 * Next, show the instantaneous payoff for each round.
-	 * This is the same as above, but without accumulating.
-	 */
-	for (i = 0; i < res.history.length; i++) {
+		/*
+		 * Next, show the instantaneous payoff for each round.
+		 * This is the same as above, but without accumulating.
+		 */
 		c = document.createElement('div');
-		e.appendChild(c);
-		c.setAttribute('class', 'graphin');
-		c.setAttribute('id', 'historyGraphPerRound' + res.gameorders[i]);
+		sub.appendChild(c);
 		data = [];
 		for (j = 0; j < res.history[i].roundups.length; j++) {
 			lot = res.lotteries[j].plays[res.gameorders[i]];
@@ -651,132 +649,18 @@ function loadGraphs()
 		}
 		graph = Flotr.draw(c, 
 			[{ data: data }],
-			{ xaxis: { tickDecimals: 0, title: 'Round' },
+			{ xaxis: { tickDecimals: 0 },
 			  lines: { show: true },
 		          points: { show: true },
 			  yaxis: { min: 0.0 }});
-		doHideNode(c);
-	}
 
-	/*
-	 * Print the bar graph of our player's strategy.
-	 */
-	for (i = 0; i < res.history.length; i++) {
+		/*
+		 * Print "hypothetical" payoffs, i.e., the expected
+		 * utility from the player playing her pure strategies
+		 * against the average of the opponent.
+		 */
 		c = document.createElement('div');
-		e.appendChild(c);
-		c.setAttribute('class', 'graphin');
-		c.setAttribute('id', 'historyGraphSelfStrat' + res.gameorders[i]);
-		datas = [];
-		len = 0 == res.player.role ? 
-			res.history[res.gameorders[i]].roundups[0].navgp1.length : 
-			res.history[res.gameorders[i]].roundups[0].navgp2.length;
-		for (j = 0; j < len; j++) {
-			data = [];
-			for (k = 0; k < res.history[res.gameorders[i]].roundups.length; k++) {
-				lot = res.lotteries[k].plays[res.gameorders[i]];
-				if (null == lot) {
-					data.push([(k + 1), 0]);
-					continue;
-				}
-				data.push([(k + 1), lot.stratsd[j]]);
-			}
-			datas.push({
-				data: data, 
-				label: 'Strategy ' + String.fromCharCode
-					(97 + res.roworders[res.gameorders[i]][j])
-			});
-		}
-		graph = Flotr.draw(c, datas, { 
-			bars: { show: true , shadowSize: 0, stacked: true, barWidth: 1.0, lineWidth: 1 }, 
-			grid: { horizontalLines: 1 },
-			xaxis: { tickDecimals: 0, title: 'Round' },
-			yaxis: { max: 1.0, min: 0.0 },
-			legend: { backgroundColor: '#D2E8FF' }
-		});
-		doHideNode(c);
-	}
-
-	/*
-	 * Print the bar graph of our player population's strategy.
-	 */
-	for (i = 0; i < res.history.length; i++) {
-		c = document.createElement('div');
-		e.appendChild(c);
-		c.setAttribute('class', 'graphin');
-		c.setAttribute('id', 'historyGraphOwnStrat' + res.gameorders[i]);
-		datas = [];
-		len = 0 == res.player.role ? 
-			res.history[res.gameorders[i]].roundups[0].navgp1.length : 
-			res.history[res.gameorders[i]].roundups[0].navgp2.length;
-		for (j = 0; j < len; j++) {
-			data = [];
-			for (k = 0; k < res.history[res.gameorders[i]].roundups.length; k++) {
-				avg = 0 == res.player.role ? 
-					res.history[res.gameorders[i]].roundups[k].navgp1 : 
-					res.history[res.gameorders[i]].roundups[k].navgp2;
-				data.push([(k + 1), avg[j]]);
-			}
-			datas.push({
-				data: data, 
-				label: 'Strategy ' + String.fromCharCode
-					(97 + res.roworders[res.gameorders[i]][j])
-			});
-		}
-		graph = Flotr.draw(c, datas, { 
-			bars: { show: true , shadowSize: 0, stacked: true, barWidth: 1.0, lineWidth: 1 }, 
-			grid: { horizontalLines: 1 },
-			xaxis: { tickDecimals: 0, title: 'Round' },
-			yaxis: { max: 1.0, min: 0.0 },
-			legend: { backgroundColor: '#D2E8FF' }
-		});
-		doHideNode(c);
-	}
-
-	/*
-	 * Now print the bar graph of opponent strategy.
-	 */
-	for (i = 0; i < res.history.length; i++) {
-		c = document.createElement('div');
-		e.appendChild(c);
-		c.setAttribute('class', 'graphin');
-		c.setAttribute('id', 'historyGraphStrat' + res.gameorders[i]);
-		datas = [];
-		len = 0 == res.player.role ? 
-			res.history[res.gameorders[i]].roundups[0].navgp2.length : 
-			res.history[res.gameorders[i]].roundups[0].navgp1.length;
-		for (j = 0; j < len; j++) {
-			data = [];
-			for (k = 0; k < res.history[res.gameorders[i]].roundups.length; k++) {
-				avg = 0 == res.player.role ? 
-					res.history[res.gameorders[i]].roundups[k].navgp2 : 
-					res.history[res.gameorders[i]].roundups[k].navgp1;
-				data.push([(k + 1), avg[j]]);
-			}
-			datas.push({
-				data: data, 
-				label: 'Strategy ' + String.fromCharCode(65 + j)
-			});
-		}
-		graph = Flotr.draw(c, datas, { 
-			bars: { show: true , shadowSize: 0, stacked: true, barWidth: 1.0, lineWidth: 1 }, 
-			grid: { horizontalLines: 1 },
-			xaxis: { tickDecimals: 0, title: 'Round' },
-			yaxis: { max: 1.0, min: 0.0 },
-			legend: { backgroundColor: '#D2E8FF' }
-		});
-		doHideNode(c);
-	}
-
-	/*
-	 * Print "hypothetical" payoffs, i.e., the expected utility from
-	 * the player playing her pure strategies against the average of
-	 * the opponent.
-	 */
-	for (i = 0; i < res.history.length; i++) {
-		c = document.createElement('div');
-		e.appendChild(c);
-		c.setAttribute('class', 'graphin');
-		c.setAttribute('id', 'historyGraphPurePoffs' + res.gameorders[i]);
+		sub.appendChild(c);
 		matrix = 0 == res.player.role ?
 			bimatrixCreate(res.history[res.gameorders[i]].payoffs) :
 			bimatrixCreateTranspose(res.history[res.gameorders[i]].payoffs);
@@ -812,7 +696,107 @@ function loadGraphs()
 		        points: { show: true },
 			legend: { backgroundColor: '#D2E8FF' }
 		});
-		doHideNode(c);
+
+		sub = document.createElement('div');
+		sub.setAttribute('id', 'historyBarGraphs' + res.gameorders[i]);
+		e.appendChild(sub);
+		doHideNode(sub);
+
+		/*
+		 * Print the bar graph of our player's strategy.
+		 */
+		c = document.createElement('div');
+		sub.appendChild(c);
+		datas = [];
+		len = 0 == res.player.role ? 
+			res.history[res.gameorders[i]].roundups[0].navgp1.length : 
+			res.history[res.gameorders[i]].roundups[0].navgp2.length;
+		for (j = 0; j < len; j++) {
+			data = [];
+			for (k = 0; k < res.history[res.gameorders[i]].roundups.length; k++) {
+				lot = res.lotteries[k].plays[res.gameorders[i]];
+				if (null == lot) {
+					data.push([(k + 1), 0]);
+					continue;
+				}
+				data.push([(k + 1), lot.stratsd[j]]);
+			}
+			datas.push({
+				data: data, 
+				label: 'Strategy ' + String.fromCharCode
+					(97 + res.roworders[res.gameorders[i]][j])
+			});
+		}
+		graph = Flotr.draw(c, datas, { 
+			bars: { show: true , shadowSize: 0, stacked: true, barWidth: 1.0, lineWidth: 1 }, 
+			grid: { horizontalLines: 1 },
+			xaxis: { tickDecimals: 0 },
+			yaxis: { max: 1.0, min: 0.0 },
+			legend: { backgroundColor: '#D2E8FF' }
+		});
+
+		/*
+		 * Print the bar graph of our player population's strategy.
+		 */
+		c = document.createElement('div');
+		sub.appendChild(c);
+		c.setAttribute('class', 'graphin');
+		c.setAttribute('id', 'historyGraphOwnStrat' + res.gameorders[i]);
+		datas = [];
+		len = 0 == res.player.role ? 
+			res.history[res.gameorders[i]].roundups[0].navgp1.length : 
+			res.history[res.gameorders[i]].roundups[0].navgp2.length;
+		for (j = 0; j < len; j++) {
+			data = [];
+			for (k = 0; k < res.history[res.gameorders[i]].roundups.length; k++) {
+				avg = 0 == res.player.role ? 
+					res.history[res.gameorders[i]].roundups[k].navgp1 : 
+					res.history[res.gameorders[i]].roundups[k].navgp2;
+				data.push([(k + 1), avg[j]]);
+			}
+			datas.push({
+				data: data, 
+				label: 'Strategy ' + String.fromCharCode
+					(97 + res.roworders[res.gameorders[i]][j])
+			});
+		}
+		graph = Flotr.draw(c, datas, { 
+			bars: { show: true , shadowSize: 0, stacked: true, barWidth: 1.0, lineWidth: 1 }, 
+			grid: { horizontalLines: 1 },
+			xaxis: { tickDecimals: 0 },
+			yaxis: { max: 1.0, min: 0.0 },
+			legend: { backgroundColor: '#D2E8FF' }
+		});
+
+		/*
+		 * Now print the bar graph of opponent strategy.
+		 */
+		c = document.createElement('div');
+		sub.appendChild(c);
+		datas = [];
+		len = 0 == res.player.role ? 
+			res.history[res.gameorders[i]].roundups[0].navgp2.length : 
+			res.history[res.gameorders[i]].roundups[0].navgp1.length;
+		for (j = 0; j < len; j++) {
+			data = [];
+			for (k = 0; k < res.history[res.gameorders[i]].roundups.length; k++) {
+				avg = 0 == res.player.role ? 
+					res.history[res.gameorders[i]].roundups[k].navgp2 : 
+					res.history[res.gameorders[i]].roundups[k].navgp1;
+				data.push([(k + 1), avg[j]]);
+			}
+			datas.push({
+				data: data, 
+				label: 'Strategy ' + String.fromCharCode(65 + j)
+			});
+		}
+		graph = Flotr.draw(c, datas, { 
+			bars: { show: true , shadowSize: 0, stacked: true, barWidth: 1.0, lineWidth: 1 }, 
+			grid: { horizontalLines: 1 },
+			xaxis: { tickDecimals: 0, title: 'Round' },
+			yaxis: { max: 1.0, min: 0.0 },
+			legend: { backgroundColor: '#D2E8FF' }
+		});
 	}
 }
 
