@@ -449,16 +449,20 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 		return;
 	}
 
+	player = db_player_load(playerid);
+	assert(NULL != player);
+
 	/*
 	 * Cache optimisation.
 	 * If we're at the same round as the last time we asked for
 	 * data, then simply 304 the request and let the browser use the
 	 * cached version.
-	 * This significantly saves on our time digging around the db.
+	 * This saves (untested) on our time digging around the db.
 	 */
 	if (expr->round >= 0 && NULL != r->reqmap[KREQU_IF_NONE_MATCH]) {
 		snprintf(buf, sizeof(buf), 
-			"\"%" PRIu64 "-%zu\"", expr->round,
+			"\"%" PRIu64 "-%" PRId64 "-%zu\"", 
+			expr->round, player->version,
 			db_player_count_plays(expr->round, playerid));
 		cp = r->reqmap[KREQU_IF_NONE_MATCH]->val;
 		if (0 == strcmp(buf, cp)) {
@@ -466,12 +470,11 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 				"%s", khttps[KHTTP_304]);
 			khttp_body(r);
 			db_expr_free(expr);
+			db_player_free(player);
 			return;
 		}
 	}
 
-	player = db_player_load(playerid);
-	assert(NULL != player);
 	memset(&stor, 0, sizeof(struct intvstor));
 	memset(&pstor, 0, sizeof(struct poffstor));
 
@@ -491,7 +494,8 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 			"%s", "no-cache");
 	} else
 		khttp_head(r, kresps[KRESP_ETAG], 
-			"\"%" PRIu64 "-%zu\"", expr->round,
+			"\"%" PRIu64 "-%" PRId64 "-%zu\"", 
+			expr->round, player->version,
 			db_player_count_plays(expr->round, playerid));
 
 	khttp_body(r);

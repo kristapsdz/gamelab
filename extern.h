@@ -39,13 +39,13 @@ struct	expr {
 	time_t		 end; /* game-play ends (computed) */
 	int64_t		 rounds; /* number of game plays */
 	time_t		 roundbegan; /* number of game plays */
-	double		 roundpct;
+	double		 roundpct; /* percent-based round advance */
 	int64_t		 minutes; /* minutes per game play */
 	char		*loginuri; /* player login (email click) */
 	char		*instr; /* instruction markup */
 	int64_t		 total; /* total winnings (>ESTATE_STARTED) */
 	int64_t		 autoadd; /* auto-adding players */
-	int64_t		 round;
+	int64_t		 round; /* round (<0 initial, then >=0) */
 };
 
 /*
@@ -53,7 +53,7 @@ struct	expr {
  * The usual web stuff.
  */
 struct	sess {
-	int64_t	 	 cookie;
+	int64_t	 	 cookie; /* randomly-generated cookie */
 	int64_t	 	 id;
 };
 
@@ -142,6 +142,7 @@ struct	player {
 	int64_t		 instr; /* show instructions? */
 	int64_t		 finalrank; /* ticket offset in all awards */
 	int64_t		 finalscore; /* number of tickets */
+	int64_t		 version; /* increment at update */
 	int64_t		 id;
 };
 

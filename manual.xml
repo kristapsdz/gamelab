@@ -791,6 +791,12 @@
 									not (yet) a hash.</dd>
 								<dt id="db-player-id"><var>id</var></dt>
 								<dd>Unique identifier.</dd>
+								<dt id="db-player-version"><var>version</var></dt>
+								<dd>
+									A number from zero that indicates the number of time the player field
+									has been updated.
+									This is used to make the player object cachable.
+								</dd>
 							</dl>
 						</dd>
 						<dt id="db-lottery"><code>lottery</code></dt>

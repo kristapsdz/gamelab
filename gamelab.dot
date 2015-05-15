@@ -9,7 +9,7 @@ digraph {
 		bgcolor="lightgray";
 	}
 	subgraph cluster_player {
-		player [style="filled,rounded"; color="white"; label="{email | state | enabled | rseed | role | rank | instr | finalrank | finalscore | hash | autoadd | id}"];
+		player [style="filled,rounded"; color="white"; label="{email | version | state | enabled | rseed | role | rank | instr | finalrank | finalscore | hash | autoadd | id}"];
 		label="player";
 		fontcolor=white;
 		bgcolor="#336699";

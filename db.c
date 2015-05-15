@@ -528,16 +528,9 @@ db_expr_advance(void)
 
 		if (roleplayers[0] / (double)allplayers[0] >= expr->roundpct &&
 			 roleplayers[1] / (double)allplayers[1] >= expr->roundpct) {
-			fprintf(stderr, "YES: %zu/%zu >= %g && %zu/%zu >= %g\n",
-				roleplayers[0], allplayers[0], expr->roundpct,
-				roleplayers[1], allplayers[1], expr->roundpct);
 			round = expr->round + 1;
 			goto advance;
 		}
-
-		fprintf(stderr, "NO: %zu/%zu >= %g && %zu/%zu >= %g\n",
-			roleplayers[0], allplayers[0], expr->roundpct,
-			roleplayers[1], allplayers[1], expr->roundpct);
 	} 
 
 	/*
@@ -694,7 +687,8 @@ again:
 	 * NOTE: we're rounding up!
 	 */
 	stmt = db_stmt("UPDATE player SET "
-		"finalrank=?,finalscore=? WHERE id=?");
+		"finalrank=?,finalscore=?,version=version+1 "
+	        "WHERE id=?");
 	for (total = 0, i = 0; i < players; i++) {
 		mpq_clear(cmp);
 		mpq_clear(sum);
@@ -1003,7 +997,6 @@ db_player_count_plays(int64_t round, int64_t playerid)
 		val = sqlite3_column_int(stmt, 0);
 	sqlite3_finalize(stmt);
 	assert(val >= 0);
-	fprintf(stderr, "val = %zu\n", (size_t)val);
 	return(val);
 }
 
@@ -1017,48 +1010,64 @@ db_player_free(struct player *player)
 	free(player);
 }
 
+/*
+ * Set Boolean "instr" whether want to see instructions on load.
+ */
 void
 db_player_set_instr(int64_t player, int64_t instr)
 {
 	sqlite3_stmt	*stmt;
 
-	stmt = db_stmt("UPDATE player SET instr=? WHERE id=?");
+	stmt = db_stmt
+		("UPDATE player SET "
+		"instr=?,version=version+1 WHERE id=?");
 	db_bind_int(stmt, 1, instr);
 	db_bind_int(stmt, 2, player);
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);
+	fprintf(stderr, "Player %" PRId64 " set instr = %" 
+		PRId64 "\n", player, instr);
 }
 
+/*
+ * Load a single player by their rowid.
+ * Return NULL if the player was not found.
+ */
 struct player *
 db_player_load(int64_t id)
 {
 	sqlite3_stmt	*stmt;
-	struct player	*player = NULL;
+	struct player	*player;
 
 	stmt = db_stmt("SELECT email,state,id,enabled,"
-		"role,rseed,instr,finalrank,finalscore,autoadd "
-		"FROM player WHERE id=?");
+		"role,rseed,instr,finalrank,finalscore,autoadd,"
+	        "version FROM player WHERE id=?");
 	db_bind_int(stmt, 1, id);
+	if (SQLITE_ROW != db_step(stmt, 0)) {
+		sqlite3_finalize(stmt);
+		return(NULL);
+	}
 
-	if (SQLITE_ROW == db_step(stmt, 0)) {
-		player = kcalloc(1, sizeof(struct player));
-		player->mail = kstrdup
-			((char *)sqlite3_column_text(stmt, 0));
-		player->state = sqlite3_column_int(stmt, 1);
-		player->id = sqlite3_column_int(stmt, 2);
-		player->enabled = sqlite3_column_int(stmt, 3);
-		player->role = sqlite3_column_int(stmt, 4);
-		player->rseed = sqlite3_column_int(stmt, 5);
-		player->instr = sqlite3_column_int(stmt, 6);
-		player->finalrank = sqlite3_column_int(stmt, 7);
-		player->finalscore = sqlite3_column_int(stmt, 8);
-		player->autoadd = sqlite3_column_int(stmt, 9);
-	} 
-
+	player = kcalloc(1, sizeof(struct player));
+	player->mail = kstrdup((char *)sqlite3_column_text(stmt, 0));
+	player->state = sqlite3_column_int(stmt, 1);
+	player->id = sqlite3_column_int(stmt, 2);
+	player->enabled = sqlite3_column_int(stmt, 3);
+	player->role = sqlite3_column_int(stmt, 4);
+	player->rseed = sqlite3_column_int(stmt, 5);
+	player->instr = sqlite3_column_int(stmt, 6);
+	player->finalrank = sqlite3_column_int(stmt, 7);
+	player->finalscore = sqlite3_column_int(stmt, 8);
+	player->autoadd = sqlite3_column_int(stmt, 9);
+	player->version = sqlite3_column_int(stmt, 10);
 	sqlite3_finalize(stmt);
 	return(player);
 }
 
+/*
+ * Load all players in database.
+ * Pass through each one to "fp" with argument "arg".
+ */
 void
 db_player_load_all(playerf fp, void *arg)
 {
@@ -1066,8 +1075,8 @@ db_player_load_all(playerf fp, void *arg)
 	struct player	 player;
 
 	stmt = db_stmt("SELECT email,state,id,enabled,"
-		"role,rseed,instr,finalrank,finalscore,autoadd "
-		"FROM player");
+		"role,rseed,instr,finalrank,finalscore,autoadd, "
+		"version FROM player");
 	while (SQLITE_ROW == db_step(stmt, 0)) {
 		memset(&player, 0, sizeof(struct player));
 		player.mail = kstrdup
@@ -1081,6 +1090,7 @@ db_player_load_all(playerf fp, void *arg)
 		player.finalrank = sqlite3_column_int(stmt, 7);
 		player.finalscore = sqlite3_column_int(stmt, 8);
 		player.autoadd = sqlite3_column_int(stmt, 9);
+		player.version = sqlite3_column_int(stmt, 10);
 		(*fp)(&player, arg);
 		free(player.mail);
 	}
@@ -1599,7 +1609,7 @@ db_expr_start(int64_t date, int64_t roundpct, int64_t rounds,
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);
 	db_trans_commit();
-	fprintf(stderr, "Experiment started!\n");
+	fprintf(stderr, "Experiment started\n");
 
 	i = 0;
 	stmt = db_stmt("SELECT id from player ORDER BY rseed ASC, id ASC");
@@ -1622,7 +1632,8 @@ db_player_enable(int64_t id)
 {
 	sqlite3_stmt	*stmt;
 
-	stmt = db_stmt("UPDATE player SET enabled=1 WHERE id=?");
+	stmt = db_stmt("UPDATE player SET "
+		"enabled=1,version=version+1 WHERE id=?");
 	db_bind_int(stmt, 1, id);
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);
@@ -1637,7 +1648,7 @@ db_player_reset_all(void)
 	stmt = db_stmt("UPDATE player SET state=0");
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);
-	fprintf(stderr, "Updated all players\' error states\n");
+	fprintf(stderr, "Player error states reset\n");
 }
 
 void
@@ -1648,7 +1659,7 @@ db_player_reset_error(void)
 	stmt = db_stmt("UPDATE player SET state=0 WHERE state=3");
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);
-	fprintf(stderr, "Updated error\'d players\' error states\n");
+	fprintf(stderr, "Player (with error) error states reset\n");
 }
 
 void
@@ -1661,6 +1672,8 @@ db_player_set_state(int64_t id, enum pstate state)
 	db_bind_int(stmt, 2, id);
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);
+	fprintf(stderr, "Player %" PRId64 
+		" state set to %d\n", id, state);
 }
 
 void
@@ -1747,7 +1760,8 @@ db_player_disable(int64_t id)
 {
 	sqlite3_stmt	*stmt;
 
-	stmt = db_stmt("UPDATE player SET enabled=0 WHERE id=?");
+	stmt = db_stmt("UPDATE player SET "
+		"enabled=0,version=version+1 WHERE id=?");
 	db_bind_int(stmt, 1, id);
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);
@@ -2634,7 +2648,7 @@ db_expr_wipe(void)
 	db_exec("DELETE FROM winner");
 	db_exec("DELETE FROM tickets");
 	db_exec("DELETE FROM player WHERE autoadd=1");
-	db_exec("UPDATE player SET instr=1,state=0,"
+	db_exec("UPDATE player SET version=0,instr=1,state=0,"
 		"enabled=1,finalrank=0,finalscore=0,hash=''");
 	db_exec("UPDATE experiment SET "
 		"autoadd=0,state=0,total='0/1',round=-1,"

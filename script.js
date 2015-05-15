@@ -199,12 +199,15 @@ function sendFormTo(oFormElement, action, setup, error, success)
 	var xmlhttp = new XMLHttpRequest();
 	var formdata = new FormData(oFormElement);
 
-	setup();
+	if (null != setup)
+		setup();
+
+	console.log('asdf');
 
 	xmlhttp.onreadystatechange=function() {
-		if (xmlhttp.readyState==4 && xmlhttp.status==200)
+		if (xmlhttp.readyState==4 && xmlhttp.status==200 && null != success)
 			success(xmlhttp.responseText);
-		else if (xmlhttp.readyState == 4)
+		else if (xmlhttp.readyState == 4 && null != error)
 			error(xmlhttp.status);
 	} 
 

@@ -160,7 +160,7 @@ adminhome.js playerautoadd.js playerhome.js: jsmin
 .in.js.js:
 	sed -e "s!@ADMINURI@!$(ADMINURI)!g" \
 		-e "s!@LABURI@!$(LABURI)!g" \
-		-e "s!@HTURI@!$(HTURI)!g" $< | ./jsmin >$@
+		-e "s!@HTURI@!$(HTURI)!g" $< >$@
 
 .in.html.html:
 	sed -e "s!@ADMINURI@!$(ADMINURI)!g" \

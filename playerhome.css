@@ -172,11 +172,19 @@ div.input input[readonly]	{ background-color: #ddd; }
 				  padding: 0.5ex;
 				  border-radius: 1ex; }
 #bimatrixRoundups		{ margin-bottom: 1em; }
-.graphout			{ padding: 1ex; }
-.graphout > div > div		{ width: 80%; 
+#graphFig			{ padding: 1ex; }
+#graphFig > div > div > div	{ width: 80%; 
 				  margin-left: auto; 
 			  	  margin-right: auto;
-			  	  height: 200px; z-index: 0; }
+			  	  height: 200px; 
+				  z-index: 0; }
+#graphFig .legend		{ text-align: center; }
+#graphButtons button		{ font-size: 12pt; 
+				  border: thin solid black;
+				  box-shadow: none;
+				  border-radius: 1ex; }
+#graphButtons .clicked		{ background-color: #336699; 
+				  color: #fff; }
 
 /*
  * Now layout the specific components. 
@@ -252,6 +260,9 @@ div.input input[type=time]	{ width: 20ex; }
 	h3			{ font-size: 14pt; }
 	h1, h2, h3		{ margin-top: 0.5em; 
 				  margin-bottom: 0.5em; }
-	.graphout > div > div	{ height: 180px; 
+  	#graphFig		{ margin: 0; 
+				  margin-top: 1ex; }
+	#graphFig > div > div > div
+				{ height: 180px; 
 				  width: 100%; }
 }

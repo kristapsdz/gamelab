@@ -47,16 +47,22 @@
 								<a href="#" onclick='showHistoryGamePrev(); return false;'><i class="fa fa-caret-left"></i></a>
 								<select id="historySelectGame" onchange="showHistory();"></select>
 								<a href="#" onclick='showHistoryGameNext(); return false;'><i class="fa fa-caret-right"></i></a>
-								bimatrix and statistics
+								history
 							</h3>
 							<div id="bimatrixRoundups"></div>
-							<select id="historySelectGraph" onchange="showHistory();">
-								<optgroup>
-									<option value="historyLineGraphs">Payoff Graphs</option>
-									<option value="historyBarGraphs">Strategy Graphs</option>
-								</optgroup>
-							</select>
-							<div class="graphout" id="historyGraphs"></div>
+							<div id="graphButtons">
+								<button id="graphLineButton" class="clicked" onclick="showGraph('historyLineGraphs', this);">
+									<i class="fa fa-fw fa-line-chart"></i> Payoffs
+								</button>
+								<button id="graphBarButton" onclick="showGraph('historyBarGraphs', this);">
+									<i class="fa fa-fw fa-bar-chart"></i> Strategies
+								</button>
+							</div>
+							<figure id="graphFig">
+								<div id="historyLineGraphs"></div>
+								<div id="historyBarGraphs"></div>
+								<div class="legend">Rounds</div>
+							</figure>
 						</section>
 					</div>
 					<div id="historyNotYet" class="noshow">
