@@ -38,9 +38,12 @@
 				At the end of the experiment, their tickets are used in a lottery drawing to select winners.
 			</p>
 			<p>
-				<span class="nm">Gamelab</span> was developed for <a href="#">J&#x00f6;rgen Weibull</a> with financial support from the
-				<a href="#">Knut and Alice Wallenberg Research Foundation</a>.  The project design was guided by <a
-					href="#">Eskil Forsell</a> and implemented by <a href="#">Kristaps Dzonsons</a>.
+				<span class="nm">Gamelab</span> was developed for <a href="http://pzp.hhs.se/jorgen-weibull">J&#x00f6;rgen
+					Weibull</a> with financial support from the <a href="https://www.wallenberg.com/kaw/en">Knut and Alice
+					Wallenberg Research Foundation</a>.  
+				The project design was guided by <a href="http://www.hhs.se/en/person/?personid=33861033">Eskil Forsell</a> and
+				<a href="#">J&#x00f6;rgen Weibull</a>, and implemented by <a href="http://kristaps.bsd.lv">Kristaps
+					Dzonsons</a>.
 			</p>
 			<section id="moreinfo">
 				<p>

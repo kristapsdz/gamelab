@@ -129,15 +129,6 @@ CREATE TABLE past (
 	unique (round, gameid)
 );
 
-CREATE TABLE tickets (
-	round INTEGER NOT NULL,
-	gameid INTEGER REFERENCES game(id) NOT NULL,
-	id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-	tickets TEXT NOT NULL,
-	unique (round, gameid)
-
-);
-
 CREATE TABLE smtp (
 	user TEXT,
 	email TEXT,

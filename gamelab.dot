@@ -61,11 +61,6 @@ digraph {
 		label="past";
 		bgcolor="lightgray";
 	}
-	subgraph cluster_tickets {
-		tickets [style="filled,rounded"; color="white"; label="{round | id | tickets | <f1> gameid}"];
-		label="tickets";
-		bgcolor="lightgray";
-	}
 	subgraph cluster_smtp {
 		smtp [style="filled,rounded"; color="white"; label="{user | email | pass | server | isset | id}"];
 		label="smtp";
@@ -82,5 +77,4 @@ digraph {
 	choice:f2 -> sess [lhead="cluster_sess"];
 	sess:s:f0 -> player [lhead="cluster_player"];
 	past:s:f1 -> game [lhead="cluster_game"];
-	tickets:s:f1 -> game [lhead="cluster_game"];
 }

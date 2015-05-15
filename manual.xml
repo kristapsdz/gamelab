@@ -37,13 +37,21 @@
 			</p>
 			<p>
 				This is the operator's manual for <span class="nm">gamelab</span>.
-				It is roughly divided into sections for installing the <a href="#server">server</a> itself and the <a
-					href="#administration">administration</a> of experiments.
+				Its purpose is to describe <a href="#introduction">what</a> it is, how to <a
+					href="#deploy">deploy</a> it, and how to <a href="#administration">run experiments</a>.
 			</p>
 			<nav>
 				<ul>
 					<li>
-						<a href="#server">Server</a>
+						<a href="#intro">Introduction</a>
+						<ul>
+							<li><a href="#participants">Participants</a></li>
+							<li><a href="#games">Games</a></li>
+							<li><a href="#gameplay">Game-play</a></li>
+							<li><a href="#lottery">Lottery</a></li>
+						</ul>
+					<li>
+						<a href="#deploy">Deployment</a>
 						<ul>
 							<li><a href="#environment">Environment</a></li>
 							<li><a href="#dependencies">Dependencies</a></li>
@@ -67,7 +75,7 @@
 				<p>
 					<span class="nm">Gamelab</span> is an online laboratory for conducting game theory experiments.
 					Experiments consist of an experimenter, an experiment configuration, participants, and a set of games.
-					The system is fully web-based and tailored for desktop and mobile devices.
+					The system is fully web-based and accomodates for desktop, mobile, and tablet-sized devices.
 				</p>
 				<figure id="prog">
 					<span class="term"><span></span>Configure</span>
@@ -117,7 +125,7 @@
 						<q>user-agent</q>, no personal data for participants is retained by the system.
 					</p>
 				</section>
-				<section>
+				<section id="games">
 					<h3>Games</h3>
 					<p>
 						A game in <span class="nm">gamelab</span> is simply a payoff bi-matrix.
@@ -129,7 +137,7 @@
 						They are internally represented as fractions so there is no round-off during computation.
 					</p>
 				</section>
-				<section>
+				<section id="gameplay">
 					<h3>Game-play</h3>
 					<p>
 						Once the experimenter deploys the experiment, participants can submit game-plays, one per game
@@ -170,7 +178,7 @@
 						hypothetical points per round of playing pure strategies.
 					</p>
 				</section>
-				<section>
+				<section id="lottery">
 					<h3>Lottery</h3>
 					<p>
 						When all rounds have concluded, the experiment accepts no more plays.
@@ -192,8 +200,34 @@
 					</p>
 				</section>
 			</section>
-			<section id="server">
-				<h2>Server</h2>
+			<section id="technicalities">
+				<h2>Technicalities</h2>
+				<p>
+					<span class="nm">Gamelab</span> uses a broad set of technologies to work.
+					In this section, I briefly describe the specific technologies used.
+					All of this is visible in the <a href="gamelab.tgz">source code</a>, but let this act as a primer.
+				</p>
+				<section id="userinterface">
+					<h3>User Interface</h3>
+					<p>
+						The <q>user interface</q> to <span class="nm">gamelab</span> is via a web browser.
+						In general, the user interface involves an HTML5 web-page styled with CSS.
+						This web-page uses JavaScript to request data from the <span class="nm">gamelab</span> server
+						via a series of JSON objects.
+					</p>
+				</section>
+				<section id="backend">
+					<h3>Server Backend</h3>
+					<p>
+						The backend of <span class="nm">gamelab</span> consists of two compiled CGI programs: one for
+						the administrator, one for participants.
+						This consists of a small ISO C application linking to kcgi, sqlite3, GMP, and libCURL.
+						All of these are open source libraries.
+					</p>
+				</section>
+			</section>
+			<section id="deploy">
+				<h2>Deployment</h2>
 				<p>
 					The <span class="nm">gamelab</span> server is a CGI application that runs under any CGI-compatible web
 					server on a modern UNIX system.
@@ -1123,10 +1157,6 @@
 								<dt id="db-past-id"><var>id</var></dt>
 								<dd>Unique identifier.</dd>
 							</dl>
-						</dd>
-						<dt id="db-tickets"><code>tickets</code></dt>
-						<dd>
-							<p>This table is not used and will be removed.</p>
 						</dd>
 						<dt id="db-smtp"><code>smtp</code></dt>
 						<dd>

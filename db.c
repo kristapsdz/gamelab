@@ -2670,7 +2670,6 @@ db_expr_wipe(void)
 	db_exec("DELETE FROM past");
 	db_exec("DELETE FROM lottery");
 	db_exec("DELETE FROM winner");
-	db_exec("DELETE FROM tickets");
 	db_exec("DELETE FROM player WHERE autoadd=1");
 	db_exec("UPDATE player SET version=0,instr=1,state=0,"
 		"enabled=1,finalrank=0,finalscore=0,hash=''");
