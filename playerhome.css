@@ -179,6 +179,7 @@ div.input input[readonly]	{ background-color: #ddd; }
 			  	  height: 200px; 
 				  z-index: 0; }
 #graphFig .legend		{ text-align: center; }
+#graphButtons > *		{ display: inline-block; }
 #graphButtons button		{ font-size: 12pt; 
 				  border: thin solid black;
 				  box-shadow: none;
@@ -241,9 +242,13 @@ div.input input[type=date],
 div.input input[type=submit]	{ width: auto; }
 div.input input[type=number]	{ width: 20ex; }
 div.input input[type=time]	{ width: 20ex; }
+.bigview			{ display: block; }
+.smallview			{ display: none; }
 @media only screen and (max-width: 800px), only screen and (max-device-width: 800px) {
 	article			{ padding-left: 10%; 
 			  	  padding-right: 10%; }
+	#graphFig > div > div > div
+				{ width: 100%; }
 }
 @media only screen and (max-width: 480px), only screen and (max-device-width: 480px) {
 	article			{ padding-bottom: 1em;
@@ -263,6 +268,22 @@ div.input input[type=time]	{ width: 20ex; }
   	#graphFig		{ margin: 0; 
 				  margin-top: 1ex; }
 	#graphFig > div > div > div
-				{ height: 180px; 
-				  width: 100%; }
+				{ height: 180px; }
+	.bigview		{ display: none; }
+	.smallview		{ display: block; }
+	.historyGameHead	{ display: table; 
+				  border-spacing: 0;
+				  padding: 0 1ex; }
+	.historyGameHead > *	{ display: table-cell; 
+				  width: 1%; }
+	.historyGameHead > span	{ width: 98%; 
+				  text-align: center; }
+	#graphButtons		{ display: table; 
+				  border-spacing: 0;
+				  width: 98%; }
+	#graphButtons > *	{ display: table-cell; 
+				  width: 50%; }
+	#graphButtons > *:last-child
+				{ text-align: right; }
+			
 }

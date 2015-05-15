@@ -42,21 +42,32 @@
 							<p>Your total payoff from all rounds and games: <span id="historyLottery"></span></p>
 						</section>
 						<section>
-							<h3>
+							<h3 class="bigview">
 								Game 
 								<a href="#" onclick='showHistoryGamePrev(); return false;'><i class="fa fa-caret-left"></i></a>
 								<select id="historySelectGame" onchange="showHistory();"></select>
 								<a href="#" onclick='showHistoryGameNext(); return false;'><i class="fa fa-caret-right"></i></a>
 								history
 							</h3>
+							<h3 class="smallview historyGameHead">
+								<a href="#" onclick='showHistoryGamePrev(); return false;'><i class="fa fa-arrow-circle-left"></i></a>
+								<span>
+									Game <span id="historyGame"></span> history
+								</span>
+								<a href="#" onclick='showHistoryGameNext(); return false;'><i class="fa fa-arrow-circle-right"></i></a>
+							</h3>
 							<div id="bimatrixRoundups"></div>
 							<div id="graphButtons">
-								<button id="graphLineButton" class="clicked" onclick="showGraph('historyLineGraphs', this);">
-									<i class="fa fa-fw fa-line-chart"></i> Payoffs
-								</button>
-								<button id="graphBarButton" onclick="showGraph('historyBarGraphs', this);">
-									<i class="fa fa-fw fa-bar-chart"></i> Strategies
-								</button>
+								<div>
+									<button id="graphLineButton" class="clicked" onclick="showGraph('historyLineGraphs', this);">
+										<i class="fa fa-fw fa-line-chart"></i> Payoffs
+									</button>
+								</div>
+								<div>
+									<button id="graphBarButton" onclick="showGraph('historyBarGraphs', this);">
+										<i class="fa fa-fw fa-bar-chart"></i> Strategies
+									</button>
+								</div>
 							</div>
 							<figure id="graphFig">
 								<div id="historyLineGraphs"></div>

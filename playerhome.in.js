@@ -589,6 +589,7 @@ function showHistory()
 
 	e = document.getElementById('historySelectGame');
 	game = e.options[e.selectedIndex].value;
+	doClearReplace('historyGame', (e.selectedIndex + 1));
 
 	if (null != shownBimatrix)
 		doHideNode(shownBimatrix);
@@ -601,7 +602,6 @@ function showHistory()
 	if (null != shownBarGraph)
 		doHideNode(shownBarGraph);
 	shownBarGraph = doUnhide('historyBarGraphs' + game);
-
 }
 
 /*
