@@ -9,5 +9,6 @@
 		Allow rounds to advance when a given percentage of players per role have played, defaulting to the maximum time of not enough
 		players play in that time.
 		This allows rounds to advance much faster if players play in bursts.
+		Add ability for administrator to manually advance rounds as well.
 	</aside>
 </article>

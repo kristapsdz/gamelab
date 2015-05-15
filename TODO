@@ -9,4 +9,3 @@
       a. if all players play within the grace period, bump round
       b. otherwise, wait til end of grace period
   (3) none, administrator does all
-  Administrator can override at any time.

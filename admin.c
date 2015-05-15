@@ -39,6 +39,7 @@
 enum	page {
 	PAGE_DOADDGAME,
 	PAGE_DOADDPLAYERS,
+	PAGE_DOADVANCE,
 	PAGE_DOBACKUP,
 	PAGE_DOCHANGEMAIL,
 	PAGE_DOCHANGEPASS,
@@ -120,6 +121,7 @@ enum	key {
 static	unsigned int perms[PAGE__MAX] = {
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOADDGAME */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOADDPLAYERS */
+	PERM_JSON | PERM_LOGIN, /* PAGE_DOADVANCE */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOBACKUP */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOCHANGEMAIL */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOCHANGEPASS */
@@ -150,6 +152,7 @@ static	unsigned int perms[PAGE__MAX] = {
 static const char *const pages[PAGE__MAX] = {
 	"doaddgame", /* PAGE_DOADDGAME */
 	"doaddplayers", /* PAGE_DOADDPLAYERS */
+	"doadvance", /* PAGE_DOADVANCE */
 	"dobackup", /* PAGE_DOBACKUP */
 	"dochangemail", /* PAGE_DOCHANGEMAIL */
 	"dochangepass", /* PAGE_DOCHANGEPASS */
@@ -719,6 +722,15 @@ senddobackup(struct kreq *r)
 }
 
 static void
+senddoadvance(struct kreq *r)
+{
+
+	db_expr_advancenext();
+	http_open(r, KHTTP_200);
+	khttp_body(r);
+}
+
+static void
 senddoaddplayers(struct kreq *r)
 {
 	char	*tok, *buf, *mail, *sv;
@@ -1245,6 +1257,9 @@ main(void)
 		break;
 	case (PAGE_DOADDPLAYERS):
 		senddoaddplayers(&r);
+		break;
+	case (PAGE_DOADVANCE):
+		senddoadvance(&r);
 		break;
 	case (PAGE_DOBACKUP):
 		senddobackup(&r);

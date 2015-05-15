@@ -773,6 +773,14 @@ function backup()
 		null);
 }
 
+function advanceRound() 
+{
+
+	sendQuery('@ADMINURI@/doadvance.json', 
+		null,
+		null,
+		function() { window.location.reload(true); });
+}
 
 function wipeExpr() 
 {

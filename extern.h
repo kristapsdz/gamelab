@@ -193,6 +193,7 @@ mpq_t		*db_choices_get(int64_t, int64_t, int64_t, size_t *);
 void		 db_close(void);
 
 void		 db_expr_advance(void);
+void		 db_expr_advancenext(void);
 int		 db_expr_checkstate(enum estate);
 void		 db_expr_finish(struct expr **, size_t);
 void		 db_expr_free(struct expr *);

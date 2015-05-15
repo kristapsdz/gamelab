@@ -421,9 +421,15 @@ db_crypt_mkpass(void)
 	char	*pass;
 	size_t	 i;
 	
-	pass = kmalloc(17);
-	for (i = 0; i < 16; i++)
-		pass[i] = (arc4random() % 26) + 97;
+	pass = kmalloc(9);
+	for (i = 0; i < 8; i++) {
+		if (i < 3) 
+			pass[i] = (arc4random() % 26) + 97;
+		else if (i == 3)
+			pass[i] = '-';
+		else
+			pass[i] = (arc4random() % 10) + 48;
+	}
 	pass[i] = '\0';
 	return(pass);
 }
@@ -454,6 +460,24 @@ db_winners_free(struct winner *win)
 	if (NULL == win)
 		return;
 	free(win);
+}
+
+/*
+ * Advance to the next round IFF the experiment has already started and
+ * we're in a valid round already.
+ */
+void
+db_expr_advancenext(void)
+{
+	sqlite3_stmt	*stmt;
+
+	stmt = db_stmt("UPDATE experiment SET "
+		"round=round + 1,roundbegan=? WHERE "
+		"round < rounds AND round >= 0");
+	db_bind_int(stmt, 1, time(NULL));
+	db_step(stmt, 0);
+	sqlite3_finalize(stmt);
+	fprintf(stderr, "Round advanced (attempt) manually\n");
 }
 
 /*
