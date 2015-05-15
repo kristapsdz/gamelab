@@ -2,6 +2,7 @@
    2013-03-29
 
 Copyright (c) 2002 Douglas Crockford  (www.crockford.com)
+              2015 Kristaps Dzonsons (kristaps@kcons.eu)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -62,7 +63,7 @@ isAlphanum(int c)
 */
 
 static int
-get()
+get(void)
 {
     int c = theLookahead;
     theLookahead = EOF;
@@ -83,7 +84,7 @@ get()
 */
 
 static int
-peek()
+peek(void)
 {
     theLookahead = get();
     return theLookahead;
@@ -95,7 +96,7 @@ peek()
 */
 
 static int
-next()
+next(void)
 {
     int c = get();
     if  (c == '/') {
@@ -229,7 +230,7 @@ action(int d)
 */
 
 static void
-jsmin()
+jsmin(void)
 {
     if (peek() == 0xEF) {
         get();
@@ -291,16 +292,10 @@ jsmin()
 }
 
 
-/* main -- Output any command line arguments as comments
-        and then minify the input.
-*/
-extern int
-main(int argc, char* argv[])
+int
+main(int argc, char *argv[])
 {
-    int i;
-    for (i = 1; i < argc; i += 1) {
-        fprintf(stdout, "// %s\n", argv[i]);
-    }
+
     jsmin();
-    return 0;
+    return(EXIT_SUCCESS);
 }
