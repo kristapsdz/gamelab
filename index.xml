@@ -16,10 +16,8 @@
 					<a title="Contact" href="mailto:kristaps@kcons.eu"><i class="fa fa-envelope-o"></i></a>
 				</span>
 				<span>
-					<span>Sources</span>
-					<a title="Source Code" href="snapshots/gamelab.tgz"><i class="fa fa-gears"></i></a>
-					<a title="Source Checksum" href="snapshots/gamelab.tgz.sha512"><i class="fa fa-lock"></i></a>
-					<a title="Source Archive" href="snapshots"><i class="fa fa-archive"></i></a>
+					<span>Download</span>
+					<a title="Download" href="manual.html#deploy"><i class="fa fa-cloud-download"></i></a>
 				</span>
 				<span>
 					<span>Cite</span>
@@ -30,8 +28,8 @@
 		</header>
 		<article>
 			<p>
-				Welcome to the <span class="nm">gamelab</span>, a new web application for online (mobile and desktop) game
-				theory experimentation.
+				Welcome to <span class="nm">gamelab</span>, a new web application for online (mobile and desktop) game theory
+				experimentation.
 				<span class="nm">Gamelab</span> allows experimenters to configure two-player normal-form games for time-based
 				play by a pool of participants. 
 				Participants accumulate tickets via their payoffs against the average play.
@@ -51,9 +49,9 @@
 						href="manual.html">manual</a> on how to download, install, and administer experiments.
 					If you're interested in teaming up, or just want to share your experiences, contact J&#x00f6;rgen,
 					Kristaps, or Eskil.
-					In the spirit of academic sharing, <span class="nm">gamelab</span> is open source <a rel="license"
-						href="http://cvsweb.openbsd.org/cgi-bin/cvsweb/src/share/misc/license.template?rev=HEAD">ISC</a>
-					licensed, and we kindly suggest that experimenters <a href="gamelab.bib">cite</a> our work!
+					In the spirit of academic sharing, <span class="nm">gamelab</span> is <a rel="license"
+						href="http://cvsweb.openbsd.org/cgi-bin/cvsweb/src/share/misc/license.template?rev=HEAD">open
+						source</a>, and we kindly suggest that experimenters <a href="gamelab.bib">cite</a> our work!
 				</p>
 				<nav data-sblg-nav="1" data-sblg-navsz="3" data-sblg-navcontent="1">
 					<div>

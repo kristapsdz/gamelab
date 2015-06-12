@@ -18,7 +18,7 @@
 				<a title="Contact" href="mailto:kristaps@kcons.eu"><i class="fa fa-envelope-o"></i></a>
 			</span>
 			<span>
-				<span>Sources</span>
+				<span>Source</span>
 				<a title="Source Code" href="snapshots/gamelab.tgz"><i class="fa fa-gears"></i></a>
 				<a title="Source Checksum" href="snapshots/gamelab.tgz.sha512"><i class="fa fa-lock"></i></a>
 				<a title="Source Archive" href="snapshots"><i class="fa fa-archive"></i></a>
@@ -32,13 +32,13 @@
 			<p>
 				<span class="nm">Gamelab</span> is an online game theory laboratory where participants assign mixed strategies
 				to game bimatrices over a series of rounds, accumulating payoffs as the experiment progresses.
-				The mission of <span class="nm">gamelab</span> is to allow for laboratory-style interaction within the
+				The mission of <span class="nm">gamelab</span> is to allow for laboratory-style interaction without the
 				need for a laboratory.
 			</p>
 			<p>
-				This is the operator's manual for <span class="nm">gamelab</span>.
-				Its purpose is to describe <a href="#introduction">what</a> it is, how to <a
-					href="#deploy">deploy</a> it, and how to <a href="#administration">run experiments</a>.
+				This is the user's manual for <span class="nm">gamelab</span>.
+				Its purpose is to <a href="#intro">introduce</a> the system, then describe how to <a href="#deploy">deploy</a>
+				it and how to <a href="#administration">run experiments</a>.
 			</p>
 			<nav>
 				<ul>
@@ -75,22 +75,12 @@
 				<p>
 					<span class="nm">Gamelab</span> is an online laboratory for conducting game theory experiments.
 					Experiments consist of an experimenter, an experiment configuration, participants, and a set of games.
-					The system is fully web-based and accomodates for desktop, mobile, and tablet-sized devices.
+					The system is web-based and accomodates for desktop, mobile, and tablet-sized devices.
 				</p>
-				<figure id="prog">
-					<span class="term"><span></span>Configure</span>
-					<span><i class="fa fa-fw fa-arrow-right"></i></span>
-					<span class="term"><span></span>Deploy</span>
-					<span><i class="fa fa-fw fa-arrow-right"></i></span>
-					<span class="term"><span></span>Game-play</span>
-					<span><i class="fa fa-fw fa-arrow-right"></i></span>
-					<span class="term"><span></span>Lottery</span>
-				</figure>
 				<p>
-					The experiment is conducted over a configuration: a sequence of rounds during which participants submit
-					strategy mixtures to the given games.
-					Once the experimenter deploys the experiment, players can log in and play, and rounds advance according
-					to time or by the number of players who have played within a round.
+					An experimenter begins by configuring how rounds in the experiment progress and for how long the
+					experiment will run.
+					Once the experimenter deploys the experiment, players can log in and play each game once per round.
 					When the round advances, players earn points by computing the payoff from their submitted strategies
 					against the average mixture submited by participants playing the opponent player role.
 					After the last round, players' points earn lottery tickets, and winners are drawn by selecting lottery
@@ -120,10 +110,6 @@
 						Experiments always have an equal assignment of row and column players unless the total number of
 						players is odd, in which case the extra player is assigned a random role.
 					</p>
-					<p>
-						<strong>Note</strong>: beyond their e-mail (as given), game-play, and the browser's reported
-						<q>user-agent</q>, no personal data for participants is retained by the system.
-					</p>
 				</section>
 				<section id="games">
 					<h3>Games</h3>
@@ -133,8 +119,7 @@
 						many columns fit neatly on a small screen.
 						Games larger than four or five strategies wide will look funny.
 						Each experiment can have as many games as desired.
-						Payoffs are real-valued, or more specifically, rationally-valued numbers.
-						They are internally represented as fractions so there is no round-off during computation.
+						Payoffs are rationally-valued numbers.
 					</p>
 				</section>
 				<section id="gameplay">
@@ -148,12 +133,11 @@
 						Participants submit these probabilites by clicking on rows in the game matrix (players appear to
 						play the row player regardless of their player role) and entering in a decimal or rational
 						number corresponding to the strategy.
-						Decimals may have at most four digits of precision (thousandths).
 					</p>
 					<p>
-						Participants can only play one game at a time, and each game only once per round.
+						Participants can only play one game at a time, with each game played once per round.
 						If they log out and log back in (obviously they must be non-captive players), then the last game
-						to play is displayed (assuming the round has not advanced in the meantime).
+						to play is displayed, assuming the round has not advanced in the meantime.
 						Game matrices have their rows and columns randomly shuffled between participants, making it
 						slightly more difficult to compare strategies.
 						Moreover, the order in which games are displayed is randomised between participants.
@@ -206,6 +190,8 @@
 					<span class="nm">Gamelab</span> uses a broad set of technologies to work.
 					In this section, I briefly describe the specific technologies used.
 					All of this is visible in the <a href="gamelab.tgz">source code</a>, but let this act as a primer.
+					In general, these can be broken down into the user interface, which experimenters and participants use,
+					and the server backend, which is accessed by the user interface.
 				</p>
 				<section id="userinterface">
 					<h3>User Interface</h3>

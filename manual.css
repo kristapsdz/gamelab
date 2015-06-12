@@ -50,29 +50,6 @@ img.shadow		{ border-radius: 8px;
 			  margin-right: auto; }
 .gamepanes td		{ padding: 0 1ex; 
 			  text-align: center; }
-#prog 			{ display: table; 
-			  margin: 0;
-			  width: 100%;
-			  border-spacing: 0; }
-#prog > span		{ display: table-cell; 
-			  position: relative;
-			  vertical-align: middle;
-			  font-size: 16pt;
-			  height: 2em;
-			  z-index: 1;
-			  width: 1% }
-#prog > span.term 	{ width: 20%; }
-#prog > span > span	{ position: absolute;
-			  top: 0;
-			  border-radius: 1em;
-			  opacity: 0.75;
-			  left: 50%;
-			  z-index: -1;
-			  margin-left: -1em;
-			  height: 2em;
-			  width: 2em;
-			  background-color: #ff5a0f; }
 @media only screen and (max-width: 480px), only screen and (max-device-width: 480px) {
 body > nav > span span	{ display: none; }
-#progression 		{ display: none; }
 }
