@@ -39,13 +39,16 @@ header a			{ color: #222; }
 h1				{ margin: 0; }
 h3 				{ cursor: pointer; 
 				  margin: 0;
+				  position: relative;
 				  padding: 8pt;
 				  color: #ccc;
 				  background-color: #555;
 				  font-weight: normal;
 			 	  font-size: 14pt; }
-h3:hover 			{ background-color: #644; }
+h3:hover 			{ background-color: #666; }
 h3 span				{ color: #fff; }
+h3 i:last-child			{ position: absolute;
+				  right: 0.5ex; }
 article				{ background-color: #fff;
 				  padding: 3em 20% 1em 20%; }
 ul				{ list-style-type: none; }
@@ -87,15 +90,10 @@ footer a:last-child		{ border-right: none;
 footer a:hover			{ color: #222; }
 .seconds, .error		{ color: darkred;
 				  font-weight: bolder; }
-*[class~="fa-toggle-off"]	{ color: black; 
-				  text-shadow: 0 0 1px #fff; }
-*[class~="fa-toggle-on"]	{ color: green; 
-				  text-shadow: 0 0 1px #fff; }
-*[class~="fa-exclamation-circle"],
-*[class~="fa-remove"] 		{ color: red; 
-				  text-shadow: 0 0 1px #fff; }
-*[class~="fa-check"]		{ color: green; 
-				  text-shadow: 0 0 1px #fff; }
+*[class~="fa-toggle-off"]	{ color: black; }
+*[class~="fa-toggle-on"]	{ color: green; }
+*[class~="fa-remove"] 		{ color: red; }
+*[class~="fa-check"]		{ color: green; }
 progress			{ display: block;
 			   	  margin-bottom: 1ex;
 			   	  width: 100%; }

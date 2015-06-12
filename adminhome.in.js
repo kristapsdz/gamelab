@@ -4,7 +4,7 @@ function doClassOk(name)
 {
 	var e;
 	if (null != (e = document.getElementById(name)))
-		e.className = 'fa fa-check';
+		e.className = 'fa fa-check-square-o';
 }
 
 function doClassLoading(name)
@@ -18,7 +18,7 @@ function doClassFail(name)
 {
 	var e;
 	if (null != (e = document.getElementById(name)))
-		e.className = 'fa fa-exclamation-circle';
+		e.className = 'fa fa-square-o';
 }
 
 function doSuccess(submitName, formName) 
