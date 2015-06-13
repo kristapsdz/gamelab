@@ -178,6 +178,7 @@ typedef void	(*winnerf)(const struct player *, const struct winner *, void *);
 typedef void	(*playerf)(const struct player *, void *);
 
 char		*db_admin_get_mail(void);
+int64_t		 db_admin_get_flags(void);
 void		 db_admin_set_pass(const char *);
 void		 db_admin_set_mail(const char *);
 int		 db_admin_valid(const char *, const char *);

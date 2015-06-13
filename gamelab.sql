@@ -1,3 +1,24 @@
+/*	$Id$ */
+/*
+ * Copyright (c) 2014--2015 Kristaps Dzonsons <kristaps@kcons.eu>
+ *
+ * Permission to use, copy, modify, and distribute this software for any
+ * purpose with or without fee is hereby granted, provided that the above
+ * copyright notice and this permission notice appear in all copies.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+ * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ */
+
+/*
+ * All of these tables and columns are documented in manual.xml.
+ */
+
 CREATE TABLE winner (
 	playerid INTEGER REFERENCES player(id) NOT NULL,
 	winner BOOLEAN NOT NULL,
@@ -6,9 +27,7 @@ CREATE TABLE winner (
 	id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
 	unique (playerid)
 );
-/*
- * This consists of a unique participant in the experiment.
- */
+
 CREATE TABLE player (
 	email TEXT NOT NULL,
 	state INTEGER NOT NULL DEFAULT(0),
@@ -26,10 +45,6 @@ CREATE TABLE player (
 	UNIQUE (email)
 );
 
-/*
- * A lottery is created for an individual player when that player has
- * all payoffs for all games.
- */
 CREATE TABLE lottery (
 	round INTEGER NOT NULL,
 	playerid INTEGER REFERENCES player(id) NOT NULL,
@@ -39,10 +54,6 @@ CREATE TABLE lottery (
 	UNIQUE (round, playerid)
 );
 
-/*
- * During a given round, the gameplay shows a player's status in terms
- * of number of choices (plays) made, i.e., how many games.
- */
 CREATE TABLE gameplay (
 	round INTEGER NOT NULL,
 	choices INTEGER NOT NULL DEFAULT(0),
@@ -51,10 +62,6 @@ CREATE TABLE gameplay (
 	UNIQUE (round, playerid)
 );
 
-/*
- * A payoff is created when a round has been marked as complete.
- * It marks a player's play against the average play.
- */
 CREATE TABLE payoff (
 	round INTEGER NOT NULL,
 	playerid INTEGER REFERENCES player(id) NOT NULL,
@@ -64,9 +71,6 @@ CREATE TABLE payoff (
 	UNIQUE (round, playerid, gameid)
 );
 
-/*
- * A choice is the strategies a player assigns to a particular game.
- */
 CREATE TABLE choice (
 	round INTEGER NOT NULL,
 	strats TEXT NOT NULL,
@@ -80,7 +84,7 @@ CREATE TABLE choice (
 );
 
 CREATE TABLE experiment (
-	state INTEGER NOT NULL,
+	state INTEGER NOT NULL DEFAULT(0),
 	start INTEGER DEFAULT(0),
 	rounds INTEGER DEFAULT(0),
 	round INTEGER DEFAULT(-1),
@@ -113,6 +117,7 @@ CREATE TABLE sess (
 CREATE TABLE admin (
 	email TEXT NOT NULL,
 	hash TEXT NOT NULL,
+	isset INTEGER NOT NULL DEFAULT(0),
 	id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL
 );
 
@@ -130,14 +135,14 @@ CREATE TABLE past (
 );
 
 CREATE TABLE smtp (
-	user TEXT,
-	email TEXT,
-	pass TEXT,
-	server TEXT,
-	isset INTEGER NOT NULL,
+	user TEXT NOT NULL DEFAULT(''),
+	email TEXT NOT NULL DEFAULT(''),
+	pass TEXT NOT NULL DEFAULT(''),
+	server TEXT NOT NULL DEFAULT(''),
+	isset INTEGER NOT NULL DEFAULT(0),
 	id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL
 );
 
 INSERT INTO admin (email, hash) VALUES ('foo@example.com', 'xyzzy');
-INSERT INTO experiment (state) VALUES (0);
-INSERT INTO smtp (isset) VALUES (0);
+INSERT INTO experiment DEFAULT VALUES;
+INSERT INTO smtp DEFAULT VALUES;

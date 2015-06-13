@@ -89,7 +89,8 @@ VERSIONS = version_1_0_1.xml \
 	   version_1_0_2.xml \
 	   version_1_0_3.xml \
 	   version_1_0_4.xml \
-	   version_1_0_5.xml
+	   version_1_0_5.xml \
+	   version_1_0_6.xml
 
 all: admin lab $(BUILT) $(BUILTPS)
 

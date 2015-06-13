@@ -1092,6 +1092,11 @@
 								<dd>The experimenter password.  <strong>Note</strong>: this is stored as
 									cleartext, so it is not really a hash (yet).  Initialises to
 									<code>xyzzy</code>.</dd>
+								<dt id="db-admin-isset"><var>isset</var></dt>
+								<dd>
+									Bit-field on whether the email and hash have been set by the user.
+									Contains 0x01 if the e-mail has been set, 0x02 for the password.
+								</dd>
 								<dt id="db-admin-id"><var>id</var></dt>
 								<dd>Unique identifier.</dd>
 							</dl>

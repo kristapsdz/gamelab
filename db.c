@@ -446,7 +446,7 @@ db_admin_set_pass(const char *pass)
 {
 	sqlite3_stmt	*stmt;
 
-	stmt = db_stmt("UPDATE admin SET hash=?");
+	stmt = db_stmt("UPDATE admin SET hash=?,isset=isset|2");
 	db_bind_text(stmt, 1, pass);
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);
@@ -862,6 +862,21 @@ db_winners(struct expr **expr, size_t winnersz, int64_t seed, size_t count)
 	return(1);
 }
 
+int64_t
+db_admin_get_flags(void)
+{
+	sqlite3_stmt	*stmt;
+	int		 rc;
+	int64_t		 v;
+
+	stmt = db_stmt("SELECT isset FROM admin");
+	rc = db_step(stmt, 0);
+	assert(SQLITE_ROW == rc);
+	v = sqlite3_column_int64(stmt, 0);
+	sqlite3_finalize(stmt);
+	return(v);
+}
+
 char *
 db_admin_get_mail(void)
 {
@@ -882,7 +897,7 @@ db_admin_set_mail(const char *email)
 {
 	sqlite3_stmt	*stmt;
 
-	stmt = db_stmt("UPDATE admin SET email=?");
+	stmt = db_stmt("UPDATE admin SET email=?,isset=isset|1");
 	db_bind_text(stmt, 1, email);
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);

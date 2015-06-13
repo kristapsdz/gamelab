@@ -359,6 +359,7 @@ senddogetnewexpr(struct kreq *r)
 	khttp_body(r);
 	kjson_open(&req, r);
 	kjson_obj_open(&req);
+	kjson_putintp(&req, "adminflags", db_admin_get_flags());
 	json_putexpr(&req, expr);
 	kjson_obj_close(&req);
 	kjson_close(&req);

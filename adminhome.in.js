@@ -4,7 +4,7 @@ function doClassOk(name)
 {
 	var e;
 	if (null != (e = document.getElementById(name)))
-		e.className = 'fa fa-check-square-o';
+		e.className = 'fa fa-fw fa-check-square-o';
 }
 
 function doClassLoading(name)
@@ -18,7 +18,7 @@ function doClassFail(name)
 {
 	var e;
 	if (null != (e = document.getElementById(name)))
-		e.className = 'fa fa-square-o';
+		e.className = 'fa fa-fw fa-square-o';
 }
 
 function doSuccess(submitName, formName) 
@@ -547,11 +547,14 @@ function loadGames()
 		function(err) { loadError(err, 'loadGames'); });
 }
 
+/*
+ * This callback is invoked when a new experiment (adminhome-new.html)
+ * has invoked dogetnewexpr.json on the server.
+ * It populates all experiment-specific parts of the page.
+ */
 function loadNewExprSuccess(resp) 
 {
 	var res, e, expr;
-
-	console.log('resp = ' + resp);
 
 	try  { 
 		res = JSON.parse(resp);
@@ -563,13 +566,33 @@ function loadNewExprSuccess(resp)
 	if (0 != expr.start) 
 		exprStartAbsoluteTime(expr.start);
 	if (0 != expr.rounds)
-		document.getElementById('rounds').value = expr.rounds;
+		doValue('rounds', expr.rounds);
 	if (0 != expr.minutes)
-		document.getElementById('minutes').value = expr.minutes;
+		doValue('minutes', expr.minutes);
 	if ('' != expr.instr)
 		doClearReplace('instrText', expr.instr);
+	
+	/*
+	 * FIXME.
+	 * Until we have a neater place to put this (e.g., a record of
+	 * administrative logins) that require a dogetadmin.json type of
+	 * request, we're putting these in here.
+	 */
+	if (res.adminflags & 0x01) 
+		doClassOk('checkChangeEmail');
+	else
+		doClassFail('checkChangeEmail');
+
+	if (res.adminflags & 0x02) 
+		doClassOk('checkChangePass');
+	else
+		doClassFail('checkChangePass');
 }
 
+/*
+ * This callback is invoked for an alread-started experiment coming from
+ * adminhome-started.html after dogetexpr.json has returned success.
+ */
 function loadExprSuccess(resp) 
 {
 	var res, e, i, chld, expr, li, div, href, span, next;
@@ -597,14 +620,19 @@ function loadExprSuccess(resp)
 				div = document.createElement('div');
 				chld.appendChild(div);
 				href = document.createElement('a');
-				href.setAttribute('href', 'mailto:' + res.winners[i].email);
-				href.appendChild(document.createTextNode(res.winners[i].email));
+				href.setAttribute('href', 
+					'mailto:' + res.winners[i].email);
+				href.appendChild(document.createTextNode
+					(res.winners[i].email));
 				div.appendChild(href);
 				div.appendChild(document.createTextNode(': '));
-				div.appendChild(document.createTextNode((res.winners[i].rank + 1)));
 				div.appendChild(document.createTextNode
-					(' (range ' + res.winners[i].winrank + '\u2013' + 
-					 (res.winners[i].winrank + res.winners[i].winscore) + 
+					((res.winners[i].rank + 1)));
+				div.appendChild(document.createTextNode
+					(' (range ' + 
+					    res.winners[i].winrank + '\u2013' + 
+					 (res.winners[i].winrank + 
+					  res.winners[i].winscore) + 
 					 ', ticket ' +
 					 res.winners[i].winnum + ')'));
 			}
@@ -675,6 +703,8 @@ function loadExprSetup()
 	doHide('statusExprWaiting');
 	doHide('statusExprFinished');
 	doHide('statusExprProg');
+	doClassLoading('checkChangeEmail');
+	doClassLoading('checkChangePass');
 }
 
 function loadNewExpr() 

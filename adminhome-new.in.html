@@ -46,11 +46,15 @@
 				To deploy an experiment, complete the form below.
 				Use the on-line <a href="http://www.kcons.eu/gamelab/manual.html">manual</a> for help.
 				Good luck!
+				To start an experiment, you must set the <q>Mail Server</q>, <q>Games</q>, <q>Players</q>, and <q>Experiment
+					Parameters</q>.
+				The rest are optional (but recommended).
 			</p>
 			<section>
 				<section class="rolled" id="changePassSection">
 					<h3 onclick="unroll(this.firstChild, this.parentNode);"><i class="fa fa-fw fa-chevron-circle-right"></i> 
 						<span>1. Change Password</span>
+						<i id="checkChangePass" class="fa fa-spinner"></i>
 					</h3>
 					<div>
 						Set your password (at least one character) here.
@@ -88,6 +92,7 @@
 				<section class="rolled" id="changeMailSection">
 					<h3 onclick="unroll(this.firstChild, this.parentNode);"><i class="fa fa-fw fa-chevron-circle-right"></i>
 						<span>2. Change E-mail</span>
+						<i id="checkChangeEmail" class="fa fa-spinner"></i>
 					</h3>
 					<div>
 						You should set the e-mail address to your address, as the system (or system administrator) will
@@ -123,7 +128,7 @@
 				</section>
 				<section class="rolled" id="changeSmtpSection">
 					<h3 onclick="unroll(this.firstChild, this.parentNode);"><i class="fa fa-fw fa-chevron-circle-right"></i> 
-						<span>3. Change SMTP</span>
+						<span>3. E-Mail Server</span>
 						<i id="checkSmtpLoad2" class="fa fa-spinner"></i>
 					</h3>
 					<div>

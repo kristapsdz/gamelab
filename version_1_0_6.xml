@@ -1,0 +1,12 @@
+
+<article data-sblg-article="1" data-sblg-tags="version">
+	<header>
+		<h1>1.0.6</h1>
+		<address>Kristaps Dzonsons</address>
+		<time datetime="2015-06-13">2015-06-13</time>
+	</header>
+	<aside>
+		Add database field for checking that the experimenter password and e-mail have been re-set.
+		Change icons for the <q>new experiment</q> page to make it easier to understand what has been done and not done.
+	</aside>
+</article>
