@@ -8,28 +8,8 @@
 		<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet" />
 		<script src="@HTURI@/script.js"></script>
 		<script src="@HTURI@/adminhome.js"></script>
-		<script>
-			/*
-			 * Replace the "login URL" identified in the
-			 * experiment start section with the current URL
-			 * having its admin bits replaced with lab bits.
-			 */
-			function onLoad() 
-			{
-				var url = document.URL;
-				var e = document.getElementById('loginURI');
-
-				if (null == e || null == url)
-					return;
-
-				url = url.substring(0, url.lastIndexOf("/"));
-				url = url.replace('admin', 'lab');
-				e.value = url + '/dologin.html';
-			}
-			window.addEventListener('load', onLoad);
-		</script>
 	</head>
-	<body onload="loadNewGames(); loadNewPlayers(); loadNewExpr(); loadSmtp();" onclick="onNavUp();">
+	<body onload="loadNewGames(); loadNewPlayers(); loadNewExpr(); loadSmtp(); seturls();" onclick="onNavUp();">
 		<header>
 			<a id="navButton" href="#" onclick="return(onNav(event));"><i class="fa fa-navicon"></i></a>
 			<h1>gamelab</h1>
@@ -41,7 +21,7 @@
 			</div>
 		</header>
 		<article>
-			<p>
+			<p class="intro">
 				Welcome to <a href="http://www.kcons.eu/gamelab">gamelab</a> (version @VERSION@), the on-line game theory laboratory.
 				To deploy an experiment, complete the form below.
 				Use the on-line <a href="http://www.kcons.eu/gamelab/manual.html">manual</a> for help.
@@ -271,7 +251,7 @@
 					</h3>
 					<div>
 						Players in your experiment.
-						To delete a player, just click the <i class="fa fa-remove"></i> symbol alongisde.
+						To delete a player, just click the <i class="fa fa-remove"></i> symbol alongside.
 						Players marked with <i class="fa fa-thumb-tack"></i> are captive.
 					</div>
 					<ul id="loadNewPlayers">
@@ -307,6 +287,11 @@
 							<input type="hidden" id="autoadd" name="autoadd" value="0" />
 						</fieldset>
 					</form>
+					<div id="captiveGame">
+						<strong>Note</strong>: you have opted for a captive experiment.
+						To enter the captive portal, your players will need to access <a
+							href="@HTURI@/playerautoadd.html">@HTURI@/playerautoadd.html</a> in order to log in.
+					</div>
 				</section>
 				<section class="rolled" id="startExprSection">
 					<h3 onclick="unroll(this.firstChild, this.parentNode);"><i class="fa fa-fw fa-chevron-circle-right"></i> 

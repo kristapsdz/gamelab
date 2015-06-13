@@ -110,6 +110,11 @@ function loadNewPlayersSuccess(resp)
 		}
 	}
 
+	if (results.autoadd)
+		doUnhide('captiveGame');
+	else
+		doHide('captiveGame');
+
 	players = results.players;
 
 	if (0 == players.length) {
@@ -999,4 +1004,20 @@ function exprStartAbsoluteTime(val)
 		   ('0' + now.getUTCDate()).slice(-2));
 	t.value = (('0' + now.getUTCHours()).slice(-2) + ':' +
 		   ('0' + now.getUTCMinutes()).slice(-2));
+}
+
+/*
+ * Replace the "login URL" identified in the experiment start section
+ * with the current URL having its admin bits replaced with lab bits.
+ */
+function seturls() 
+{
+	var url = document.URL;
+
+	if (null == url)
+		return;
+
+	url = url.substring(0, url.lastIndexOf("/"));
+	url = url.replace('admin', 'lab');
+	doValue('loginURI', url + '/dologin.html');
 }

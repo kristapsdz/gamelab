@@ -217,6 +217,13 @@
 				<p>
 					The <span class="nm">gamelab</span> server is a CGI application that runs under any CGI-compatible web
 					server on a modern UNIX system.
+					For now, you cannot run <span class="nm">gamelab</span> on a server that's not connected to the
+					Internet: the icon set requires access to the <a href="https://fortawesome.github.io/Font-Awesome/">Font
+						Awesome</a> online icon set.
+					This will change with future releases to allow for <span class="nm">gamelab</span> deployments in VLAN
+					and isolated computer environments.
+				</p>
+				<p>
 					In order to use <span class="nm">gamelab</span>, you'll need to download, configure, and install
 					it&mdash;just like any piece of software.
 					If a system administrator has already installed the server and given you the web address for its
@@ -272,6 +279,11 @@
 						<li><a href="http://libbsd.freedesktop.org/wiki/">libbsd</a> (Linux compatibility, if applicable), and</li>
 						<li><a href="http://curl.haxx.se/libcurl/">libcURL</a> (e-mailing).</li>
 					</ul>
+					<p>
+						The only external dependency required during operation is an Internet connection to use the <a
+							href="https://fortawesome.github.io/Font-Awesome/">Font Awesome</a> icon set.
+						This is expected to change over time.
+					</p>
 					<p>
 						Each of these systems has its own installation procedure beyond the scope of this document.
 						After you've installed the dependencies, download <a

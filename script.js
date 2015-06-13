@@ -108,6 +108,8 @@ function doClearReplaceMarkup(name, str)
 
 	if (null != (e = doClearNode(document.getElementById(name))))
 		e.innerHTML = str;
+
+	return(e);
 }
 
 function doClearReplace(name, str) 
@@ -116,6 +118,8 @@ function doClearReplace(name, str)
 
 	if (null != (e = doClearNode(document.getElementById(name))))
 		e.appendChild(document.createTextNode(str));
+
+	return(e);
 }
 
 /*
@@ -201,8 +205,6 @@ function sendFormTo(oFormElement, action, setup, error, success)
 
 	if (null != setup)
 		setup();
-
-	console.log('asdf');
 
 	xmlhttp.onreadystatechange=function() {
 		if (xmlhttp.readyState==4 && xmlhttp.status==200 && null != success)
