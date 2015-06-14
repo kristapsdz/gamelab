@@ -652,6 +652,10 @@
 						For example, if set to 50%, then 50% or more players playing all games in both roles will cause
 						the round to advance regardless the amount of time left.
 						(If not enough players play, then round will advance by the given, and now maximum, time.)
+						For non-zero percentages, you can also specify a <q>grace time</q> in minutes: the experiment
+						won't automatically advance rounds until after this duration.
+					</p>
+					<p>
 						You can edit the instructions given to players&mdash;in fact, that's a good idea, as you
 						probably want to tune the winnings.
 						Then hit <q>Start</q> and you're ready to go!
