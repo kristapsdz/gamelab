@@ -27,7 +27,12 @@
 				<div id="statusExprProg">
 					<p>
 						Welcome!  Your experiment is in round 
-						<span id="statusExprPRound"></span> of <span id="statusExprPMax"></span>.
+						<span id="statusExprPRound"></span> of <span id="statusExprPMax"></span>,
+						with each round taking <span id="statusExprMins"></span> minutes.
+						<span id="statusExprRoundpcting">
+							If each player role has at least <span id="statusExprRoundpct"></span>% plays, the round
+							will advance (with <span id="statusExprRoundmin"></span> minutes of grace time).
+						</span>
 					</p>
 					<progress max="1.0" id="statusExprPBar"></progress>
 					<div class="table">
@@ -41,10 +46,6 @@
 						</div>
 					</div>
 					<div class="table" id="statusExprPGames">
-					</div>
-					<div class="input input-submit">
-						<i class="fa fa-fw fa-arrow-circle-o-right"></i>
-						<button type="button" onclick="advanceRound();">Advance Round</button>
 					</div>
 				</div>
 				<div id="statusExprWaiting">
@@ -98,7 +99,9 @@
 			</section>
 			<section>
 				<section class="rolled">
-					<h3 onclick="unroll(this.firstChild, this.parentNode);"><i class="fa fa-fw fa-chevron-circle-right"></i> Experiment Control</h3>
+					<h3 onclick="unroll(this.firstChild, this.parentNode);"><i class="fa fa-fw fa-chevron-circle-right"></i> 
+						<span>Experiment Control</span>
+					</h3>
 					<div>
 						Backup or wipe the database by clicking the button below.
 						When you back up, you're e-mailed a redacted copy of the database.
@@ -118,6 +121,10 @@
 							<i class="fa fa-fw fa-database"></i>
 							<button type="button" id="backupButton" onclick="backup();">Backup Experiment</button>
 						</div>
+						<div class="input input-submit">
+							<i class="fa fa-fw fa-arrow-circle-o-right"></i>
+							<button type="button" onclick="advanceRound();">Advance Round</button>
+						</div>
 					</fieldset>
 					<div id="wipeExprResults" class="noshow canclose">
 						<a href="#" class="close" onclick="doHideNode(this.parentNode); return false;"><i class="fa fa-minus-square"></i></a>
@@ -126,14 +133,18 @@
 					</div>
 				</section>
 				<section class="rolled">
-					<h3 onclick="unroll(this.firstChild, this.parentNode);"><i class="fa fa-fw fa-chevron-circle-right"></i> Experiment Games</h3>
-					<ul id="loadGames">
-						<li><i class="fa fa-spinner"></i></li>
-					</ul>
+					<h3 onclick="unroll(this.firstChild, this.parentNode);"><i class="fa fa-fw fa-chevron-circle-right"></i> 
+						<span>Experiment Games</span>
+					</h3>
+					<div>
+						<ul id="loadGames">
+							<li><i class="fa fa-spinner"></i></li>
+						</ul>
+					</div>
 				</section>
 				<section class="rolled">
 					<h3 onclick="unroll(this.firstChild, this.parentNode);"><i class="fa fa-fw fa-chevron-circle-right"></i> 
-						Experiment Players
+						<span>Experiment Players</span>
 					</h3>
 					<div>
 						Players in your experiment.
@@ -142,9 +153,11 @@
 						Row players are noted with <i class="fa fa-bars"></i>, column players with
 						<i class="fa fa-columns"></i>.
 					</div>
-					<ul id="loadPlayers">
-						<li><i class="fa fa-spinner"></i></li>
-					</ul>
+					<div>
+						<ul id="loadPlayers">
+							<li><i class="fa fa-spinner"></i></li>
+						</ul>
+					</div>
 					<div id="playerInfo" class="canclose noshow">
 						<a href="#" class="close" onclick="doHideNode(this.parentNode); return false;"><i class="fa fa-minus-square"></i></a>
 						<div>
@@ -175,7 +188,7 @@
 				</section>
 				<section class="rolled">
 					<h3 onclick="unroll(this.firstChild, this.parentNode);"><i class="fa fa-fw fa-chevron-circle-right"></i> 
-						Change Instructions
+						<span>Change Instructions</span>
 					</h3>
 					<div>
 						You may change the experiment instructions here.
@@ -197,10 +210,6 @@
 								<i class="fa fa-fw fa-code"></i>
 								<textarea id="instr" class="bigtext" required="required" name="instr"></textarea>
 							</div>
-							<div class="input">
-								<i class="fa fa-fw fa-code"></i>
-								<textarea id="instrWin" required="required" name="instrWin"></textarea>
-							</div>
 							<div class="input input-submit">
 								<i class="fa fa-fw fa-check"></i>
 								<input id="changeInstrSubmit" type="submit" value="Submit" gamelab-submit-pending="Submitting..." />
@@ -210,7 +219,7 @@
 				</section>
 				<section class="rolled">
 					<h3 onclick="unroll(this.firstChild, this.parentNode);"><i class="fa fa-fw fa-chevron-circle-right"></i> 
-						Change E-mail
+						<span>Change E-mail</span>
 					</h3>
 					<div>
 						You should set the e-mail address to your address, as the system (or system administrator) will
@@ -246,7 +255,7 @@
 				</section>
 				<section class="rolled">
 					<h3 onclick="unroll(this.firstChild, this.parentNode);"><i class="fa fa-fw fa-chevron-circle-right"></i> 
-						Change Password
+						<span>Change Password</span>
 					</h3>
 					<div>
 						Set your password (at least one character) here.
@@ -283,7 +292,7 @@
 				</section>
 				<section class="rolled">
 					<h3 onclick="unroll(this.firstChild, this.parentNode);"><i class="fa fa-fw fa-chevron-circle-right"></i> 
-						E-Mail Server
+						<span>E-Mail Server</span>
 					</h3>
 					<div>
 						In order to send e-mails to players, you need to configure a valid e-mail sending

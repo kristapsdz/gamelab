@@ -508,7 +508,9 @@ db_expr_advance(void)
 		return;
 	} 
 
-	if (expr->roundpct > 0.0 && expr->round >= 0) {
+	if (expr->roundpct > 0.0 && 
+		 expr->round >= 0 &&
+		 t - expr->roundbegan > expr->roundmin) {
 		/*
 		 * Optional round advancement according to the number of
 		 * players per role who have played all games.
@@ -1615,8 +1617,9 @@ db_expr_setstart(int64_t date)
 }
 
 int
-db_expr_start(int64_t date, int64_t roundpct, int64_t rounds, 
-	int64_t minutes, const char *instr, const char *uri)
+db_expr_start(int64_t date, int64_t roundpct, 
+	int64_t roundmin, int64_t rounds, int64_t minutes, 
+	const char *instr, const char *uri)
 {
 	sqlite3_stmt	*stmt, *stmt2;
 	int64_t		 id;
@@ -2629,7 +2632,8 @@ db_expr_get(int only_started)
 
 	stmt = db_stmt("SELECT start,rounds,minutes,"
 		"loginuri,state,instr,state,total,"
-		"autoadd,round,roundbegan,roundpct FROM experiment");
+		"autoadd,round,roundbegan,roundpct,roundmin "
+		"FROM experiment");
 	rc = db_step(stmt, 0);
 	assert(SQLITE_ROW == rc);
 	if (only_started && ESTATE_NEW == sqlite3_column_int(stmt, 4)) {
@@ -2650,6 +2654,7 @@ db_expr_get(int only_started)
 	expr->round = sqlite3_column_int(stmt, 9);
 	expr->roundbegan = sqlite3_column_int(stmt, 10);
 	expr->roundpct = sqlite3_column_double(stmt, 11);
+	expr->roundmin = sqlite3_column_int(stmt, 12);
 	sqlite3_finalize(stmt);
 	return(expr);
 }
@@ -2689,8 +2694,8 @@ db_expr_wipe(void)
 	db_exec("UPDATE player SET version=0,instr=1,state=0,"
 		"enabled=1,finalrank=0,finalscore=0,hash=''");
 	db_exec("UPDATE experiment SET "
-		"autoadd=0,state=0,total='0/1',round=-1,"
-		"roundbegan=0,roundpct=0.0");
+		"autoadd=0,state=0,total='0/1',round=-1,rounds=0,"
+		"roundbegan=0,roundpct=0.0,minutes=0,roundmin=0");
 	stmt = db_stmt("SELECT id FROM player");
 	stmt2 = db_stmt("UPDATE player SET rseed=? WHERE id=?");
 	/* 

@@ -138,8 +138,9 @@ function loadNewPlayersSuccess(resp)
 		icon.setAttribute('id', 'playerDelete' + player.id);
 		icon.setAttribute('onclick', 'doDeletePlayer(' + player.id + '); return false;');
 		span.appendChild(icon);
-		span.appendChild(document.createTextNode(' '));
-		span.appendChild(document.createTextNode(player.mail));
+		icon = document.createElement('span');
+		icon.appendChild(document.createTextNode(player.mail));
+		span.appendChild(icon);
 		if (player.autoadd) {
 			icon = document.createElement('i');
 			icon.className = 'fa fa-thumb-tack';
@@ -291,7 +292,7 @@ function loadPlayersSuccess(resp)
 
 function loadGamesSuccessInner(resp, code) 
 {
-	var i, j, k, results, li, e, div, icon;
+	var i, j, k, results, li, e, div, icon, row, col, cell, tbl;
 
 	e = doClearNode(document.getElementById('loadGames'));
 
@@ -320,38 +321,42 @@ function loadGamesSuccessInner(resp, code)
 
 	for (i = 0; i < results.length; i++) {
 		li = document.createElement('li');
-		div = document.createElement('span');
-		div.setAttribute('id', 'game' + results[i].id);
-
+		li.setAttribute('id', 'game' + results[i].id);
 		if (0 == code) {
 			icon = document.createElement('a');
 			icon.setAttribute('href', '#');
 			icon.setAttribute('class', 'fa fa-remove');
-			icon.setAttribute('id', 'gameDelete' + results[i].id);
-			icon.setAttribute('onclick', 'doDeleteGame(' + results[i].id + '); return false;');
-			div.appendChild(icon);
-			div.appendChild(document.createTextNode(' '));
+			icon.setAttribute('id', 'gameDelete' + 
+				results[i].id);
+			icon.setAttribute('onclick', 'doDeleteGame(' +
+				results[i].id + '); return false;');
+			li.appendChild(icon);
+			li.appendChild(document.createTextNode(' '));
 		}
-
-		div.appendChild(document.createTextNode(results[i].name));
-		div.appendChild(document.createTextNode(': {'));
-		for (j = 0; j < results[i].payoffs.length; j++) {
-			if (j > 0)
-				div.appendChild(document.createTextNode(', '));
-			div.appendChild(document.createTextNode('{'));
-			for (k = 0; k < results[i].payoffs[j].length; k++) {
-				if (k > 0)
-					div.appendChild(document.createTextNode(', '));
-				div.appendChild(document.createTextNode('('));
-				div.appendChild(document.createTextNode(results[i].payoffs[j][k][0]));
-				div.appendChild(document.createTextNode(', '));
-				div.appendChild(document.createTextNode(results[i].payoffs[j][k][1]));
-				div.appendChild(document.createTextNode(')'));
-			}
-			div.appendChild(document.createTextNode('}'));
-		}
-		div.appendChild(document.createTextNode('}'));
+		div = document.createElement('div');
 		li.appendChild(div);
+		div.appendChild(document.createTextNode(results[i].name));
+		div = document.createElement('div');
+		li.appendChild(div);
+		tbl = document.createElement('div');
+		div.appendChild(tbl);
+		tbl.className = 'table';
+		for (j = 0; j < results[i].payoffs.length; j++) {
+			row = document.createElement('div');
+			tbl.appendChild(row);
+			for (k = 0; k < results[i].payoffs[j].length; k++) {
+				col = document.createElement('div');
+				row.appendChild(col);
+				cell = document.createElement('span');
+				col.appendChild(cell);
+				cell.appendChild(document.createTextNode
+					(results[i].payoffs[j][k][0] + ','));
+				cell = document.createElement('span');
+				col.appendChild(cell);
+				cell.appendChild(document.createTextNode
+					(results[i].payoffs[j][k][1]));
+			}
+		}
 		e.appendChild(li);
 	}
 }
@@ -665,6 +670,11 @@ function loadExprSuccess(resp)
 			Math.round(expr.progress * 100.0) + '%');
 		doClearReplace('statusExprPRound', (expr.round + 1));
 		doClearReplace('statusExprPMax', expr.rounds);
+		doClearReplace('statusExprMins', expr.minutes);
+		if (expr.roundpct > 0.0) {
+			doClearReplace('statusExprRoundpct', expr.roundpct);
+			doClearReplace('statusExprRoundmin', expr.roundmin);
+		}
 		doValue('statusExprPBar', expr.progress);
 
 		doClearReplace('statusExprFrow', res.frow);

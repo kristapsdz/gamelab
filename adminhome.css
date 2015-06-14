@@ -45,6 +45,26 @@ h3 				{ cursor: pointer;
 				  background-color: #555;
 				  font-weight: normal;
 			 	  font-size: 14pt; }
+#loadPlayers, 
+#loadNewPlayers, 
+#loadGames 			{ display: table; 
+				  padding: 0; }
+#loadPlayers li, 
+#loadNewPlayers li, 
+#loadGames li			{ display: table-row; }
+#loadPlayers li >*,
+#loadNewPlayers li >*,
+#loadGames li >*		{ display: table-cell; 
+				  padding: 0.5ex; }
+#loadPlayers li,
+#loadNewPlayers li,
+#loadGames li			{ margin: 0; 
+				  padding: 0; }
+.table				{ display: table; }
+#loadPlayers .table,
+#loadNewPlayers .table,
+#loadGames .table		{ border-left: thin solid #c60; 
+				  display: inline-table; }
 h3:hover 			{ background-color: #666; }
 h3 span				{ color: #fff; }
 h3 i:last-child			{ position: absolute;
@@ -59,8 +79,8 @@ section.unrolled		{ border: thin solid #222;
 				  box-shadow: 0 0 2px #666; 
 			  	  background-color: #e80;
 				  margin-bottom: 8pt; }
-section.rolled div,
-section.unrolled div		{ margin-top: 1em;
+section.rolled > div,
+section.unrolled > div		{ margin-top: 1em;
 				  margin-bottom: 1em; }
 section.rolled >*:not(h3) 	{ padding: 0; 
 				  max-height: 0; 
@@ -69,9 +89,7 @@ section.rolled >*:not(h3) 	{ padding: 0;
 section.unrolled >*:not(h3) 	{ max-height: 1000em; 
 				  margin-left: 1ex; 
 				  margin-right: 1ex; }
-.table				{ display: table; 
-				  border-spacing: 1ex 0.5ex;
-				  margin: 1ex 0; }
+.table				{ border-spacing: 1ex 0.5ex; }
 .table >*			{ display: table-row; }
 .table >* >*			{ display: table-cell; }
 .table-left-head		{ text-align: right; 

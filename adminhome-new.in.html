@@ -202,9 +202,11 @@
 						The following are your games.
 						To delete a game, click the <i class="fa fa-remove"></i> symbol alongside.
 					</div>
-					<ul id="loadGames">
-						<li><i class="fa fa-spinner"></i></li>
-					</ul>
+					<div>
+						<ul id="loadGames">
+							<li><i class="fa fa-spinner"></i></li>
+						</ul>
+					</div>
 					<div>
 						You may add games by specifying a name and payoffs.
 						The name is never shown to players.
@@ -254,9 +256,11 @@
 						To delete a player, just click the <i class="fa fa-remove"></i> symbol alongside.
 						Players marked with <i class="fa fa-thumb-tack"></i> are captive.
 					</div>
-					<ul id="loadNewPlayers">
-						<li><i class="fa fa-spinner"></i></li>
-					</ul>
+					<div>
+						<ul id="loadNewPlayers">
+							<li><i class="fa fa-spinner"></i></li>
+						</ul>
+					</div>
 					<div>
 						Add players to the game using this form.
 						Players consist of e-mail addresses separated by white-space (newlines, tabs, spaces, whatever).
@@ -312,6 +316,10 @@
 						<i class="fa fa-gears"></i> number of rounds, and the <i class="fa fa-history"></i> minutes per round.
 						You can also change the <i class="fa fa-code"></i> instructions (in HTML5 markup) that
 						will be shown to players.
+						A non-zero <i class="fa fa-pie-chart"></i> is the percent of players per player role who, upon
+						playing, will cause the round to advance; and the <i class="fa fa-history
+							fa-flip-horizontal"></i> time is a minimum time for the percentage to take affect so as
+						to allow players to have a chance at playing.
 					</div>
 					<div class="error">
 						<div class="noshow" id="startExprErrSystem">
@@ -375,6 +383,10 @@
 							<div class="input">
 								<i class="fa fa-fw fa-pie-chart"></i>
 								<input required="required" type="number" name="roundpct" id="roundpct" max="100" min="0" step="1" value="0" />
+							</div>
+							<div class="input">
+								<i class="fa fa-fw fa-history fa-flip-horizontal"></i>
+								<input required="required" type="number" name="roundmin" id="roundmin" max="1440" min="0" step="1" value="0" />
 							</div>
 							<div class="input">
 								<i class="fa fa-fw fa-code"></i>

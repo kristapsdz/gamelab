@@ -143,6 +143,8 @@ json_putexpr(struct kjsonreq *r, const struct expr *expr)
 	kjson_putdoublep(r, "progress", frac);
 	kjson_putintp(r, "postwin", ESTATE_POSTWIN == expr->state);
 	kjson_putintp(r, "round", expr->round);
+	kjson_putdoublep(r, "roundpct", expr->roundpct * 100.0);
+	kjson_putintp(r, "roundmin", expr->roundmin);
 	kjson_putintp(r, "roundbegan", expr->roundbegan);
 	kjson_putintp(r, "autoadd", expr->autoadd);
 	kjson_obj_close(r);

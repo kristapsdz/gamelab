@@ -85,6 +85,7 @@ enum	key {
 	KEY_AUTOADD,
 	KEY_DATE,
 	KEY_TIME,
+	KEY_ROUNDMIN,
 	KEY_ROUNDPCT,
 	KEY_ROUNDS,
 	KEY_MINUTES,
@@ -193,6 +194,7 @@ static const struct kvalid keys[KEY__MAX] = {
 	{ kvalid_int, "autoadd" }, /* KEY_AUTOADD */
 	{ kvalid_date, "date" }, /* KEY_DATE */
 	{ kvalid_time, "time" }, /* KEY_TIME */
+	{ kvalid_uint, "roundmin" }, /* KEY_ROUNDMIN */
 	{ kvalid_uint, "roundpct" }, /* KEY_ROUNDPCT */
 	{ kvalid_rounds, "rounds" }, /* KEY_ROUNDS */
 	{ kvalid_minutes, "minutes" }, /* KEY_MINUTES */
@@ -1004,6 +1006,7 @@ senddostartexpr(struct kreq *r)
 		kpairbad(r, KEY_TIME) ||
 		kpairbad(r, KEY_ROUNDS) ||
 		kpairbad(r, KEY_ROUNDPCT) ||
+		kpairbad(r, KEY_ROUNDMIN) ||
 		kpairbad(r, KEY_INSTR) ||
 		kpairbad(r, KEY_MINUTES) ||
 		kpairbad(r, KEY_URI) ||
@@ -1019,6 +1022,7 @@ senddostartexpr(struct kreq *r)
 		(r->fieldmap[KEY_DATE]->parsed.i +
 		 r->fieldmap[KEY_TIME]->parsed.i,
 		 r->fieldmap[KEY_ROUNDPCT]->parsed.i,
+		 r->fieldmap[KEY_ROUNDMIN]->parsed.i,
 		 r->fieldmap[KEY_ROUNDS]->parsed.i,
 		 r->fieldmap[KEY_MINUTES]->parsed.i,
 		 r->fieldmap[KEY_INSTR]->parsed.s,
