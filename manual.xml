@@ -17,12 +17,12 @@
 				<span>Contact</span>
 				<a title="Contact" href="mailto:kristaps@kcons.eu"><i class="fa fa-envelope-o"></i></a>
 			</span>
-			<span>
+			<!-- span>
 				<span>Source</span>
 				<a title="Source Code" href="snapshots/gamelab.tgz"><i class="fa fa-gears"></i></a>
 				<a title="Source Checksum" href="snapshots/gamelab.tgz.sha512"><i class="fa fa-lock"></i></a>
 				<a title="Source Archive" href="snapshots"><i class="fa fa-archive"></i></a>
-			</span>
+			</span -->
 			<span>
 				<span>Cite</span>
 				<a title="BibTeX Citation" href="gamelab.bib"><i class="fa fa-bookmark"></i></a>
@@ -189,7 +189,7 @@
 				<p>
 					<span class="nm">Gamelab</span> uses a broad set of technologies to work.
 					In this section, I briefly describe the specific technologies used.
-					All of this is visible in the <a href="gamelab.tgz">source code</a>, but let this act as a primer.
+					All of this is visible in the source code, but let this act as a primer.
 					In general, these can be broken down into the user interface, which experimenters and participants use,
 					and the server backend, which is accessed by the user interface.
 				</p>
@@ -226,6 +226,8 @@
 				<p>
 					In order to use <span class="nm">gamelab</span>, you'll need to download, configure, and install
 					it&mdash;just like any piece of software.
+					<emph>Note</emph>: we're still getting <span class="nm">gamelab</span> into ship-shape, so the source
+					can't yet be downloaded&#8211;contact us for a copy!
 					If a system administrator has already installed the server and given you the web address for its
 					laboratory and administrative interfaces, jump down to the <a href="#administration">Administration</a>
 					section.
@@ -286,9 +288,7 @@
 					</p>
 					<p>
 						Each of these systems has its own installation procedure beyond the scope of this document.
-						After you've installed the dependencies, download <a
-							class="file" href="snapshots/gamelab.tgz">gamelab.tgz</a> and the checksum <a
-							class="file" href="snapshots/gamelab.tgz.sha512">gamelab.tgz.sha512</a>.
+						After you've installed the dependencies, download the source archive and the checksum.
 					</p>
 				</section>
 				<section id="compiling">

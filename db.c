@@ -510,7 +510,7 @@ db_expr_advance(void)
 
 	if (expr->roundpct > 0.0 && 
 		 expr->round >= 0 &&
-		 t - expr->roundbegan > expr->roundmin) {
+		 t - expr->roundbegan > expr->roundmin * 60) {
 		/*
 		 * Optional round advancement according to the number of
 		 * players per role who have played all games.

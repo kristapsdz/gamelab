@@ -47,8 +47,10 @@
 				<p>
 					If you're interested in deploying a <span class="nm">gamelab</span> server of your own, consult the <a
 						href="manual.html">manual</a> on how to download, install, and administer experiments.
-					If you're interested in teaming up, or just want to share your experiences, contact J&#x00f6;rgen,
-					Kristaps, or Eskil.
+					However, we're still getting the source code ship-shape: if you want to use it, please contact us for a
+					copy.
+					Otherwise, if you're interested in teaming up, or just want to share your experiences, contact
+					J&#x00f6;rgen, Kristaps, or Eskil.
 					In the spirit of academic sharing, <span class="nm">gamelab</span> is <a rel="license"
 						href="http://cvsweb.openbsd.org/cgi-bin/cvsweb/src/share/misc/license.template?rev=HEAD">open
 						source</a>, and we kindly suggest that experimenters <a href="gamelab.bib">cite</a> our work!
