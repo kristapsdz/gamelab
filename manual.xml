@@ -993,6 +993,12 @@
 									then the timestamp (epoch) when the round was incremented.
 									Otherwise, this is zero.
 								</dd>
+								<dt id="db-experiment-roundmin"><var>roundmin</var></dt>
+								<dd>
+									If <a href="#db-experiment-roundpct"><var>roundpct</var></a> is
+									non-zero, this is the <q>grace time</q> (in minutes) before which the
+									round will automatically advance giving the percentage.
+								</dd>
 								<dt id="db-experiment-roundpct"><var>roundpct</var></dt>
 								<dd>
 									If &gt;0, this represents the fraction of players per role who play all
