@@ -268,13 +268,7 @@
 						Captive players will not be e-mailed when the experiment is started, nor will they be remembered
 						when the experiment is wiped.
 					</div>
-					<div class="error noshow" id="addPlayersErrSystem">
-						An unexpected system error occurred.
-					</div>
-					<div class="error noshow" id="addPlayersErrState">
-						Experiment already started!
-					</div>
-					<form action="@ADMINURI@/doaddplayers.json" method="post" id="addPlayers" onsubmit="return(addPlayers(this));">
+					<form action="@ADMINURI@/doaddplayers.json" method="post" id="addPlayers" onsubmit="return(addNewPlayers(this));">
 						<fieldset>
 							<div class="input">
 								<i class="fa fa-fw fa-users"></i>
@@ -295,6 +289,8 @@
 						<strong>Note</strong>: you have opted for a captive experiment.
 						To enter the captive portal, your players will need to access <a
 							href="@HTURI@/playerautoadd.html">@HTURI@/playerautoadd.html</a> in order to log in.
+						Once you start the experiment, captive players will be disabled, but you can enable it again if
+						you wish to continue adding players.
 					</div>
 				</section>
 				<section class="rolled" id="startExprSection">

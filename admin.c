@@ -749,8 +749,7 @@ senddoaddplayers(struct kreq *r)
 	if (NULL == r->fieldmap[KEY_PLAYERS])
 		return;
 
-	buf = sv = kstrdup
-		(r->fieldmap[KEY_PLAYERS]->parsed.s);
+	buf = sv = kstrdup(r->fieldmap[KEY_PLAYERS]->parsed.s);
 
 	while (NULL != (tok = strsep(&buf, " \t\n\r"))) {
 		if (*tok == '\0')
@@ -1040,6 +1039,14 @@ senddostartexpr(struct kreq *r)
 		"/playerlogin.html", 
 		kschemes[r->scheme], r->host);
 
+	/*
+	 * Now we're going to send e-mails to all of those players who
+	 * haven't been emailed.
+	 * See mail_players() for the details.
+	 * To do so, we first close the database, the re-open it in the
+	 * child.
+	 * This prevents the open descriptors being inherited.
+	 */
 	db_close();
 	if (-1 == (pid = fork())) {
 		fprintf(stderr, "cannot fork!\n");

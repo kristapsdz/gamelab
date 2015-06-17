@@ -185,6 +185,32 @@
 							<button type="button" id="recheckSmtpButton" onclick="reTestSmtp();">Resend Error Mails</button>
 						</div>
 					</fieldset>
+					<div>
+						Add players to the game using this form.
+						Players consist of e-mail addresses separated by white-space (newlines, tabs, spaces, whatever).
+						If you set the <q>Allow Captive Players</q> toggle, then players may add themselves.
+						Captive players will not be e-mailed when the experiment is started, nor will they be remembered
+						when the experiment is wiped.
+						When you're finished adding all players, click <q>Resend Error Mails</q> to make sure they've
+						been e-mailed their passwords.
+					</div>
+					<form action="@ADMINURI@/doaddplayers.json" method="post" id="addPlayers" onsubmit="return(addPlayers(this));">
+						<fieldset>
+							<div class="input">
+								<i class="fa fa-fw fa-users"></i>
+								<textarea name="players" placeholder="Space-separated player e-mail addresses..."></textarea>
+							</div>
+							<div class="input input-check">
+								<i onclick="toggler('autoadd', 'autoaddToggle');" id="autoaddToggle" class="fa fa-fw fa-toggle-off"></i>
+								<span onclick="toggler('autoadd', 'autoaddToggle');">Allow Captive Players</span>
+							</div>
+							<div class="input input-submit">
+								<i class="fa fa-fw fa-check"></i>
+								<input id="addPlayersSubmit" type="submit" value="Submit" />
+							</div>
+							<input type="hidden" id="autoadd" name="autoadd" value="0" />
+						</fieldset>
+					</form>
 				</section>
 				<section class="rolled">
 					<h3 onclick="unroll(this.firstChild, this.parentNode);"><i class="fa fa-fw fa-chevron-circle-right"></i> 

@@ -38,22 +38,26 @@ function doError(err, submitName, errName)
 {
 	var e;
 
-	if (null != (e = document.getElementById(submitName)))
+	if (null != submitName && 
+		 null != (e = document.getElementById(submitName)))
 		if (e.hasAttribute('gamelab-submit-default'))
 			e.value = e.getAttribute('gamelab-submit-default');
 
 	switch (err) {
 	case 400:
-		doUnhide(errName + 'Form');
+		if (null != errName)
+			doUnhide(errName + 'Form');
 		break;
 	case 403:
 		location.href = '@HTURI@/adminlogin.html#loggedout';
 		break;
 	case 409:
-		doUnhide(errName + 'State');
+		if (null != errName)
+			doUnhide(errName + 'State');
 		break;
 	default:
-		doUnhide(errName + 'System');
+		if (null != errName)
+			doUnhide(errName + 'System');
 		break;
 	}
 }
@@ -70,15 +74,18 @@ function doSetup(submitName, errName)
 {
 	var e;
 
-	if (null != (e = document.getElementById(submitName))) 
+	if (null != submitName &&
+		 null != (e = document.getElementById(submitName))) 
 		if (e.hasAttribute('gamelab-submit-pending')) {
 			e.setAttribute('gamelab-submit-default', e.value);
 			e.value = e.getAttribute('gamelab-submit-pending');
 		}
 
-	doHide(errName + 'Form');
-	doHide(errName + 'System');
-	doHide(errName + 'State');
+	if (null != errName) {
+		doHide(errName + 'Form');
+		doHide(errName + 'System');
+		doHide(errName + 'State');
+	}
 }
 
 /*
@@ -773,13 +780,22 @@ function addGame(form)
 		function() { doSuccess('addGameSubmit', 'addGame'); loadNewGames(); }));
 }
 
+function addNewPlayers(form)
+{
+
+	return(sendForm(form, 
+		function() { doSetup('addPlayersSubmit', null); },
+		function(err) { doError(err, 'addPlayersSubmit', null); },
+		function () { doSuccess('addPlayersSubmit', 'addPlayers'); loadNewPlayers(); }));
+}
+
 function addPlayers(form)
 {
 
 	return(sendForm(form, 
-		function() { doSetup('addPlayersSubmit', 'addPlayersErr'); },
+		function() { doSetup('addPlayersSubmit', null); },
 		function(err) { doError(err, 'addPlayersSubmit', 'addPlayersErr'); },
-		function () { doSuccess('addPlayersSubmit', 'addPlayers'); loadNewPlayers(); }));
+		function () { doSuccess('addPlayersSubmit', 'addPlayers'); loadPlayers(); }));
 }
 
 function doWinnersSetup()

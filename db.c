@@ -173,7 +173,7 @@ again:
 	} else if (SQLITE_OK == rc)
 		return(stmt);
 
-	fprintf(stderr, "sqlite3_stmt: %s\n", sqlite3_errmsg(db));
+	fprintf(stderr, "sqlite3_stmt: %s: %s\n", sqlite3_errmsg(db), sql);
 	sqlite3_finalize(stmt);
 	exit(EXIT_FAILURE);
 }
@@ -494,7 +494,7 @@ db_expr_advance(void)
 	time_t		 t;
 	int		 rc;
 	size_t		 games, allplayers[2];
-	size_t		 roleplayers[2];
+	double		 roleplayers[2];
 	int64_t		 round, played;
 	sqlite3_stmt	*stmt;
 
@@ -514,21 +514,30 @@ db_expr_advance(void)
 		/*
 		 * Optional round advancement according to the number of
 		 * players per role who have played all games.
+		 * FIXME: cache in experiment.
 		 */
-		/* FIXME: cache in experiment. */
 		games = db_game_count_all();
 		/*
 		 * First determine how many players exist per role.
-		 * FIXME: cache in experiment.
+		 * This only works with players who are currently in the
+		 * play role, not in the lobby (or finished).
 		 */
 		stmt = db_stmt("SELECT count(*) FROM "
-			"player WHERE player.role=?");
+			"player WHERE role=? AND "
+			"joined >= ? AND "
+			"? - joined < ?");
 		db_bind_int(stmt, 1, 0);
+		db_bind_int(stmt, 2, expr->round);
+		db_bind_int(stmt, 3, expr->round);
+		db_bind_int(stmt, 4, expr->prounds);
 		rc = db_step(stmt, 0);
 		assert(SQLITE_ROW == rc);
 		allplayers[0] = sqlite3_column_int(stmt, 0);
 		sqlite3_reset(stmt);
 		db_bind_int(stmt, 1, 1);
+		db_bind_int(stmt, 2, expr->round);
+		db_bind_int(stmt, 3, expr->round);
+		db_bind_int(stmt, 4, expr->prounds);
 		rc = db_step(stmt, 0);
 		assert(SQLITE_ROW == rc);
 		allplayers[1] = sqlite3_column_int(stmt, 0);
@@ -544,16 +553,17 @@ db_expr_advance(void)
 			" gameplay.choices=?");
 		db_bind_int(stmt, 1, expr->round);
 		db_bind_int(stmt, 2, games);
-		roleplayers[0] = roleplayers[1] = 0;
+		roleplayers[0] = roleplayers[1] = 0.0;
 		while (SQLITE_ROW == db_step(stmt, 0)) {
 			played = sqlite3_column_int(stmt, 0);
 			assert(played == 0 || played == 1);
-			roleplayers[played]++;
+			roleplayers[played] += 1.0;
 		}
 		sqlite3_finalize(stmt);
-
-		if (roleplayers[0] / (double)allplayers[0] >= expr->roundpct &&
-			 roleplayers[1] / (double)allplayers[1] >= expr->roundpct) {
+		roleplayers[0] /= (double)allplayers[0];
+		roleplayers[1] /= (double)allplayers[1];
+		if (roleplayers[0] >= expr->roundpct &&
+			 roleplayers[1] >= expr->roundpct) {
 			round = expr->round + 1;
 			goto advance;
 		}
@@ -1171,13 +1181,6 @@ db_player_play(const struct player *p, int64_t sessid,
 			"experiment not started\n", 
 			p->id, gameid, round);
 		return(0);
-	} else if (round >= expr->rounds) {
-		fprintf(stderr, "Player %" PRId64 " tried playing "
-			"game %" PRId64 " (round %" PRId64 "), but "
-			"round invalid (max %" PRId64 ")\n", 
-			p->id, gameid, round, expr->rounds);
-		db_expr_free(expr);
-		return(0);
 	} else if (round != expr->round) {
 		fprintf(stderr, "Player %" PRId64 " tried playing "
 			"game %" PRId64 " (round %" PRId64 "), but "
@@ -1185,11 +1188,18 @@ db_player_play(const struct player *p, int64_t sessid,
 			p->id, gameid, round, expr->round);
 		db_expr_free(expr);
 		return(0);
-	} else if (p->joined < 0) {
+	} else if (round >= expr->rounds) {
 		fprintf(stderr, "Player %" PRId64 " tried playing "
 			"game %" PRId64 " (round %" PRId64 "), but "
-			"hasn't been admitted to experiment\n",
-			p->id, gameid, round);
+			"round invalid (max %" PRId64 ")\n", 
+			p->id, gameid, round, expr->rounds);
+		db_expr_free(expr);
+		return(0);
+	} else if (p->joined < round) {
+		fprintf(stderr, "Player %" PRId64 " tried playing "
+			"game %" PRId64 " (round %" PRId64 "), but "
+			"hasn't been admitted (slated %" PRId64 ")\n",
+			p->id, gameid, round, p->joined);
 		db_expr_free(expr);
 		return(0);
 	} else if (round >= p->joined + expr->prounds) {
@@ -1482,8 +1492,8 @@ err:
 
 /*
  * Create a player, automatically setting a password for them.
- * Returns -1 if the experiment isn't in ESTATE_NEW, 0 if the player
- * already exists (nothing changed), and 1 on new player creation.
+ * Returns <0 if the experiment isn't in ESTATE_NEW, zero if the player
+ * already exists (nothing changed), and >0 on new player creation.
  * Fills in the "pass" pointer (if set) with the player's password or
  * NULL if errors have occurred.
  */
@@ -1496,14 +1506,6 @@ db_player_create(const char *email, char **pass)
 
 	if (NULL != pass)
 		*pass = NULL;
-
-	db_trans_begin(0);
-	if ( ! db_expr_checkstate(ESTATE_NEW)) {
-		db_trans_rollback();
-		fprintf(stderr, "Player (%s) could not be "
-			"created: bad state\n", email);
-		return(-1);
-	}
 
 	hash = db_crypt_mkpass();
 	stmt = db_stmt("INSERT INTO player "
@@ -1520,7 +1522,6 @@ db_player_create(const char *email, char **pass)
 		if (NULL != pass)
 			*pass = kstrdup(hash);
 	}
-	db_trans_commit();
 	return(SQLITE_DONE == rc);
 }
 
@@ -1680,7 +1681,7 @@ db_expr_start(int64_t date, int64_t roundpct,
 	stmt = db_stmt("UPDATE experiment SET "
 		"start=?,rounds=?,minutes=?,"
 		"loginuri=?,instr=?,state=?,"
-		"roundpct=?,prounds=?");
+		"roundpct=?,prounds=?,autoadd=0");
 	db_bind_int(stmt, 1, date);
 	db_bind_int(stmt, 2, rounds);
 	db_bind_int(stmt, 3, minutes);
