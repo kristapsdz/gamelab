@@ -87,6 +87,7 @@ json_putplayer(struct kjsonreq *r, const struct player *p)
 	kjson_putintp(r, "instr", p->instr);
 	kjson_putintp(r, "id", p->id);
 	kjson_putintp(r, "autoadd", p->autoadd);
+	kjson_putintp(r, "joined", p->joined);
 	kjson_putintp(r, "status", p->state);
 	kjson_putintp(r, "enabled", p->enabled);
 	kjson_putintp(r, "finalrank", p->finalrank);
@@ -138,6 +139,7 @@ json_putexpr(struct kjsonreq *r, const struct expr *expr)
 	kjson_putintp(r, "start", (int64_t)expr->start);
 	kjson_putintp(r, "end", (int64_t)expr->end);
 	kjson_putintp(r, "rounds", expr->rounds);
+	kjson_putintp(r, "prounds", expr->prounds);
 	kjson_putintp(r, "minutes", expr->minutes);
 	kjson_putstringp(r, "loginURI", expr->loginuri);
 	kjson_putdoublep(r, "progress", frac);

@@ -1082,7 +1082,7 @@ db_player_load(int64_t id)
 
 	stmt = db_stmt("SELECT email,state,id,enabled,"
 		"role,rseed,instr,finalrank,finalscore,autoadd,"
-	        "version FROM player WHERE id=?");
+	        "version,joined FROM player WHERE id=?");
 	db_bind_int(stmt, 1, id);
 	if (SQLITE_ROW != db_step(stmt, 0)) {
 		sqlite3_finalize(stmt);
@@ -1101,6 +1101,7 @@ db_player_load(int64_t id)
 	player->finalscore = sqlite3_column_int(stmt, 8);
 	player->autoadd = sqlite3_column_int(stmt, 9);
 	player->version = sqlite3_column_int(stmt, 10);
+	player->joined = sqlite3_column_int(stmt, 11);
 	sqlite3_finalize(stmt);
 	return(player);
 }
@@ -1117,7 +1118,7 @@ db_player_load_all(playerf fp, void *arg)
 
 	stmt = db_stmt("SELECT email,state,id,enabled,"
 		"role,rseed,instr,finalrank,finalscore,autoadd, "
-		"version FROM player");
+		"version,joined FROM player");
 	while (SQLITE_ROW == db_step(stmt, 0)) {
 		memset(&player, 0, sizeof(struct player));
 		player.mail = kstrdup
@@ -1132,6 +1133,7 @@ db_player_load_all(playerf fp, void *arg)
 		player.finalscore = sqlite3_column_int(stmt, 8);
 		player.autoadd = sqlite3_column_int(stmt, 9);
 		player.version = sqlite3_column_int(stmt, 10);
+		player.joined = sqlite3_column_int(stmt, 11);
 		(*fp)(&player, arg);
 		free(player.mail);
 	}
@@ -1140,51 +1142,80 @@ db_player_load_all(playerf fp, void *arg)
 }
 
 /*
- * The "plays" values should be canonicalised from mpq_t prior to being
- * passed here.
+ * This should be invoked for players who are playing.
+ * `Plays' values MUST be canonicalised prior to being passed here, and
+ * must sum to one.
+ * If the player is allowed to play (correct round, etc.), then create a
+ * `choice' with their choice and increment the `game-play' counter.
+ * This returns zero if we're not in the correct state: player has exceeded
+ * their maximum number of plays, game has ended, etc.
+ * Otherwise it returns non-zero.
  */
 int
-db_player_play(int64_t playerid, int64_t sessid, 
+db_player_play(const struct player *p, int64_t sessid, 
 	int64_t round, int64_t gameid, mpq_t *plays, size_t sz)
 {
 	struct expr	*expr;
-	time_t		 t;
 	sqlite3_stmt	*stmt;
 	int		 rc;
 	char		*buf;
 
 	/*
-	 * Check this outside of a transaction.
-	 * The values needn't be completely "on time" to the
-	 * microsecond and this doesn't change in the database.
+	 * Safety checks: make sure we're not playing in an experiment
+	 * that hasn't started, an experiment that has ended, or if
+	 * we're not playing for the current round.
 	 */
-	t = time(NULL);
-	expr = db_expr_get(1);
-	assert(NULL != expr);
-
-	if (round > expr->rounds) {
-		db_expr_free(expr);
+	if (NULL == (expr = db_expr_get(1))) {
+		fprintf(stderr, "Player %" PRId64 " tried playing "
+			"game %" PRId64 " (round %" PRId64 "), but "
+			"experiment not started\n", 
+			p->id, gameid, round);
+		return(0);
+	} else if (round >= expr->rounds) {
 		fprintf(stderr, "Player %" PRId64 " tried playing "
 			"game %" PRId64 " (round %" PRId64 "), but "
 			"round invalid (max %" PRId64 ")\n", 
-			playerid, gameid, round, expr->rounds);
+			p->id, gameid, round, expr->rounds);
+		db_expr_free(expr);
 		return(0);
 	} else if (round != expr->round) {
 		fprintf(stderr, "Player %" PRId64 " tried playing "
 			"game %" PRId64 " (round %" PRId64 "), but "
 			"round invalid (at %" PRId64 ")\n", 
-			playerid, gameid, round, expr->round);
+			p->id, gameid, round, expr->round);
+		db_expr_free(expr);
+		return(0);
+	} else if (p->joined < 0) {
+		fprintf(stderr, "Player %" PRId64 " tried playing "
+			"game %" PRId64 " (round %" PRId64 "), but "
+			"hasn't been admitted to experiment\n",
+			p->id, gameid, round);
+		db_expr_free(expr);
+		return(0);
+	} else if (round >= p->joined + expr->prounds) {
+		fprintf(stderr, "Player %" PRId64 " tried playing "
+			"game %" PRId64 " (round %" PRId64 "), but "
+			"has exceeded player max (%" PRId64 ")\n",
+			p->id, gameid, round, 
+			p->joined + expr->prounds);
 		db_expr_free(expr);
 		return(0);
 	}
 	db_expr_free(expr);
 
+	/*
+	 * Create our `choice': the mixture of strategies for this given
+	 * game and this given round.
+	 * Tie that choice to our session (for records-keeping).
+	 * FIXME: there is a race condition here where the round might
+	 * advance between our check, above, and this right here.
+	 */
 	buf = mpq_mpq2str(plays, sz);
 	stmt = db_stmt("INSERT INTO choice "
 		"(round,playerid,gameid,strats,stratsz,created,sessid) "
 		"VALUES (?,?,?,?,?,?,?)");
 	db_bind_int(stmt, 1, round);
-	db_bind_int(stmt, 2, playerid);
+	db_bind_int(stmt, 2, p->id);
 	db_bind_int(stmt, 3, gameid);
 	db_bind_text(stmt, 4, buf);
 	db_bind_int(stmt, 5, sz);
@@ -1197,26 +1228,29 @@ db_player_play(int64_t playerid, int64_t sessid,
 		fprintf(stderr, "Player %" PRId64 " tried "
 			"playing game %" PRId64 " (round %" 
 			PRId64 "), but has already played\n",
-			playerid, gameid, round);
+			p->id, gameid, round);
 		return(0);
 	}
-
 	fprintf(stderr, "Player %" PRId64 " has played "
 		"game %" PRId64 " (round %" PRId64 ")\n",
-		playerid, gameid, round);
+		p->id, gameid, round);
 
+	/*
+	 * First create (this is a no-op if it has already been created)
+	 * then update the record of how many `choice' fields we've made
+	 * for this round.
+	 */
 	stmt = db_stmt("INSERT INTO gameplay "
 		"(round,playerid) VALUES (?,?)");
 	db_bind_int(stmt, 1, round);
-	db_bind_int(stmt, 2, playerid);
+	db_bind_int(stmt, 2, p->id);
 	db_step(stmt, DB_STEP_CONSTRAINT);
 	sqlite3_finalize(stmt);
-
 	stmt = db_stmt("UPDATE gameplay "
 		"SET choices=choices + 1 "
 		"WHERE round=? AND playerid=?");
 	db_bind_int(stmt, 1, round);
-	db_bind_int(stmt, 2, playerid);
+	db_bind_int(stmt, 2, p->id);
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);
 	return(1);
@@ -1616,6 +1650,11 @@ db_expr_setstart(int64_t date)
 	return(1);
 }
 
+/*
+ * Set that an experiment will start at the given time.
+ * This doesn't necessarily mean that the experiment is accepting plays,
+ * which depends upon `date' and db_expr_advance().
+ */
 int
 db_expr_start(int64_t date, int64_t roundpct, 
 	int64_t roundmin, int64_t rounds, int64_t minutes, 
@@ -1629,7 +1668,7 @@ db_expr_start(int64_t date, int64_t roundpct,
 	if ( ! db_expr_checkstate(ESTATE_NEW)) {
 		db_trans_rollback();
 		fprintf(stderr, "Experiment could not "
-			"be started: bad state\n");
+			"be started: already started\n");
 		return(0);
 	}
 
@@ -1640,7 +1679,8 @@ db_expr_start(int64_t date, int64_t roundpct,
 
 	stmt = db_stmt("UPDATE experiment SET "
 		"start=?,rounds=?,minutes=?,"
-		"loginuri=?,instr=?,state=?,roundpct=?");
+		"loginuri=?,instr=?,state=?,"
+		"roundpct=?,prounds=?");
 	db_bind_int(stmt, 1, date);
 	db_bind_int(stmt, 2, rounds);
 	db_bind_int(stmt, 3, minutes);
@@ -1648,14 +1688,15 @@ db_expr_start(int64_t date, int64_t roundpct,
 	db_bind_text(stmt, 5, instr);
 	db_bind_int(stmt, 6, ESTATE_STARTED);
 	db_bind_double(stmt, 7, roundpct / 100.0);
+	db_bind_int(stmt, 8, rounds);
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);
-	db_trans_commit();
-	fprintf(stderr, "Experiment started\n");
 
 	i = 0;
-	stmt = db_stmt("SELECT id from player ORDER BY rseed ASC, id ASC");
-	stmt2 = db_stmt("UPDATE player SET role=?,rank=? WHERE id=?");
+	stmt = db_stmt("SELECT id from player "
+		"ORDER BY rseed ASC, id ASC");
+	stmt2 = db_stmt("UPDATE player "
+		"SET role=?,rank=?,joined=0 WHERE id=?");
 	while (SQLITE_ROW == db_step(stmt, 0)) {
 		id = sqlite3_column_int(stmt, 0);
 		db_bind_int(stmt2, 1, i % 2);
@@ -1666,6 +1707,8 @@ db_expr_start(int64_t date, int64_t roundpct,
 	}
 	sqlite3_finalize(stmt);
 	sqlite3_finalize(stmt2);
+	db_trans_commit();
+	fprintf(stderr, "Experiment started\n");
 	return(1);
 }
 
@@ -2632,7 +2675,8 @@ db_expr_get(int only_started)
 
 	stmt = db_stmt("SELECT start,rounds,minutes,"
 		"loginuri,state,instr,state,total,"
-		"autoadd,round,roundbegan,roundpct,roundmin "
+		"autoadd,round,roundbegan,roundpct,"
+		"roundmin,prounds " 
 		"FROM experiment");
 	rc = db_step(stmt, 0);
 	assert(SQLITE_ROW == rc);
@@ -2655,6 +2699,7 @@ db_expr_get(int only_started)
 	expr->roundbegan = sqlite3_column_int(stmt, 10);
 	expr->roundpct = sqlite3_column_double(stmt, 11);
 	expr->roundmin = sqlite3_column_int(stmt, 12);
+	expr->prounds = sqlite3_column_int(stmt, 13);
 	sqlite3_finalize(stmt);
 	return(expr);
 }
@@ -2692,10 +2737,12 @@ db_expr_wipe(void)
 	db_exec("DELETE FROM winner");
 	db_exec("DELETE FROM player WHERE autoadd=1");
 	db_exec("UPDATE player SET version=0,instr=1,state=0,"
-		"enabled=1,finalrank=0,finalscore=0,hash=''");
+		"enabled=1,finalrank=0,finalscore=0,hash='',"
+		"joined=-1");
 	db_exec("UPDATE experiment SET "
 		"autoadd=0,state=0,total='0/1',round=-1,rounds=0,"
-		"roundbegan=0,roundpct=0.0,minutes=0,roundmin=0");
+		"prounds=0,roundbegan=0,roundpct=0.0,minutes=0,"
+		"roundmin=0");
 	stmt = db_stmt("SELECT id FROM player");
 	stmt2 = db_stmt("UPDATE player SET rseed=? WHERE id=?");
 	/* 

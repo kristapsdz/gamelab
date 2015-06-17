@@ -37,7 +37,8 @@ struct	expr {
 	enum estate	 state; /* state of play */
 	time_t		 start; /* game-play begins */
 	time_t		 end; /* game-play ends (computed) */
-	int64_t		 rounds; /* number of game plays */
+	int64_t		 rounds; /* total experiment rounds */
+	int64_t		 prounds; /* per-player rounds */
 	time_t		 roundbegan; /* number of game plays */
 	double		 roundpct; /* percent-based round advance */
 	int64_t		 roundmin; /* if percent-based, min minutes */
@@ -55,7 +56,7 @@ struct	expr {
  */
 struct	sess {
 	int64_t	 	 cookie; /* randomly-generated cookie */
-	int64_t	 	 id;
+	int64_t	 	 id; /* unique identifier */
 };
 
 /*
@@ -68,7 +69,7 @@ struct	game {
 	int64_t		 p1; /* rows */
 	int64_t		 p2; /* columns */
 	char		*name; /* name (never shown to players) */
-	int64_t		 id;
+	int64_t		 id; /* unique identifier */
 };
 
 /*
@@ -144,7 +145,8 @@ struct	player {
 	int64_t		 finalrank; /* ticket offset in all awards */
 	int64_t		 finalscore; /* number of tickets */
 	int64_t		 version; /* increment at update */
-	int64_t		 id;
+	int64_t		 joined; /* round when joined experiment */
+	int64_t		 id; /* unique identifier */
 };
 
 /*
@@ -242,8 +244,8 @@ int		 db_player_lottery(int64_t, int64_t, mpq_t, mpq_t, size_t);
 char		*db_player_next_new(int64_t *, char **);
 struct sess	*db_player_sess_alloc(int64_t, const char *);
 int		 db_player_sess_valid(int64_t *, int64_t, int64_t);
-int		 db_player_play(int64_t, int64_t, int64_t, 
-			int64_t, mpq_t *, size_t);
+int		 db_player_play(const struct player *, int64_t, 
+			int64_t, int64_t, mpq_t *, size_t);
 void		 db_player_reset_all(void);
 void		 db_player_reset_error(void);
 void		 db_player_set_instr(int64_t, int64_t);

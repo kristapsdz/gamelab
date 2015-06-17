@@ -701,8 +701,8 @@ senddoplay(struct kreq *r, int64_t playerid)
 	 * KHTTP_400 and depend on the frontend.
 	 */
 	assert(NULL != r->cookiemap[KEY_SESSID]);
-	if ( ! db_player_play
-		(player->id, 
+	if (0 ==  db_player_play
+		(player, 
 		 r->cookiemap[KEY_SESSID]->parsed.i,
 		 r->fieldmap[KEY_ROUND]->parsed.i,
 		 game->id, mixes, strats))
