@@ -944,7 +944,7 @@ function loadExprSuccess(resp)
 		res.gameorders = null;
 	}
 
-	if (expr.round < 0) {
+	if (expr.round < res.player.joined) {
 		/*
 		 * If we haven't yet started, then simply set our timer
 		 * and exit: we have nothing to show.
@@ -953,9 +953,20 @@ function loadExprSuccess(resp)
 		doUnhide('historyNotStarted');
 		e = doClear('exprCountdown');
 		formatCountdown(next, e);
-		setTimeout(timerCountdown, 1000, loadExpr, e, expr.start);
+		/*
+		 * If the game hasn't started, then set this to be the
+		 * time that the game begins.
+		 * Otherwise, set it to the next round.
+		 */
+		if (expr.round < 0)
+			setTimeout(timerCountdown, 1000, 
+				loadExpr, e, expr.start);
+		else
+			setTimeout(timerCountdown, 1000, 
+				loadExpr, e, expr.roundbegan + 
+				(expr.minutes * 60));
 		doUnhide('exprNotStarted');
-	} else if (expr.round < expr.rounds) {
+	} else if (expr.round < res.player.joined + expr.prounds) {
 		/*
 		 * Start by setting the countdown til the next
 		 * game-play.
@@ -1051,12 +1062,24 @@ function loadExprFirst()
 	loadExpr();
 }
 
+function loadExprFailure(err)
+{
+
+	switch (err) {
+	case 429:
+		location.href = '@HTURI@/playerlobby.html';
+		break;
+	default:
+		location.href = '@HTURI@/playerlogin.html#loggedout';
+		break;
+	}
+}
+
 function loadExpr() 
 {
 
 	sendQuery('@LABURI@/doloadexpr.json', 
-		loadExprSetup, loadExprSuccess, 
-		function(err) { location.href = '@HTURI@/playerlogin.html#loggedout'; });
+		loadExprSetup, loadExprSuccess, loadExprFailure);
 }
 
 function doPlayGameSetup()

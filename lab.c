@@ -442,6 +442,7 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 	char		 buf[22];
 	const char	*cp;
 
+again:
 	/* All response have at least the following. */
 	if (NULL == (expr = db_expr_get(1))) {
 		http_open(r, KHTTP_409);
@@ -453,6 +454,21 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 	assert(NULL != player);
 
 	/*
+	 * If we're currently in the player lobby, then see if we can be
+	 * added in the next round.
+	 */
+	if (player->joined < 0) {
+		i = player->id;
+		db_expr_free(expr);
+		db_player_free(player);
+		if (db_player_join(i))
+			goto again;
+		http_open(r, KHTTP_429);
+		khttp_body(r);
+		return;
+	}
+
+	/*
 	 * Cache optimisation.
 	 * If we're at the same round as the last time we asked for
 	 * data, then simply 304 the request and let the browser use the
@@ -461,8 +477,8 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 	 */
 	if (expr->round >= 0 && NULL != r->reqmap[KREQU_IF_NONE_MATCH]) {
 		snprintf(buf, sizeof(buf), 
-			"\"%" PRIu64 "-%" PRId64 "-%zu\"", 
-			expr->round, player->version,
+			"\"%" PRIu64 "-%" PRId64 "-%" PRId64 "-%zu\"", 
+			expr->round, player->id, player->version,
 			db_player_count_plays(expr->round, playerid));
 		cp = r->reqmap[KREQU_IF_NONE_MATCH]->val;
 		if (0 == strcmp(buf, cp)) {
@@ -494,8 +510,8 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 			"%s", "no-cache");
 	} else
 		khttp_head(r, kresps[KRESP_ETAG], 
-			"\"%" PRIu64 "-%" PRId64 "-%zu\"", 
-			expr->round, player->version,
+			"\"%" PRIu64 "-%" PRId64 "-%" PRId64 "-%zu\"", 
+			expr->round, player->id, player->version,
 			db_player_count_plays(expr->round, playerid));
 
 	khttp_body(r);

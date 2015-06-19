@@ -1195,7 +1195,7 @@ db_player_play(const struct player *p, int64_t sessid,
 			p->id, gameid, round, expr->rounds);
 		db_expr_free(expr);
 		return(0);
-	} else if (p->joined < round) {
+	} else if (round < p->joined) {
 		fprintf(stderr, "Player %" PRId64 " tried playing "
 			"game %" PRId64 " (round %" PRId64 "), but "
 			"hasn't been admitted (slated %" PRId64 ")\n",
@@ -1648,6 +1648,38 @@ db_expr_setstart(int64_t date)
 	sqlite3_finalize(stmt);
 	db_trans_commit();
 	fprintf(stderr, "Experiment date saved\n");
+	return(1);
+}
+
+int
+db_player_join(int64_t id)
+{
+	sqlite3_stmt	*stmt;
+	int64_t		 count;
+	struct expr	*expr;
+
+	db_trans_begin(1);
+	expr = db_expr_get(0);
+	assert(NULL != expr);
+	stmt = db_stmt
+		("SELECT count(*) from player "
+		 "WHERE player.joined >= 0 AND "
+		 "? < player.joined + ?");
+	db_bind_int(stmt, 1, expr->round + 1);
+	db_bind_int(stmt, 2, expr->prounds);
+	db_step(stmt, 0);
+	count = sqlite3_column_int64(stmt, 0);
+	sqlite3_finalize(stmt);
+	stmt = db_stmt("UPDATE player SET joined=? WHERE id=?");
+	db_bind_int(stmt, 1, expr->round + 1);
+	db_bind_int(stmt, 2, id);
+	db_step(stmt, 0);
+	sqlite3_finalize(stmt);
+	db_trans_commit();
+	fprintf(stderr, "Next round (%" PRId64 ") will have %" PRId64 " "
+		"players: scheduling %" PRId64 " as well\n",
+		expr->round + 1, count, id);
+	db_expr_free(expr);
 	return(1);
 }
 

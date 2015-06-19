@@ -11,6 +11,8 @@ section section 		{ background-color: #fff;
 				  border: 0; }
 section section >* 		{ margin: 0; }
 section section fieldset	{ padding: 1em; }
+section section p		{ margin: 0;
+				  padding: 1em; }
 section section .error >*	{ padding: 1em 1em 0 1em; }
 section section:last-child 	{ background-color: #ddd; 
 				  padding: 1em; 

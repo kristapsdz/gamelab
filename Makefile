@@ -75,12 +75,14 @@ SRCS	 = Makefile \
 	   playerautoadd.in.js \
 	   playerhome.in.html \
 	   playerhome.in.js \
+	   playerlobby.in.html \
 	   playerlogin.in.html \
 	   privacy.in.html
 BUILT	 = adminhome.js \
 	   adminlogin.html \
 	   playerautoadd.html \
 	   playerautoadd.js \
+	   playerlobby.html \
 	   playerhome.html \
 	   playerhome.js \
 	   playerlogin.html \
