@@ -115,7 +115,7 @@ gamelab.bib: gamelab.in.bib
 	    -e "s!@VYEAR@!$(VYEAR)!g" gamelab.in.bib >$@
 
 update: all
-	install -m 0444 $(STATICS) $(BUILT) flotr2.min.js $(HTDOCS)
+	install -m 0444 $(STATICS) $(BUILT) flotr2.min.js logo.png logo-dark.png $(HTDOCS)
 	install -m 0444 $(PAGES) $(BUILTPS) $(DATADIR)
 	install -m 0755 admin $(CGIBIN)/admin.cgi
 	install -m 0755 admin $(CGIBIN)
@@ -137,7 +137,7 @@ gamelab.tgz.sha512: gamelab.tgz
 installwww: www
 	mkdir -p $(PREFIX)
 	mkdir -p $(PREFIX)/snapshots
-	install -m 0444 index.html gamelab.bib manual.html index.css manual.css $(PREFIX)
+	install -m 0444 index.html gamelab.bib manual.html index.css manual.css logo.png bchs-logo.png $(PREFIX)
 	install -m 0444 $(SCREENS) gamelab.png $(PREFIX)
 	install -m 0444 gamelab.tgz $(PREFIX)/snapshots
 	install -m 0444 gamelab.tgz.sha512 $(PREFIX)/snapshots
