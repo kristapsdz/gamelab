@@ -2,18 +2,22 @@ body			{ margin: 0;
 			  font-family: serif;
 			  background-color: #393939; }
 header			{ padding-top: 2em; }
-header h1		{ padding-top: 1%;
-			  font-size: 56pt; 
+header img		{ height: 50pt; }
+header h1		{ font-size: 56pt; 
 			  font-family: sans-serif;
+			  display: inline-block;
 			  font-weight: normal;
-			  margin-left: 4%;
-			  margin-right: 4%;
 			  text-shadow: 1px 1px #000;
 			  color: #fff; }
 header div		{ color: #ff5a09; 
 			  margin-left: 7%;
 		   	  margin-right: 7%;
 			  font-size: 14pt; }
+#logoh1			{ padding-top: 1%;
+			  margin-left: 5%;
+			  margin-right: 5%; }
+#logoh1 img		{ margin-bottom: -8pt; 
+			  margin-right: 4pt; }
 header div > span	{ padding-left: 1ex;
 			  padding-right: 1ex; }
 header span:first-child	{ padding-left: 0; }
@@ -23,8 +27,10 @@ article			{ color: #cecece;
 			  line-height: 125%;
 			  text-shadow: 1px 1px #333;
 			  font-size: 17pt; }
+#moreinfo		{ padding-top: 2em; }
 footer			{ margin-top: 3em; 
 			  font-size: 13pt;
+			  line-height: 130%;
 			  text-align: center;
 			  color: #6e6e6e; }
 .nm			{ color: #ff5a09; }
@@ -32,12 +38,30 @@ a			{ text-decoration: none;
 			  color: #ff9000; }
 a:hover			{ text-shadow: 0px 0px 4px #ffc000; }
 footer a		{ color: #cc9000; }
+footer img		{ height: 14pt; 
+			  margin-bottom: -2pt;
+			  opacity: 0.4; }
+footer a:hover img	{ opacity: 0.6; }
 section			{ text-shadow: none;
 			  font-size: 14pt;
 			  color: #8e8e8e; }
 nav[data-sblg-nav] ul	{ list-style-type: none; 
 			  color: #aeaeae; 
 			  padding: 0; }
+nav[data-sblg-nav] li	{ margin-bottom: 1em; }
 @media only screen and (max-width: 480px), only screen and (max-device-width: 480px) {
+header			{ padding-top: 1ex; }
 header span span	{ display: none; }
+header h1		{ font-size: 32pt; 
+			  margin-top: 1ex; 
+			  margin-bottom: 0; }
+#logoh1			{ text-align: center; 
+			  padding-top: 0; }
+header img		{ height: 30pt; }
+article			{ font-size: 14pt; 
+			  margin-left: 4%; 
+			  margin-right: 4%; }
+#moreinfo		{ padding-top: 0; }
+nav[data-sblg-nav]	{ font-size: 12pt; }
+#logoh1			{ padding-top: 0; }
 }

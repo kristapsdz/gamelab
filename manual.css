@@ -34,8 +34,13 @@ h3			{ margin-left: -0.5%;
 footer			{ margin-top: 1em;
 			  margin-bottom: 1em;
 			  font-size: 12pt;
+			  line-height: 130%;
 			  color: #acacac;
 			  text-align: center; }
+footer img		{ height: 14pt; 
+			  margin-bottom: -4pt;
+			  opacity: 0.4; }
+footer a:hover img	{ opacity: 0.6; }
 kbd, code, samp		{ font-size: 11pt; }
 img.shadow		{ border-radius: 8px;
 			  box-shadow: 1px 1px 16px #333; }

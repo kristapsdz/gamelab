@@ -24,7 +24,9 @@
 					<a title="BibTeX Citation" href="gamelab.bib"><i class="fa fa-bookmark"></i></a>
 				</span>
 			</div>
-			<h1>gamelab</h1>
+			<div id="logoh1">
+				<img src="logo.png" alt="Gamelab Logo" /><h1>gamelab</h1>
+			</div>
 		</header>
 		<article>
 			<p>
@@ -67,6 +69,9 @@
 		<footer>
 			<div>
 				&#169; 2015, <a href="http://www.kcons.eu"><i>k</i>-Consulting</a>
+			</div>
+			<div>
+				Powered by <a href="http://kristaps.bsd.lv/bchs">BCHS <img src="bchs-logo.png" alt="BCHS Logo" /></a>
 			</div>
 		</footer>
 	</body>
