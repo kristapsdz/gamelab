@@ -1673,7 +1673,7 @@ db_player_join(const struct player *player)
 	db_step(stmt, 0);
 	count = sqlite3_column_int64(stmt, 0);
 	sqlite3_finalize(stmt);
-	if (count >= expr->playermax) {
+	if (expr->playermax > 0 && count >= expr->playermax) {
 		db_trans_rollback();
 		return(0);
 	}
