@@ -29,7 +29,7 @@ article			{ color: #cecece;
 			  font-size: 17pt; }
 #moreinfo		{ padding-top: 2em; }
 footer			{ margin-top: 3em; 
-			  font-size: 13pt;
+			  font-size: 11pt;
 			  line-height: 130%;
 			  text-align: center;
 			  color: #6e6e6e; }
@@ -38,10 +38,6 @@ a			{ text-decoration: none;
 			  color: #ff9000; }
 a:hover			{ text-shadow: 0px 0px 4px #ffc000; }
 footer a		{ color: #cc9000; }
-footer img		{ height: 14pt; 
-			  margin-bottom: -2pt;
-			  opacity: 0.4; }
-footer a:hover img	{ opacity: 0.6; }
 section			{ text-shadow: none;
 			  font-size: 14pt;
 			  color: #8e8e8e; }
