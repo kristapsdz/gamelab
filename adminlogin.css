@@ -1,8 +1,14 @@
 body				{ background-color: #e80; }
+#top img			{ height: 30pt; 
+				  margin-bottom: -2pt; }
+#top				{ text-align: right; }
 h1				{ font-family: cursive; 
-				  text-align: right; 
+				  display: inline-block;
 				  font-size: 32pt; 
 				  margin-bottom: -0.9ex; }
+h1 a				{ color: #111; 
+				  text-shadow: 1px 0 1px #888; }
+h1 a:hover			{ text-shadow: 1px 0 1px #aaa; }
 article > section > form 	{ padding: 0; }
 form 				{ box-shadow: 2px 2px 2px #666; }
 section section 		{ background-color: #fff; 
