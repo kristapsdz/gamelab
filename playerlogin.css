@@ -1,10 +1,16 @@
 body				{ background-color: #eee; }
-h1				{ font-family: cursive; 
-				  text-align: right; 
-				  font-size: 32pt; 
-				  margin-bottom: -0.9ex; }
+#top img			{ height: 42pt; 
+				  margin-bottom: -2pt; }
+#top				{ text-align: right; }
+h1				{ font-family: Georgia, serif; 
+				  display: inline-block;
+				  font-weight: normal;
+				  font-size: 32pt; }
+h1 a				{ color: #111; 
+				  text-shadow: 1px 0 1px #888; }
 article > section > form 	{ padding: 0; }
-form 				{ box-shadow: 2px 2px 2px #ccc; }
+#form,
+form 				{ box-shadow: 1px 1px 4px #333; }
 section section 		{ background-color: #fff; 
 				  margin: 0; 
 				  padding: 0; 
@@ -18,3 +24,9 @@ section section:last-child 	{ background-color: #ddd;
 				  padding: 1em; 
 				  color: #236;
 				  line-height: 120%; }
+@media only screen and (max-width: 480px), only screen and (max-device-width: 480px) {
+#top				{ text-align: center; 
+				  padding: 1ex; }
+#form,
+form 				{ box-shadow: none; }
+}

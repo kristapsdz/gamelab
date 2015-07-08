@@ -1,16 +1,16 @@
 body				{ background-color: #e80; }
-#top img			{ height: 30pt; 
+#top img			{ height: 42pt; 
 				  margin-bottom: -2pt; }
 #top				{ text-align: right; }
-h1				{ font-family: cursive; 
+h1				{ font-family: Georgia, serif; 
 				  display: inline-block;
-				  font-size: 32pt; 
-				  margin-bottom: -0.9ex; }
+				  font-weight: normal;
+				  font-size: 32pt; }
 h1 a				{ color: #111; 
 				  text-shadow: 1px 0 1px #888; }
 h1 a:hover			{ text-shadow: 1px 0 1px #aaa; }
 article > section > form 	{ padding: 0; }
-form 				{ box-shadow: 2px 2px 2px #666; }
+form 				{ box-shadow: 1px 1px 4px #333; }
 section section 		{ background-color: #fff; 
 				  margin: 0; 
 				  padding: 0; 
@@ -25,3 +25,8 @@ section section:last-child 	{ background-color: #ddd;
 section section >h3		{ background-color: darkred; }
 footer				{ color: #333; }
 footer a			{ color: #000; }
+@media only screen and (max-width: 480px), only screen and (max-device-width: 480px) {
+#top				{ text-align: center; 
+				  padding: 1ex; }
+form 				{ box-shadow: none; }
+}

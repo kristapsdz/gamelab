@@ -32,7 +32,10 @@
 	<body id="login">
 		<article>
 			<section>
-				<h1>gamelab</h1>
+				<div id="top">
+					<a href="http://www.kcons.eu/gamelab"><img src="logo.png" alt="Gamelab Logo" /></a>
+					<h1><a href="http://www.kcons.eu/gamelab">gamelab</a></h1>
+				</div>
 				<form autocomplete="on" action="@LABURI@/dologin.json" method="post" onsubmit="return(sendForm(this, doSetup, doError, doSuccess));">
 					<section>
 						<h3>Participant Login</h3>

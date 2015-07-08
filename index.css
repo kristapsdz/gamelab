@@ -2,9 +2,8 @@ body			{ margin: 0;
 			  font-family: serif;
 			  background-color: #393939; }
 header			{ padding-top: 2em; }
-header img		{ height: 50pt; }
 header h1		{ font-size: 56pt; 
-			  font-family: sans-serif;
+			  font-family: Georgia, serif;
 			  display: inline-block;
 			  font-weight: normal;
 			  text-shadow: 1px 1px #000;
@@ -17,11 +16,12 @@ header div		{ color: #ff5a09;
 			  margin-left: 5%;
 			  margin-right: 5%; }
 #logoh1 img		{ margin-bottom: -8pt; 
+			  height: 60pt;
 			  margin-right: 4pt; }
 header div > span	{ padding-left: 1ex;
 			  padding-right: 1ex; }
 header span:first-child	{ padding-left: 0; }
-article			{ color: #cecece; 
+article			{ color: #efefef; 
 		   	  margin-left: 7%;
 		   	  margin-right: 7%;
 			  line-height: 125%;
@@ -40,7 +40,7 @@ a:hover			{ text-shadow: 0px 0px 4px #ffc000; }
 footer a		{ color: #cc9000; }
 section			{ text-shadow: none;
 			  font-size: 14pt;
-			  color: #8e8e8e; }
+			  color: #aeaeae; }
 nav[data-sblg-nav] ul	{ list-style-type: none; 
 			  color: #aeaeae; 
 			  padding: 0; }

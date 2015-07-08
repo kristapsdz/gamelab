@@ -9,6 +9,7 @@
 	</head>
 	<body>
 		<header>
+			<a href="index.html"><img src="logo.png" alt="Gamelab Logo" /></a>
 			<h1><a href="index.html">gamelab</a></h1>
 		</header>
 		<nav>
