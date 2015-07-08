@@ -38,6 +38,7 @@ struct	expr {
 	time_t		 start; /* game-play begins */
 	time_t		 end; /* game-play ends (computed) */
 	int64_t		 rounds; /* total experiment rounds */
+	int64_t		 playermax; /* max simultaneous players */
 	int64_t		 prounds; /* per-player rounds */
 	time_t		 roundbegan; /* number of game plays */
 	double		 roundpct; /* percent-based round advance */
@@ -208,8 +209,9 @@ void		 db_expr_setinstr(const char *);
 int		 db_expr_setminutes(int64_t);
 int		 db_expr_setrounds(int64_t);
 int		 db_expr_setstart(int64_t);
-int		 db_expr_start(int64_t, int64_t, int64_t, int64_t, 
-			int64_t, const char *, const char *);
+int		 db_expr_start(int64_t, int64_t, int64_t, 
+			int64_t, int64_t, int64_t, 
+			const char *, const char *);
 void		 db_expr_wipe(void);
 
 struct game	*db_game_alloc(const char *,

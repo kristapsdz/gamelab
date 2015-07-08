@@ -1663,10 +1663,12 @@ db_player_join(int64_t id)
 	assert(NULL != expr);
 	stmt = db_stmt
 		("SELECT count(*) from player "
-		 "WHERE player.joined >= 0 AND "
+		 "WHERE player.joined > -1 AND "
+		 "player.joined <= ? AND "
 		 "? < player.joined + ?");
 	db_bind_int(stmt, 1, expr->round + 1);
-	db_bind_int(stmt, 2, expr->prounds);
+	db_bind_int(stmt, 2, expr->round + 1);
+	db_bind_int(stmt, 3, expr->prounds);
 	db_step(stmt, 0);
 	count = sqlite3_column_int64(stmt, 0);
 	sqlite3_finalize(stmt);
@@ -1677,7 +1679,7 @@ db_player_join(int64_t id)
 	sqlite3_finalize(stmt);
 	db_trans_commit();
 	fprintf(stderr, "Next round (%" PRId64 ") will have %" PRId64 " "
-		"players: scheduling %" PRId64 " as well\n",
+		"players: scheduling player %" PRId64 " as well\n",
 		expr->round + 1, count, id);
 	db_expr_free(expr);
 	return(1);
@@ -1691,7 +1693,7 @@ db_player_join(int64_t id)
 int
 db_expr_start(int64_t date, int64_t roundpct, 
 	int64_t roundmin, int64_t rounds, int64_t minutes, 
-	const char *instr, const char *uri)
+	int64_t playermax, const char *instr, const char *uri)
 {
 	sqlite3_stmt	*stmt, *stmt2;
 	int64_t		 id;
@@ -1713,7 +1715,8 @@ db_expr_start(int64_t date, int64_t roundpct,
 	stmt = db_stmt("UPDATE experiment SET "
 		"start=?,rounds=?,minutes=?,"
 		"loginuri=?,instr=?,state=?,"
-		"roundpct=?,prounds=?,autoadd=0");
+		"roundpct=?,prounds=?,playermax=?,"
+		"autoadd=0");
 	db_bind_int(stmt, 1, date);
 	db_bind_int(stmt, 2, rounds);
 	db_bind_int(stmt, 3, minutes);
@@ -1722,6 +1725,7 @@ db_expr_start(int64_t date, int64_t roundpct,
 	db_bind_int(stmt, 6, ESTATE_STARTED);
 	db_bind_double(stmt, 7, roundpct / 100.0);
 	db_bind_int(stmt, 8, rounds);
+	db_bind_int(stmt, 9, playermax);
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);
 
@@ -2709,7 +2713,7 @@ db_expr_get(int only_started)
 	stmt = db_stmt("SELECT start,rounds,minutes,"
 		"loginuri,state,instr,state,total,"
 		"autoadd,round,roundbegan,roundpct,"
-		"roundmin,prounds " 
+		"roundmin,prounds,playermax " 
 		"FROM experiment");
 	rc = db_step(stmt, 0);
 	assert(SQLITE_ROW == rc);
@@ -2733,6 +2737,7 @@ db_expr_get(int only_started)
 	expr->roundpct = sqlite3_column_double(stmt, 11);
 	expr->roundmin = sqlite3_column_int(stmt, 12);
 	expr->prounds = sqlite3_column_int(stmt, 13);
+	expr->playermax = sqlite3_column_int(stmt, 14);
 	sqlite3_finalize(stmt);
 	return(expr);
 }

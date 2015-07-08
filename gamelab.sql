@@ -88,6 +88,7 @@ CREATE TABLE experiment (
 	state INTEGER NOT NULL DEFAULT(0),
 	start INTEGER DEFAULT(0),
 	rounds INTEGER DEFAULT(0),
+	playermax INTEGER DEFAULT(0),
 	prounds INTEGER DEFAULT(0),
 	round INTEGER DEFAULT(-1),
 	roundbegan INTEGER DEFAULT(0),
