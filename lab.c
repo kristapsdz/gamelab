@@ -458,11 +458,12 @@ again:
 	 * added in the next round.
 	 */
 	if (player->joined < 0) {
-		i = player->id;
 		db_expr_free(expr);
-		db_player_free(player);
-		if (db_player_join(i))
+		if (db_player_join(player)) {
+			db_player_free(player);
 			goto again;
+		}
+		db_player_free(player);
 		http_open(r, KHTTP_429);
 		khttp_body(r);
 		return;

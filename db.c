@@ -1652,7 +1652,7 @@ db_expr_setstart(int64_t date)
 }
 
 int
-db_player_join(int64_t id)
+db_player_join(const struct player *player)
 {
 	sqlite3_stmt	*stmt;
 	int64_t		 count;
@@ -1664,23 +1664,30 @@ db_player_join(int64_t id)
 	stmt = db_stmt
 		("SELECT count(*) from player "
 		 "WHERE player.joined > -1 AND "
-		 "player.joined <= ? AND "
-		 "? < player.joined + ?");
+		 "player.joined <= ?1 AND "
+		 "?1 < player.joined + ?2 AND "
+		 "player.role = ?3"); 
 	db_bind_int(stmt, 1, expr->round + 1);
-	db_bind_int(stmt, 2, expr->round + 1);
-	db_bind_int(stmt, 3, expr->prounds);
+	db_bind_int(stmt, 2, expr->prounds);
+	db_bind_int(stmt, 3, player->role);
 	db_step(stmt, 0);
 	count = sqlite3_column_int64(stmt, 0);
 	sqlite3_finalize(stmt);
+	if (count >= expr->playermax) {
+		db_trans_rollback();
+		return(0);
+	}
 	stmt = db_stmt("UPDATE player SET joined=? WHERE id=?");
 	db_bind_int(stmt, 1, expr->round + 1);
-	db_bind_int(stmt, 2, id);
+	db_bind_int(stmt, 2, player->id);
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);
 	db_trans_commit();
 	fprintf(stderr, "Next round (%" PRId64 ") will have %" PRId64 " "
-		"players: scheduling player %" PRId64 " as well\n",
-		expr->round + 1, count, id);
+		"players (max %" PRId64 " per role, had %" PRId64 "): "
+		"scheduling player %" PRId64 " as well\n",
+		expr->round + 1, count, expr->playermax, count,
+		player->id);
 	db_expr_free(expr);
 	return(1);
 }
