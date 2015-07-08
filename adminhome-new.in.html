@@ -309,13 +309,16 @@
 							var now = new Date();
 							document.write('(' + (now.getTimezoneOffset() / 60) + ' hours)');
 						</script>, the
-						<i class="fa fa-gears"></i> number of rounds, and the <i class="fa fa-history"></i> minutes per round.
+						<i class="fa fa-gear"></i> number of rounds and <i class="fa fa-gears"></i> rounds per player (zero to be all rounds),
+						and the <i class="fa fa-history"></i> minutes per round.
 						You can also change the <i class="fa fa-code"></i> instructions (in HTML5 markup) that
 						will be shown to players.
 						A non-zero <i class="fa fa-pie-chart"></i> is the percent of players per player role who, upon
 						playing, will cause the round to advance; and the <i class="fa fa-history
 							fa-flip-horizontal"></i> time is a minimum time for the percentage to take affect so as
 						to allow players to have a chance at playing.
+						Lastly, set <i class="fa fa-group"></i> to the maximum number of simulataneous players (0 for
+						all initial players).
 					</div>
 					<div class="error">
 						<div class="noshow" id="startExprErrSystem">
@@ -369,8 +372,12 @@
 								<a href="#" onclick="exprStartTime(24 * 60 * 60 * 1000); return false;">one day</a> from now.
 							</span>
 							<div class="input">
-								<i class="fa fa-fw fa-gears"></i>
+								<i class="fa fa-fw fa-gear"></i>
 								<input required="required" type="number" id="rounds" name="rounds" min="1" step="1" value="14" />
+							</div>
+							<div class="input">
+								<i class="fa fa-fw fa-gears"></i>
+								<input required="required" type="number" id="prounds" name="prounds" min="0" step="1" value="0" />
 							</div>
 							<div class="input">
 								<i class="fa fa-fw fa-history"></i>
@@ -383,6 +390,10 @@
 							<div class="input">
 								<i class="fa fa-fw fa-history fa-flip-horizontal"></i>
 								<input required="required" type="number" name="roundmin" id="roundmin" max="1440" min="0" step="1" value="0" />
+							</div>
+							<div class="input">
+								<i class="fa fa-fw fa-group"></i>
+								<input required="required" type="number" name="playermax" id="playermax" min="0" step="1" value="0" />
 							</div>
 							<div class="input">
 								<i class="fa fa-fw fa-code"></i>

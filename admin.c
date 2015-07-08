@@ -104,6 +104,7 @@ enum	key {
 	KEY_PASSWORD3,
 	KEY_PAYOFFS,
 	KEY_PLAYERID,
+	KEY_PLAYERMAX,
 	KEY_PLAYERS,
 	KEY_SERVER,
 	KEY_SESSCOOKIE,
@@ -213,6 +214,7 @@ static const struct kvalid keys[KEY__MAX] = {
 	{ kvalid_stringne, "password3" }, /* KEY_PASSWORD3 */
 	{ kvalid_stringne, "payoffs" }, /* KEY_PAYOFFS */
 	{ kvalid_int, "pid" }, /* KEY_PLAYERID */
+	{ kvalid_uint, "playermax" }, /* KEY_PLAYERMAX */
 	{ kvalid_stringne, "players" }, /* KEY_PLAYERS */
 	{ kvalid_stringne, "server" }, /* KEY_SERVER */
 	{ kvalid_int, "sesscookie" }, /* KEY_SESSCOOKIE */
@@ -1006,6 +1008,7 @@ senddostartexpr(struct kreq *r)
 		kpairbad(r, KEY_ROUNDS) ||
 		kpairbad(r, KEY_ROUNDPCT) ||
 		kpairbad(r, KEY_ROUNDMIN) ||
+		kpairbad(r, KEY_PLAYERMAX) ||
 		kpairbad(r, KEY_INSTR) ||
 		kpairbad(r, KEY_MINUTES) ||
 		kpairbad(r, KEY_URI) ||
@@ -1024,6 +1027,7 @@ senddostartexpr(struct kreq *r)
 		 r->fieldmap[KEY_ROUNDMIN]->parsed.i,
 		 r->fieldmap[KEY_ROUNDS]->parsed.i,
 		 r->fieldmap[KEY_MINUTES]->parsed.i,
+		 r->fieldmap[KEY_PLAYERMAX]->parsed.i,
 		 r->fieldmap[KEY_INSTR]->parsed.s,
 		 r->fieldmap[KEY_URI]->parsed.s)) {
 		http_open(r, KHTTP_409);
