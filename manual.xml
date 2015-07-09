@@ -982,7 +982,6 @@
 								<dd>
 									The maximum number of players per player role at any given time.
 									If zero, the number of players is unbound.
-									This only takes effect <i>after</i> the experiment has started.
 								</dd>
 								<dt id="db-experiment-prounds"><var>prounds</var></dt>
 								<dd>

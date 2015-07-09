@@ -644,6 +644,8 @@ function loadGraphs()
 		datas = [];
 		for (j = 0; j < len; j++) {
 			data = [];
+			/* Start with zero! */
+			data.push([0, 0.0]);
 			sum = 0.0;
 			for (k = 0; k < res.history[gameidx].roundups.length; k++) {
 				avg = 0 == res.player.role ?
@@ -664,7 +666,8 @@ function loadGraphs()
 		}
 		graph = Flotr.draw(c, datas, 
 			{ grid: { horizontalLines: 1 },
-			  xaxis: { tickDecimals: 0 },
+			  xaxis: { ticks: [[ 0, 'oldest' ], 
+					   [res.history[0].roundups.length, 'newest']] },
 		          shadowSize: 0,
 			  subtitle: 'Hypothetical payoff',
 		          yaxis: { min: 0.0 },
@@ -675,13 +678,16 @@ function loadGraphs()
 		c = document.createElement('div');
 		sub.appendChild(c);
 		data = [];
+		/* Start with zero! */
+		data.push([0, 0.0]);
 		for (j = 0; j < res.history[gameidx].roundups.length; j++) {
 			lot = res.lotteries[j].plays[gameidx];
 			data.push([j + 1, null == lot ? 0.0 : lot.poff]);
 		}
 		graph = Flotr.draw(c, 
 			[{ data: data }],
-			{ xaxis: { tickDecimals: 0 },
+			{ xaxis: { ticks: [[ 0, 'oldest' ], 
+					   [res.history[0].roundups.length, 'newest']] },
 			  subtitle: 'Real payoff',
 		          shadowSize: 0,
 			  lines: { show: true },
@@ -703,7 +709,8 @@ function loadGraphs()
 		}
 		graph = Flotr.draw(c, 
 			[{ data: data }],
-			{ xaxis: { tickDecimals: 0 },
+			{ xaxis: { ticks: [[ 0, 'oldest' ], 
+					   [res.history[0].roundups.length, 'newest']] },
 			  subtitle: 'Accumulated payoff',
 		          shadowSize: 0,
 			  lines: { show: true },
@@ -747,7 +754,8 @@ function loadGraphs()
 		graph = Flotr.draw(c, datas, { 
 			bars: { show: true , shadowSize: 0, stacked: true, barWidth: 1.0, lineWidth: 1 }, 
 			grid: { horizontalLines: 1 },
-			xaxis: { tickDecimals: 0 },
+			xaxis: { ticks: [[ 0, 'oldest' ], 
+					   [res.history[0].roundups.length + 1, 'newest']] },
 		        subtitle: 'Your strategy',
 			yaxis: { max: 1.0, min: 0.0 }
 		});
@@ -777,7 +785,8 @@ function loadGraphs()
 			bars: { show: true , shadowSize: 0, stacked: true, barWidth: 1.0, lineWidth: 1 }, 
 			grid: { horizontalLines: 1 },
 		        subtitle: 'Row player average strategy',
-			xaxis: { tickDecimals: 0 },
+			xaxis: { ticks: [[ 0, 'oldest' ], 
+					   [res.history[0].roundups.length + 1, 'newest']] },
 			yaxis: { max: 1.0, min: 0.0 }
 		});
 
@@ -805,7 +814,8 @@ function loadGraphs()
 		graph = Flotr.draw(c, datas, { 
 			bars: { show: true , shadowSize: 0, stacked: true, barWidth: 1.0, lineWidth: 1 }, 
 			grid: { horizontalLines: 1 },
-			xaxis: { tickDecimals: 0 },
+			xaxis: { ticks: [[ 0, 'oldest' ], 
+					   [res.history[0].roundups.length + 1, 'newest']] },
 		        subtitle: 'Column player average strategy',
 			yaxis: { max: 1.0, min: 0.0 }
 		});
