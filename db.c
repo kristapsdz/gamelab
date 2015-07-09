@@ -1577,6 +1577,28 @@ db_expr_checkstate(enum estate state)
 }
 
 /*
+ * Get the number of players in the lobby, i.e., those who haven't yet
+ * joined the experiment.
+ */
+size_t
+db_expr_lobbysize(void)
+{
+	sqlite3_stmt	*stmt;
+	int		 rc;
+	int64_t		 result;
+
+	stmt = db_stmt
+		("SELECT count(*) from player "
+		 "WHERE player.joined < 0");
+	rc = db_step(stmt, 0);
+	assert(SQLITE_ROW == rc);
+	result = sqlite3_column_int64(stmt, 0);
+	sqlite3_finalize(stmt);
+	assert(result >= 0 && (uint64_t)result < SIZE_MAX);
+	return(result);
+}
+
+/*
  * Get whether the experiment is in auto-add mode.
  * This can occur in any state.
  * Returns zero if FALSE, non-zero if TRUE.
@@ -1797,6 +1819,12 @@ db_expr_start(int64_t date, int64_t roundpct, int64_t roundmin,
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);
 
+	/*
+	 * Loop through assigning players to the zeroth round.
+	 * We obey the maximum number of players per role, so make sure
+	 * we keep track.
+	 * Assignment order is random.
+	 */
 	i = 0;
 	players[0] = players[1] = 0;
 	stmt = db_stmt("SELECT id from player "

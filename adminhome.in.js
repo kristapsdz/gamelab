@@ -695,6 +695,12 @@ function loadExprSuccess(resp)
 		else
 			doHide('noplayers');
 
+		if (res.lobbysize > 0) {
+			doUnhide('statusExprHasLobby');
+			doClearReplace('statusExprLobbysize', res.lobbysize);
+		} else
+			doHide('statusExprHasLobby');
+
 		e = doClear('statusExprPGames');
 		li = document.createElement('div');
 		div = document.createElement('div');

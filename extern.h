@@ -204,6 +204,7 @@ void		 db_expr_finish(struct expr **, size_t);
 void		 db_expr_free(struct expr *);
 int		 db_expr_getautoadd(void);
 struct expr	*db_expr_get(int);
+size_t		 db_expr_lobbysize(void);
 size_t		 db_expr_round_count
 			(const struct expr *, int64_t, int64_t);
 void		 db_expr_setautoadd(int64_t);

@@ -413,6 +413,8 @@ senddogetexpr(struct kreq *r)
 			db_expr_round_count(expr, round, 1));
 	}
 
+	kjson_putintp(&req, "lobbysize", db_expr_lobbysize());
+
 	if (ESTATE_POSTWIN == expr->state) {
 		kjson_arrayp_open(&req, "winners");
 		db_winners_load_all(&req, sendwinners);

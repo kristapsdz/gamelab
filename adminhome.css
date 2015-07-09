@@ -73,6 +73,7 @@ article				{ background-color: #fff;
 				  padding: 3em 20% 1em 20%; }
 ul				{ list-style-type: none; }
 section.intro			{ margin-bottom: 8pt; }
+section.intro p,
 p.intro				{ font-size: 12pt; }
 section.rolled,
 section.unrolled		{ border: thin solid #222; 
