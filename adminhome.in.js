@@ -690,6 +690,11 @@ function loadExprSuccess(resp)
 		doClearReplace('statusExprFcol', res.fcol);
 		doClearReplace('statusExprFcolMax', res.fcolmax);
 
+		if (0 == res.frowmax || 0 == res.fcolmax) 
+			doUnhide('noplayers');
+		else
+			doHide('noplayers');
+
 		e = doClear('statusExprPGames');
 		li = document.createElement('div');
 		div = document.createElement('div');

@@ -6,7 +6,9 @@
 		<time datetime="2015-04-30">2015-04-30</time>
 	</header>
 	<aside>
-		Consolidate round-advancement into a single location, opening the door for more advanced round progression.
-		Restructure the player page with additional graphs, replacing all tabular information.
+		<p>
+			Consolidate round-advancement into a single location, opening the door for more advanced round progression.
+			Restructure the player page with additional graphs, replacing all tabular information.
+		</p>
 	</aside>
 </article>

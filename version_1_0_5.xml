@@ -6,9 +6,11 @@
 		<time datetime="2015-05-14">2015-05-14</time>
 	</header>
 	<aside>
-		Allow rounds to advance when a given percentage of players per role have played, defaulting to the maximum time of not enough
-		players play in that time.
-		This allows rounds to advance much faster if players play in bursts.
-		Add ability for administrator to manually advance rounds as well.
+		<p>
+			Allow rounds to advance when a given percentage of players per role have played, defaulting to the maximum time of not enough
+			players play in that time.
+			This allows rounds to advance much faster if players play in bursts.
+			Add ability for administrator to manually advance rounds as well.
+		</p>
 	</aside>
 </article>

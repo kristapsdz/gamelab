@@ -9,7 +9,7 @@ digraph {
 		bgcolor="lightgray";
 	}
 	subgraph cluster_player {
-		player [style="filled,rounded"; color="white"; label="{email | version | state | enabled | rseed | role | rank | instr | finalrank | finalscore | hash | autoadd | id}"];
+		player [style="filled,rounded"; color="white"; label="{email | version | state | enabled | rseed | role | instr | finalrank | finalscore | hash | autoadd | id}"];
 		label="player";
 		fontcolor=white;
 		bgcolor="#336699";
@@ -41,7 +41,7 @@ digraph {
 		bgcolor="#336699";
 	}
 	subgraph cluster_experiment {
-		experiment [style="filled,rounded"; color="white"; label="{state | start | round | roundpct | roundmin | roundbegan | rounds | minutes | loginuri | instr | total | autoadd | id}"];
+		experiment [style="filled,rounded"; color="white"; label="{state | start | round | roundpct | roundmin | roundbegan | rounds | minutes | loginuri | instr | total | autoadd | playermax | prounds | id}"];
 		label="experiment";
 		bgcolor="lightgray";
 	}

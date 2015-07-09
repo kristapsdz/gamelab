@@ -30,8 +30,8 @@ STATIC		 =
 
 # You really don't want to change anything below this line.
 
-VERSION	 = 1.0.6
-VMONTH	 = June
+VERSION	 = 1.0.7
+VMONTH	 = July
 VYEAR	 = 2015
 CFLAGS 	+= -g -W -Wall -Wstrict-prototypes -Wno-unused-parameter -Wwrite-strings -I/usr/local/include
 CFLAGS	+= -DDATADIR=\"$(RDATADIR)\" -DHTURI=\"$(HTURI)\"
@@ -92,7 +92,8 @@ VERSIONS = version_1_0_1.xml \
 	   version_1_0_3.xml \
 	   version_1_0_4.xml \
 	   version_1_0_5.xml \
-	   version_1_0_6.xml
+	   version_1_0_6.xml \
+	   version_1_0_7.xml
 
 all: admin lab $(BUILT) $(BUILTPS)
 

@@ -12,15 +12,15 @@
 			<div>
 				<span>Version @VERSION@</span>
 				<span>
-					<span>Contact</span>
+					<a href="mailto:kristaps@kcons.eu">Contact</a>
 					<a title="Contact" href="mailto:kristaps@kcons.eu"><i class="fa fa-envelope-o"></i></a>
 				</span>
 				<span>
-					<span>Download</span>
+					<a href="manual.html#deploy">Download</a>
 					<a title="Download" href="manual.html#deploy"><i class="fa fa-cloud-download"></i></a>
 				</span>
 				<span>
-					<span>Cite</span>
+					<a href="gamelab.bib">Cite</a>
 					<a title="BibTeX Citation" href="gamelab.bib"><i class="fa fa-bookmark"></i></a>
 				</span>
 			</div>
@@ -57,7 +57,7 @@
 						href="http://cvsweb.openbsd.org/cgi-bin/cvsweb/src/share/misc/license.template?rev=HEAD">open
 						source</a>, and we kindly suggest that experimenters <a href="gamelab.bib">cite</a> our work!
 				</p>
-				<nav data-sblg-nav="1" data-sblg-navsz="3" data-sblg-navcontent="1">
+				<nav data-sblg-nav="1" data-sblg-navsz="2" data-sblg-navcontent="1">
 					<div>
 						<time datetime="${sblg-date}">${sblg-date}</time>:
 						v<span class="version">${sblg-title}</span>

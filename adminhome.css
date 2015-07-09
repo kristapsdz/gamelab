@@ -192,6 +192,23 @@ div.input input[type=date],
 div.input input[type=submit]	{ width: auto; }
 div.input input[type=number]	{ width: 20ex; }
 div.input input[type=time]	{ width: 20ex; }
+.warning			{ display: table; 
+			 	  margin: 0.75em 0; }
+.warning > div			{ display: table-row; }
+.warning > div > *		{ display: table-cell; 
+				  vertical-align: middle;
+			   	  padding: 1ex; }
+.warning > div > :first-child	{ border-top-left-radius: 1ex; 
+				  border-bottom-left-radius: 1ex;
+				  background-color: #eee;
+				  border: thin solid #ccc; }
+.warning > div > :last-child	{ border-top-right-radius: 1ex; 
+				  background-color: #336699;
+				  color: #fff;
+				  border: thin solid #333;
+				  border-bottom-right-radius: 1ex;
+				  border-left: 0; }
+.warning > div > :last-child a	{ color: #ccc; }
 @media only screen and (max-width: 800px), only screen and (max-device-width: 800px) {
 	article			{ padding-left: 10%; 
 			  	  padding-right: 10%; }

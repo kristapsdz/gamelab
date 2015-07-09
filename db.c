@@ -1703,15 +1703,24 @@ int
 db_player_join(const struct player *player)
 {
 	sqlite3_stmt	*stmt;
-	int64_t		 count;
+	int64_t		 count, count0, count1, role;
 	struct expr	*expr;
 
 	assert(-1 == player->joined);
 	db_trans_begin(1);
 	expr = db_expr_get(0);
 	assert(NULL != expr);
-	count = db_expr_round_count
-		(expr, expr->round + 1, player->role);
+	/* Count the number of player roles in the next. */
+	count0 = db_expr_round_count(expr, expr->round + 1, 0);
+	count1 = db_expr_round_count(expr, expr->round + 1, 1);
+	/* Assign our player role to the minimum. */
+	if (count0 < count1) {
+		role = 0;
+		count = count0;
+	} else {
+		role = 1;
+		count = count1;
+	}
 	if (expr->playermax > 0 && count >= expr->playermax) {
 		/*
 		 * We've exceeded the maximum number of acceptable
@@ -1719,24 +1728,25 @@ db_player_join(const struct player *player)
 		 */
 		db_trans_rollback();
 		fprintf(stderr, "Player %" PRId64 " asked to join "
-			"round %" PRId64 " but player role %" 
-			PRId64 " already has maximum players: %" 
+			"round %" PRId64 " in role %" PRId64 " but it "
+			"already has maximum players: %" 
 			PRId64 "\n", player->id, expr->round + 1,
-			player->role, count);
+			role, count);
 		return(0);
 	}
 	/* Number of players ok: join! */
-	stmt = db_stmt("UPDATE player SET joined=? WHERE id=?");
+	stmt = db_stmt("UPDATE player SET joined=?,role=? WHERE id=?");
 	db_bind_int(stmt, 1, expr->round + 1);
-	db_bind_int(stmt, 2, player->id);
+	db_bind_int(stmt, 2, role);
+	db_bind_int(stmt, 3, player->id);
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);
 	db_trans_commit();
 	fprintf(stderr, "Next round (%" PRId64 ") will have %" PRId64 " "
-		"players (max %" PRId64 " per role, had %" PRId64 "): "
-		"scheduling player %" PRId64 " as well\n",
-		expr->round + 1, count, expr->playermax, count,
-		player->id);
+		"players (max %" PRId64 " per role, role %" PRId64 
+		", had %" PRId64 "): scheduling player %" PRId64 
+		" as well\n", expr->round + 1, count, role, 
+		expr->playermax, count, player->id);
 	db_expr_free(expr);
 	return(1);
 }
@@ -1790,12 +1800,11 @@ db_expr_start(int64_t date, int64_t roundpct, int64_t roundmin,
 	stmt = db_stmt("SELECT id from player "
 		"ORDER BY rseed ASC, id ASC");
 	stmt2 = db_stmt("UPDATE player "
-		"SET role=?,rank=?,joined=0 WHERE id=?");
+		"SET role=?,joined=0 WHERE id=?");
 	while (SQLITE_ROW == db_step(stmt, 0)) {
 		id = sqlite3_column_int64(stmt, 0);
-		db_bind_int(stmt2, 1, i % 2);
-		db_bind_int(stmt2, 2, i++);
-		db_bind_int(stmt2, 3, id);
+		db_bind_int(stmt2, 1, i++ % 2);
+		db_bind_int(stmt2, 2, id);
 		db_step(stmt2, 0);
 		sqlite3_reset(stmt2);
 	}

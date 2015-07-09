@@ -36,7 +36,7 @@ footer			{ margin-top: 3em;
 .nm			{ color: #ff5a09; }
 a			{ text-decoration: none; 
 			  color: #ff9000; }
-a:hover			{ text-shadow: 0px 0px 4px #ffc000; }
+a:hover			{ text-shadow: 0px 0px 3px #ffc000; }
 footer a		{ color: #cc9000; }
 section			{ text-shadow: none;
 			  font-size: 14pt;
@@ -45,6 +45,12 @@ nav[data-sblg-nav] ul	{ list-style-type: none;
 			  color: #aeaeae; 
 			  padding: 0; }
 nav[data-sblg-nav] li	{ margin-bottom: 1em; }
+nav[data-sblg-nav] li p	{ margin: 0; 
+			  line-height: 120%; }
+nav[data-sblg-nav] li code
+			{ font-size: 11pt; }
+nav[data-sblg-nav] li p + p	
+			{ margin-top: 0.5em; }
 @media only screen and (max-width: 480px), only screen and (max-device-width: 480px) {
 header			{ padding-top: 1ex; }
 header span span	{ display: none; }

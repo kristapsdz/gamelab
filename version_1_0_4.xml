@@ -6,13 +6,15 @@
 		<time datetime="2015-05-01">2015-05-01</time>
 	</header>
 	<aside>
-		Renamed <q>auto-added</q> players as <q>captive</q>.
-		Remove logout button for captive players.
-		Remove <q>remember whether to see instructions</q> for captive players.
-		Add cache-control mechanism for player JSON that depends on the current round, relieving the gamelab server of producing the
-		full experiment JSON request with each reload.
-		Added several useful bits of information to the database: client user-agent to each session (and sessions are now retained
-		instead of deleted), creation time for each game-play, and link from game-play to active session (for source correlation).
-		Merged <q>winning instruction</q> text [back] into template itself.
+		<p>
+			Renamed <q>auto-added</q> players as <q>captive</q>.
+			Remove logout button for captive players.
+			Remove <q>remember whether to see instructions</q> for captive players.
+			Add cache-control mechanism for player JSON that depends on the current round, relieving the gamelab server of producing the
+			full experiment JSON request with each reload.
+			Added several useful bits of information to the database: client user-agent to each session (and sessions are now retained
+			instead of deleted), creation time for each game-play, and link from game-play to active session (for source correlation).
+			Merged <q>winning instruction</q> text [back] into template itself.
+		</p>
 	</aside>
 </article>
