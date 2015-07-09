@@ -1,7 +1,8 @@
 body				{ background-color: #e80; }
 #top img			{ height: 42pt; 
 				  margin-bottom: -2pt; }
-#top				{ text-align: right; }
+#top				{ text-align: right; 
+				  margin-bottom: 1ex; }
 h1				{ font-family: Georgia, serif; 
 				  display: inline-block;
 				  font-weight: normal;
