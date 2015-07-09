@@ -1764,6 +1764,7 @@ db_expr_start(int64_t date, int64_t roundpct, int64_t roundmin,
 	sqlite3_stmt	*stmt, *stmt2;
 	int64_t		 id;
 	size_t		 i;
+	int64_t		 players[2];
 
 	db_trans_begin(0);
 	if ( ! db_expr_checkstate(ESTATE_NEW)) {
@@ -1797,16 +1798,23 @@ db_expr_start(int64_t date, int64_t roundpct, int64_t roundmin,
 	sqlite3_finalize(stmt);
 
 	i = 0;
+	players[0] = players[1] = 0;
 	stmt = db_stmt("SELECT id from player "
 		"ORDER BY rseed ASC, id ASC");
 	stmt2 = db_stmt("UPDATE player "
 		"SET role=?,joined=0 WHERE id=?");
 	while (SQLITE_ROW == db_step(stmt, 0)) {
 		id = sqlite3_column_int64(stmt, 0);
-		db_bind_int(stmt2, 1, i++ % 2);
+		db_bind_int(stmt2, 1, i % 2);
 		db_bind_int(stmt2, 2, id);
 		db_step(stmt2, 0);
 		sqlite3_reset(stmt2);
+		players[i % 2]++;
+		if (playermax > 0 &&
+			 players[0] >= playermax && 
+			 players[1] >= playermax)
+			break;
+		i++;
 	}
 	sqlite3_finalize(stmt);
 	sqlite3_finalize(stmt2);
