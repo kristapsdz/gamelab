@@ -279,14 +279,15 @@ db_count_all(const char *p)
 {
 	sqlite3_stmt	*stmt;
 	char		 buf[1024];
-	size_t		 count;
+	int64_t		 count;
 
 	(void)snprintf(buf, sizeof(buf),
 		"SELECT count(*) FROM %s", p);
 	stmt = db_stmt(buf);
 	db_step(stmt, 0);
-	count = (size_t)sqlite3_column_int(stmt, 0);
+	count = sqlite3_column_int64(stmt, 0);
 	sqlite3_finalize(stmt);
+	assert(count >= 0 && (uint64_t)count < SIZE_MAX);
 	return(count);
 }
 
@@ -329,7 +330,7 @@ db_player_sess_valid(int64_t *playerid, int64_t id, int64_t cookie)
 	db_bind_int(stmt, 1, id);
 	db_bind_int(stmt, 2, cookie);
 	if (SQLITE_ROW == (rc = db_step(stmt, 0))) {
-		*playerid = sqlite3_column_int(stmt, 0);
+		*playerid = sqlite3_column_int64(stmt, 0);
 		sqlite3_finalize(stmt);
 		db_player_set_state(*playerid, PSTATE_LOGGEDIN);
 	} else
@@ -495,7 +496,7 @@ db_expr_advance(void)
 	int		 rc;
 	size_t		 games, allplayers[2];
 	double		 roleplayers[2];
-	int64_t		 round, played;
+	int64_t		 round, played, tmp;
 	sqlite3_stmt	*stmt;
 
 	/* Do nothing if we'we not started. */
@@ -532,16 +533,20 @@ db_expr_advance(void)
 		db_bind_int(stmt, 4, expr->prounds);
 		rc = db_step(stmt, 0);
 		assert(SQLITE_ROW == rc);
-		allplayers[0] = sqlite3_column_int(stmt, 0);
+		tmp = sqlite3_column_int64(stmt, 0);
 		sqlite3_reset(stmt);
+		assert(tmp >= 0 && (uint64_t)tmp < SIZE_MAX);
+		allplayers[0] = tmp;
 		db_bind_int(stmt, 1, 1);
 		db_bind_int(stmt, 2, expr->round);
 		db_bind_int(stmt, 3, expr->round);
 		db_bind_int(stmt, 4, expr->prounds);
 		rc = db_step(stmt, 0);
 		assert(SQLITE_ROW == rc);
-		allplayers[1] = sqlite3_column_int(stmt, 0);
+		tmp = sqlite3_column_int64(stmt, 0);
 		sqlite3_finalize(stmt);
+		assert(tmp >= 0 && (uint64_t)tmp < SIZE_MAX);
+		allplayers[1] = tmp;
 		/*
 		 * Now increment the number of players per role who have
 		 * played all of their games.
@@ -555,7 +560,7 @@ db_expr_advance(void)
 		db_bind_int(stmt, 2, games);
 		roleplayers[0] = roleplayers[1] = 0.0;
 		while (SQLITE_ROW == db_step(stmt, 0)) {
-			played = sqlite3_column_int(stmt, 0);
+			played = sqlite3_column_int64(stmt, 0);
 			assert(played == 0 || played == 1);
 			roleplayers[played] += 1.0;
 		}
@@ -646,8 +651,8 @@ db_winners_get(int64_t playerid)
 	db_bind_int(stmt, 1, playerid);
 	if (SQLITE_ROW == db_step(stmt, 0))  {
 		win = kcalloc(1, sizeof(struct winner));
-		win->rank = sqlite3_column_int(stmt, 0);
-		win->rnum = sqlite3_column_int(stmt, 1);
+		win->rank = sqlite3_column_int64(stmt, 0);
+		win->rnum = sqlite3_column_int64(stmt, 1);
 	}
 	sqlite3_finalize(stmt);
 	return(win);
@@ -666,9 +671,9 @@ db_winners_load_all(void *arg, winnerf fp)
 
 	while (SQLITE_ROW == db_step(stmt, 0)) {
 		memset(&win, 0, sizeof(struct winner));
-		id = sqlite3_column_int(stmt, 0);
-		win.rank = sqlite3_column_int(stmt, 1);
-		win.rnum = sqlite3_column_int(stmt, 2);
+		id = sqlite3_column_int64(stmt, 0);
+		win.rank = sqlite3_column_int64(stmt, 1);
+		win.rnum = sqlite3_column_int64(stmt, 2);
 		p = db_player_load(id);
 		assert(NULL != p);
 		fp(p, &win, arg);
@@ -710,7 +715,7 @@ again:
 	stmt = db_stmt("SELECT id FROM player");
 	for (i = 0; SQLITE_ROW == db_step(stmt, 0); i++) {
 		assert(i < players);
-		pids[i] = sqlite3_column_int(stmt, 0);
+		pids[i] = sqlite3_column_int64(stmt, 0);
 	}
 	sqlite3_finalize(stmt);
 	assert(i == players);
@@ -1337,6 +1342,38 @@ db_game_round_count_done(int64_t round, int64_t role, size_t gamesz)
 	return(result);
 }
 
+/*
+ * Count the number of current players in role "role" for the current
+ * (as described by "expr") round of the experiment.
+ */
+size_t
+db_expr_round_count(const struct expr *expr, int64_t round, int64_t role)
+{
+	sqlite3_stmt	*stmt;
+	int		 rc;
+	int64_t		 result;
+
+	stmt = db_stmt
+		("SELECT count(*) from player "
+		 "WHERE player.joined > -1 AND "
+		 "player.joined <= ?1 AND "
+		 "?1 < player.joined + ?2 AND "
+		 "player.role = ?3"); 
+	db_bind_int(stmt, 1, round);
+	db_bind_int(stmt, 2, expr->prounds);
+	db_bind_int(stmt, 3, role);
+	rc = db_step(stmt, 0);
+	assert(SQLITE_ROW == rc);
+	result = sqlite3_column_int64(stmt, 0);
+	sqlite3_finalize(stmt);
+	assert(result >= 0 && (uint64_t)result < SIZE_MAX);
+	return(result);
+}
+
+/*
+ * Count the number of players in role "role" who have finished giving
+ * all plays for game "gameid", round "round".
+ */
 size_t
 db_game_round_count(int64_t gameid, int64_t round, int64_t role)
 {
@@ -1352,7 +1389,8 @@ db_game_round_count(int64_t gameid, int64_t round, int64_t role)
 	db_bind_int(stmt, 3, role);
 	rc = db_step(stmt, 0);
 	assert(SQLITE_ROW == rc);
-	result = (size_t)sqlite3_column_int(stmt, 0);
+	result = sqlite3_column_int64(stmt, 0);
+	assert(result >= 0 && (uint64_t)result < SIZE_MAX);
 	sqlite3_finalize(stmt);
 	return(result);
 }
@@ -1651,6 +1689,16 @@ db_expr_setstart(int64_t date)
 	return(1);
 }
 
+/*
+ * Decide whether to let player "player" join the game in the next
+ * round.
+ * The player must have a join value of -1, i.e., she has not yet joined
+ * for game-play.
+ * This works by atomically fetching the experiment, calculating the
+ * number of players playing per role in the next round, and seeing if
+ * we can fit in the current player.
+ * If so, we schedule her to play.
+ */
 int
 db_player_join(const struct player *player)
 {
@@ -1658,25 +1706,26 @@ db_player_join(const struct player *player)
 	int64_t		 count;
 	struct expr	*expr;
 
+	assert(-1 == player->joined);
 	db_trans_begin(1);
 	expr = db_expr_get(0);
 	assert(NULL != expr);
-	stmt = db_stmt
-		("SELECT count(*) from player "
-		 "WHERE player.joined > -1 AND "
-		 "player.joined <= ?1 AND "
-		 "?1 < player.joined + ?2 AND "
-		 "player.role = ?3"); 
-	db_bind_int(stmt, 1, expr->round + 1);
-	db_bind_int(stmt, 2, expr->prounds);
-	db_bind_int(stmt, 3, player->role);
-	db_step(stmt, 0);
-	count = sqlite3_column_int64(stmt, 0);
-	sqlite3_finalize(stmt);
+	count = db_expr_round_count
+		(expr, expr->round + 1, player->role);
 	if (expr->playermax > 0 && count >= expr->playermax) {
+		/*
+		 * We've exceeded the maximum number of acceptable
+		 * players in this role at this time.
+		 */
 		db_trans_rollback();
+		fprintf(stderr, "Player %" PRId64 " asked to join "
+			"round %" PRId64 " but player role %" 
+			PRId64 " already has maximum players: %" 
+			PRId64 "\n", player->id, expr->round + 1,
+			player->role, count);
 		return(0);
 	}
+	/* Number of players ok: join! */
 	stmt = db_stmt("UPDATE player SET joined=? WHERE id=?");
 	db_bind_int(stmt, 1, expr->round + 1);
 	db_bind_int(stmt, 2, player->id);
@@ -1698,8 +1747,8 @@ db_player_join(const struct player *player)
  * which depends upon `date' and db_expr_advance().
  */
 int
-db_expr_start(int64_t date, int64_t roundpct, 
-	int64_t roundmin, int64_t rounds, int64_t minutes, 
+db_expr_start(int64_t date, int64_t roundpct, int64_t roundmin, 
+	int64_t rounds, int64_t prounds, int64_t minutes, 
 	int64_t playermax, const char *instr, const char *uri)
 {
 	sqlite3_stmt	*stmt, *stmt2;
@@ -1723,7 +1772,7 @@ db_expr_start(int64_t date, int64_t roundpct,
 		"start=?,rounds=?,minutes=?,"
 		"loginuri=?,instr=?,state=?,"
 		"roundpct=?,prounds=?,playermax=?,"
-		"autoadd=0");
+		"prounds=?,autoadd=0");
 	db_bind_int(stmt, 1, date);
 	db_bind_int(stmt, 2, rounds);
 	db_bind_int(stmt, 3, minutes);
@@ -1733,6 +1782,7 @@ db_expr_start(int64_t date, int64_t roundpct,
 	db_bind_double(stmt, 7, roundpct / 100.0);
 	db_bind_int(stmt, 8, rounds);
 	db_bind_int(stmt, 9, playermax);
+	db_bind_int(stmt, 10, prounds);
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);
 
@@ -1742,7 +1792,7 @@ db_expr_start(int64_t date, int64_t roundpct,
 	stmt2 = db_stmt("UPDATE player "
 		"SET role=?,rank=?,joined=0 WHERE id=?");
 	while (SQLITE_ROW == db_step(stmt, 0)) {
-		id = sqlite3_column_int(stmt, 0);
+		id = sqlite3_column_int64(stmt, 0);
 		db_bind_int(stmt2, 1, i % 2);
 		db_bind_int(stmt2, 2, i++);
 		db_bind_int(stmt2, 3, id);
@@ -2133,6 +2183,7 @@ db_choices_get(int64_t round,
 {
 	sqlite3_stmt	*stmt;
 	mpq_t		*mpq = NULL;
+	int64_t	 	 result;
 
 	stmt = db_stmt("SELECT stratsz,strats FROM choice "
 		"WHERE round=? AND playerid=? AND gameid=?");
@@ -2140,7 +2191,9 @@ db_choices_get(int64_t round,
 	db_bind_int(stmt, 2, playerid);
 	db_bind_int(stmt, 3, gameid);
 	if (SQLITE_ROW == db_step(stmt, 0)) {
-		*sz = sqlite3_column_int(stmt, 0);
+		result = sqlite3_column_int64(stmt, 0);
+		assert(result >= 0 && (uint64_t)result < SIZE_MAX);
+		*sz = result;
 		mpq = mpq_str2mpqsinit
 			(sqlite3_column_text(stmt, 1), *sz);
 	}
@@ -2224,7 +2277,7 @@ db_roundup_players(int64_t round, const struct roundup *r,
 	while (SQLITE_ROW == db_step(stmt, 0)) {
 		qs = mpq_str2mpqsinit
 			(sqlite3_column_text(stmt, 0), r->p1sz);
-		playerid = sqlite3_column_int(stmt, 1);
+		playerid = sqlite3_column_int64(stmt, 1);
 		mpq_set_ui(sum, 0, 1);
 		mpq_canonicalize(sum);
 		for (i = 0; i < r->p1sz; i++) {
@@ -2280,7 +2333,7 @@ db_roundup_players(int64_t round, const struct roundup *r,
 	while (SQLITE_ROW == db_step(stmt, 0)) {
 		qs = mpq_str2mpqsinit
 			(sqlite3_column_text(stmt, 0), r->p2sz);
-		playerid = sqlite3_column_int(stmt, 1);
+		playerid = sqlite3_column_int64(stmt, 1);
 		mpq_set_ui(sum, 0, 1);
 		mpq_canonicalize(sum);
 		for (i = 0; i < r->p2sz; i++) {

@@ -112,8 +112,9 @@ json_putexpr(struct kjsonreq *r, const struct expr *expr)
 	 */
 	tt = time(NULL);
 	if (expr->round >= 0 && expr->round < expr->rounds)
-		frac = (tt - expr->start) / 
-			(double)(expr->end - expr->start);
+		frac = (expr->round / (double)expr->rounds) +
+			(1.0 / (double)expr->rounds) * 
+			((tt - expr->roundbegan) / (double)(expr->minutes * 60));
 	else if (expr->round >= 0)
 		frac = 1.0;
 

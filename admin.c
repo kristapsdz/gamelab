@@ -88,6 +88,7 @@ enum	key {
 	KEY_ROUNDMIN,
 	KEY_ROUNDPCT,
 	KEY_ROUNDS,
+	KEY_PROUNDS,
 	KEY_MINUTES,
 	KEY_EMAIL,
 	KEY_EMAIL1,
@@ -198,6 +199,7 @@ static const struct kvalid keys[KEY__MAX] = {
 	{ kvalid_uint, "roundmin" }, /* KEY_ROUNDMIN */
 	{ kvalid_uint, "roundpct" }, /* KEY_ROUNDPCT */
 	{ kvalid_rounds, "rounds" }, /* KEY_ROUNDS */
+	{ kvalid_rounds, "prounds" }, /* KEY_PROUNDS */
 	{ kvalid_minutes, "minutes" }, /* KEY_MINUTES */
 	{ kvalid_email, "email" }, /* KEY_EMAIL */
 	{ kvalid_email, "email1" }, /* KEY_EMAIL1 */
@@ -403,8 +405,12 @@ senddogetexpr(struct kreq *r)
 		round = expr->round;
 		kjson_putintp(&req, "frow",
 			db_game_round_count_done(round, 0, gamesz));
+		kjson_putintp(&req, "frowmax",
+			db_expr_round_count(expr, round, 0));
 		kjson_putintp(&req, "fcol",
 			db_game_round_count_done(round, 1, gamesz));
+		kjson_putintp(&req, "fcolmax",
+			db_expr_round_count(expr, round, 1));
 	}
 
 	if (ESTATE_POSTWIN == expr->state) {
@@ -1006,6 +1012,7 @@ senddostartexpr(struct kreq *r)
 	if (kpairbad(r, KEY_DATE) ||
 		kpairbad(r, KEY_TIME) ||
 		kpairbad(r, KEY_ROUNDS) ||
+		kpairbad(r, KEY_PROUNDS) ||
 		kpairbad(r, KEY_ROUNDPCT) ||
 		kpairbad(r, KEY_ROUNDMIN) ||
 		kpairbad(r, KEY_PLAYERMAX) ||
@@ -1026,6 +1033,7 @@ senddostartexpr(struct kreq *r)
 		 r->fieldmap[KEY_ROUNDPCT]->parsed.i,
 		 r->fieldmap[KEY_ROUNDMIN]->parsed.i,
 		 r->fieldmap[KEY_ROUNDS]->parsed.i,
+		 r->fieldmap[KEY_PROUNDS]->parsed.i,
 		 r->fieldmap[KEY_MINUTES]->parsed.i,
 		 r->fieldmap[KEY_PLAYERMAX]->parsed.i,
 		 r->fieldmap[KEY_INSTR]->parsed.s,
