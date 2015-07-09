@@ -677,6 +677,7 @@ function loadExprSuccess(resp)
 			Math.round(expr.progress * 100.0) + '%');
 		doClearReplace('statusExprPRound', (expr.round + 1));
 		doClearReplace('statusExprPMax', expr.rounds);
+		doClearReplace('statusExprPPmax', expr.prounds);
 		doClearReplace('statusExprMins', expr.minutes);
 		if (expr.roundpct > 0.0) {
 			doClearReplace('statusExprRoundpct', expr.roundpct);
@@ -685,7 +686,9 @@ function loadExprSuccess(resp)
 		doValue('statusExprPBar', expr.progress);
 
 		doClearReplace('statusExprFrow', res.frow);
+		doClearReplace('statusExprFrowMax', res.frowmax);
 		doClearReplace('statusExprFcol', res.fcol);
+		doClearReplace('statusExprFcolMax', res.fcolmax);
 
 		e = doClear('statusExprPGames');
 		li = document.createElement('div');

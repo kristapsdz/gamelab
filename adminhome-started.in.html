@@ -27,7 +27,7 @@
 				<div id="statusExprProg">
 					<p>
 						Welcome!  Your experiment is in round 
-						<span id="statusExprPRound"></span> of <span id="statusExprPMax"></span>,
+						<span id="statusExprPRound"></span> of <span id="statusExprPMax"></span> (<span id="statusExprPPmax"></span> per player),
 						with each round taking <span id="statusExprMins"></span> minutes.
 						<span id="statusExprRoundpcting">
 							If each player role has at least <span id="statusExprRoundpct"></span>% plays, the round
@@ -38,11 +38,15 @@
 					<div class="table">
 						<div>
 							<div class="table-left-head">Complete row plays:</div>
-							<div id="statusExprFrow"></div>
+							<div>
+								<span id="statusExprFrow"></span>/<span id="statusExprFrowMax"></span>
+							</div>
 						</div>
 						<div>
 							<div class="table-left-head">Complete column plays:</div>
-							<div id="statusExprFcol"></div>
+							<div>
+								<span id="statusExprFcol"></span>/<span id="statusExprFcolMax"></span>
+							</div>
 						</div>
 					</div>
 					<div class="table" id="statusExprPGames">

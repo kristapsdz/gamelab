@@ -302,23 +302,24 @@
 						Once you start your experiment, you can't reconfigure.
 					</div>
 					<div>
-						You'll need to enter the <i class="fa fa-link"></i> address for logging in (sent in players'
-						welcome email &mdash; you probably don't want to change this), the <i class="fa
+						At a minimum, you'll need to enter the <i class="fa fa-link"></i> address for logging in (sent
+						in players' welcome email &mdash; you probably don't want to change this), the <i class="fa
 							fa-calendar"></i> start date and <i class="fa fa-clock-o"></i> time in GMT
 						<script>
 							var now = new Date();
 							document.write('(' + (now.getTimezoneOffset() / 60) + ' hours)');
-						</script>, the
-						<i class="fa fa-gear"></i> number of rounds and <i class="fa fa-gears"></i> rounds per player (zero to be all rounds),
-						and the <i class="fa fa-history"></i> minutes per round.
-						You can also change the <i class="fa fa-code"></i> instructions (in HTML5 markup) that
-						will be shown to players.
-						A non-zero <i class="fa fa-pie-chart"></i> is the percent of players per player role who, upon
-						playing, will cause the round to advance; and the <i class="fa fa-history
-							fa-flip-horizontal"></i> time is a minimum time for the percentage to take affect so as
-						to allow players to have a chance at playing.
-						Lastly, set <i class="fa fa-group"></i> to the maximum number of simulataneous players per
-						player role (0, the default, for all initial players).
+						</script>, the <i class="fa fa-gear"></i> number of rounds, <i class="fa fa-history"></i>
+						minutes per round, and <i class="fa fa-code"></i> instructions (in HTML5 markup) that will be
+						shown to players.
+					</div>
+					<div>
+						Additionally, set <i class="fa fa-gears"></i> rounds per player (zero to be all rounds); <i
+							class="fa fa-pie-chart"></i> to the percent of players per player role who, upon
+						playing, will cause the round to advance (zero not to auto-advance); <i class="fa fa-history
+							fa-flip-horizontal"></i> as the minimum time for the percentage to take affect so as to
+						allow players to have a chance at playing; and lastly, <i class="fa fa-group"></i> to the
+						maximum number of simulataneous players per player role (0, the default, for all initial
+						players).
 					</div>
 					<div class="error">
 						<div class="noshow" id="startExprErrSystem">
@@ -376,24 +377,8 @@
 								<input required="required" type="number" id="rounds" name="rounds" min="1" step="1" value="14" />
 							</div>
 							<div class="input">
-								<i class="fa fa-fw fa-gears"></i>
-								<input required="required" type="number" id="prounds" name="prounds" min="0" step="1" value="0" />
-							</div>
-							<div class="input">
 								<i class="fa fa-fw fa-history"></i>
 								<input required="required" type="number" name="minutes" id="minutes" max="1440" min="1" step="1" value="1440" />
-							</div>
-							<div class="input">
-								<i class="fa fa-fw fa-pie-chart"></i>
-								<input required="required" type="number" name="roundpct" id="roundpct" max="100" min="0" step="1" value="0" />
-							</div>
-							<div class="input">
-								<i class="fa fa-fw fa-history fa-flip-horizontal"></i>
-								<input required="required" type="number" name="roundmin" id="roundmin" max="1440" min="0" step="1" value="0" />
-							</div>
-							<div class="input">
-								<i class="fa fa-fw fa-group"></i>
-								<input required="required" type="number" name="playermax" id="playermax" min="0" step="1" value="0" />
 							</div>
 							<div class="input">
 								<i class="fa fa-fw fa-code"></i>
@@ -522,6 +507,22 @@ share of plays ending in <q>a</q> and <q>B</q> was 0.585.
 Looking at the numbers in the gray cells we see that the share of plays in which row players played <q>a</q> was 0.9, and the share in which
 column players played <q>B</q> was 0.650.
 </p></textarea>
+							</div>
+							<div class="input">
+								<i class="fa fa-fw fa-gears"></i>
+								<input required="required" type="number" id="prounds" name="prounds" min="0" step="1" value="0" />
+							</div>
+							<div class="input">
+								<i class="fa fa-fw fa-pie-chart"></i>
+								<input required="required" type="number" name="roundpct" id="roundpct" max="100" min="0" step="1" value="0" />
+							</div>
+							<div class="input">
+								<i class="fa fa-fw fa-history fa-flip-horizontal"></i>
+								<input required="required" type="number" name="roundmin" id="roundmin" max="1440" min="0" step="1" value="0" />
+							</div>
+							<div class="input">
+								<i class="fa fa-fw fa-group"></i>
+								<input required="required" type="number" name="playermax" id="playermax" min="0" step="1" value="0" />
 							</div>
 							<div class="input input-submit">
 								<i class="fa fa-save"></i>

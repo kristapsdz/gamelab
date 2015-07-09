@@ -110,32 +110,40 @@
 						<h3>
 							Rounds finished
 						</h3>
-						<p>
-							The experiment is finished.
-							Your payoff of <span id="exprFinishedScore"></span> earned you <span
-								id="exprFinishedTickets"></span> tickets out of a total of <span
-								id="exprFinishedTicketsMax"></span>.
-							Your lottery tickets are in the interval 
-							<span id="exprFinishedFinalRank"></span>&ndash;<span id="exprFinishedFinalRankEnd"></span>.
-						</p>
-						<p>
-							Results are computed by drawing a random integer within the total number of awarded
-							tickets. 
-						</p>
-						<p id="exprFinishedWinRnums">
-							The draw has been finished and the winning number is <span id="exprFinishedRnums"></span>.
-						</p>
-						<p id="exprFinishedWin">
-							This means that you have won prize number <span id="exprFinishedWinRank"></span>!
-							You will be contacted by the experimenter shortly.
-						</p>
-						<p id="exprFinishedLose">
-							This means that you unfortunately didn't win this time around. 
-							Thank you for participating!
-						</p>
-						<p id="exprFinishedWinWait">
-							Waiting for lottery draw...
-						</p>
+						<div id="exprAllFinished" class="noshow">
+							<p>
+								The experiment is finished.
+								Your payoff of <span id="exprFinishedScore"></span> earned you <span
+									id="exprFinishedTickets"></span> tickets out of a total of <span
+									id="exprFinishedTicketsMax"></span>.
+								Your lottery tickets are in the interval 
+								<span id="exprFinishedFinalRank"></span>&ndash;<span id="exprFinishedFinalRankEnd"></span>.
+							</p>
+							<p>
+								Results are computed by drawing a random integer within the total number of awarded
+								tickets. 
+							</p>
+							<p id="exprFinishedWinRnums">
+								The draw has been finished and the winning number is <span id="exprFinishedRnums"></span>.
+							</p>
+							<p id="exprFinishedWin">
+								This means that you have won prize number <span id="exprFinishedWinRank"></span>!
+								You will be contacted by the experimenter shortly.
+							</p>
+							<p id="exprFinishedLose">
+								This means that you unfortunately didn't win this time around. 
+								Thank you for participating!
+							</p>
+							<p id="exprFinishedWinWait">
+								Waiting for lottery draw...
+							</p>
+						</div>
+						<div class="exprNotAllFinished" class="noshow">
+							<p>
+								You have played all rounds.
+								Waiting for experiment to finish...
+							</p>
+						</div>
 					</section>
 					<section id="exprPlay" class="noshow">
 						<h3>

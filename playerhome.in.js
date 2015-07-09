@@ -437,10 +437,10 @@ function loadGame()
 
 	doClearReplace('playGameNum', (resindex + 1));
 	doClearReplace('playGameMax', res.gamesz);
-	doClearReplace('playRoundNum', res.expr.round + 1);
-	doClearReplace('playRoundNum2', res.expr.round + 1);
-	doClearReplace('playRoundMax', res.expr.rounds);
-	doClearReplace('playRoundMax2', res.expr.rounds);
+	doClearReplace('playRoundNum', (res.expr.round - res.player.joined) + 1);
+	doClearReplace('playRoundNum2', (res.expr.round - res.player.joined) + 1);
+	doClearReplace('playRoundMax', res.expr.prounds);
+	doClearReplace('playRoundMax2', res.expr.prounds);
 
 	game = res.games[res.gameorders[resindex]];
 	if (null == game) {
@@ -475,7 +475,7 @@ function loadGame()
 
 	if (null != hmatrix) {
 		doUnhide('exprHistory');
-		if (0 != game.roundup.skip) 
+		if (0 != game.roundup.skip && res.player.joined > res.expr.round) 
 			doUnhide('skipExplain');
 		else
 			doHide('skipExplain');
@@ -987,6 +987,24 @@ function loadExprSuccess(resp)
 			doUnhide('historyNotYet');
 		}
 		loadGame();
+	} else if (expr.round < expr.rounds) {
+		/* 
+		 * Case where player has finished, but game has not.
+		 */
+		doHide('exprPlay');
+		doHide('exprDone');
+		doUnhide('exprFinished');
+		if (expr.round > 0) {
+			doUnhide('historyPlay');
+			doHide('historyNotYet');
+			loadHistory(res);
+		} else {
+			doHide('historyPlay');
+			doUnhide('historyNotYet');
+		}
+		doUnhide('exprNotAllFinished');
+		doHide('exprAllFinished');
+		doClearReplace('exprCountdown', 'finished');
 	} else {
 		/*
 		 * Case where the game has finished.
@@ -1002,6 +1020,8 @@ function loadExprSuccess(resp)
 			doHide('historyPlay');
 			doUnhide('historyNotYet');
 		}
+		doHide('exprNotAllFinished');
+		doUnhide('exprAllFinished');
 		doClearReplace('exprFinishedScore', res.aggrlottery.toFixed(2));
 		doClearReplace('exprFinishedTicketsMax', expr.maxtickets);
 		doClearReplace('exprFinishedFinalRank', res.player.finalrank);
