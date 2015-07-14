@@ -199,7 +199,7 @@ static const struct kvalid keys[KEY__MAX] = {
 	{ kvalid_uint, "roundmin" }, /* KEY_ROUNDMIN */
 	{ kvalid_uint, "roundpct" }, /* KEY_ROUNDPCT */
 	{ kvalid_rounds, "rounds" }, /* KEY_ROUNDS */
-	{ kvalid_rounds, "prounds" }, /* KEY_PROUNDS */
+	{ kvalid_uint, "prounds" }, /* KEY_PROUNDS */
 	{ kvalid_minutes, "minutes" }, /* KEY_MINUTES */
 	{ kvalid_email, "email" }, /* KEY_EMAIL */
 	{ kvalid_email, "email1" }, /* KEY_EMAIL1 */
