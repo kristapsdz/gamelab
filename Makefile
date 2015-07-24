@@ -95,10 +95,13 @@ VERSIONS = version_1_0_1.xml \
 	   version_1_0_6.xml \
 	   version_1_0_7.xml
 
-all: admin lab $(BUILT) $(BUILTPS)
+all: admin lab gamers $(BUILT) $(BUILTPS)
 
 jsmin: jsmin.c
 	$(CC) $(CFLAGS) -o $@ jsmin.c
+
+gamers: gamers.c
+	$(CC) $(CFLAGS) `curl-config --cflags` -o $@ gamers.c `curl-config --libs` -ljson-c
 
 admin: admin.o $(OBJS)
 	$(CC) $(STATIC) -L/usr/local/lib -o $@ admin.o $(OBJS) -lsqlite3 -lkcgi -lkcgijson -lz -lgmp `curl-config --libs` $(LIBS)
@@ -173,7 +176,7 @@ adminhome.js playerautoadd.js playerhome.js: jsmin
 		-e "s!@HTURI@!$(HTURI)!g" $< >$@
 
 clean:
-	rm -f admin admin.o gamelab.db lab lab.o $(OBJS) jsmin
+	rm -f admin admin.o gamelab.db lab lab.o $(OBJS) jsmin gamers
 	rm -f $(BUILT) $(BUILTPS) 
 	rm -f index.html manual.html gamelab.tgz gamelab.tgz.sha512 gamelab.bib gamelab.png
 	rm -rf *.dSYM
