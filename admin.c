@@ -63,6 +63,7 @@ enum	page {
 	PAGE_DOTESTSMTP,
 	PAGE_DOWINNERS,
 	PAGE_DOWIPE,
+	PAGE_DOWIPEQUIET,
 	PAGE_HOME,
 	PAGE_INDEX,
 	PAGE__MAX
@@ -148,6 +149,7 @@ static	unsigned int perms[PAGE__MAX] = {
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOTESTSMTP */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOWINNERS */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOWIPE */
+	PERM_JSON | PERM_LOGIN, /* PAGE_DOWIPEQUIET */
 	PERM_HTML | PERM_LOGIN, /* PAGE_HOME */
 	PERM_HTML | PERM_LOGIN, /* PAGE_INDEX */
 };
@@ -179,6 +181,7 @@ static const char *const pages[PAGE__MAX] = {
 	"dotestsmtp", /* PAGE_DOTESTSMTP */
 	"dowinners", /* PAGE_DOWINNERS */
 	"dowipe", /* PAGE_DOWIPE */
+	"dowipequiet", /* PAGE_DOWIPEQUIET */
 	"home", /* PAGE_HOME */
 	"index", /* PAGE_INDEX */
 };
@@ -1136,7 +1139,7 @@ senddowinners(struct kreq *r)
 }
 
 static void
-senddowipe(struct kreq *r)
+senddowipe(struct kreq *r, int mail)
 {
 	pid_t		 pid;
 
@@ -1149,7 +1152,7 @@ senddowipe(struct kreq *r)
 	} else if (0 == pid) {
 		khttp_child_free(r);
 		if (0 == (pid = fork())) {
-			mail_wipe();
+			mail_wipe(mail);
 			db_close();
 		} else if (pid < 0) 
 			perror(NULL);
@@ -1354,7 +1357,10 @@ main(void)
 		senddowinners(&r);
 		break;
 	case (PAGE_DOWIPE):
-		senddowipe(&r);
+		senddowipe(&r, 1);
+		break;
+	case (PAGE_DOWIPEQUIET):
+		senddowipe(&r, 0);
 		break;
 	case (PAGE_HOME):
 		if ( ! db_expr_checkstate(ESTATE_NEW))

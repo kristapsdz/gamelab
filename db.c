@@ -991,13 +991,15 @@ db_admin_valid(const char *email, const char *pass)
 	db_bind_text(stmt, 1, email);
 
 	if (SQLITE_ROW != db_step(stmt, 0)) {
-		fprintf(stderr, "%s: not admin\n", email);
+		fprintf(stderr, "Admin attempt without "
+			"correct email: %s\n", email);
 		sqlite3_finalize(stmt);
 		return(0);
 	} 
 
 	if ( ! db_crypt_check(sqlite3_column_text(stmt, 0), pass)) {
-		fprintf(stderr, "%s: not admin password\n", pass);
+		fprintf(stderr, "Admin tried to "
+			"login with wrong password\n");
 		sqlite3_finalize(stmt);
 		return(0);
 	}

@@ -275,7 +275,7 @@ void		 db_winners_free(struct winner *);
 
 void		 mail_players(const char *, const char *);
 void		 mail_backup(void);
-void		 mail_wipe(void);
+void		 mail_wipe(int);
 void		 mail_test(void);
 
 void		 json_putplayer(struct kjsonreq *, const struct player *);

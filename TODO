@@ -9,3 +9,14 @@
       a. if all players play within the grace period, bump round
       b. otherwise, wait til end of grace period
   (3) none, administrator does all
+
+
+
+
+- When player has reached end of round (but not end of experiment) show
+  the accumulated TICKETS as well as PAYOFF.
+
+- Allow for history to be "faked": allow a prior experiment's data (or
+  multiple experiments' data) to be considered as "history".  The fake
+  data won't be considered part of the new experiment's results: it's
+  read-only in terms of history.

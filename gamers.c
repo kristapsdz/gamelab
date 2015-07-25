@@ -68,12 +68,27 @@ struct	game {
 };
 
 /*
+ * A Netscape cookie. 
+ */
+struct 	cookie {
+	char		*domain;
+	int		 flag;
+	char		*path;
+	int		 secure;
+	char		*expire;
+	char		*key;
+	char		*val;
+};
+
+/*
  * A single player in the simulation.
  */
 struct	gamer {
 	struct game		*game; /* the game itself */
 	char			*email; /* our e-mail address */
 	char			*password; /* our password */
+	char			*sesscookie; /* our password */
+	char			*sessid; /* our password */
 	const char		*url; /* the URL */
 	enum phase		 phase; /* what we're doing */
 	CURL			*conn; /* my connection */
@@ -115,6 +130,66 @@ buf_write(struct buf *buf, const char *fmt, ...)
 	va_end(ap);
 	assert(-1 != ret && (size_t)ret + 1 <= buf->bmax);
 	buf->bsz = ret + 1;
+	return(1);
+}
+
+/*
+ * Parse a Netscape-style cookie string.
+ * This will modified `cp' during the parse itself.
+ * See the http://cookiecentral.com FAQ, section 3.5.
+ */
+static int
+cookie(struct cookie *c, char *cp)
+{
+	char	*tok;
+
+	memset(c, 0, sizeof(struct cookie));
+
+	/* Relevant domain. */
+	if (NULL == (tok = strsep(&cp, "\t")))
+		return(0);
+	c->domain = tok;
+
+	/* All-domain flag. */
+	if (NULL == (tok = strsep(&cp, "\t")))
+		return(0);
+	if (0 == strcasecmp(tok, "TRUE"))
+		c->flag = 1;
+	else if (0 == strcasecmp(tok, "FALSE"))
+		c->flag = 0;
+	else
+		return(0);
+
+	/* Access path. */
+	if (NULL == (tok = strsep(&cp, "\t")))
+		return(0);
+	c->path = tok;
+
+	/* Secure only (HTTPS). */
+	if (NULL == (tok = strsep(&cp, "\t")))
+		return(0);
+	if (0 == strcasecmp(tok, "TRUE"))
+		c->secure = 1;
+	else if (0 == strcasecmp(tok, "FALSE"))
+		c->secure = 0;
+	else
+		return(0);
+
+	/* Expiration date. */
+	if (NULL == (tok = strsep(&cp, "\t")))
+		return(0);
+	c->expire = tok;
+
+	/* Name. */
+	if (NULL == (tok = strsep(&cp, "\t")))
+		return(0);
+	c->key = tok;
+
+	/* Value. */
+	if (NULL == (tok = strsep(&cp, "\t")))
+		return(0);
+	c->val = tok;
+
 	return(1);
 }
 
@@ -187,6 +262,13 @@ gamer_reset(struct gamer *gamer)
 	return(1);
 }
 
+/*
+ * Generic initialisation for writing a server request.
+ * We accept the gamer, to whom we'll assign the given URL, and whether
+ * or not it's a POST request.
+ * This will also set the receiver function for JSON data coming from
+ * the server as a response.
+ */
 static int
 gamer_init(struct gamer *gamer, const char *url, int post)
 {
@@ -232,15 +314,108 @@ gamer_init(struct gamer *gamer, const char *url, int post)
 	return(1);
 }
 
+static int
+gamer_init_loadexpr(struct gamer *gamer)
+{
+
+	/* Start with the URL for the captive portal. */
+	if ( ! gamer_init(gamer, urls[PHASE_LOADEXPR], 0)) {
+		fputs("gamer_init", stderr);
+		return(0);
+	}
+
+	return(1);
+}
+
 /*
- * We've now logged in.
- * Accept our cookies.
+ * Initialise a registration sequence.
+ * This sets us up to try to `auto-add' to the simulation.
+ * It uses our existing e-mail address.
  */
 static int
-gamer_phase_login(struct gamer *gamer)
+gamer_init_register(struct gamer *gamer)
 {
-	CURLcode	    cc;
-	long		    code;
+	CURLcode	 cc;
+
+	/* Start with the URL for the captive portal. */
+	if ( ! gamer_init(gamer, urls[PHASE_REGISTER], 1)) {
+		fputs("gamer_init", stderr);
+		return(0);
+	}
+
+	/* Our POST consists only of our email address. */
+	if ( ! buf_write(&gamer->read, "email=%s", gamer->email)) {
+		fputs("buf_write\n", stderr);
+		return(0);
+	}
+
+	/* Add the POST field to the request. */
+	cc = curl_easy_setopt(gamer->conn, 
+		CURLOPT_POSTFIELDS, gamer->read.b);
+	if (CURLE_OK != cc) {
+		fprintf(stderr, "curl_easy_setopt: "
+			"CURLOPT_POSTFIELDS: %s\n",
+			curl_easy_strerror(cc));
+		return(0);
+	}
+	return(1);
+}
+
+/*
+ * Initialise a login sequence.
+ * This tries to log us into the system given the registration
+ * information as early initialised in gamer_init_register().
+ */
+static int
+gamer_init_login(struct gamer *gamer)
+{
+	int	 	 c;
+	CURLcode	 cc;
+
+	if ( ! gamer_init(gamer, urls[PHASE_LOGIN], 1)) {
+		fputs("gamer_init", stderr);
+		return(0);
+	}
+
+	/* 
+	 * Our POST consists of email and password. 
+	 * TODO: make sure about URL encoding?
+	 */
+	c = buf_write(&gamer->read, "email=%s&password=%s", 
+		gamer->email, gamer->password);
+	if ( ! c) {
+		fputs("buf_write\n", stderr);
+		return(0);
+	}
+
+	/* Attach buffer to POST request. */
+	cc = curl_easy_setopt(gamer->conn, 
+		CURLOPT_POSTFIELDS, gamer->read.b);
+	if (CURLE_OK != cc) {
+		fprintf(stderr, "curl_easy_setopt: "
+			"CURLOPT_POSTFIELDS: %s\n",
+			curl_easy_strerror(cc));
+		return(0);
+	}
+
+	/* We want to accept cookies for this coming request. */
+	cc = curl_easy_setopt(gamer->conn, 
+		CURLOPT_COOKIEFILE, "");
+	if (CURLE_OK != cc) {
+		fprintf(stderr, "curl_easy_setopt: "
+			"CURLOPT_COOKIEFILE: %s\n",
+			curl_easy_strerror(cc));
+		return(0);
+	}
+
+	return(1);
+}
+
+static int
+gamer_phase_loadexpr(struct gamer *gamer)
+{
+	CURLcode	   cc;
+	long		   code;
 
 	/* First make sure we have HTTP code 200. */
 	cc = curl_easy_getinfo(gamer->conn, 
@@ -254,27 +429,133 @@ gamer_phase_login(struct gamer *gamer)
 		fprintf(stderr, "%s: bad response: %s -> %ld\n", 
 			gamer->email, gamer->url, code);
 		return(0);
+	} else if (NULL == gamer->parsed) {
+		fprintf(stderr, "%s: no JSON response: %s\n", 
+			gamer->email, gamer->url);
+		return(0);
+	}
+
+	/* Here we perform our labour. */
+
+	if ( ! gamer_reset(gamer)) {
+		fputs("gamer_reset\n", stderr);
+		return(0);
+	} else if ( ! gamer_init_loadexpr(gamer)) {
+		fputs("gamer_init_loadexpr", stderr);
+		return(0);
+	}
+
+	/* Lastly, transfer us to the login phase. */
+	gamer->game->finished++;
+	gamer->phase = PHASE__MAX;
+	if (gamer->game->verbose)
+		fprintf(stderr, "%s: finished\n", gamer->email);
+
+	return(1);
+}
+
+/*
+ * We've now logged in.
+ * Accept our cookies.
+ */
+static int
+gamer_phase_login(struct gamer *gamer)
+{
+	CURLcode	   cc;
+	long		   code;
+	struct curl_slist *cookies, *nc;
+	struct cookie	   c;
+
+	/* First make sure we have HTTP code 200. */
+	cc = curl_easy_getinfo(gamer->conn, 
+		CURLINFO_RESPONSE_CODE, &code);
+	if (CURLE_OK != cc) {
+		fprintf(stderr, "curl_easy_getinfo: "
+			"CURLINFO_RESPONSE_CODE: %s\n",
+			curl_easy_strerror(cc));
+		return(0);
+	} else if (409 == code) {
+		fprintf(stderr, "%s: not started: %s\n", 
+			gamer->email, gamer->url);
+		if ( ! gamer_reset(gamer)) {
+			fputs("gamer_reset\n", stderr);
+			return(0);
+		} else if ( ! gamer_init_login(gamer)) {
+			fputs("gamer_init_login", stderr);
+			return(0);
+		}
+		return(1);
+	} else if (200 != code) {
+		fprintf(stderr, "%s: bad response: %s -> %ld\n", 
+			gamer->email, gamer->url, code);
+		return(0);
 	} else if (NULL != gamer->parsed) {
 		fprintf(stderr, "%s: unexpected JSON: %s\n", 
 			gamer->email, gamer->url);
 		return(0);
 	}
 
-#if 0
+	/* Extract the Netscape-style cookie list. */
+	cc = curl_easy_getinfo(gamer->conn,
+		CURLINFO_COOKIELIST, &cookies);
+	if (CURLE_OK != cc) {
+		fprintf(stderr, "curl_easy_getinfo: "
+			"CURLINFO_COOKIELIST: %s\n",
+			curl_easy_strerror(cc));
+		return(0);
+	} 
+
+	/*
+	 * Loop through the cookies we've downloaded.
+	 * Extract our session identifier and magic cookie value.
+	 */
+	for (nc = cookies; NULL != nc; nc = nc->next) {
+		if ( ! cookie(&c, nc->data)) {
+			fputs("cookie\n", stderr);
+			return(0);
+		}
+		if (0 == strcmp(c.key, "sesscookie")) {
+			free(gamer->sesscookie);
+			gamer->sesscookie = strdup(c.val);
+			if (NULL == gamer->sesscookie) {
+				perror(NULL);
+				curl_slist_free_all(cookies);
+				return(0);
+			}
+		} else if (0 == strcmp(c.key, "sessid")) {
+			free(gamer->sessid);
+			gamer->sessid = strdup(c.val);
+			if (NULL == gamer->sessid) {
+				perror(NULL);
+				curl_slist_free_all(cookies);
+				return(0);
+			}
+		}
+	}
+	curl_slist_free_all(cookies);
+	if (NULL == gamer->sesscookie || NULL == gamer->sessid) {
+		fprintf(stderr, "%s: no session cookie "
+			"or identifier\n", gamer->email);
+		return(0);
+	}
+	
+	/*
+	 * Now, reset our connection, start us on the experiment itself,
+	 * and enter the experiment phase.
+	 */
+
 	if ( ! gamer_reset(gamer)) {
 		fputs("gamer_reset\n", stderr);
 		return(0);
-	} else if ( ! gamer_init(gamer, urls[PHASE_LOGIN], 0)) {
-		fputs("gamer_init", stderr);
+	} else if ( ! gamer_init_loadexpr(gamer)) {
+		fputs("gamer_init_loadexpr", stderr);
 		return(0);
 	}
-#endif
-
-	/* Lastly, transfer us to the login phase. */
-	gamer->game->finished++;
 	gamer->phase = PHASE_LOADEXPR;
 	if (gamer->game->verbose)
-		fprintf(stderr, "%s: playing\n", gamer->email);
+		fprintf(stderr, "%s: playing (session %s, "
+			"cookie %s)\n", gamer->email,
+			gamer->sessid, gamer->sesscookie);
 	return(1);
 }
 
@@ -287,7 +568,6 @@ gamer_phase_register(struct gamer *gamer)
 {
 	CURLcode	    cc;
 	long		    code;
-	int		    c;
 	struct json_object *obj;
 	json_bool	    rc;
 
@@ -343,31 +623,11 @@ gamer_phase_register(struct gamer *gamer)
 		return(0);
 	}
 
-	/* Release our JSON holdings. */
-	json_object_put(gamer->parsed);
-	gamer->parsed = NULL;
-
 	if ( ! gamer_reset(gamer)) {
 		fputs("gamer_reset\n", stderr);
 		return(0);
-	} else if ( ! gamer_init(gamer, urls[PHASE_LOGIN], 1)) {
-		fputs("gamer_init", stderr);
-		return(0);
-	}
-
-	/* Prime the POST fields for initial login. */
-	c = buf_write(&gamer->read, "email=%s&password=%s", 
-		gamer->email, gamer->password);
-	if ( ! c) {
-		fputs("buf_write\n", stderr);
-		return(0);
-	}
-	cc = curl_easy_setopt(gamer->conn, 
-		CURLOPT_POSTFIELDS, gamer->read.b);
-	if (CURLE_OK != cc) {
-		fprintf(stderr, "curl_easy_setopt: "
-			"CURLOPT_POSTFIELDS: %s\n",
-			curl_easy_strerror(cc));
+	} else if ( ! gamer_init_login(gamer)) {
+		fputs("gamer_init_login", stderr);
 		return(0);
 	}
 
@@ -375,6 +635,7 @@ gamer_phase_register(struct gamer *gamer)
 	gamer->phase = PHASE_LOGIN;
 	if (gamer->game->verbose)
 		fprintf(stderr, "%s: logged in\n", gamer->email);
+
 	return(1);
 }
 
@@ -394,11 +655,18 @@ gamer_event(struct gamer *gamer)
 	case (PHASE_LOGIN):
 		rc = gamer_phase_login(gamer);
 		break;
+	case (PHASE_LOADEXPR):
+		rc = gamer_phase_loadexpr(gamer);
+		break;
 	default:
 		abort();
 		/* NOTREACHED */
 	}
 
+	if (NULL != gamer->parsed) {
+		json_object_put(gamer->parsed);
+		gamer->parsed = NULL;
+	}
 	json_tokener_reset(gamer->tok);
 	return(rc);
 }
@@ -407,7 +675,6 @@ int
 main(int argc, char *argv[])
 {
 	int	 	 c, rc, maxfd, run, postrun;
-	CURLcode	 cc;
 	CURLMsg		*msg;
 	struct timeval	 tv;
 	CURLMcode	 cm;
@@ -520,30 +787,15 @@ main(int argc, char *argv[])
 
 		ctx[i].game = &game;
 
-		/* Start with the URL for the captive portal. */
-		if ( ! gamer_init(&ctx[i], urls[PHASE_REGISTER], 1)) {
-			fputs("gamer_init", stderr);
-			goto out;
-		}
-
 		/* E-mail address: pXX@foo.com. */
 		if (asprintf(&ctx[i].email, "p%zu@foo.com", i) < 0) {
 			perror(NULL);
 			goto out;
 		}
 
-		/* Prime the POST fields for initial login. */
-		c = buf_write(&ctx[i].read, "email=%s", ctx[i].email);
-		if ( ! c) {
-			fputs("buf_write\n", stderr);
-			goto out;
-		}
-		cc = curl_easy_setopt(ctx[i].conn, 
-			CURLOPT_POSTFIELDS, ctx[i].read.b);
-		if (CURLE_OK != cc) {
-			fprintf(stderr, "curl_easy_setopt: "
-				"CURLOPT_POSTFIELDS: %s\n",
-				curl_easy_strerror(cc));
+		/* Start with the URL for the captive portal. */
+		if ( ! gamer_init_register(&ctx[i])) {
+			fputs("gamer_init_register", stderr);
 			goto out;
 		}
 
@@ -660,6 +912,8 @@ out:
 		}
 		free(ctx[i].email);
 		free(ctx[i].password);
+		free(ctx[i].sessid);
+		free(ctx[i].sesscookie);
 		free(ctx[i].read.b);
 		json_tokener_free(ctx[i].tok);
 		if (NULL != ctx[i].parsed)

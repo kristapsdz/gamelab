@@ -857,6 +857,15 @@ function advanceRound()
 		function() { window.location.reload(true); });
 }
 
+function wipeCleanExpr() 
+{
+
+	sendQuery('@ADMINURI@/dowipequiet.json', 
+		function() { doHide('wipeExprResults'); doClearReplace('wipeCleanExprButton', 'Wiping...'); },
+		function() { doClearReplace('wipeCleanExprButton', 'Hard-Wipe Experiment'); doUnhide('wipeExprResults'); },
+		null);
+}
+
 function wipeExpr() 
 {
 
@@ -957,10 +966,13 @@ function
 checkWipeButton(e)
 {
 
-	if (e.checked)
+	if (e.checked) {
 		document.getElementById('wipeExprButton').disabled='';
-	else
+		document.getElementById('wipeCleanExprButton').disabled='';
+	} else {
 		document.getElementById('wipeExprButton').disabled='disabled';
+		document.getElementById('wipeCleanExprButton').disabled='disabled';
+	}
 }
 
 /*

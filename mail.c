@@ -538,9 +538,10 @@ out:
 }
 
 void
-mail_wipe(void)
+mail_wipe(int backup)
 {
 
-	mail_backup();
+	if (backup)
+		mail_backup();
 	db_expr_wipe();
 }
