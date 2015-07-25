@@ -34,6 +34,7 @@ enum	phase {
 	PHASE_REGISTER = 0, /* registering */
 	PHASE_LOGIN, /* logging in */
 	PHASE_LOADEXPR, /* load experiment for play */
+	PHASE_PLAY, /* play against server */
 	PHASE__MAX
 };
 
@@ -45,6 +46,7 @@ static	char *urls[PHASE__MAX] = {
 	NULL, /* PHASE_REGISTER */
 	NULL, /* PHASE_LOGIN */
 	NULL, /* PHASE_LOADEXPR */
+	NULL, /* PHASE_PLAY */
 };
 
 /*
@@ -69,6 +71,9 @@ struct	game {
 
 /*
  * A Netscape cookie. 
+ * The fields are self-explanatory.
+ * (We usually only care about key and val.) 
+ * All non-integers are nil-terminated.
  */
 struct 	cookie {
 	char		*domain;
@@ -92,9 +97,11 @@ struct	gamer {
 	const char		*url; /* the URL */
 	enum phase		 phase; /* what we're doing */
 	CURL			*conn; /* my connection */
-	struct buf		 read; /* buffer for uploading */
+	struct buf		 post; /* buffer for posting */
+	struct buf		 cookie; /* buffer for cookies */
 	struct json_tokener 	*tok; /* download tokeniser */
 	struct json_object	*parsed; /* parsed json object */
+	int64_t			 lastround; /* last seen round */
 };
 
 /*
@@ -190,6 +197,80 @@ cookie(struct cookie *c, char *cp)
 		return(0);
 	c->val = tok;
 
+	return(1);
+}
+
+static int
+json_check(const struct gamer *gamer)
+{
+
+	if (NULL == gamer->parsed) {
+		fprintf(stderr, "%s: missing JSON: %s\n",
+			gamer->email, gamer->url);
+		return(0);
+	}
+	if (json_type_object != json_object_get_type(gamer->parsed)) {
+		fprintf(stderr, "%s: bad JSON type: %s\n",
+			gamer->email, gamer->url);
+		return(0);
+	}
+	return(1);
+}
+
+static int
+json_getobj(const struct gamer *gamer, 
+	json_object *parent, json_object **obj, const char *name)
+{
+
+	if ( ! json_object_object_get_ex(parent, name, obj)) {
+		fprintf(stderr, "%s: no JSON `%s\': %s\n",
+			gamer->email, name, gamer->url);
+		return(0);
+	} else if (json_type_object != json_object_get_type(*obj)) {
+		fprintf(stderr, "%s: bad JSON `%s' type: %s\n",
+			gamer->email, name, gamer->url);
+		return(0);
+	}
+	return(1);
+}
+
+static int
+json_getint(const struct gamer *gamer, 
+	json_object *parent, int64_t *val, const char *name)
+{
+	json_object	*obj;
+
+	/* Verify that the email is sane. */
+	if ( ! json_object_object_get_ex(parent, name, &obj)) {
+		fprintf(stderr, "%s: no JSON `%s\': %s\n",
+			gamer->email, name, gamer->url);
+		return(0);
+	} else if (json_type_int != json_object_get_type(obj)) {
+		fprintf(stderr, "%s: bad JSON `%s' type: %s\n",
+			gamer->email, name, gamer->url);
+		return(0);
+	}
+	*val = json_object_get_int64(obj);
+	return(1);
+}
+
+static int
+json_getstring(const struct gamer *gamer, 
+	json_object *parent, const char **val, const char *name)
+{
+	json_object	*obj;
+
+	/* Verify that the email is sane. */
+	if ( ! json_object_object_get_ex(parent, name, &obj)) {
+		fprintf(stderr, "%s: no JSON `%s\': %s\n",
+			gamer->email, name, gamer->url);
+		return(0);
+	} else if (json_type_string != json_object_get_type(obj)) {
+		fprintf(stderr, "%s: bad JSON `%s' type: %s\n",
+			gamer->email, name, gamer->url);
+		return(0);
+	}
+	*val = json_object_get_string(obj);
 	return(1);
 }
 
@@ -315,12 +396,84 @@ gamer_init(struct gamer *gamer, const char *url, int post)
 }
 
 static int
+gamer_init_play(struct gamer *gamer, int64_t round)
+{
+	int	 	 rc;
+	CURLcode	 cc;
+
+	gamer->phase = PHASE_PLAY;
+
+	/* Start with the URL for the captive portal. */
+	if ( ! gamer_init(gamer, urls[PHASE_PLAY], 1)) {
+		fputs("gamer_init", stderr);
+		return(0);
+	}
+
+	rc = buf_write(&gamer->cookie, 
+		"sessid=%s;sesscookie=%s", 
+		gamer->sessid, gamer->sesscookie);
+	if ( ! rc) {
+		fputs("buf_write\n", stderr);
+		return(0);
+	}
+	cc = curl_easy_setopt(gamer->conn, 
+		CURLOPT_COOKIE, gamer->cookie.b);
+        if (CURLE_OK != cc) {
+		fprintf(stderr, "curl_easy_setopt: "
+			"CURLOPT_COOKIE: %s\n",
+			curl_easy_strerror(cc));
+		return(0);
+	}
+
+	/* Our POST consists only of our email address. */
+	rc = buf_write(&gamer->post, 
+		"round=%" PRId64 "&gid=1&index0=1", round);
+	if ( ! rc) {
+		fputs("buf_write\n", stderr);
+		return(0);
+	}
+
+	/* Add the POST field to the request. */
+	cc = curl_easy_setopt(gamer->conn, 
+		CURLOPT_POSTFIELDS, gamer->post.b);
+	if (CURLE_OK != cc) {
+		fprintf(stderr, "curl_easy_setopt: "
+			"CURLOPT_POSTFIELDS: %s\n",
+			curl_easy_strerror(cc));
+		return(0);
+	}
+
+	gamer->lastround = round;
+	return(1);
+}
+
+static int
 gamer_init_loadexpr(struct gamer *gamer)
 {
+	int	 	 rc;
+	CURLcode	 cc;
+
+	gamer->phase = PHASE_LOADEXPR;
 
 	/* Start with the URL for the captive portal. */
 	if ( ! gamer_init(gamer, urls[PHASE_LOADEXPR], 0)) {
 		fputs("gamer_init", stderr);
+		return(0);
+	}
+
+	rc = buf_write(&gamer->cookie, 
+		"sessid=%s;sesscookie=%s", 
+		gamer->sessid, gamer->sesscookie);
+	if ( ! rc) {
+		fputs("buf_write\n", stderr);
+		return(0);
+	}
+	cc = curl_easy_setopt(gamer->conn, 
+		CURLOPT_COOKIE, gamer->cookie.b);
+        if (CURLE_OK != cc) {
+		fprintf(stderr, "curl_easy_setopt: "
+			"CURLOPT_COOKIE: %s\n",
+			curl_easy_strerror(cc));
 		return(0);
 	}
 
@@ -337,6 +490,8 @@ gamer_init_register(struct gamer *gamer)
 {
 	CURLcode	 cc;
 
+	gamer->phase = PHASE_REGISTER;
+
 	/* Start with the URL for the captive portal. */
 	if ( ! gamer_init(gamer, urls[PHASE_REGISTER], 1)) {
 		fputs("gamer_init", stderr);
@@ -344,14 +499,14 @@ gamer_init_register(struct gamer *gamer)
 	}
 
 	/* Our POST consists only of our email address. */
-	if ( ! buf_write(&gamer->read, "email=%s", gamer->email)) {
+	if ( ! buf_write(&gamer->post, "email=%s", gamer->email)) {
 		fputs("buf_write\n", stderr);
 		return(0);
 	}
 
 	/* Add the POST field to the request. */
 	cc = curl_easy_setopt(gamer->conn, 
-		CURLOPT_POSTFIELDS, gamer->read.b);
+		CURLOPT_POSTFIELDS, gamer->post.b);
 	if (CURLE_OK != cc) {
 		fprintf(stderr, "curl_easy_setopt: "
 			"CURLOPT_POSTFIELDS: %s\n",
@@ -372,6 +527,8 @@ gamer_init_login(struct gamer *gamer)
 	int	 	 c;
 	CURLcode	 cc;
 
+	gamer->phase = PHASE_LOGIN;
+
 	if ( ! gamer_init(gamer, urls[PHASE_LOGIN], 1)) {
 		fputs("gamer_init", stderr);
 		return(0);
@@ -381,7 +538,7 @@ gamer_init_login(struct gamer *gamer)
 	 * Our POST consists of email and password. 
 	 * TODO: make sure about URL encoding?
 	 */
-	c = buf_write(&gamer->read, "email=%s&password=%s", 
+	c = buf_write(&gamer->post, "email=%s&password=%s", 
 		gamer->email, gamer->password);
 	if ( ! c) {
 		fputs("buf_write\n", stderr);
@@ -390,7 +547,7 @@ gamer_init_login(struct gamer *gamer)
 
 	/* Attach buffer to POST request. */
 	cc = curl_easy_setopt(gamer->conn, 
-		CURLOPT_POSTFIELDS, gamer->read.b);
+		CURLOPT_POSTFIELDS, gamer->post.b);
 	if (CURLE_OK != cc) {
 		fprintf(stderr, "curl_easy_setopt: "
 			"CURLOPT_POSTFIELDS: %s\n",
@@ -412,10 +569,10 @@ gamer_init_login(struct gamer *gamer)
 }
 
 static int
-gamer_phase_loadexpr(struct gamer *gamer)
+gamer_phase_play(struct gamer *gamer)
 {
-	CURLcode	   cc;
-	long		   code;
+	CURLcode	    cc;
+	long		    code;
 
 	/* First make sure we have HTTP code 200. */
 	cc = curl_easy_getinfo(gamer->conn, 
@@ -429,14 +586,108 @@ gamer_phase_loadexpr(struct gamer *gamer)
 		fprintf(stderr, "%s: bad response: %s -> %ld\n", 
 			gamer->email, gamer->url, code);
 		return(0);
-	} else if (NULL == gamer->parsed) {
-		fprintf(stderr, "%s: no JSON response: %s\n", 
+	} else if (NULL != gamer->parsed) {
+		fprintf(stderr, "%s: unexpected JSON: %s\n", 
 			gamer->email, gamer->url);
+		return(0);
+	} else if ( ! gamer_reset(gamer)) {
+		fputs("gamer_reset\n", stderr);
+		return(0);
+	} else if ( ! gamer_init_loadexpr(gamer)) {
+		fputs("game_init_loadexpr", stderr);
 		return(0);
 	}
 
-	/* Here we perform our labour. */
+	if (gamer->game->verbose)
+		fprintf(stderr, "%s: played %" PRId64 "\n",
+			gamer->email, gamer->lastround);
+	return(1);
+}
 
+static int
+gamer_phase_loadexpr(struct gamer *gamer)
+{
+	CURLcode	    cc;
+	long		    code;
+	int64_t		    round, rounds;
+	struct json_object *expr;
+
+	/* First make sure we have HTTP code 200. */
+	cc = curl_easy_getinfo(gamer->conn, 
+		CURLINFO_RESPONSE_CODE, &code);
+	if (CURLE_OK != cc) {
+		fprintf(stderr, "curl_easy_getinfo: "
+			"CURLINFO_RESPONSE_CODE: %s\n",
+			curl_easy_strerror(cc));
+		return(0);
+	} else if (200 != code) {
+		fprintf(stderr, "%s: bad response: %s -> %ld\n", 
+			gamer->email, gamer->url, code);
+		return(0);
+	} else if ( ! json_check(gamer)) {
+		fputs("json_check\n", stderr);
+		return(0);
+	}
+	
+	/*
+	 * Examine the result.
+	 * If we have the same round number as we did before, then keep
+	 * `getting' the experiment again.
+	 * If it's a new round, then try to play it.
+	 */
+	if ( ! json_getobj(gamer, gamer->parsed, &expr, "expr")) {
+		fputs("json_getobj\n", stderr);
+		return(0);
+	} else if ( ! json_getint(gamer, expr, &round, "round")) {
+		fputs("json_getint\n", stderr);
+		return(0);
+	} else if ( ! json_getint(gamer, expr, &rounds, "rounds")) {
+		fputs("json_getint\n", stderr);
+		return(0);
+	}
+
+	if (round < 0) {
+		/* Experiment hasn't begun yet. */
+		if ( ! gamer_reset(gamer)) {
+			fputs("gamer_reset\n", stderr);
+			return(0);
+		} else if ( ! gamer_init_loadexpr(gamer)) {
+			fputs("gamer_init_loadexpr", stderr);
+			return(0);
+		}
+		return(1);
+	} else if (round == rounds) {
+		/* Experiment has finished. */
+		assert(gamer->lastround < round);
+		gamer->game->finished++;
+		gamer->phase = PHASE__MAX;
+		if (gamer->game->verbose)
+			fprintf(stderr, "%s: done\n", gamer->email);
+		return(1);
+	} else if (gamer->lastround > round) {
+		/* We played a round in the future...? */
+		fprintf(stderr, "%s: time-warp: %s -> %" 
+			PRId64 " > %" PRId64 "\n", gamer->email, 
+			gamer->url, gamer->lastround, round);
+		return(0);
+	} else if (gamer->lastround < round) {
+		/* Play the round. */
+		if ( ! gamer_reset(gamer)) {
+			fputs("gamer_reset\n", stderr);
+			return(0);
+		} else if ( ! gamer_init_play(gamer, round)) {
+			fputs("game_init_play", stderr);
+			return(0);
+		}
+		if (gamer->game->verbose)
+			fprintf(stderr, "%s: entering round %" 
+				PRId64 "\n", gamer->email, round);
+		return(1);
+	} 
+
+	assert(round == gamer->lastround);
+	assert(round >= 0 && round < rounds);
+	/* We've already played the round. */
 	if ( ! gamer_reset(gamer)) {
 		fputs("gamer_reset\n", stderr);
 		return(0);
@@ -444,13 +695,6 @@ gamer_phase_loadexpr(struct gamer *gamer)
 		fputs("gamer_init_loadexpr", stderr);
 		return(0);
 	}
-
-	/* Lastly, transfer us to the login phase. */
-	gamer->game->finished++;
-	gamer->phase = PHASE__MAX;
-	if (gamer->game->verbose)
-		fprintf(stderr, "%s: finished\n", gamer->email);
-
 	return(1);
 }
 
@@ -475,8 +719,6 @@ gamer_phase_login(struct gamer *gamer)
 			curl_easy_strerror(cc));
 		return(0);
 	} else if (409 == code) {
-		fprintf(stderr, "%s: not started: %s\n", 
-			gamer->email, gamer->url);
 		if ( ! gamer_reset(gamer)) {
 			fputs("gamer_reset\n", stderr);
 			return(0);
@@ -551,7 +793,6 @@ gamer_phase_login(struct gamer *gamer)
 		fputs("gamer_init_loadexpr", stderr);
 		return(0);
 	}
-	gamer->phase = PHASE_LOADEXPR;
 	if (gamer->game->verbose)
 		fprintf(stderr, "%s: playing (session %s, "
 			"cookie %s)\n", gamer->email,
@@ -568,8 +809,7 @@ gamer_phase_register(struct gamer *gamer)
 {
 	CURLcode	    cc;
 	long		    code;
-	struct json_object *obj;
-	json_bool	    rc;
+	const char	   *mail, *pass;
 
 	/* First make sure we have HTTP code 200. */
 	cc = curl_easy_getinfo(gamer->conn, 
@@ -583,42 +823,26 @@ gamer_phase_register(struct gamer *gamer)
 		fprintf(stderr, "%s: bad response: %s -> %ld\n", 
 			gamer->email, gamer->url, code);
 		return(0);
-	} else if (NULL == gamer->parsed) {
-		fprintf(stderr, "%s: no JSON response: %s\n", 
-			gamer->email, gamer->url);
+	} else if ( ! json_check(gamer)) {
+		fputs("json_check\n", stderr);
 		return(0);
 	} 
 
-	/* Get our JSON information. */
-	if (json_type_object != json_object_get_type(gamer->parsed)) {
-		fprintf(stderr, "%s: bad JSON type: %s\n",
-			gamer->email, gamer->url);
+	/* Make sure our email addresses match. */
+	if ( ! json_getstring(gamer, gamer->parsed, &mail, "email")) {
+		fputs("json_getstring\n", stderr);
 		return(0);
-	}
-
-	/* Verify that the email is sane. */
-	rc = json_object_object_get_ex
-		(gamer->parsed, "email", &obj);
-	if ( ! rc) {
-		fprintf(stderr, "%s: no JSON `email\': %s\n",
-			gamer->email, gamer->url);
-		return(0);
-	} else if (strcmp(json_object_get_string(obj), gamer->email)) {
+	} else if (strcmp(mail, gamer->email)) {
 		fprintf(stderr, "%s: email mismatch: %s\n",
 			gamer->email, gamer->url);
 		return(0);
 	}
 
-	/* Acquire our password. */
-	rc = json_object_object_get_ex
-		(gamer->parsed, "password", &obj);
-	if ( ! rc) {
-		fprintf(stderr, "%s: no JSON `password\': %s\n",
-			gamer->email, gamer->url);
+	/* Grok our password. */
+	if ( ! json_getstring(gamer, gamer->parsed, &pass, "password")) {
+		fputs("json_getstring\n", stderr);
 		return(0);
-	} 
-	gamer->password = strdup(json_object_get_string(obj));
-	if (NULL == gamer->password) {
+	} else if (NULL == (gamer->password = strdup(pass))) {
 		perror(NULL);
 		return(0);
 	}
@@ -632,7 +856,6 @@ gamer_phase_register(struct gamer *gamer)
 	}
 
 	/* Lastly, transfer us to the login phase. */
-	gamer->phase = PHASE_LOGIN;
 	if (gamer->game->verbose)
 		fprintf(stderr, "%s: logged in\n", gamer->email);
 
@@ -657,6 +880,9 @@ gamer_event(struct gamer *gamer)
 		break;
 	case (PHASE_LOADEXPR):
 		rc = gamer_phase_loadexpr(gamer);
+		break;
+	case (PHASE_PLAY):
+		rc = gamer_phase_play(gamer);
 		break;
 	default:
 		abort();
@@ -743,6 +969,14 @@ main(int argc, char *argv[])
 		free(urls[PHASE_LOGIN]);
 		return(EXIT_FAILURE);
 	}
+	c = asprintf(&urls[PHASE_PLAY], "%s/doplay.json", url);
+	if (c < 0) {
+		perror(NULL);
+		free(urls[PHASE_REGISTER]);
+		free(urls[PHASE_LOGIN]);
+		free(urls[PHASE_LOADEXPR]);
+		return(EXIT_FAILURE);
+	}
 
 	/*
 	 * Begin by initialising the whole system.
@@ -785,6 +1019,7 @@ main(int argc, char *argv[])
 			goto out;
 		}
 
+		ctx[i].lastround = -1;
 		ctx[i].game = &game;
 
 		/* E-mail address: pXX@foo.com. */
@@ -914,7 +1149,8 @@ out:
 		free(ctx[i].password);
 		free(ctx[i].sessid);
 		free(ctx[i].sesscookie);
-		free(ctx[i].read.b);
+		free(ctx[i].post.b);
+		free(ctx[i].cookie.b);
 		json_tokener_free(ctx[i].tok);
 		if (NULL != ctx[i].parsed)
 			json_object_put(ctx[i].parsed);
