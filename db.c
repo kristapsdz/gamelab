@@ -525,8 +525,8 @@ db_expr_advance(void)
 		 */
 		stmt = db_stmt("SELECT count(*) FROM "
 			"player WHERE role=? AND "
-			"joined >= ? AND "
-			"? - joined < ?");
+			"joined <= ? AND "
+			"? < joined + ?");
 		db_bind_int(stmt, 1, 0);
 		db_bind_int(stmt, 2, expr->round);
 		db_bind_int(stmt, 3, expr->round);
@@ -537,6 +537,12 @@ db_expr_advance(void)
 		sqlite3_reset(stmt);
 		assert(tmp >= 0 && (uint64_t)tmp < SIZE_MAX);
 		allplayers[0] = tmp;
+		/* No players?  Automatic fail. */
+		if (0 == tmp) {
+			sqlite3_finalize(stmt);
+			goto fallback;
+		}
+
 		db_bind_int(stmt, 1, 1);
 		db_bind_int(stmt, 2, expr->round);
 		db_bind_int(stmt, 3, expr->round);
@@ -547,9 +553,15 @@ db_expr_advance(void)
 		sqlite3_finalize(stmt);
 		assert(tmp >= 0 && (uint64_t)tmp < SIZE_MAX);
 		allplayers[1] = tmp;
+		/* No players?  Automatic fail. */
+		if (0 == tmp) {
+			sqlite3_finalize(stmt);
+			goto fallback;
+		}
+
 		/*
-		 * Now increment the number of players per role who have
-		 * played all of their games.
+		 * Now divide under the number of players per role who
+		 * have played all of their games.
 		 */
 		stmt = db_stmt("SELECT player.role FROM player "
 			"INNER JOIN gameplay ON "
@@ -565,6 +577,8 @@ db_expr_advance(void)
 			roleplayers[played] += 1.0;
 		}
 		sqlite3_finalize(stmt);
+		assert(allplayers[0] > 0);
+		assert(allplayers[1] > 0);
 		roleplayers[0] /= (double)allplayers[0];
 		roleplayers[1] /= (double)allplayers[1];
 		if (roleplayers[0] >= expr->roundpct &&
@@ -573,6 +587,7 @@ db_expr_advance(void)
 			goto advance;
 		}
 	} 
+fallback:
 
 	/*
 	 * Round advancement according to the system time.
@@ -1803,6 +1818,9 @@ db_expr_start(int64_t date, int64_t roundpct, int64_t roundmin,
 	if (roundpct > 100)
 		roundpct = 100;
 
+	if (0 == prounds)
+		prounds = rounds;
+
 	stmt = db_stmt("UPDATE experiment SET "
 		"start=?,rounds=?,minutes=?,"
 		"loginuri=?,instr=?,state=?,"
@@ -1898,8 +1916,8 @@ db_player_set_state(int64_t id, enum pstate state)
 	db_bind_int(stmt, 2, id);
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);
-	fprintf(stderr, "Player %" PRId64 
-		" state set to %d\n", id, state);
+	/*fprintf(stderr, "Player %" PRId64 
+		" state set to %d\n", id, state);*/
 }
 
 void
