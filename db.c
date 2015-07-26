@@ -581,6 +581,10 @@ db_expr_advance(void)
 		assert(allplayers[1] > 0);
 		roleplayers[0] /= (double)allplayers[0];
 		roleplayers[1] /= (double)allplayers[1];
+
+		fprintf(stderr, "Advance check role 0, round %" PRId64 ": %g\n", expr->round, roleplayers[0]);
+		fprintf(stderr, "Advance check role 1, round %" PRId64 ": %g\n", expr->round, roleplayers[1]);
+
 		if (roleplayers[0] >= expr->roundpct &&
 			 roleplayers[1] >= expr->roundpct) {
 			round = expr->round + 1;
@@ -1192,18 +1196,22 @@ db_player_play(const struct player *p, int64_t sessid,
 	int		 rc;
 	char		*buf;
 
+	db_trans_begin(1);
+
 	/*
 	 * Safety checks: make sure we're not playing in an experiment
 	 * that hasn't started, an experiment that has ended, or if
 	 * we're not playing for the current round.
 	 */
 	if (NULL == (expr = db_expr_get(1))) {
+		db_trans_rollback();
 		fprintf(stderr, "Player %" PRId64 " tried playing "
 			"game %" PRId64 " (round %" PRId64 "), but "
 			"experiment not started\n", 
 			p->id, gameid, round);
 		return(0);
 	} else if (round != expr->round) {
+		db_trans_rollback();
 		fprintf(stderr, "Player %" PRId64 " tried playing "
 			"game %" PRId64 " (round %" PRId64 "), but "
 			"round invalid (at %" PRId64 ")\n", 
@@ -1211,6 +1219,7 @@ db_player_play(const struct player *p, int64_t sessid,
 		db_expr_free(expr);
 		return(0);
 	} else if (round >= expr->rounds) {
+		db_trans_rollback();
 		fprintf(stderr, "Player %" PRId64 " tried playing "
 			"game %" PRId64 " (round %" PRId64 "), but "
 			"round invalid (max %" PRId64 ")\n", 
@@ -1218,6 +1227,7 @@ db_player_play(const struct player *p, int64_t sessid,
 		db_expr_free(expr);
 		return(0);
 	} else if (round < p->joined) {
+		db_trans_rollback();
 		fprintf(stderr, "Player %" PRId64 " tried playing "
 			"game %" PRId64 " (round %" PRId64 "), but "
 			"hasn't been admitted (slated %" PRId64 ")\n",
@@ -1225,6 +1235,7 @@ db_player_play(const struct player *p, int64_t sessid,
 		db_expr_free(expr);
 		return(0);
 	} else if (round >= p->joined + expr->prounds) {
+		db_trans_rollback();
 		fprintf(stderr, "Player %" PRId64 " tried playing "
 			"game %" PRId64 " (round %" PRId64 "), but "
 			"has exceeded player max (%" PRId64 ")\n",
@@ -1239,8 +1250,6 @@ db_player_play(const struct player *p, int64_t sessid,
 	 * Create our `choice': the mixture of strategies for this given
 	 * game and this given round.
 	 * Tie that choice to our session (for records-keeping).
-	 * FIXME: there is a race condition here where the round might
-	 * advance between our check, above, and this right here.
 	 */
 	buf = mpq_mpq2str(plays, sz);
 	stmt = db_stmt("INSERT INTO choice "
@@ -1257,6 +1266,7 @@ db_player_play(const struct player *p, int64_t sessid,
 	sqlite3_finalize(stmt);
 	free(buf);
 	if (SQLITE_CONSTRAINT == rc) {
+		db_trans_rollback();
 		fprintf(stderr, "Player %" PRId64 " tried "
 			"playing game %" PRId64 " (round %" 
 			PRId64 "), but has already played\n",
@@ -1285,6 +1295,7 @@ db_player_play(const struct player *p, int64_t sessid,
 	db_bind_int(stmt, 2, p->id);
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);
+	db_trans_commit();
 	return(1);
 }
 
