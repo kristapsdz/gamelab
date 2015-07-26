@@ -84,7 +84,7 @@
 					Once the experimenter deploys the experiment, players can log in and play each game once per round.
 					When the round advances, players earn points by computing the payoff from their submitted strategies
 					against the average mixture submited by participants playing the opponent player role.
-					After the last round, players' points earn lottery tickets, and winners are drawn by selecting lottery
+					After the last round, players' points award lottery tickets, and winners are drawn by selecting lottery
 					tickets.
 				</p>
 				<section id="participants">
@@ -132,18 +132,18 @@
 						Once the participant joins an experiment, participants can submit game-plays, one per game per
 						round.
 						A game-play consists of a strategy mixture: a set of probabilities assigned to each of the
-						player role's strategies.
+						player role's actions.
 						The submitted probabilities are non-negative and rationally-valued, and always sum to one.
 						Participants submit these probabilites by clicking on rows in the game matrix (players appear to
 						play the row player regardless of their player role) and entering in a decimal or rational
-						number corresponding to the strategy.
+						number corresponding to the action.
 					</p>
 					<p>
 						Participants can only play one game at a time, with each game played once per round.
-						If they log out and log back in (obviously they must be non-captive players), then the last game
+						If they log out and log back in (an action available only to non-captive players), then the last game
 						to play is displayed, assuming the round has not advanced in the meantime.
 						Game matrices have their rows and columns randomly shuffled between participants, making it
-						slightly more difficult to compare strategies.
+						slightly more difficult to compare actions.
 						Moreover, the order in which games are displayed is randomised between participants.
 					</p>
 					<p>
@@ -206,7 +206,7 @@
 						In general, the user interface involves an HTML5 web-page styled with CSS.
 						This web-page uses JavaScript to request data from the <span class="nm">gamelab</span> server
 						via a series of JSON objects.
-						The JavaScript used b <span class="nm">gamelab</span> is fairly recent, so it's unlikely that
+						The JavaScript used by <span class="nm">gamelab</span> is fairly recent, so it's unlikely that
 						older browser will work properly.
 						Check that your browser supports <code>ClassList</code> and <code>FormData</code>.
 					</p>
@@ -297,8 +297,9 @@
 						<li><a href="http://kristaps.bsd.lv">kcgi</a> (the CGI framework),</li>
 						<li><a href="https://gmplib.org">GMP</a> (rational number library),</li>
 						<li><a href="https://sqlite.org">SQLite</a> (database), and</li>
-						<li><a href="http://libbsd.freedesktop.org/wiki/">libbsd</a> (Linux compatibility, if applicable), and</li>
-						<li><a href="http://curl.haxx.se/libcurl/">libcURL</a> (e-mailing).</li>
+						<li><a href="http://libbsd.freedesktop.org/wiki/">libbsd</a> (Linux compatibility, if applicable),</li>
+						<li><a href="http://curl.haxx.se/libcurl/">libcURL</a> (e-mailing), and</li>
+						<li><a href="https://github.com/json-c/json-c/wiki">json-c</a> (testing system).</li>
 					</ul>
 					<p>
 						The only external dependency required during operation is an Internet connection to use the <a
@@ -509,8 +510,8 @@
 				<h2>Administration</h2>
 				<p>
 					In this section, I describe how to administer the <span class="nm">gamelab</span> system.
-					I assume that you've just installed it following the <a href="#installation">Installation</a> section.
-					Let's assume that a system administrator has installed <span class="nm">gamelab</span> already.
+					I assume that you've just installed it following the <a href="#installation">Installation</a> section or
+					that your system administrator has done so.
 					I'll use screenshots from the <a class="http://getfirefox.org">Firefox</a> web browser installed on Mac
 					OS X.  Your system may not look like this&mdash;that's ok.
 				</p>
@@ -684,7 +685,7 @@
 						Once you hit the <q>Start</q> button, the experiment has begun.
 						It won't be playable until the time and date you specified, but the players are notified
 						immediately with their login credentials.
-						Only players you add are e-mailed: auto-added players are not e-mailed.
+						Only players you add are e-mailed: captive players are not e-mailed.
 					</p>
 				</section>
 				<section id="runningexperiments">
@@ -704,7 +705,7 @@
 						If a player forgets her password, you can reset it by clicking on the player's email address and
 						selecting the <q>Reset Password</q> option.
 						(Auto-added players are <strong>not</strong> affected.)
-						You can reset all non-auto-added players' passwords with the <q>Reset All Passwords</q> option.
+						You can reset all non-captive players' passwords with the <q>Reset All Passwords</q> option.
 						If a player is misbehaving, you can disable her login by toggling the button next to her e-mail
 						address.
 						Once toggled, she'll no longer be able to log in.

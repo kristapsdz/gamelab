@@ -93,7 +93,8 @@ VERSIONS = version_1_0_1.xml \
 	   version_1_0_4.xml \
 	   version_1_0_5.xml \
 	   version_1_0_6.xml \
-	   version_1_0_7.xml
+	   version_1_0_7.xml \
+	   version_1_0_8.xml
 
 all: admin lab gamers $(BUILT) $(BUILTPS)
 
@@ -101,7 +102,7 @@ jsmin: jsmin.c
 	$(CC) $(CFLAGS) -o $@ jsmin.c
 
 gamers: gamers.c
-	$(CC) $(CFLAGS) `curl-config --cflags` -o $@ gamers.c `curl-config --libs` -ljson-c
+	$(CC) $(CFLAGS) `curl-config --cflags` -o $@ gamers.c `curl-config --libs` -ljson-c -lm
 
 admin: admin.o $(OBJS)
 	$(CC) $(STATIC) -L/usr/local/lib -o $@ admin.o $(OBJS) -lsqlite3 -lkcgi -lkcgijson -lz -lgmp `curl-config --libs` $(LIBS)
