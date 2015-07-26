@@ -38,7 +38,7 @@ footer			{ margin-top: 3em;
 #moreinfo .nm		{ color: #cc3806; }
 a			{ text-decoration: none; 
 			  color: #ff9000; }
-a:hover			{ text-shadow: 0px 0px 2px #ff7000; }
+a:hover			{ color: #ff6000; }
 #moreinfo a		{ color: #cc7000; }
 #moreinfo a:hover	{ color: #ff9000;
 			  text-shadow: none; }

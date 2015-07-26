@@ -586,8 +586,6 @@ function loadNewExprSuccess(resp)
 		doValue('rounds', expr.rounds);
 	if (0 != expr.minutes)
 		doValue('minutes', expr.minutes);
-	if ('' != expr.instr)
-		doClearReplace('instrText', expr.instr);
 	
 	/*
 	 * FIXME.
@@ -765,15 +763,6 @@ function doStartExprSuccess(resp)
 	doValue('startExprSubmit', 'Started!  Reloading...');
 	document.getElementById('startExpr').reset();
 	window.location.reload(true);
-}
-
-function startExprTo(form, to)
-{
-
-	return(sendFormTo(form, to,
-		function() { doSetup('startExprSave', 'startExprErr'); },
-		function(err) { doError(err, 'startExprSave', 'startExprErr'); },
-		function() { window.location.reload(true); }));
 }
 
 function startExpr(form)

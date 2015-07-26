@@ -15,9 +15,13 @@
 			This feature will be documented and described in later releases of <span class="nm">gamelab</span>.
 		</p>
 		<p>
-			In doign so, fix a very subtle bug in how round advancement occurs with <q>percent-based</q> play.
+			In doing so, fix a very subtle bug in how round advancement occurs with <q>percent-based</q> play.
 			Also, change the database to use <a href="https://www.sqlite.org/wal.html">write-ahead logging</a>, which reduces the
 			amount of lock contention in heavily-loaded experiments.
+		</p>
+		<p>
+			Smaller changes: fixed up the manual with more specific language; simplified the experimenter's <q>Experiment
+				Parameters</q> panel; and fixed the experimenter instructions (their template values we're being filled in).
 		</p>
 	</aside>
 </article>

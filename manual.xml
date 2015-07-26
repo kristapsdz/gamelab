@@ -76,7 +76,8 @@
 				<p>
 					<span class="nm">Gamelab</span> is an online laboratory for conducting game theory experiments.
 					Experiments consist of an experimenter, an experiment configuration, participants, and a set of games.
-					The system is web-based and accomodates for desktop, mobile, and tablet-sized devices.
+					The web interface accomodates for desktop, mobile, and tablet-sized devices.
+					You can even play experiments programatically over a JSON API.
 				</p>
 				<p>
 					An experimenter begins by configuring how rounds in the experiment progress and for how long the

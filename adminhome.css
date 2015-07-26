@@ -210,6 +210,13 @@ div.input input[type=time]	{ width: 20ex; }
 				  border-bottom-right-radius: 1ex;
 				  border-left: 0; }
 .warning > div > :last-child a	{ color: #ccc; }
+#advanced > *:not(span)		{ display: none; }
+#advanced > span 		{ color: #333; }
+#advanced > span i		{ margin-left: 0.5ex;
+				  margin-right: 0.25ex; }
+#advanced.showadv > div		{ display: table-row; }
+#advanced.showadv > p		{ display: block; }
+#advanced.showadv > span 	{ display: none; }
 @media only screen and (max-width: 800px), only screen and (max-device-width: 800px) {
 	article			{ padding-left: 10%; 
 			  	  padding-right: 10%; }
