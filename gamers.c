@@ -15,9 +15,11 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 #include <sys/select.h>
+#include <sys/time.h>
 
 #include <assert.h>
 #include <getopt.h>
+#include <math.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -36,6 +38,12 @@ enum	phase {
 	PHASE_LOADEXPR, /* load experiment for play */
 	PHASE_PLAY, /* play against server */
 	PHASE__MAX
+};
+
+struct	stats {
+	size_t	 n;
+	double	 mean;
+	double	 M2;
 };
 
 /*
@@ -60,6 +68,14 @@ struct	buf {
 	size_t		 bmax; /* allocated space */
 };
 
+struct	rstats {
+	struct stats	 rx;
+	struct stats	 rtt;
+	size_t		 plays;
+	struct timeval	 start;
+	struct timeval	 end;
+};
+
 /*
  * The entire game simulation.
  */
@@ -67,6 +83,15 @@ struct	game {
 	size_t		 finished; /* how many have finished */
 	int		 verbose; /* verbose operation */
 	CURLM		*curl; /* the multi handle */
+	struct stats	 total_rx; /* total read bytes */
+	struct stats	 total_rtt; /* total round-trip time */
+	struct stats	 page_rx[PHASE__MAX];
+	struct stats	 page_rtt[PHASE__MAX];
+	struct rstats	*rounds;
+	size_t		 roundsz;
+	size_t		 registered;
+	size_t		 loggedin;
+	size_t		 players;
 };
 
 /*
@@ -100,9 +125,33 @@ struct	gamer {
 	struct buf		 post; /* buffer for posting */
 	struct buf		 cookie; /* buffer for cookies */
 	struct json_tokener 	*tok; /* download tokeniser */
+	size_t		  	 rx; /* bytes read in xfer */
 	struct json_object	*parsed; /* parsed json object */
 	int64_t			 lastround; /* last seen round */
 };
+
+static void
+stats_add(struct stats *s, double v)
+{
+	double	 delta;
+
+	s->n++;
+	delta = v - s->mean;
+	s->mean += delta / (double)s->n;
+	s->M2 += delta * (v - s->mean);
+}
+
+/*
+ * Compute population standard deviation.
+ */
+static double
+stddev(const struct stats *s)
+{
+
+	if (s->n < 2)
+		return(0.0);
+	return(sqrt(s->M2 / (double)(s->n - 1)));
+}
 
 /*
  * Overwrites the buffer at `buf' with the string formatted from `fmt'
@@ -137,6 +186,113 @@ buf_write(struct buf *buf, const char *fmt, ...)
 	va_end(ap);
 	assert(-1 != ret && (size_t)ret + 1 <= buf->bmax);
 	buf->bsz = ret + 1;
+	return(1);
+}
+
+static char *
+fmt_samples(size_t b)
+{
+	static char buf[32];
+	double	 v;
+
+	v = b;
+	if (b > 1000 * 1000) {
+		v /= 1000.0 * 1000.0;
+		snprintf(buf, 32 - 1, "%8.3f M", v);
+		return(buf);
+	} else if (b > 1000) {
+		v /= 1000.0;
+		snprintf(buf, 32 - 1, "%8.3f k", v);
+		return(buf);
+	} 
+	snprintf(buf, 32 - 1, "%8zu  ", b);
+	return(buf);
+}
+
+static char *
+fmt_sec(double b)
+{
+	static char buf[32];
+
+	if (b > 1.0) {
+		snprintf(buf, 32 - 1, "%8.3f s ", b);
+		return(buf);
+	} else if (b > 0.001) {
+		b /= 0.001;
+		snprintf(buf, 32 - 1, "%8.3f ms", b);
+		return(buf);
+	} 
+	b /= 0.000001;
+	snprintf(buf, 32 - 1, "%8.3f us", b);
+	return(buf);
+}
+
+static char *
+fmt_bytes(double b)
+{
+	static char buf[32];
+
+	if (b > 1000.0 * 1000.0 * 1000.0) {
+		b /= 1000.0 * 1000.0 * 1000.0;
+		snprintf(buf, 32 - 1, "%8.3f GB", b);
+		return(buf);
+	} else if (b > 1000.0 * 1000.0) {
+		b /= 1000.0 * 1000.0;
+		snprintf(buf, 32 - 1, "%8.3f MB", b);
+		return(buf);
+	} else if (b > 1000.0) {
+		b /= 1000.0;
+		snprintf(buf, 32 - 1, "%8.3f kB", b);
+		return(buf);
+	}
+	snprintf(buf, 32 - 1, "%8.3f B ", b);
+	return(buf);
+}
+
+/*
+ * Make sure the round-statistics array is sized appropriately given the
+ * current round, which must be >-2.
+ */
+static int
+rstats_round(struct game *game, int64_t round)
+{
+	void		*p;
+	size_t		 r;
+	struct timeval	 sub;
+	double		 sec;
+
+	assert(round >= -1);
+	if (round + 2 <= (int64_t)game->roundsz)
+		return(1);
+
+	while (round + 2 > (int64_t)game->roundsz) {
+		r = game->roundsz;
+		p = realloc(game->rounds, 
+			(game->roundsz + 1) * sizeof(struct rstats));
+		if (NULL == p) {
+			perror(NULL);
+			return(0);
+		}
+		game->roundsz++;
+		game->rounds = p;
+		memset(&game->rounds[r], 0, sizeof(struct rstats));
+		if (r > 0) {
+			gettimeofday(&game->rounds[r - 1].end, NULL);
+			timersub(&game->rounds[r - 1].end,
+				 &game->rounds[r - 1].start, 
+				 &sub);
+			sec = sub.tv_sec + (sub.tv_usec / 1000000.0);
+			printf("Round advance: %zd ", 
+				(ssize_t)game->roundsz - 2);
+			fputs(fmt_sec(sec), stdout);
+			putchar('\n');
+		} else 
+			printf("Round advance: %zd\n", 
+				(ssize_t)game->roundsz - 2);
+
+		gettimeofday(&game->rounds[r].start, NULL);
+
+	}
 	return(1);
 }
 
@@ -298,6 +454,8 @@ gamer_write(void *ptr, size_t sz, size_t nm, void *arg)
 		fputs("data after complete JSON\n", stderr);
 		return(0);
 	}
+
+	gamer->rx += sz * nm;
 
 	/* 
 	 * This is pretty awkward.
@@ -582,6 +740,15 @@ gamer_phase_play(struct gamer *gamer)
 			"CURLINFO_RESPONSE_CODE: %s\n",
 			curl_easy_strerror(cc));
 		return(0);
+	} else if (409 == code) {
+		if ( ! gamer_reset(gamer)) {
+			fputs("gamer_reset\n", stderr);
+			return(0);
+		} else if ( ! gamer_init_loadexpr(gamer)) {
+			fputs("game_init_loadexpr", stderr);
+			return(0);
+		}
+		return(1);
 	} else if (200 != code) {
 		fprintf(stderr, "%s: bad response: %s -> %ld\n", 
 			gamer->email, gamer->url, code);
@@ -597,6 +764,9 @@ gamer_phase_play(struct gamer *gamer)
 		fputs("game_init_loadexpr", stderr);
 		return(0);
 	}
+
+	rstats_round(gamer->game, gamer->lastround);
+	gamer->game->rounds[gamer->lastround + 1].plays++;
 
 	if (gamer->game->verbose)
 		fprintf(stderr, "%s: played %" PRId64 "\n",
@@ -793,10 +963,13 @@ gamer_phase_login(struct gamer *gamer)
 		fputs("gamer_init_loadexpr", stderr);
 		return(0);
 	}
+
 	if (gamer->game->verbose)
 		fprintf(stderr, "%s: playing (session %s, "
 			"cookie %s)\n", gamer->email,
 			gamer->sessid, gamer->sesscookie);
+	if (++gamer->game->loggedin == gamer->game->players) 
+		printf("All players logged in.\n");
 	return(1);
 }
 
@@ -857,8 +1030,9 @@ gamer_phase_register(struct gamer *gamer)
 
 	/* Lastly, transfer us to the login phase. */
 	if (gamer->game->verbose)
-		fprintf(stderr, "%s: logged in\n", gamer->email);
-
+		fprintf(stderr, "%s: registered\n", gamer->email);
+	if (++gamer->game->registered == gamer->game->players) 
+		printf("All players registered.\n");
 	return(1);
 }
 
@@ -869,7 +1043,28 @@ gamer_phase_register(struct gamer *gamer)
 static int
 gamer_event(struct gamer *gamer)
 {
-	int	 rc;
+	int	 	 rc;
+	double	 	 rtt, rx;
+	CURLcode	 cc;
+
+	rx = (double)gamer->rx;
+	cc = curl_easy_getinfo(gamer->conn, 
+		CURLINFO_TOTAL_TIME, &rtt);
+	if (CURLE_OK != cc) {
+		fprintf(stderr, "curl_easy_getinfo: "
+			"CURLINFO_TOTAL_TIME: %s\n",
+			curl_easy_strerror(cc));
+		return(0);
+	}
+
+	stats_add(&gamer->game->total_rx, rx);
+	stats_add(&gamer->game->total_rtt, rtt);
+	stats_add(&gamer->game->page_rx[gamer->phase], rx);
+	stats_add(&gamer->game->page_rtt[gamer->phase], rtt);
+
+	rstats_round(gamer->game, gamer->lastround);
+	stats_add(&gamer->game->rounds[gamer->lastround + 1].rx, rx);
+	stats_add(&gamer->game->rounds[gamer->lastround + 1].rtt, rtt);
 
 	switch (gamer->phase) {
 	case (PHASE_REGISTER):
@@ -894,6 +1089,7 @@ gamer_event(struct gamer *gamer)
 		gamer->parsed = NULL;
 	}
 	json_tokener_reset(gamer->tok);
+	gamer->rx = 0;
 	return(rc);
 }
 
@@ -904,16 +1100,17 @@ main(int argc, char *argv[])
 	CURLMsg		*msg;
 	struct timeval	 tv;
 	CURLMcode	 cm;
-	size_t		 i, sz, players;
+	size_t		 i, sz;
 	long		 timeo;
 	char	 	*url;
+	size_t		 urlsz;
 	struct gamer	*ctx;
 	struct game	 game;
 	fd_set		 rset, wset, eset;
 
 	rc = 0;
-	players = 2;
 	memset(&game, 0, sizeof(struct game));
+	game.players = 2;
 
 	while (-1 != (c = getopt(argc, argv, "n:v"))) 
 		switch (c) {
@@ -921,13 +1118,13 @@ main(int argc, char *argv[])
 			game.verbose = 1;
 			break;
 		case ('n'):
-			players = atoi(optarg);
+			game.players = atoi(optarg);
 			break;
 		default:
 			goto usage;
 		}
 
-	if (players < 2) {
+	if (game.players < 2) {
 		fputs("-n: need a value >2\n", stderr);
 		goto usage;
 	}
@@ -946,6 +1143,8 @@ main(int argc, char *argv[])
 		goto usage;
 	} else if ('/' == url[sz - 1])
 		url[sz - 1] = '\0';
+
+	urlsz = strlen(url);
 
 	/*
 	 * Create the URLs used for each phase of the simulation.
@@ -983,7 +1182,8 @@ main(int argc, char *argv[])
 	 * We won't have enough state to use the `out' label, so free
 	 * memory and state as we go.
 	 */
-	if (NULL == (ctx = calloc(players, sizeof(struct gamer)))) {
+	ctx = calloc(game.players, sizeof(struct gamer));
+	if (NULL == ctx) {
 		perror(NULL);
 		return(EXIT_FAILURE);
 	} else if (CURLE_OK != curl_global_init(CURL_GLOBAL_ALL)) {
@@ -1002,7 +1202,7 @@ main(int argc, char *argv[])
 	 * We have one handle per `player' in the `game'.
 	 * This will allow players to act independently of one another.
 	 */
-	for (i = 0; i < players; i++) {
+	for (i = 0; i < game.players; i++) {
 		if (NULL == (ctx[i].conn = curl_easy_init())) {
 			fputs("curl_easy_init\n", stderr);
 			goto out;
@@ -1122,12 +1322,19 @@ main(int argc, char *argv[])
 			msg = curl_multi_info_read(game.curl, &c);
 			if (NULL == msg)
 				break;
-			for (i = 0; i < players; i++)
+			for (i = 0; i < game.players; i++)
 				if (ctx[i].conn == msg->easy_handle)
 					break;
-			assert(i < players);
+			assert(i < game.players);
 			if (CURLMSG_DONE != msg->msg) {
 				fputs("transfer error\n", stderr);
+				goto out;
+			} else if (CURLE_OK != msg->data.result) {
+				fprintf(stderr, "%s: "
+					"curl_multi_info_read: %s: %s\n", 
+					ctx[i].email,
+					ctx[i].url,
+					curl_multi_strerror(cm));
 				goto out;
 			} else if ( ! gamer_event(&ctx[i])) {
 				fputs("gamer_event\n", stderr);
@@ -1135,12 +1342,70 @@ main(int argc, char *argv[])
 			}
 		}
 		run = postrun;
-	} while (game.finished < players);
+	} while (game.finished < game.players);
+
+	puts("");
+	puts("Per-round Metrics");
+	printf("%7s %11s %11s %11s %11s %10s %10s\n", "round", 
+		"rx mean", "rx stddev", 
+		"rtt mean", "rtt stddev", 
+		"samples", "plays");
+	for (i = 0; i < game.roundsz; i++) {
+		printf("%7zd ", i - 1);
+		fputs(fmt_bytes(game.rounds[i].rx.mean), stdout);
+		putchar(' ');
+		fputs(fmt_bytes(stddev(&game.rounds[i].rx)), stdout);
+		putchar(' ');
+		fputs(fmt_sec(game.rounds[i].rtt.mean), stdout);
+		putchar(' ');
+		fputs(fmt_sec(stddev(&game.rounds[i].rtt)), stdout);
+		putchar(' ');
+		fputs(fmt_samples(game.rounds[i].rtt.n), stdout);
+		putchar(' ');
+		fputs(fmt_samples(game.rounds[i].plays), stdout);
+		putchar('\n');
+	}
+	puts("");
+	puts("Per-page Metrics");
+	printf("%18s %11s %11s %11s %11s %10s\n", "page", 
+		"rx mean", "rx stddev", 
+		"rtt mean", "rtt stddev", 
+		"samples");
+	for (i = 0; i < PHASE__MAX; i++) {
+		printf("%18s ", urls[i] + urlsz + 1);
+		fputs(fmt_bytes(game.page_rx[i].mean), stdout);
+		putchar(' ');
+		fputs(fmt_bytes(stddev(&game.page_rx[i])), stdout);
+		putchar(' ');
+		fputs(fmt_sec(game.page_rtt[i].mean), stdout);
+		putchar(' ');
+		fputs(fmt_sec(stddev(&game.page_rtt[i])), stdout);
+		putchar(' ');
+		fputs(fmt_samples(game.page_rtt[i].n), stdout);
+		putchar('\n');
+	}
+	puts("");
+	puts("Total Metrics");
+	printf("%12s %11s %11s %11s %10s\n", 
+		"rx mean", "rx stddev", 
+		"rtt mean", "rtt stddev", 
+		"samples");
+	putchar(' ');
+	fputs(fmt_bytes(game.total_rx.mean), stdout);
+	putchar(' ');
+	fputs(fmt_bytes(stddev(&game.total_rx)), stdout);
+	putchar(' ');
+	fputs(fmt_sec(game.total_rtt.mean), stdout);
+	putchar(' ');
+	fputs(fmt_sec(stddev(&game.total_rtt)), stdout);
+	putchar(' ');
+	fputs(fmt_samples(game.total_rtt.n), stdout);
+	putchar('\n');
 
 	rc = 1;
 out:
 	/* Memory cleanups and exiting. */
-	for (i = 0; i < players; i++) {
+	for (i = 0; i < game.players; i++) {
 		if (NULL != ctx[i].conn) {
 			curl_multi_remove_handle(game.curl, ctx[i].conn);
 			curl_easy_cleanup(ctx[i].conn);

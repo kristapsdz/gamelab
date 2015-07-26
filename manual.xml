@@ -485,7 +485,8 @@
 					<p>
 						<strong>Note</strong>: the SQLite database system usually needs access to a <a
 							href="https://www.sqlite.org/c3ref/temp_directory.html">temporary directory</a> for
-						journalling and so forth.
+						journalling (it uses <a href="https://www.sqlite.org/wal.html">write-ahead logging</a>) and so
+						forth.
 						If you're running in a file-system jail (e.g., OpenBSD), you'll need to make sure this
 						directory exists in the root of the jai.
 						On default installations, this consists of a <span class="file">tmp</span> directory in the
