@@ -149,3 +149,5 @@ CREATE TABLE smtp (
 INSERT INTO admin (email, hash) VALUES ('foo@example.com', 'xyzzy');
 INSERT INTO experiment DEFAULT VALUES;
 INSERT INTO smtp DEFAULT VALUES;
+
+PRAGMA journal_mode=WAL;
