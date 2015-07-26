@@ -770,7 +770,7 @@ function startExpr(form)
 
 	return(sendForm(form, 
 		function() { doSetup('startExprSubmit', 'startExprErr'); doValue('startExprSubmit', 'Starting...'); },
-		function(err) { doError(err, 'startExprSubmit', 'startExprErr'); doValue('startExprSubmit', 'Start'); },
+		function(err) { doError(err, 'startExprSubmit', 'startExprErr'); doValue('startExprSubmit', 'Start Experiment'); },
 		doStartExprSuccess));
 }
 
