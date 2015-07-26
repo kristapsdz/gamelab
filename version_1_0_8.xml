@@ -22,6 +22,7 @@
 		<p>
 			Smaller changes: fixed up the manual with more specific language; simplified the experimenter's <q>Experiment
 				Parameters</q> panel; and fixed the experimenter instructions (their template values we're being filled in).
+			The <q>Save Experiment</q> feature has been temporarily disabled.
 		</p>
 	</aside>
 </article>

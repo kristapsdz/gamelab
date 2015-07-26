@@ -58,7 +58,6 @@ enum	page {
 	PAGE_DORESENDEMAIL,
 	PAGE_DORESETPASSWORDS,
 	PAGE_DOSETINSTR,
-	PAGE_DOSAVEEXPR,
 	PAGE_DOSTARTEXPR,
 	PAGE_DOTESTSMTP,
 	PAGE_DOWINNERS,
@@ -144,7 +143,6 @@ static	unsigned int perms[PAGE__MAX] = {
 	PERM_JSON | PERM_LOGIN, /* PAGE_DORESENDEMAIL */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DORESETPASSWORDS */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOSETINSTR */
-	PERM_JSON | PERM_LOGIN, /* PAGE_DOSAVEEXPR */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOSTARTEXPR */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOTESTSMTP */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOWINNERS */
@@ -176,7 +174,6 @@ static const char *const pages[PAGE__MAX] = {
 	"doresendemail", /* PAGE_DORESENDEMAIL */
 	"doresetpasswords", /* PAGE_DORESETPASSWORDS */
 	"dosetinstr", /* PAGE_DOSETINSTR */
-	"dosaveexpr", /* PAGE_DOSAVEEXPR */
 	"dostartexpr", /* PAGE_DOSTARTEXPR */
 	"dotestsmtp", /* PAGE_DOTESTSMTP */
 	"dowinners", /* PAGE_DOWINNERS */
@@ -972,38 +969,6 @@ senddoresendmail(struct kreq *r)
 	free(uri);
 }
 
-/*
- * Save components of an experiment.
- * Here we try to set each of the experiment values.
- * Returns error 409 if any setting failed, i.e., if the experiment has
- * already been started.
- * Returns error 200 otherwise.
- */
-static void
-senddosaveexpr(struct kreq *r)
-{
-	int	 rc = 0;
-
-	if ( ! kpairbad(r, KEY_DATE) && kpairbad(r, KEY_TIME))
-		rc += ! db_expr_setstart
-			(r->fieldmap[KEY_DATE]->parsed.i);
-	if ( ! kpairbad(r, KEY_DATE) && ! kpairbad(r, KEY_TIME)) 
-		rc += ! db_expr_setstart
-			(r->fieldmap[KEY_TIME]->parsed.i +
-			 r->fieldmap[KEY_DATE]->parsed.i);
-	if ( ! kpairbad(r, KEY_ROUNDS))
-		rc += ! db_expr_setrounds
-			(r->fieldmap[KEY_ROUNDS]->parsed.i);
-	if ( ! kpairbad(r, KEY_MINUTES))
-		rc += ! db_expr_setminutes
-			(r->fieldmap[KEY_MINUTES]->parsed.i);
-	if ( ! kpairbad(r, KEY_INSTR))
-		db_expr_setinstr(r->fieldmap[KEY_INSTR]->parsed.s);
-
-	http_open(r, rc ? KHTTP_409 : KHTTP_200);
-	khttp_body(r);
-}
-
 static void
 senddostartexpr(struct kreq *r)
 {
@@ -1334,9 +1299,6 @@ main(void)
 		break;
 	case (PAGE_DOLOGOUT):
 		senddologout(&r);
-		break;
-	case (PAGE_DOSAVEEXPR):
-		senddosaveexpr(&r);
 		break;
 	case (PAGE_DOSTARTEXPR):
 		senddostartexpr(&r);
