@@ -50,6 +50,7 @@ enum	page {
 	PAGE_DODISABLEPLAYER,
 	PAGE_DOENABLEPLAYER,
 	PAGE_DOGETEXPR,
+	PAGE_DOGETHISTORY,
 	PAGE_DOGETNEWEXPR,
 	PAGE_DOLOADGAMES,
 	PAGE_DOLOADPLAYERS,
@@ -135,6 +136,7 @@ static	unsigned int perms[PAGE__MAX] = {
 	PERM_JSON | PERM_LOGIN, /* PAGE_DODISABLEPLAYER */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOENABLEPLAYER */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOGETEXPR */
+	PERM_JSON | PERM_LOGIN, /* PAGE_DOGETHISTORY */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOGETNEWEXPR */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOLOADGAMES */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOLOADPLAYERS */
@@ -166,6 +168,7 @@ static const char *const pages[PAGE__MAX] = {
 	"dodisableplayer", /* PAGE_DODISABLEPLAYER */
 	"doenableplayer", /* PAGE_DOENABLEPLAYER */
 	"dogetexpr", /* PAGE_DOGETEXPR */
+	"dogethistory", /* PAGE_DOGETHISTORY */
 	"dogetnewexpr", /* PAGE_DOGETNEWEXPR */
 	"doloadgames", /* PAGE_DOLOADGAMES */
 	"doloadplayers", /* PAGE_DOLOADPLAYERS */
@@ -367,6 +370,25 @@ senddogetnewexpr(struct kreq *r)
 	kjson_obj_open(&req);
 	kjson_putintp(&req, "adminflags", db_admin_get_flags());
 	json_putexpr(&req, expr);
+	kjson_obj_close(&req);
+	kjson_close(&req);
+	db_expr_free(expr);
+}
+
+static void
+senddogethistory(struct kreq *r)
+{
+	struct expr	*expr;
+	struct kjsonreq	 req;
+
+	http_open(r, KHTTP_200);
+	khttp_body(r);
+	kjson_open(&req, r);
+	kjson_obj_open(&req);
+
+	expr = db_expr_get(1);
+	json_puthistory(&req, expr, NULL);
+
 	kjson_obj_close(&req);
 	kjson_close(&req);
 	db_expr_free(expr);
@@ -747,7 +769,6 @@ static void
 senddoaddplayers(struct kreq *r)
 {
 	char	*tok, *buf, *mail, *sv;
-	int	 rc;
 
 	http_open(r, KHTTP_200);
 	khttp_body(r);
@@ -1283,6 +1304,9 @@ main(void)
 		break;
 	case (PAGE_DOGETEXPR):
 		senddogetexpr(&r);
+		break;
+	case (PAGE_DOGETHISTORY):
+		senddogethistory(&r);
 		break;
 	case (PAGE_DOGETNEWEXPR):
 		senddogetnewexpr(&r);

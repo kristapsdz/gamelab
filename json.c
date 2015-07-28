@@ -51,6 +51,11 @@ struct	jsoncache {
 	int64_t		 roundtime;
 };
 
+struct	intvcache {
+	struct interval	*intv;
+	struct kjsonreq	*req;
+};
+
 static int
 json_instructions(size_t key, void *arg)
 {
@@ -74,6 +79,80 @@ json_instructions(size_t key, void *arg)
 	}
 
 	return(1);
+}
+
+/*
+ * Serialise a game's metadata (actions, payoffs, etc.) and a full
+ * history of play as encoded in the `roundups' object.
+ */
+static void
+json_putgamehistory(const struct game *g, void *arg)
+{
+	struct intvcache *p = arg;
+	struct period	 *per;
+	struct kjsonreq	 *req = p->req;
+	size_t		  i;
+
+	kjson_obj_open(req);
+	kjson_putintp(req, "p1", g->p1);
+	kjson_putintp(req, "p2", g->p2);
+	kjson_putstringp(req, "name", g->name);
+	json_putmpqs(req, "payoffs", g->payoffs, g->p1, g->p2);
+	kjson_putintp(req, "id", g->id);
+	kjson_arrayp_open(req, "roundups");
+
+	if (NULL == p->intv) {
+		kjson_array_close(req);
+		kjson_obj_close(req);
+		return;
+	}
+
+	for (i = 0; i < p->intv->periodsz; i++) 
+		if (g->id == p->intv->periods[i].gameid)
+			break;
+
+	assert(i < p->intv->periodsz);
+	per = &p->intv->periods[i];
+	for (i = 0; i < per->roundupsz; i++)
+		json_putroundup(req, NULL, per->roundups[i]);
+	kjson_array_close(req);
+	kjson_obj_close(req);
+}
+
+/*
+ * Put a per-game array consisting of that game's metadata and full
+ * history (if available).
+ * If `expr' is NULL, puts a zero-length array.
+ * If `intv' is NULL, it will fetch it from the database (and free it),
+ * otherwise it is not freed.
+ * If the game's history is NULL (i.e., we're on the first round), puts
+ * a zero-length array of game-play history.
+ */
+void
+json_puthistory(struct kjsonreq *r, 
+	const struct expr *expr, struct interval *intv)
+{
+	struct intvcache p;
+
+	if (NULL == expr) {
+		kjson_arrayp_open(r, "history");
+		kjson_array_close(r);
+		return;
+	}
+
+	/* Fetch the full history record now. */
+	if (NULL == intv)
+		p.intv = db_interval_get(expr->round - 1);
+	else
+		p.intv = intv;
+	p.req = r;
+
+	kjson_arrayp_open(r, "history");
+	db_game_load_all(json_putgamehistory, &p);
+	kjson_array_close(r);
+
+	if (NULL == intv)
+		db_interval_free(p.intv);
 }
 
 void

@@ -81,18 +81,17 @@ again:
 
 	rc = sqlite3_open(DATADIR "/gamelab.db", &db);
 	if (SQLITE_BUSY == rc) {
-		fprintf(stderr, "sqlite3_open: "
-			"busy database (%zu)\n", attempt);
 		usleep(arc4random_uniform(100000));
 		attempt++;
 		goto again;
 	} else if (SQLITE_LOCKED == rc) {
-		fprintf(stderr, "sqlite3_open: "
-			"locked database (%zu)\n", attempt);
 		usleep(arc4random_uniform(100000));
 		attempt++;
 		goto again;
 	} else if (SQLITE_OK == rc) {
+		if (attempt > 0) 
+			fprintf(stderr, "sqlite3_open: "
+				"success after %zu tries\n", attempt);
 		sqlite3_busy_timeout(db, 500);
 		return;
 	} 
@@ -119,18 +118,20 @@ again:
 
 	rc = sqlite3_step(stmt);
 	if (SQLITE_BUSY == rc) {
-		fprintf(stderr, "sqlite3_step: "
-			"busy database (%zu)\n", attempt);
 		usleep(arc4random_uniform(100000));
 		attempt++;
 		goto again;
 	} else if (SQLITE_LOCKED == rc) {
-		fprintf(stderr, "sqlite3_step: "
-			"locked database (%zu)\n", attempt);
 		usleep(arc4random_uniform(100000));
 		attempt++;
 		goto again;
 	}
+
+	if (SQLITE_DONE == rc || SQLITE_ROW == rc ||
+	    (SQLITE_CONSTRAINT == rc && DB_STEP_CONSTRAINT & flags))
+		if (attempt > 0)
+			fprintf(stderr, "sqlite3_step: "
+				"success after %zu tries\n", attempt);
 
 	if (SQLITE_DONE == rc || SQLITE_ROW == rc)
 		return(rc);

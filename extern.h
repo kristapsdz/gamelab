@@ -275,6 +275,8 @@ void		 mail_backup(void);
 void		 mail_wipe(int);
 void		 mail_test(void);
 
+void		 json_puthistory(struct kjsonreq *, 
+			const struct expr *, struct interval *);
 void		 json_putplayer(struct kjsonreq *, const struct player *);
 void		 json_putmpqp(struct kjsonreq *, const char *, const mpq_t);
 void		 json_putmpq(struct kjsonreq *, mpq_t);

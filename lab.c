@@ -288,38 +288,6 @@ senddoloadplays(const struct game *game, void *arg)
 }
 
 static void
-senddoloadhistory(const struct game *game, void *arg)
-{
-	struct intvstor	*p = arg;
-	struct period	*per;
-	struct kjsonreq	*req = p->req;
-	size_t		 i;
-
-	kjson_obj_open(req);
-	kjson_putintp(req, "p1", game->p1);
-	kjson_putintp(req, "p2", game->p2);
-	kjson_putstringp(req, "name", game->name);
-	json_putmpqs(req, "payoffs", 
-		game->payoffs, game->p1, game->p2);
-	kjson_putintp(req, "id", game->id);
-	kjson_arrayp_open(req, "roundups");
-	if (NULL == p->intv) {
-		kjson_array_close(req);
-		kjson_obj_close(req);
-		return;
-	}
-	for (i = 0; i < p->intv->periodsz; i++) 
-		if (game->id == p->intv->periods[i].gameid)
-			break;
-	assert(i < p->intv->periodsz);
-	per = &p->intv->periods[i];
-	for (i = 0; i < per->roundupsz; i++)
-		json_putroundup(req, NULL, per->roundups[i]);
-	kjson_array_close(req);
-	kjson_obj_close(req);
-}
-
-static void
 senddoloadgame(const struct game *game, int64_t round, void *arg)
 {
 	struct intvstor	*p = arg;
@@ -595,13 +563,7 @@ again:
 		expr->round, senddoloadgame, &stor);
 	kjson_array_close(&req);
 
-	/*
-	 * Send all games and all game histories.
-	 * This exhaustively catalogues the game sequence.
-	 */
-	kjson_arrayp_open(&req, "history");
-	db_game_load_all(senddoloadhistory, &stor);
-	kjson_array_close(&req);
+	json_puthistory(&req, expr, stor.intv);
 
 	pstor.playerid = playerid;
 	pstor.req = &req;

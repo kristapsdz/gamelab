@@ -126,7 +126,7 @@
 						wiped.
 						(The experiment configuration remains.)
 						To <i class="fa fa-refresh"></i> hard-wipe is the same as wiping, but the experiment is neither
-						backed up nor e-mailed.bb
+						backed up nor e-mailed.
 						Lastly, you may <i class="fa fa-arrow-circle-o-right"></i> advance the current round of your
 						experiment.
 						(The current round may not be the round you're reading&#8212;refresh this page to double-check.)
@@ -154,6 +154,9 @@
 							<button type="button" id="advanceButton" onclick="advanceRound();" disabled="disabled">Advance Round</button>
 						</div>
 					</fieldset>
+					<p>
+						You can also fetch a copy of the <a href="@ADMINURI@/dogethistory.json">history JSON</a>.
+					</p>
 					<div id="wipeExprResults" class="noshow canclose">
 						<a href="#" class="close" onclick="doHideNode(this.parentNode); return false;"><i class="fa fa-minus-square"></i></a>
 						<p>
