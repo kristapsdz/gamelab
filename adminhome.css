@@ -120,13 +120,15 @@ progress			{ display: block;
 .noshow				{ display: none; }
 .canclose			{ position: relative; 
 				  padding: 1ex;
-				  padding-top: 2ex;
+				  padding-left: 3ex;
 				  border: thin solid #666;
 				  border-radius: 1ex;
 				  background-color: #ccc; }
 .canclose a			{ position: absolute;
-				  top: -0.5ex;
-				  left: -0.5ex; }
+				  color: #333;
+				  top: 2px;
+				  left: 2px; }
+.canclose a:hover		{ color: #000; }
 
 /*
  * Now layout the input components. 

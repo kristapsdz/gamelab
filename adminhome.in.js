@@ -698,35 +698,6 @@ function loadExprSuccess(resp)
 			doClearReplace('statusExprLobbysize', res.lobbysize);
 		} else
 			doHide('statusExprHasLobby');
-
-		e = doClear('statusExprPGames');
-		li = document.createElement('div');
-		div = document.createElement('div');
-		li.appendChild(div);
-		div = document.createElement('div');
-		div.className = 'table-top-head';
-		div.appendChild(document.createTextNode('Row Plays'));
-		li.appendChild(div);
-		div = document.createElement('div');
-		div.className = 'table-top-head';
-		div.appendChild(document.createTextNode('Column Plays'));
-		li.appendChild(div);
-		e.appendChild(li);
-
-		for (i = 0; i < res.games.length; i++) {
-			li = document.createElement('div');
-			div = document.createElement('div');
-			div.className = 'table-left-head';
-			div.appendChild(document.createTextNode(res.games[i].name));
-			li.appendChild(div);
-			div = document.createElement('div');
-			div.appendChild(document.createTextNode(res.games[i].prow));
-			li.appendChild(div);
-			div = document.createElement('div');
-			div.appendChild(document.createTextNode(res.games[i].pcol));
-			li.appendChild(div);
-			e.appendChild(li);
-		}
 	}
 }
 
@@ -958,9 +929,13 @@ checkWipeButton(e)
 	if (e.checked) {
 		document.getElementById('wipeExprButton').disabled='';
 		document.getElementById('wipeCleanExprButton').disabled='';
+		document.getElementById('backupButton').disabled='';
+		document.getElementById('advanceButton').disabled='';
 	} else {
 		document.getElementById('wipeExprButton').disabled='disabled';
 		document.getElementById('wipeCleanExprButton').disabled='disabled';
+		document.getElementById('backupButton').disabled='disabled';
+		document.getElementById('advanceButton').disabled='disabled';
 	}
 }
 

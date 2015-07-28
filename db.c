@@ -582,9 +582,6 @@ db_expr_advance(void)
 		roleplayers[0] /= (double)allplayers[0];
 		roleplayers[1] /= (double)allplayers[1];
 
-		fprintf(stderr, "Advance check role 0, round %" PRId64 ": %g\n", expr->round, roleplayers[0]);
-		fprintf(stderr, "Advance check role 1, round %" PRId64 ": %g\n", expr->round, roleplayers[1]);
-
 		if (roleplayers[0] >= expr->roundpct &&
 			 roleplayers[1] >= expr->roundpct) {
 			round = expr->round + 1;
@@ -1154,7 +1151,8 @@ db_player_load_all(playerf fp, void *arg)
 
 	stmt = db_stmt("SELECT email,state,id,enabled,"
 		"role,rseed,instr,finalrank,finalscore,autoadd, "
-		"version,joined FROM player");
+		"version,joined FROM player "
+		"ORDER BY email ASC");
 	while (SQLITE_ROW == db_step(stmt, 0)) {
 		memset(&player, 0, sizeof(struct player));
 		player.mail = kstrdup
@@ -2105,9 +2103,6 @@ again:
 	if (SQLITE_ROW == rc)
 		return(1);
 
-	fprintf(stderr, "Lottery: player %" 
-		PRId64 ", round %" PRId64 "\n", pid, round);
-
 	if ( ! db_player_lottery(round - 1, pid, prevcur, prevaggr, count)) 
 		mpq_init(prevaggr);
 	else
@@ -2164,8 +2159,6 @@ again:
 	} 
 
 	db_trans_commit();
-	fprintf(stderr, "Lottery complete: player %" 
-		PRId64 ", round %" PRId64 "\n", pid, round);
 	return(1);
 }
 

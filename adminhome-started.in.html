@@ -26,9 +26,10 @@
 			<section class="intro">
 				<div id="statusExprProg">
 					<p>
-						Welcome!  Your experiment is in round 
-						<span id="statusExprPRound"></span> of <span id="statusExprPMax"></span> (<span id="statusExprPPmax"></span> per player),
-						with each round taking <span id="statusExprMins"></span> minutes.
+						Welcome to <a href="http://www.kcons.eu/gamelab">gamelab</a> (version @VERSION@), the on-line game theory laboratory.
+						Your experiment is in round <span id="statusExprPRound"></span> of <span
+							id="statusExprPMax"></span> (<span id="statusExprPPmax"></span> per player), with each
+						round taking <span id="statusExprMins"></span> minutes.
 						<span id="statusExprRoundpcting">
 							If each player role has at least <span id="statusExprRoundpct"></span>% plays, the round
 							will advance (with <span id="statusExprRoundmin"></span> minutes of grace time).
@@ -49,8 +50,6 @@
 							</div>
 						</div>
 					</div>
-					<div class="table" id="statusExprPGames">
-					</div>
 					<div id="noplayers" class="noshow">
 						<div class="warning">
 							<div>
@@ -68,12 +67,14 @@
 				</div>
 				<div id="statusExprWaiting">
 					<p>
-						Welcome!  Waiting for experiment to begin...
+						Welcome to <a href="http://www.kcons.eu/gamelab">gamelab</a> (version @VERSION@), the on-line game theory laboratory.
+						Waiting for experiment to begin...
 					</p>
 				</div>
 				<div id="statusExprFinished">
 					<p>
-						Welcome!  Your experiment has finished.
+						Welcome to <a href="http://www.kcons.eu/gamelab">gamelab</a> (version @VERSION@), the on-line game theory laboratory.
+						Your experiment has finished.
 						What follows are the winners and their rankings.
 					</p>
 					<ul id="statusExprFinishedWinners"></ul>
@@ -121,14 +122,23 @@
 						<span>Experiment Control</span>
 					</h3>
 					<div>
-						Backup or wipe the database by clicking the button below.
-						When you back up, you're e-mailed a redacted copy of the database.
-						When you wipe, the experiment data (but not configuration) is wiped.
-						Wiping will trigger a backup as well.
+						Control the progress of your experiment here.
+						<strong>Warning</strong>: this may affect the state of your experiment, so be careful!
+						When you <i class="fa fa-database"></i> back up, the database is safely copied on-disc and you're
+						e-mailed a redacted (of identifiable information) copy.
+						When you <i class="fa fa-recycle"></i> wipe, the experiment is backed-up, e-mailed, then its data
+						wiped.
+						(The experiment configuration remains.)
+						To <i class="fa fa-refresh"></i> hard-wipe is the same as wiping, but the experiment is neither
+						backed up nor e-mailed.bb
+						Lastly, you may <i class="fa fa-arrow-circle-o-right"></i> advance the current round of your
+						experiment.
+						(The current round may not be the round you're reading&#8212;refresh this page to double-check.)
 					</div>
 					<div>
-						To wipe, first verify that you really intend to do this by clicking the
-						<span id="wipeExprCheckbox"><input type="checkbox" onclick="checkWipeButton(this);" /> checkbox</span>.
+						First you must click 
+						<span id="wipeExprCheckbox"><input type="checkbox" onclick="checkWipeButton(this);" /></span>
+						to verify that you're serious about doing any of this.
 					</div>
 					<fieldset>
 						<div class="input input-submit">
@@ -136,16 +146,16 @@
 							<button type="button" id="wipeExprButton" onclick="wipeExpr();" disabled="disabled">Wipe Experiment</button>
 						</div>
 						<div class="input input-submit">
-							<i class="fa fa-fw fa-recycle"></i>
+							<i class="fa fa-fw fa-refresh"></i>
 							<button type="button" id="wipeCleanExprButton" onclick="wipeCleanExpr();" disabled="disabled">Hard-Wipe Experiment</button>
 						</div>
 						<div class="input input-submit">
 							<i class="fa fa-fw fa-database"></i>
-							<button type="button" id="backupButton" onclick="backup();">Backup Experiment</button>
+							<button type="button" id="backupButton" onclick="backup();" disabled="disabled">Backup Experiment</button>
 						</div>
 						<div class="input input-submit">
 							<i class="fa fa-fw fa-arrow-circle-o-right"></i>
-							<button type="button" onclick="advanceRound();">Advance Round</button>
+							<button type="button" id="advanceButton" onclick="advanceRound();" disabled="disabled">Advance Round</button>
 						</div>
 					</fieldset>
 					<div id="wipeExprResults" class="noshow canclose">
