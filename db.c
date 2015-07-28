@@ -1556,8 +1556,8 @@ err:
 
 /*
  * Create a player, automatically setting a password for them.
- * Returns <0 if the experiment isn't in ESTATE_NEW, zero if the player
- * already exists (nothing changed), and >0 on new player creation.
+ * Returns zero if the player already exists (nothing changed), and
+ * nonzero on new player creation.
  * Fills in the "pass" pointer (if set) with the player's password or
  * NULL if errors have occurred.
  */

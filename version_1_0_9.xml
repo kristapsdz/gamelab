@@ -1,0 +1,15 @@
+
+<article data-sblg-article="1" data-sblg-tags="version">
+	<header>
+		<h1>1.0.9</h1>
+		<address>Kristaps Dzonsons</address>
+		<time datetime="2015-07-31">2015-07-31</time>
+	</header>
+	<aside>
+		<p>
+			Continue to add features to the <q>bot</q> player to discover bottlenecks in <span class="nm">gamelab</span>.
+			Document the JSON API in the <a href="manual.html">manual</a>.
+			Simplify the experimenter interface.
+		</p>
+	</aside>
+</article>

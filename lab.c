@@ -387,10 +387,7 @@ senddoautoadd(struct kreq *r)
 	rc = db_player_create
 		(r->fieldmap[KEY_EMAIL]->parsed.s, &hash);
 
-	if (rc < 0) {
-		http_open(r, KHTTP_409);
-		khttp_body(r);
-	} else if (0 == rc) {
+	if (0 == rc) {
 		http_open(r, KHTTP_403);
 		khttp_body(r);
 	} else {

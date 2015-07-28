@@ -124,6 +124,12 @@ progress			{ display: block;
 				  border: thin solid #666;
 				  border-radius: 1ex;
 				  background-color: #ccc; }
+.canclose p			{ margin-top: 0; 
+				  margin-bottom: 0; }
+.canclose p + p 		{ margin-top: 1ex; }
+.canclose form			{ margin-top: 1ex; }
+.canclose fieldset		{ margin: 0; 
+				  border-spacing: 0; }
 .canclose a			{ position: absolute;
 				  color: #333;
 				  top: 2px;

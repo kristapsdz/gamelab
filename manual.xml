@@ -51,6 +51,16 @@
 							<li><a href="#gameplay">Game-play</a></li>
 							<li><a href="#lottery">Lottery</a></li>
 						</ul>
+					</li>
+					<li>
+						<a href="#technicalities">Technicalities</a>
+						<ul>
+							<li><a href="#userinterface">User Interface</a></li>
+							<li><a href="#backend">Server Backend</a></li>
+							<li><a href="#numformat">Number Format</a></li>
+							<li><a href="#randomness">Randomness</a></li>
+						</ul>
+					</li>
 					<li>
 						<a href="#deploy">Deployment</a>
 						<ul>
@@ -67,6 +77,14 @@
 							<li><a href="#firstexperiment">First Experiment</a></li>
 							<li><a href="#runningexperiments">Running Experiments</a></li>
 							<li><a href="#analysingexperiments">Analysing Experiments</a></li>
+						</ul>
+					</li>
+					<li>
+						<a href="#api">Programmable API</a>
+						<ul>
+							<li><a href="#generalseq">General Sequence</a></li>
+							<li><a href="#resources">Resources</a></li>
+							<li><a href="#objects">Objects</a></li>
 						</ul>
 					</li>
 				</ul>
@@ -205,27 +223,62 @@
 					<p>
 						The <q>user interface</q> to <span class="nm">gamelab</span> is via a web browser.
 						In general, the user interface involves an HTML5 web-page styled with CSS.
-						This web-page uses JavaScript to request data from the <span class="nm">gamelab</span> server
+						These web-page uses JavaScript to request data from the <span class="nm">gamelab</span> server
 						via a series of JSON objects.
 						The JavaScript used by <span class="nm">gamelab</span> is fairly recent, so it's unlikely that
 						older browser will work properly.
 						Check that your browser supports <code>ClassList</code> and <code>FormData</code>.
 					</p>
 					<p>
-						<strong>Note</strong>: due to the rapid development pace of <span class="nm">gamelab</span>, an
-						API for the JSON interface is not available, nor should an inferred API be considered stable.
+						The user interface also makes use of cookies to store your session materials.
+						<span class="nm">Gamelab</span> cookies themselves don't store any identifiable material: they
+						store only the server session identifier and a random number to prevent sharing of session
+						identifiers.
 					</p>
 				</section>
 				<section id="backend">
 					<h3>Server Backend</h3>
 					<p>
-						The backend of <span class="nm">gamelab</span> consists of two compiled CGI programs: one for
-						the administrator, one for participants.
-						This consists of a small ISO C application linking to <a
+						The backend of <span class="nm">gamelab</span> is a <a href="http://learnbchs.org">BCHS</a>
+						system consisting of two compiled CGI programs: one for the administrator, one for participants.
+						These are small ISO C applications linking to <a
 							href="http://kristaps.bsd.lv/kcgi">kcgi</a>, <a
 							href="http://www.sqlite.org">sqlite3</a>, <a href="http://gmplib.org">GMP</a>, and <a
 							href="http://curl.haxx.se/libcurl/">libCURL</a>.
 						All of these are open source libraries.
+						Consult the <a href="#deploy">Deployment</a> section for how to install these applications.
+					</p>
+				</section>
+				<section id="numformat">
+					<h3>Number Format</h3>
+					<p>
+						Internally, <span class="nm">gamelab</span> stores all non-integer numbers (strategy mixtures,
+						payoffs, etc.) as rational numbers encoded as strings.
+						These rational numbers are manipulated by <a href="http://gmplib.org">GMP</a> routines.
+						The reason behind using rational numbers is precision: while the numbers themselves may grow
+						quite large in size (if they compound), the library ensures that no roundoff occurs when
+						tallying points.
+					</p>
+					<p>
+						No floating-point numbers are used for internal tallies, although these are distributed to the
+						web frontend for more intuitive representation.
+					</p>
+				</section>
+				<section id="randomness">
+					<h3>Randomness</h3>
+					<p>
+						Player section and group assignment, as well a other subsystems, require a reliable random
+						number generator.
+						To accomplish this, <span class="nm">gamelab</span> uses the BSD <a
+							href="http://www.openbsd.org/cgi-bin/man.cgi/OpenBSD-current/man3/arc4random.3">arc4random</a>
+						system interface to provide high-quality randomness.
+						This is emulated with <a href="https://wiki.freedesktop.org/libbsd/">libbsd</a> on GNU/Linux.
+					</p>
+					<p>
+						<strong>Note</strong>: if you're running on GNU/Linux, you may not benefit from the high quality
+						randomness, as well as the general security and reliability, of BSD systems.
+						We strongly encourage BSD as a platform of choice, especially <a
+							href="http://www.openbsd.org">OpenBSD</a>, which is the main development platform.
 					</p>
 				</section>
 			</section>
@@ -299,7 +352,7 @@
 						<li><a href="https://gmplib.org">GMP</a> (rational number library),</li>
 						<li><a href="https://sqlite.org">SQLite</a> (database), and</li>
 						<li><a href="http://libbsd.freedesktop.org/wiki/">libbsd</a> (Linux compatibility, if applicable),</li>
-						<li><a href="http://curl.haxx.se/libcurl/">libcURL</a> (e-mailing), and</li>
+						<li><a href="http://curl.haxx.se/libcurl/">libCURL</a> (e-mailing), and</li>
 						<li><a href="https://github.com/json-c/json-c/wiki">json-c</a> (testing system).</li>
 					</ul>
 					<p>
@@ -1229,6 +1282,146 @@
 							</dl>
 						</dd>
 					</dl>
+				</section>
+			</section>
+			<section id="api">
+				<h2>Programmable API</h2>
+				<p>
+					As described in the <a href="#technicalities">Technicalities</a> section, <span
+						class="nm">gamelab</span> is at heart a web application making JSON requests of a server.
+					This JSON interface is simple and easy to use to create a programmatic interface.
+					If you wish to create a programmatic interface (a <q>bot</q>), and your experimenter consents, it's a
+					fairly easy process.
+					In fact, a tool already exists within the <span class="nm">gamelab</span> source distributions to stress
+					test systems using this interface.
+				</p>
+				<p>
+					To do this, you'll need a programming language that has support for JSON and making HTTP requests.
+					In C, you can use <a href="https://github.com/json-c/json-c/wiki">json-c</a> and <a
+						href="http://curl.haxx.se/libcurl/">libCURL</a>, respectively.
+				</p>
+				<section id="generalseq">
+					<h3>General Sequence</h3>
+					<p>
+						The general sequence is as follows:
+					</p>
+					<ol>
+						<li>
+							Get your username and password, or optionally, have your utility register with <a
+								href="#seq-doautoadd">doautoadd.json</a> as a captive player
+							and get a randomly-generated password.
+						</li>
+						<li>
+							Wait for the experiment to accept players by polling <a
+								href="#seq-dologin">dologin.json</a> in order to login.
+						</li>
+						<li>
+							Log in to <a href="#seq-dologin">dologin.json</a> with your username and password,
+							accepting your session identifier as cookies.
+						</li>
+						<li>
+							Wait for the experiment to begin by polling <a
+								href="#seq-doloadexpr">doloadexpr.json</a>.
+							Use your session identifier as an identifier cookie.
+						</li>
+						<li>
+							Accept the experiment data from <a href="#seq-doloadexpr">doloadexpr.json</a>.
+							Use your session identifier as an identifier cookie.
+						</li>
+						<li>
+							Using the experiment data from <a href="#seq-doloadexpr">doloadexpr.json</a>,
+							construct and submit a series of game plays to <a href="#seq-doplay">doplay.json</a>.
+							Use your session identifier as an identifier cookie.
+						</li>
+						<li>
+							Wait for the next round, or end of game, by polling polling <a
+								href="#seq-doloadexpr">doloadexpr.json</a>.
+							Use your session identifier as an identifier cookie.
+						</li>
+					</ol>
+					<p>
+						Do not flood the system with requests: be considerate!
+						Unless specifically stipulated by the experimenter, you are not rewarded for fast play.
+						Avoid re-connecting with anything less than 30&#8211;60 seconds between attempts, unless specifically
+						allowed by an administrator, or your bot may be banned from the experiment.
+					</p>
+				</section>
+				<section id="resources">
+					<h3>Resources</h3>
+					<p>
+						This section describes the resources (URLs) that may be accessed for programmatic play.
+						Each of these resources is the immediate path following the laboratory CGI script name, for
+						example, if you're running as <span class="file">localhost/lab.cgi</span>, these would be mapped
+						to <span class="file">localhost/lab.cgi/doautoadd.json</span>.
+					</p>
+					<dl>
+						<dt id="seq-doautoadd">doautoadd.json (POST)</dt>
+						<dd>
+							Post your e-mail address using the <code>email</code> field name.
+							Returns HTTP error code 
+							400 (invalid or missing e-mail field), 
+							403 (player by that e-mail already exists),
+							404 (captive players disallowed), or
+							200 (success).
+							Upon success, the return body is a JSON object consisting of the <code>email</code> and
+							<code>password</code> string fields.
+						</dd>
+						<dt id="seq-dologin">dologin.json (POST)</dt>
+						<dd>
+							Post your e-mail address and password using the <code>email</code> and
+							<code>password</code> field names.
+							Returns HTTP error code
+							400 (invalid or missing input fields),
+							409 (experiment not started yet), 
+							200 (success).
+							If you receive HTTP error code 409, wait and continue polling: the experiment is not yet
+							accepting player logins.
+							Upon success, the return body is empty, but the cookie field consists of
+							<code>sessid</code>, your session identifiers (a number); and <code>sesscookie</code>, a
+							magic number attached to your identifier.
+						</dd>
+						<dt id="seq-doloadexpr">doloadexpr.json (GET)</dt>
+						<dd>
+							Get a JSON object describing the full experiment.
+							You will need to pass the <code>sessid</code> and <code>sesscookie</code> cookie fields
+							as described in <a href="#seq-dologin">dologin.json</a>.
+							Returns HTTP error code
+							304 (not changed since last request),
+							409 (experiment not started yet),
+							429 (player accepted, but not yet joined for play),
+							200 (success).
+							If you receive HTTP error code 409 or 429, wait and continue polling: the experiment is
+							not yet started or has started, but you are not allowed to join yet.
+							Upon success, returns the JSON experiment object.
+						</dd>
+						<dt id="seq-doplay">doplay.json (POST)</dt>
+						<dd>
+							Post a probability mixture for a game's actions.
+							You will need to pass the <code>sessid</code> and <code>sesscookie</code> cookie fields
+							as described in <a href="#seq-dologin">dologin.json</a>.
+							The game identifier and round must be encoded in the <code>gid</code> and
+							<code>round</code> fields, respectively.
+							Each action with a requested probability must be posted as field <code>indexNNN</code>,
+							where <code>N</code> is the action index (starting at zero), e.g.,
+							<code>index0</code>, <code>index1</code>, and so on.
+							Probabilities may be decimal or fractional strings.
+							Missing actions are assigned zero probability.
+							Actions greater than the maximum action are ignored.
+							Returns HTTP error code
+							400 (invalid game, round, or probability, or probability sum doesn't equal one), 
+							409 (round has passed or is being played again, experiment hasn't started or has
+							finished, or player hasn't joined), or
+							200 (success).
+							<strong>Note</strong>: the error codes for this resource are likely to become more
+							specific in future releases.
+						</dd>
+					</dl>
+				</section>
+				<section id="objects">
+					<h3>Objects</h3>
+					<p>
+						This section needs to be written.
+					</p>
 				</section>
 			</section>
 		</article>

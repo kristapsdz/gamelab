@@ -766,8 +766,7 @@ senddoaddplayers(struct kreq *r)
 			continue;
 		if (NULL == (mail = valid_email(tok)))
 			continue;
-		if ((rc = db_player_create(mail, NULL)) < 0)
-			break;
+		 db_player_create(mail, NULL);
 	}
 
 	free(sv);

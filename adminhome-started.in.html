@@ -75,13 +75,13 @@
 					<p>
 						Welcome to <a href="http://www.kcons.eu/gamelab">gamelab</a> (version @VERSION@), the on-line game theory laboratory.
 						Your experiment has finished.
-						What follows are the winners and their rankings.
 					</p>
 					<ul id="statusExprFinishedWinners"></ul>
 					<div id="statusExprFinishedWin">
-						<div>
-							You may now compute winnings.
-						</div>
+						<p>
+							First you must compute winnings by entering <i class="fa fa-cubes"></i> a random seed
+							used to pick winners and <i class="fa fa-trophy"></i> the number of winners to choose.
+						</p>
 						<div class="error noshow" id="statusExprFinishedWinError">
 							An error occurred: the experiment hasn't begun, hasn't ended, or has zero tickets.
 						</div>
@@ -104,10 +104,6 @@
 								</div>
 							</fieldset>
 						</form>
-					</div>
-					<div>
-						You can now download and analyse the results, and players can still log in and see their
-						play history.
 					</div>
 				</div>
 				<div id="statusExprLoading">
@@ -160,8 +156,10 @@
 					</fieldset>
 					<div id="wipeExprResults" class="noshow canclose">
 						<a href="#" class="close" onclick="doHideNode(this.parentNode); return false;"><i class="fa fa-minus-square"></i></a>
-						The database is being backed up and wiped.
-						Please wait a little bit, then reload.
+						<p>
+							The database is being backed up and wiped.
+							Please wait a little bit, then reload.
+						</p>
 					</div>
 				</section>
 				<section class="rolled">
@@ -192,11 +190,11 @@
 					</div>
 					<div id="playerInfo" class="canclose noshow">
 						<a href="#" class="close" onclick="doHideNode(this.parentNode); return false;"><i class="fa fa-minus-square"></i></a>
-						<div>
+						<p>
 							<span id="playerInfoEmail"></span>: 
 							<span id="playerInfoStatus"></span>, 
 							<span id="playerInfoEnabled"></span>
-						</div>
+						</p>
 						<form action="@ADMINURI@/doresetpasswords.json" method="post" onsubmit="return(resetPass(this));">
 							<input type="hidden" id="playerInfoId" name="pid" />
 							<fieldset>
@@ -385,8 +383,10 @@
 					</div>
 					<div id="testSmtpResults" class="noshow canclose">
 						<a href="#" class="close" onclick="doHideNode(this.parentNode); return false;"><i class="fa fa-minus-square"></i></a>
-						A test e-mail has been sent to <span id="testSmtpResultsMail"></span>.
-						If you do not receive it in a little while, please fix your mail settings.
+						<p>
+							A test e-mail has been sent to <span id="testSmtpResultsMail"></span>.
+							If you do not receive it in a little while, please fix your mail settings.
+						</p>
 					</div>
 					<div>
 						The e-mail address <i class="fa fa-envelope"></i> will appear as the <q>from</q> address

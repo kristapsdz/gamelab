@@ -522,7 +522,6 @@ gamer_reset(struct gamer *gamer)
 				 gamer->game->waitmin);
 		} else 
 			gamer->wait = gamer->game->wait;
-		fprintf(stderr, "%s: waiting for %lld\n", gamer->email, (long long)gamer->wait);
 		TAILQ_INSERT_TAIL(&gamer->game->waiting, gamer, entries);
 		return(1);
 	}
@@ -809,6 +808,10 @@ gamer_phase_play(struct gamer *gamer)
 	return(1);
 }
 
+/*
+ * Load an experiment from the server.
+ * Using this information, we'll construct a play sequence.
+ */
 static int
 gamer_phase_loadexpr(struct gamer *gamer)
 {

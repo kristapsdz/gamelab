@@ -94,7 +94,8 @@ VERSIONS = version_1_0_1.xml \
 	   version_1_0_5.xml \
 	   version_1_0_6.xml \
 	   version_1_0_7.xml \
-	   version_1_0_8.xml
+	   version_1_0_8.xml \
+	   version_1_0_9.xml
 
 all: admin lab gamers $(BUILT) $(BUILTPS)
 
