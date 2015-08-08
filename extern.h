@@ -48,6 +48,7 @@ struct	expr {
 	char		*instr; /* instruction markup */
 	int64_t		 total; /* total winnings (>ESTATE_STARTED) */
 	int64_t		 autoadd; /* auto-adding players */
+	int64_t		 autoaddpreserve;
 	int64_t		 round; /* round (<0 initial, then >=0) */
 };
 
@@ -202,16 +203,15 @@ void		 db_expr_advancenext(void);
 int		 db_expr_checkstate(enum estate);
 void		 db_expr_finish(struct expr **, size_t);
 void		 db_expr_free(struct expr *);
-int		 db_expr_getautoadd(void);
 struct expr	*db_expr_get(int);
 size_t		 db_expr_lobbysize(void);
 size_t		 db_expr_round_count
 			(const struct expr *, int64_t, int64_t);
-void		 db_expr_setautoadd(int64_t);
+void		 db_expr_setautoadd(int64_t, int64_t);
 void		 db_expr_setinstr(const char *);
 int		 db_expr_start(int64_t, int64_t, int64_t, 
 			int64_t, int64_t, int64_t, int64_t, 
-			const char *, const char *);
+			const char *, const char *, const char *);
 void		 db_expr_wipe(void);
 
 struct game	*db_game_alloc(const char *,

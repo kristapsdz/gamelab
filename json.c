@@ -229,6 +229,7 @@ json_putexpr(struct kjsonreq *r, const struct expr *expr)
 	kjson_putintp(r, "roundmin", expr->roundmin);
 	kjson_putintp(r, "roundbegan", expr->roundbegan);
 	kjson_putintp(r, "autoadd", expr->autoadd);
+	kjson_putintp(r, "autoaddpreserve", expr->autoaddpreserve);
 	kjson_obj_close(r);
 }
 

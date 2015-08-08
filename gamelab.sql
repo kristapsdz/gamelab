@@ -95,6 +95,7 @@ CREATE TABLE experiment (
 	roundmin INTEGER DEFAULT(0),
 	minutes INTEGER DEFAULT(0),
 	autoadd INTEGER NOT NULL DEFAULT(0),
+	autoaddpreserve INTEGER NOT NULL DEFAULT(0),
 	loginuri TEXT DEFAULT(''),
 	instr TEXT DEFAULT(''),
 	total INTEGER DEFAULT(0),

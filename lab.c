@@ -339,10 +339,17 @@ static void
 senddoautoadd(struct kreq *r)
 {
 	int		 rc;
+	int64_t		 autoadd;
 	char		*hash;
 	struct kjsonreq	 req;
+	struct expr	*expr;
 
-	if ( ! db_expr_getautoadd()) {
+	expr = db_expr_get(0);
+	assert(NULL != expr);
+	autoadd = expr->autoadd;
+	db_expr_free(expr);
+
+	if (0 == autoadd) {
 		http_open(r, KHTTP_404);
 		khttp_body(r);
 		return;

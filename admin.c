@@ -84,6 +84,7 @@ enum	cntt {
  */
 enum	key {
 	KEY_AUTOADD,
+	KEY_AUTOADDPRESERVE,
 	KEY_DATE,
 	KEY_TIME,
 	KEY_ROUNDMIN,
@@ -96,6 +97,7 @@ enum	key {
 	KEY_EMAIL2,
 	KEY_EMAIL3,
 	KEY_GAMEID,
+	KEY_HISTORYFILE,
 	KEY_INSTR,
 	KEY_NAME,
 	KEY_P1,
@@ -197,6 +199,7 @@ static int kvalid_time(struct kpair *);
 
 static const struct kvalid keys[KEY__MAX] = {
 	{ kvalid_int, "autoadd" }, /* KEY_AUTOADD */
+	{ kvalid_int, "autoaddpreserve" }, /* KEY_AUTOADDPRESERVE*/
 	{ kvalid_date, "date" }, /* KEY_DATE */
 	{ kvalid_time, "time" }, /* KEY_TIME */
 	{ kvalid_uint, "roundmin" }, /* KEY_ROUNDMIN */
@@ -209,6 +212,7 @@ static const struct kvalid keys[KEY__MAX] = {
 	{ kvalid_email, "email2" }, /* KEY_EMAIL2 */
 	{ kvalid_email, "email3" }, /* KEY_EMAIL3 */
 	{ kvalid_int, "gid" }, /* KEY_GAMEID */
+	{ kvalid_stringne, "historyfile" }, /* KEY_HISTORYFILE */
 	{ kvalid_stringne, "instr" }, /* KEY_INSTR */
 	{ kvalid_stringne, "name" }, /* KEY_NAME */
 	{ kvalid_int, "p1" }, /* KEY_P1 */
@@ -773,9 +777,11 @@ senddoaddplayers(struct kreq *r)
 	http_open(r, KHTTP_200);
 	khttp_body(r);
 
-	if (NULL != r->fieldmap[KEY_AUTOADD])
-		db_expr_setautoadd
-			(r->fieldmap[KEY_AUTOADD]->parsed.i);
+	db_expr_setautoadd
+		(NULL != r->fieldmap[KEY_AUTOADD] ?
+		 r->fieldmap[KEY_AUTOADD]->parsed.i : 0,
+		 NULL != r->fieldmap[KEY_AUTOADDPRESERVE] ?
+		 r->fieldmap[KEY_AUTOADDPRESERVE]->parsed.i : 0);
 
 	if (NULL == r->fieldmap[KEY_PLAYERS])
 		return;
@@ -822,17 +828,22 @@ static void
 senddoloadplayers(struct kreq *r)
 {
 	struct kjsonreq	 req;
+	struct expr	*expr;
 
+	expr = db_expr_get(0);
+	assert(NULL != expr);
 	http_open(r, KHTTP_200);
 	khttp_body(r);
 	kjson_open(&req, r);
 	kjson_obj_open(&req);
-	kjson_putintp(&req, "autoadd", db_expr_getautoadd());
+	kjson_putintp(&req, "autoadd", expr->autoadd);
+	kjson_putintp(&req, "autoaddpreserve", expr->autoaddpreserve);
 	kjson_arrayp_open(&req, "players");
 	db_player_load_all(senddoloadplayer, &req);
 	kjson_array_close(&req);
 	kjson_obj_close(&req);
 	kjson_close(&req);
+	db_expr_free(expr);
 }
 
 
@@ -1027,7 +1038,9 @@ senddostartexpr(struct kreq *r)
 		 r->fieldmap[KEY_MINUTES]->parsed.i,
 		 r->fieldmap[KEY_PLAYERMAX]->parsed.i,
 		 r->fieldmap[KEY_INSTR]->parsed.s,
-		 r->fieldmap[KEY_URI]->parsed.s)) {
+		 r->fieldmap[KEY_URI]->parsed.s,
+		 NULL == r->fieldmap[KEY_HISTORYFILE] ?
+		 NULL : r->fieldmap[KEY_HISTORYFILE]->parsed.s)) {
 		http_open(r, KHTTP_409);
 		khttp_body(r);
 		return;

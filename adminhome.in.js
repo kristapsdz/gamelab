@@ -117,6 +117,18 @@ function loadNewPlayersSuccess(resp)
 		}
 	}
 
+	if (null != (icon = document.getElementById('autoaddTogglePreserve'))) {
+		icon.classList.remove('fa-toggle-off');
+		icon.classList.remove('fa-toggle-on');
+		if (results.autoadd) {
+			icon.classList.add('fa-toggle-on');
+			doValue('autoaddpreserve', 1);
+		} else {
+			icon.classList.add('fa-toggle-off');
+			doValue('autoaddpreserve', 0);
+		}
+	}
+
 	if (results.autoadd)
 		doUnhide('captiveGame');
 	else
@@ -226,6 +238,18 @@ function loadPlayersSuccess(resp)
 		results = JSON.parse(resp);
 	} catch (error) {
 		return;
+	}
+
+	if (null != (icon = document.getElementById('autoaddToggle'))) {
+		icon.classList.remove('fa-toggle-off');
+		icon.classList.remove('fa-toggle-on');
+		if (results.autoadd) {
+			icon.classList.add('fa-toggle-on');
+			doValue('autoadd', 1);
+		} else {
+			icon.classList.add('fa-toggle-off');
+			doValue('autoadd', 0);
+		}
 	}
 
 	players = results.players;

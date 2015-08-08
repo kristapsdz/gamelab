@@ -276,13 +276,18 @@
 							</div>
 							<div class="input input-check">
 								<i onclick="toggler('autoadd', 'autoaddToggle');" id="autoaddToggle" class="fa fa-fw fa-toggle-off"></i>
-								<span onclick="toggler('autoadd', 'autoaddToggle');">Allow Captive Players</span>
+								<span onclick="toggler('autoadd', 'autoaddToggle');">Allow captive players</span>
+							</div>
+							<div class="input input-check">
+								<i onclick="toggler('autoaddpreserve', 'autoaddTogglePreserve');" id="autoaddTogglePreserve" class="fa fa-fw fa-toggle-off"></i>
+								<span onclick="toggler('autoaddpreserve', 'autoaddTogglePreserve');">Preserve captive mode after startup</span>
 							</div>
 							<div class="input input-submit">
 								<i class="fa fa-fw fa-check"></i>
 								<input id="addPlayersSubmit" type="submit" value="Submit" />
 							</div>
 							<input type="hidden" id="autoadd" name="autoadd" value="0" />
+							<input type="hidden" id="autoaddpreserve" name="autoaddpreserve" value="0" />
 						</fieldset>
 					</form>
 					<div id="captiveGame">
@@ -370,7 +375,7 @@
 										class="fa fa-history fa-flip-horizontal"></i> minimum time for
 									the percentage to take affect so as to allow players to have a chance at
 									playing, and <i class="fa fa-group"></i> maximum number of simulataneous
-									players per player role (0, the default, for all initial players).
+									players per player role (0, the default, for no limit).
 								</p>
 								<div class="input">
 									<i class="fa fa-fw fa-link"></i>
@@ -515,6 +520,10 @@ column players played <q>B</q> was 0.650.
 								<div class="input">
 									<i class="fa fa-fw fa-group"></i>
 									<input required="required" type="number" name="playermax" id="playermax" min="0" step="1" value="0" />
+								</div>
+								<div class="input">
+									<i class="fa fa-fw fa-file-code-o"></i>
+									<input type="file" name="historyfile" id="historyfile" accept=".json" />
 								</div>
 							</section>
 							<div class="input input-submit">
