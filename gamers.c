@@ -139,8 +139,7 @@ struct	gamer {
 	size_t		  	 rx; /* bytes read in xfer */
 	struct json_object	*parsed; /* parsed json object */
 	int64_t			 lastround; /* last seen round */
-	time_t			 waittime; /* if we're waiting */
-	time_t			 wait; /* wait duration */
+	time_t			 unblock; /* when to unwait */
 	TAILQ_ENTRY(gamer)	 entries;
 };
 
@@ -489,45 +488,64 @@ gamer_write(void *ptr, size_t sz, size_t nm, void *arg)
 	return(0);
 }
 
+static void
+gamer_schedule(struct gamer *g)
+{
+	struct gamer	*gp;
+
+	/* 
+	 * Insert us to preserve the fact that the newest entry is going
+	 * to be last.
+	 */
+	TAILQ_FOREACH_REVERSE(gp, &g->game->waiting, gamerq, entries) 
+		if (gp->unblock <= g->unblock) 
+			break;
+	if (NULL == gp) {
+		TAILQ_INSERT_HEAD(&g->game->waiting, g, entries);
+		return;
+	}
+	TAILQ_INSERT_AFTER(&g->game->waiting, gp, g, entries);
+}
+
 /*
  * Reset the connection for a new run.
  * This means releasing us from the multi handle, resetting the easy
  * connection, then re-adding us to the multi handle.
  */
 static int
-gamer_reset(struct gamer *gamer)
+gamer_reset(struct gamer *g)
 {
 	CURLMcode	 cm;
+	time_t		 t, duration;
 
 	/* First, reset and remove from our connections. */
-	cm = curl_multi_remove_handle
-		(gamer->game->curl, gamer->conn);
+	cm = curl_multi_remove_handle(g->game->curl, g->conn);
 	if (CURLM_OK != cm) {
 		fprintf(stderr, "curl_multi_remove_handle: %s\n",
 			curl_multi_strerror(cm));
 		return(0);
 	}
-	curl_easy_reset(gamer->conn);
+	curl_easy_reset(g->conn);
 	
 	/*
 	 * If the game has an inter-connection wait time, then put us in
 	 * the waiting queue for that [minimum] amount of time.
 	 */
-	if (gamer->game->wait > 0) {
-		gamer->waittime = time(NULL);
-		if (gamer->game->waitstochastic) {
-			gamer->wait = gamer->game->waitmin +
+	if (g->game->wait > 0) {
+		t = time(NULL);
+		if (g->game->waitstochastic) {
+			duration = g->game->waitmin +
 				arc4random_uniform
-				(gamer->game->waitmax - 
-				 gamer->game->waitmin);
+				(g->game->waitmax - g->game->waitmin);
 		} else 
-			gamer->wait = gamer->game->wait;
-		TAILQ_INSERT_TAIL(&gamer->game->waiting, gamer, entries);
+			duration = g->game->wait;
+		g->unblock = t + duration;
+		gamer_schedule(g);
 		return(1);
 	}
 
 	/* Otheriwise, re-add us to the connection pool. */
-	cm = curl_multi_add_handle(gamer->game->curl, gamer->conn);
+	cm = curl_multi_add_handle(g->game->curl, g->conn);
 	if (CURLM_OK == cm) 
 		return(1);
 	fprintf(stderr, "curl_multi_add_handle: %s\n",
@@ -1030,6 +1048,17 @@ gamer_phase_register(struct gamer *gamer)
 			"CURLINFO_RESPONSE_CODE: %s\n",
 			curl_easy_strerror(cc));
 		return(0);
+	} else if (404 == code) {
+		fprintf(stderr, "%s: trying again: %s\n", 
+			gamer->email, gamer->url);
+		if ( ! gamer_reset(gamer)) {
+			fputs("gamer_reset\n", stderr);
+			return(0);
+		} else if ( ! gamer_init_register(gamer)) {
+			fputs("gamer_init_login", stderr);
+			return(0);
+		}
+		return(0);
 	} else if (200 != code) {
 		fprintf(stderr, "%s: bad response: %s -> %ld\n", 
 			gamer->email, gamer->url, code);
@@ -1141,7 +1170,7 @@ main(int argc, char *argv[])
 	size_t		 i, sz;
 	long		 timeo;
 	char	 	*url, *field;
-	size_t		 urlsz;
+	size_t		 urlsz, initwait;
 	struct gamer	*ctx, *gp, *gpt;
 	struct game	 game;
 	fd_set		 rset, wset, eset;
@@ -1149,11 +1178,12 @@ main(int argc, char *argv[])
 	time_t		 t;
 
 	rc = 0;
+	initwait = 0;
 	memset(&game, 0, sizeof(struct game));
 	game.players = 2;
 	TAILQ_INIT(&game.waiting);
 
-	while (-1 != (c = getopt(argc, argv, "n:vw:"))) 
+	while (-1 != (c = getopt(argc, argv, "n:vw:W:"))) 
 		switch (c) {
 		case ('n'):
 			game.players = atoi(optarg);
@@ -1176,6 +1206,9 @@ main(int argc, char *argv[])
 				if (game.wait < 0) 
 					goto usage;
 			}
+			break;
+		case ('W'):
+			initwait = atoi(optarg);
 			break;
 		default:
 			goto usage;
@@ -1259,25 +1292,35 @@ main(int argc, char *argv[])
 	 * We have one handle per `player' in the `game'.
 	 * This will allow players to act independently of one another.
 	 */
+	t = time(NULL);
 	for (i = 0; i < game.players; i++) {
 		if (NULL == (ctx[i].conn = curl_easy_init())) {
 			fputs("curl_easy_init\n", stderr);
 			goto out;
 		}
-		cm = curl_multi_add_handle(game.curl, ctx[i].conn);
-		if (CURLM_OK != cm) {
-			fprintf(stderr, "curl_multi_add_handle: %s\n",
-				curl_multi_strerror(cm));
-			curl_easy_cleanup(ctx[i].conn);
-			ctx[i].conn = NULL;
-			goto out;
-		} else if (NULL == (ctx[i].tok = json_tokener_new())) {
+		ctx[i].lastround = -1;
+		ctx[i].game = &game;
+
+		if (initwait > 0) {
+			ctx[i].unblock = t + 
+				arc4random_uniform(initwait);
+			gamer_schedule(&ctx[i]);
+		} else {
+			cm = curl_multi_add_handle
+				(game.curl, ctx[i].conn);
+			if (CURLM_OK != cm) {
+				fprintf(stderr, 
+					"curl_multi_add_handle: %s\n",
+					curl_multi_strerror(cm));
+				curl_easy_cleanup(ctx[i].conn);
+				ctx[i].conn = NULL;
+				goto out;
+			}
+		}
+		if (NULL == (ctx[i].tok = json_tokener_new())) {
 			fputs("json_tokener_new", stderr);
 			goto out;
 		}
-
-		ctx[i].lastround = -1;
-		ctx[i].game = &game;
 
 		/* E-mail address: pXX@foo.com. */
 		if (asprintf(&ctx[i].email, "p%zu@foo.com", i) < 0) {
@@ -1290,7 +1333,12 @@ main(int argc, char *argv[])
 			fputs("gamer_init_register", stderr);
 			goto out;
 		}
-		if (game.verbose)
+		if (game.verbose && initwait)
+			fprintf(stderr, "%s: trying to "
+				"log in: %lld seconds\n", 
+				ctx[i].email,
+				(long long)(ctx[i].unblock - t));
+		else if (game.verbose)
 			fprintf(stderr, "%s: trying to "
 				"log in\n", ctx[i].email);
 	}
@@ -1331,8 +1379,19 @@ main(int argc, char *argv[])
 			fprintf(stderr, "curl_multi_timeout: %s\n",
 				curl_multi_strerror(cm));
 			goto out;
-		} else if (-1 == timeo) 
-			timeo = 5000;
+		} else if (-1 == timeo && -1 != maxfd && ! TAILQ_EMPTY(&game.waiting)) {
+			fprintf(stderr, "infinite\n");
+			gp = TAILQ_FIRST(&game.waiting);
+			assert(NULL != gp);
+			if ((t = time(NULL)) <= gp->unblock) {
+				if (0 == (sec = gp->unblock - t))
+					sec = 1;
+				else if (sec > 5)
+					sec = 5;
+				fprintf(stderr, "sleep: %u\n", sec);
+				timeo = sec;
+			}
+		}
 
 		/*
 		 * Poll on file descriptors.
@@ -1360,12 +1419,12 @@ main(int argc, char *argv[])
 			 */
 			gp = TAILQ_FIRST(&game.waiting);
 			assert(NULL != gp);
-			if ((t = time(NULL)) <= gp->waittime + gp->wait) {
-				sec = (gp->waittime + gp->wait) - t;
-				if (0 == sec)
+			if ((t = time(NULL)) <= gp->unblock) {
+				if (0 == (sec = gp->unblock - t))
 					sec = 1;
 				else if (sec > 5)
 					sec = 5;
+				fprintf(stderr, "sleep: %u\n", sec);
 				sleep(sec);
 			}
 		} else if (-1 == maxfd)
@@ -1423,20 +1482,19 @@ main(int argc, char *argv[])
 		 */
 		t = time(NULL);
 		TAILQ_FOREACH_SAFE(gp, &game.waiting, entries, gpt) {
-			if (gp->waittime > t) {
-				fputs("internal time warp", stderr);
-				goto out;
-			} else if (t - gp->waittime <= gp->wait) 
+			if (t <= gp->unblock)
 				continue;
-
 			TAILQ_REMOVE(&game.waiting, gp, entries);
-			gp->waittime = 0;
 			cm = curl_multi_add_handle
 				(gp->game->curl, gp->conn);
 			if (CURLM_OK == cm) 
 				continue;
 			fprintf(stderr, "curl_multi_add_handle: %s\n",
 				curl_multi_strerror(cm));
+			if (game.verbose) 
+				fprintf(stderr, "%s: unblocking "
+					"for comms: %s\n",
+					gp->email, gp->url);
 			goto out;
 		}
 
@@ -1532,6 +1590,7 @@ usage:
 		"[-v] "
 		"[-n players] "
 		"[-w [time|min:max]] "
+		"[-W max] "
 		"url\n", getprogname());
 	return(EXIT_FAILURE);
 }
