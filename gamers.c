@@ -76,6 +76,8 @@ struct	rstats {
 	struct stats	 rx; /* read bytes */
 	struct stats	 rtt; /* round-trip time */
 	size_t		 plays; /* successful plays */
+	size_t		 firstplays; 
+	size_t		 lastplays; 
 	struct timeval	 start; /* first round play */
 	struct timeval	 end; /* last round play */
 };
@@ -139,6 +141,7 @@ struct	gamer {
 	size_t		  	 rx; /* bytes read in xfer */
 	struct json_object	*parsed; /* parsed json object */
 	int64_t			 lastround; /* last seen round */
+	int64_t			 firstplays;
 	time_t			 unblock; /* when to unwait */
 	TAILQ_ENTRY(gamer)	 entries;
 };
@@ -483,8 +486,9 @@ gamer_write(void *ptr, size_t sz, size_t nm, void *arg)
 	    er == json_tokener_continue)
 		return(sz * nm);
 
-	fprintf(stderr, "json_tokener_parse_ex: %s\n",
-		json_tokener_error_desc(er));
+	fprintf(stderr, "json_tokener_parse_ex: %s: %.*s\n",
+		json_tokener_error_desc(er),
+		(int)(nm * sz), ptr);
 	return(0);
 }
 
@@ -817,6 +821,17 @@ gamer_phase_play(struct gamer *gamer)
 		return(0);
 	}
 
+	/*
+	 * Register that this is our first play.
+	 * This will be useful for keeping track of how many people join
+	 * and play over the course of the game.
+	 */
+	if (gamer->firstplays < 0) {
+		rstats_round(gamer->game, gamer->lastround);
+		gamer->game->rounds[gamer->lastround + 1].firstplays++;
+		gamer->firstplays = gamer->lastround;
+	}
+
 	rstats_round(gamer->game, gamer->lastround);
 	gamer->game->rounds[gamer->lastround + 1].plays++;
 
@@ -835,8 +850,8 @@ gamer_phase_loadexpr(struct gamer *gamer)
 {
 	CURLcode	    cc;
 	long		    code;
-	int64_t		    round, rounds;
-	struct json_object *expr;
+	int64_t		    round, rounds, joined, prounds;
+	struct json_object *expr, *player;
 
 	/* First make sure we have HTTP code 200. */
 	cc = curl_easy_getinfo(gamer->conn, 
@@ -856,10 +871,8 @@ gamer_phase_loadexpr(struct gamer *gamer)
 	}
 	
 	/*
-	 * Examine the result.
-	 * If we have the same round number as we did before, then keep
-	 * `getting' the experiment again.
-	 * If it's a new round, then try to play it.
+	 * Gather data from the JSON result.
+	 * Start with the experiment, then the player.
 	 */
 	if ( ! json_getobj(gamer, gamer->parsed, &expr, "expr")) {
 		fputs("json_getobj\n", stderr);
@@ -870,10 +883,30 @@ gamer_phase_loadexpr(struct gamer *gamer)
 	} else if ( ! json_getint(gamer, expr, &rounds, "rounds")) {
 		fputs("json_getint\n", stderr);
 		return(0);
+	} else if ( ! json_getint(gamer, expr, &prounds, "prounds")) {
+		fputs("json_getint\n", stderr);
+		return(0);
+	} 
+	
+	if ( ! json_getobj(gamer, gamer->parsed, &player, "player")) {
+		fputs("json_getobj\n", stderr);
+		return(0);
+	} else if ( ! json_getint(gamer, player, &joined, "joined")) {
+		fputs("json_getint\n", stderr);
+		return(0);
 	}
 
-	if (round < 0) {
-		/* Experiment hasn't begun yet. */
+	/*
+	 * Examine the result.
+	 * If we have the same round number as we did before, then keep
+	 * `getting' the experiment again.
+	 * If it's a new round, then try to play it.
+	 */
+	if (round < 0 || joined < 0) {
+		/* 
+		 * Experiment hasn't begun yet or we haven't joined the
+		 * game such that we can play.
+		 */
 		if ( ! gamer_reset(gamer)) {
 			fputs("gamer_reset\n", stderr);
 			return(0);
@@ -888,7 +921,10 @@ gamer_phase_loadexpr(struct gamer *gamer)
 		gamer->game->finished++;
 		gamer->phase = PHASE__MAX;
 		if (gamer->game->verbose)
-			fprintf(stderr, "%s: done\n", gamer->email);
+			fprintf(stderr, "%s: done (experiment "
+				"finished)\n", gamer->email);
+		rstats_round(gamer->game, gamer->lastround);
+		gamer->game->rounds[gamer->lastround + 1].lastplays++;
 		return(1);
 	} else if (gamer->lastround > round) {
 		/* We played a round in the future...? */
@@ -896,6 +932,18 @@ gamer_phase_loadexpr(struct gamer *gamer)
 			PRId64 " > %" PRId64 "\n", gamer->email, 
 			gamer->url, gamer->lastround, round);
 		return(0);
+	} else if (joined >= 0 && prounds > 0 &&
+		 round >= joined + prounds) {
+		/* Our play period has finished. */
+		assert(gamer->lastround < round);
+		gamer->game->finished++;
+		gamer->phase = PHASE__MAX;
+		if (gamer->game->verbose)
+			fprintf(stderr, "%s: done (play "
+				"period finished)\n", gamer->email);
+		rstats_round(gamer->game, gamer->lastround);
+		gamer->game->rounds[gamer->lastround + 1].lastplays++;
+		return(1);
 	} else if (gamer->lastround < round) {
 		/* Play the round. */
 		if ( ! gamer_reset(gamer)) {
@@ -1021,7 +1069,7 @@ gamer_phase_login(struct gamer *gamer)
 	}
 
 	if (gamer->game->verbose)
-		fprintf(stderr, "%s: playing (session %s, "
+		fprintf(stderr, "%s: logged in (session %s, "
 			"cookie %s)\n", gamer->email,
 			gamer->sessid, gamer->sesscookie);
 	if (++gamer->game->loggedin == gamer->game->players) 
@@ -1298,7 +1346,7 @@ main(int argc, char *argv[])
 			fputs("curl_easy_init\n", stderr);
 			goto out;
 		}
-		ctx[i].lastround = -1;
+		ctx[i].lastround = ctx[i].firstplays = -1;
 		ctx[i].game = &game;
 
 		if (initwait > 0) {
@@ -1380,7 +1428,6 @@ main(int argc, char *argv[])
 				curl_multi_strerror(cm));
 			goto out;
 		} else if (-1 == timeo && -1 != maxfd && ! TAILQ_EMPTY(&game.waiting)) {
-			fprintf(stderr, "infinite\n");
 			gp = TAILQ_FIRST(&game.waiting);
 			assert(NULL != gp);
 			if ((t = time(NULL)) <= gp->unblock) {
@@ -1388,7 +1435,6 @@ main(int argc, char *argv[])
 					sec = 1;
 				else if (sec > 5)
 					sec = 5;
-				fprintf(stderr, "sleep: %u\n", sec);
 				timeo = sec;
 			}
 		}
@@ -1424,7 +1470,6 @@ main(int argc, char *argv[])
 					sec = 1;
 				else if (sec > 5)
 					sec = 5;
-				fprintf(stderr, "sleep: %u\n", sec);
 				sleep(sec);
 			}
 		} else if (-1 == maxfd)
@@ -1503,10 +1548,11 @@ main(int argc, char *argv[])
 
 	puts("");
 	puts("Per-round Metrics");
-	printf("%7s %11s %11s %11s %11s %10s %10s\n", "round", 
+	printf("%7s %11s %11s %11s %11s %10s %10s %10s %10s\n", "round", 
 		"rx mean", "rx stddev", 
 		"rtt mean", "rtt stddev", 
-		"samples", "plays");
+		"samples", "plays", "firstplay", 
+		"lastplay");
 	for (i = 0; i < game.roundsz; i++) {
 		printf("%7zd ", i - 1);
 		fputs(fmt_bytes(game.rounds[i].rx.mean), stdout);
@@ -1520,6 +1566,10 @@ main(int argc, char *argv[])
 		fputs(fmt_samples(game.rounds[i].rtt.n), stdout);
 		putchar(' ');
 		fputs(fmt_samples(game.rounds[i].plays), stdout);
+		putchar(' ');
+		fputs(fmt_samples(game.rounds[i].firstplays), stdout);
+		putchar(' ');
+		fputs(fmt_samples(game.rounds[i].lastplays), stdout);
 		putchar('\n');
 	}
 	puts("");

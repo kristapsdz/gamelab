@@ -1240,7 +1240,6 @@ main(void)
 		khttp_body(&r);
 		goto out;
 	}
-
 	/* 
 	 * First, make sure that the page accepts the content type we've
 	 * assigned to it.

@@ -495,8 +495,8 @@ db_expr_advance(void)
 	struct expr	*expr;
 	time_t		 t;
 	int		 rc;
-	size_t		 games, allplayers[2];
-	double		 roleplayers[2];
+	size_t		 games, allplayers[2], roleplayers[2];
+	double		 playerf[2];
 	int64_t		 round, played, tmp;
 	sqlite3_stmt	*stmt;
 
@@ -510,17 +510,15 @@ db_expr_advance(void)
 		return;
 	} 
 
+	/*
+	 * Optional round advancement according to the number of players
+	 * per role who have played all games.
+	 */
 	if (expr->roundpct > 0.0 && 
 		 expr->round >= 0 &&
 		 t - expr->roundbegan > expr->roundmin * 60) {
 		/*
-		 * Optional round advancement according to the number of
-		 * players per role who have played all games.
-		 * FIXME: cache in experiment.
-		 */
-		games = db_game_count_all();
-		/*
-		 * First determine how many players exist per role.
+		 * Determine how many players exist per role.
 		 * This only works with players who are currently in the
 		 * play role, not in the lobby (or finished).
 		 */
@@ -537,11 +535,13 @@ db_expr_advance(void)
 		tmp = sqlite3_column_int64(stmt, 0);
 		sqlite3_reset(stmt);
 		assert(tmp >= 0 && (uint64_t)tmp < SIZE_MAX);
-		allplayers[0] = tmp;
-		/* No players?  Automatic fail. */
-		if (0 == tmp) {
+		if (0 == (allplayers[0] = tmp)) {
 			sqlite3_finalize(stmt);
-			goto fallback;
+			fprintf(stderr, "Advancing round (at %" 
+				PRId64 "): no players in role 0\n",
+				expr->round);
+			round = expr->round + 1;
+			goto advance;
 		}
 
 		db_bind_int(stmt, 1, 1);
@@ -553,17 +553,19 @@ db_expr_advance(void)
 		tmp = sqlite3_column_int64(stmt, 0);
 		sqlite3_finalize(stmt);
 		assert(tmp >= 0 && (uint64_t)tmp < SIZE_MAX);
-		allplayers[1] = tmp;
-		/* No players?  Automatic fail. */
-		if (0 == tmp) {
-			sqlite3_finalize(stmt);
-			goto fallback;
+		if (0 == (allplayers[1] = tmp)) {
+			fprintf(stderr, "Advancing round (at %" 
+				PRId64 "): no players in role 1\n",
+				expr->round);
+			round = expr->round + 1;
+			goto advance;
 		}
 
 		/*
-		 * Now divide under the number of players per role who
-		 * have played all of their games.
+		 * Compute the per-player-role number of players we have
+		 * available to play in this round.
 		 */
+		games = db_game_count_all();
 		stmt = db_stmt("SELECT player.role FROM player "
 			"INNER JOIN gameplay ON "
 			" player.id = gameplay.playerid "
@@ -571,25 +573,28 @@ db_expr_advance(void)
 			" gameplay.choices=?");
 		db_bind_int(stmt, 1, expr->round);
 		db_bind_int(stmt, 2, games);
-		roleplayers[0] = roleplayers[1] = 0.0;
+		roleplayers[0] = roleplayers[1] = 0;
 		while (SQLITE_ROW == db_step(stmt, 0)) {
 			played = sqlite3_column_int64(stmt, 0);
 			assert(played == 0 || played == 1);
-			roleplayers[played] += 1.0;
+			roleplayers[played]++;
 		}
 		sqlite3_finalize(stmt);
-		assert(allplayers[0] > 0);
-		assert(allplayers[1] > 0);
-		roleplayers[0] /= (double)allplayers[0];
-		roleplayers[1] /= (double)allplayers[1];
 
-		if (roleplayers[0] >= expr->roundpct &&
-			 roleplayers[1] >= expr->roundpct) {
+		playerf[0] = roleplayers[0] / (double)allplayers[0];
+		playerf[1] = roleplayers[1] /= (double)allplayers[1];
+
+		if (playerf[0] >= expr->roundpct &&
+			 playerf[1] >= expr->roundpct) {
+			fprintf(stderr, "Advancing round (at %" 
+				PRId64 "): fraction exceeded "
+				"(%g >= %g, %g >= %g)\n", expr->round, 
+				playerf[0], expr->roundpct,
+				playerf[1], expr->roundpct);
 			round = expr->round + 1;
 			goto advance;
 		}
 	} 
-fallback:
 
 	/*
 	 * Round advancement according to the system time.
@@ -1715,8 +1720,9 @@ db_player_join(const struct player *player)
 	fprintf(stderr, "Next round (%" PRId64 ") will have %" PRId64 " "
 		"players (max %" PRId64 " per role, role %" PRId64 
 		", had %" PRId64 "): scheduling player %" PRId64 
-		" as well\n", expr->round + 1, count, role, 
-		expr->playermax, count, player->id);
+		" as well\n", expr->round + 1, count, 
+		expr->playermax, role, 
+		count, player->id);
 	db_expr_free(expr);
 	return(1);
 }
