@@ -98,6 +98,7 @@ CREATE TABLE experiment (
 	autoaddpreserve INTEGER NOT NULL DEFAULT(0),
 	history TEXT NOT NULL DEFAULT(''),
 	nolottery INTEGER NOT NULL DEFAULT(0),
+	questionnaire INTEGER NOT NULL DEFAULT(0),
 	loginuri TEXT DEFAULT(''),
 	instr TEXT DEFAULT(''),
 	total INTEGER DEFAULT(0),

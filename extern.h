@@ -49,9 +49,10 @@ struct	expr {
 	char		*history; /* "fake" JSON history */
 	int64_t		 total; /* total winnings (>ESTATE_STARTED) */
 	int64_t		 autoadd; /* auto-adding players */
-	int64_t		 autoaddpreserve;
+	int64_t		 autoaddpreserve; /* keep autoadd on start */
 	int64_t		 round; /* round (<0 initial, then >=0) */
-	int64_t		 nolottery;
+	int64_t		 nolottery; /* don't show lottery info */
+	int64_t		 questionnaire; /* require questions */
 };
 
 /*
@@ -214,7 +215,7 @@ void		 db_expr_setinstr(const char *);
 int		 db_expr_start(int64_t, int64_t, int64_t, 
 			int64_t, int64_t, int64_t, int64_t, 
 			const char *, const char *, const char *,
-			int64_t);
+			int64_t, int64_t);
 void		 db_expr_wipe(void);
 
 struct game	*db_game_alloc(const char *,

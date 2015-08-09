@@ -135,6 +135,7 @@ div.input i			{ text-align: center;
 i[class~="fa-toggle-off"]	{ color: black; }
 i[class~="fa-toggle-on"]	{ color: green; }
 div.input button,
+div.input .inputgroup,
 div.input textarea,
 div.input input			{ -webkit-appearance: none;
 				  margin: 0;
@@ -160,6 +161,7 @@ div.input-submit input:active	{ background-color: #444; }
 div.input-submit button:hover,
 div.input-submit input:hover	{ color: #ddd; }
 div.input button,
+div.input input[type=checkbox],
 div.input input[type=date],
 div.input input[type=submit]	{ width: auto; }
 div.input input[type=number]	{ width: 20ex; }

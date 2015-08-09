@@ -51,6 +51,7 @@ SCREENS	 = screen-admin1.png \
 STATICS	 = adminhome.css \
 	   adminlogin.css \
 	   playerhome.css \
+	   playerlobby.css \
 	   playerlogin.css \
 	   style.css \
 	   script.js

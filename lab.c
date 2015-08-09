@@ -47,9 +47,11 @@ struct	poffstor {
  * Unique pages under the CGI "directory".
  */
 enum	page {
+	PAGE_DOANSWER,
 	PAGE_DOAUTOADD,
 	PAGE_DOINSTR,
 	PAGE_DOLOADEXPR,
+	PAGE_DOLOADQUESTIONS,
 	PAGE_DOLOGIN,
 	PAGE_DOLOGOUT,
 	PAGE_DOPLAY,
@@ -76,9 +78,11 @@ enum	key {
 #define	PERM_JSON	0x10
 
 static	unsigned int perms[PAGE__MAX] = {
+	PERM_JSON | PERM_LOGIN, /* PAGE_DOANSWER */
 	PERM_JSON, /* PAGE_DOAUTOADD */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOINSTR */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOLOADEXPR */
+	PERM_JSON | PERM_LOGIN, /* PAGE_DOLOADQUESTIONS */
 	PERM_JSON | PERM_HTML, /* PAGE_DOLOGIN */
 	PERM_HTML | PERM_LOGIN, /* PAGE_DOLOGOUT */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOPLAY */
@@ -86,9 +90,11 @@ static	unsigned int perms[PAGE__MAX] = {
 };
 
 static const char *const pages[PAGE__MAX] = {
+	"doanswer", /* PAGE_DOANSWER */
 	"doautoadd", /* PAGE_DOAUTOADD */
 	"doinstr", /* PAGE_DOINSTR */
 	"doloadexpr", /* PAGE_DOLOADEXPR */
+	"doloadquestions", /* PAGE_DOLOADQUESTIONS */
 	"dologin", /* PAGE_DOLOGIN */
 	"dologout", /* PAGE_DOLOGOUT */
 	"doplay", /* PAGE_DOPLAY */
@@ -326,6 +332,14 @@ senddoloadgame(const struct game *game, int64_t round, void *arg)
 	kjson_obj_close(req);
 }
 
+static void
+senddoanswer(struct kreq *r)
+{
+
+	http_open(r, KHTTP_200);
+	khttp_body(r);
+}
+
 /*
  * Configure "auto-add" players: players enter the e-mail addresses in
  * the configuration phase.
@@ -397,6 +411,28 @@ senddowinrnums(const struct player *p,
 	struct kjsonreq	*r = arg;
 
 	kjson_putint(r, w->rnum);
+}
+
+static void
+senddoloadquestions(struct kreq *r, int64_t playerid)
+{
+	struct expr	*expr;
+	struct kjsonreq	 req;
+
+	if (NULL == (expr = db_expr_get(1))) {
+		http_open(r, KHTTP_409);
+		khttp_body(r);
+		return;
+	}
+
+	http_open(r, KHTTP_200);
+	khttp_body(r);
+	kjson_open(&req, r);
+	kjson_obj_open(&req);
+	kjson_putintp(&req, "questionnaire", expr->questionnaire);
+	kjson_obj_close(&req);
+	kjson_close(&req);
+	db_expr_free(expr);
 }
 
 static void
@@ -786,11 +822,17 @@ main(void)
 	case (PAGE_DOAUTOADD):
 		senddoautoadd(&r);
 		break;
+	case (PAGE_DOANSWER):
+		senddoanswer(&r);
+		break;
 	case (PAGE_DOINSTR):
 		senddoinstr(&r, id);
 		break;
 	case (PAGE_DOLOADEXPR):
 		senddoloadexpr(&r, id);
+		break;
+	case (PAGE_DOLOADQUESTIONS):
+		senddoloadquestions(&r, id);
 		break;
 	case (PAGE_DOLOGIN):
 		senddologin(&r);

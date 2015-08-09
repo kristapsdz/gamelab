@@ -1696,6 +1696,17 @@ db_player_join(const struct player *player)
 	db_trans_begin(1);
 	expr = db_expr_get(0);
 	assert(NULL != expr);
+
+	if (expr->questionnaire) {
+		db_trans_rollback();
+		fprintf(stderr, "Player %" PRId64 " asked to join "
+			"round %" PRId64 " without having "
+		        "submitted a questionnaire\n",
+			 player->id, expr->round + 1);
+		db_expr_free(expr);
+		return(0);
+	}
+
 	/* Count the number of player roles in the next. */
 	count0 = db_expr_round_count(expr, expr->round + 1, 0);
 	count1 = db_expr_round_count(expr, expr->round + 1, 1);
@@ -1747,7 +1758,7 @@ int
 db_expr_start(int64_t date, int64_t roundpct, int64_t roundmin, 
 	int64_t rounds, int64_t prounds, int64_t minutes, 
 	int64_t playermax, const char *instr, const char *uri,
-	const char *historyfile, int64_t nolottery)
+	const char *historyfile, int64_t nolottery, int64_t ques)
 {
 	sqlite3_stmt	*stmt, *stmt2;
 	int64_t		 id;
@@ -1774,7 +1785,7 @@ db_expr_start(int64_t date, int64_t roundpct, int64_t roundmin,
 		"start=?,rounds=?,minutes=?,"
 		"loginuri=?,instr=?,state=?,"
 		"roundpct=?,prounds=?,playermax=?,"
-		"prounds=?,history=?,nolottery=?,"
+		"prounds=?,history=?,nolottery=?,questionnaire=?,"
 		"autoadd=CASE WHEN autoaddpreserve=1 THEN autoadd ELSE 0 END");
 	db_bind_int(stmt, 1, date);
 	db_bind_int(stmt, 2, rounds);
@@ -1788,36 +1799,42 @@ db_expr_start(int64_t date, int64_t roundpct, int64_t roundmin,
 	db_bind_int(stmt, 10, prounds);
 	db_bind_text(stmt, 11, NULL == historyfile ? "" : historyfile);
 	db_bind_int(stmt, 12, nolottery);
+	db_bind_int(stmt, 13, ques);
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);
 
-	/*
-	 * Loop through assigning players to the zeroth round.
-	 * We obey the maximum number of players per role, so make sure
-	 * we keep track.
-	 * Assignment order is random.
-	 */
-	i = 0;
-	players[0] = players[1] = 0;
-	stmt = db_stmt("SELECT id from player "
-		"ORDER BY rseed ASC, id ASC");
-	stmt2 = db_stmt("UPDATE player "
-		"SET role=?,joined=0 WHERE id=?");
-	while (SQLITE_ROW == db_step(stmt, 0)) {
-		id = sqlite3_column_int64(stmt, 0);
-		db_bind_int(stmt2, 1, i % 2);
-		db_bind_int(stmt2, 2, id);
-		db_step(stmt2, 0);
-		sqlite3_reset(stmt2);
-		players[i % 2]++;
-		if (playermax > 0 &&
-			 players[0] >= playermax && 
-			 players[1] >= playermax)
-			break;
-		i++;
+	if ( ! ques) {
+		/*
+		 * If we're not running a questionnaire, then assign
+		 * people to play immediately.
+		 * Loop through assigning players to the zeroth round.
+		 * We obey the maximum number of players per role, so
+		 * make sure we keep track.
+		 * Assignment order is random.
+		 */
+		i = 0;
+		players[0] = players[1] = 0;
+		stmt = db_stmt("SELECT id from player "
+			"ORDER BY rseed ASC, id ASC");
+		stmt2 = db_stmt("UPDATE player "
+			"SET role=?,joined=0 WHERE id=?");
+		while (SQLITE_ROW == db_step(stmt, 0)) {
+			id = sqlite3_column_int64(stmt, 0);
+			db_bind_int(stmt2, 1, i % 2);
+			db_bind_int(stmt2, 2, id);
+			db_step(stmt2, 0);
+			sqlite3_reset(stmt2);
+			players[i % 2]++;
+			if (playermax > 0 &&
+				 players[0] >= playermax && 
+				 players[1] >= playermax)
+				break;
+			i++;
+		}
+		sqlite3_finalize(stmt);
+		sqlite3_finalize(stmt2);
 	}
-	sqlite3_finalize(stmt);
-	sqlite3_finalize(stmt2);
+
 	db_trans_commit();
 	fprintf(stderr, "Experiment started\n");
 	return(1);
@@ -2786,7 +2803,7 @@ db_expr_get(int only_started)
 		"loginuri,state,instr,state,total,"
 		"autoadd,round,roundbegan,roundpct,"
 		"roundmin,prounds,playermax,autoaddpreserve,"
-		"history,nolottery " 
+		"history,nolottery,questionnaire " 
 		"FROM experiment");
 	rc = db_step(stmt, 0);
 	assert(SQLITE_ROW == rc);
@@ -2814,6 +2831,7 @@ db_expr_get(int only_started)
 	expr->autoaddpreserve = sqlite3_column_int(stmt, 15);
 	expr->history = kstrdup((char *)sqlite3_column_text(stmt, 16));
 	expr->nolottery = sqlite3_column_int(stmt, 17);
+	expr->questionnaire = sqlite3_column_int(stmt, 18);
 	sqlite3_finalize(stmt);
 	return(expr);
 }
@@ -2858,7 +2876,7 @@ db_expr_wipe(void)
 		"autoadd=0,autoaddpreserve=0,"
 		"state=0,total='0/1',round=-1,rounds=0,"
 		"prounds=0,roundbegan=0,roundpct=0.0,minutes=0,"
-		"roundmin=0,nolottery=0");
+		"roundmin=0,nolottery=0,questionnaire=0");
 	stmt = db_stmt("SELECT id FROM player");
 	stmt2 = db_stmt("UPDATE player SET rseed=? WHERE id=?");
 	/* 

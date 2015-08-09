@@ -12,7 +12,7 @@
 			function doError(err) 
 			{
 				document.getElementById('loggingIn').value = 'Login';
-				doUnhide(400 == err ? 'loginError' : 'ajaxError');
+				doUnhide(400 == err || 409 == err ? 'loginError' : 'ajaxError');
 			}
 
 			function doSuccess() 
