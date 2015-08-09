@@ -647,15 +647,20 @@
 						<li>
 							A set of players identified by e-mail address.
 							The more, the merrier, but you'll need two at a minimum.
+							(If you're running with captive players, at least two will need to have registered.)
 							Make sure the e-mail addresses are real!
 							Enter these e-mails into the <q>Players</q> section.
 							You'll be able to add and remove e-mails before the experiment, so no worries.
 							Moreover, if you start an experiment with mistaken e-mails, you'll be able to disable them.
-							If you specify <q>Allow Captive Players</q>, participants can register themselves by
+							If you specify <q>Allow captive players</q>, participants can register themselves by
 							accessing the <span class="file">playerautoadd.html</span> URL.
 							They are captive in the sense that their logout button is disabled and that they are
 							<strong>never</strong> e-mailed, nor are they retained if the database is wiped.
 							They will be shown with a special symbol.
+							In general, captive mode is disabled when you start an experiment.
+							This is a security measure so that players can't join after you've started.
+							You can opt to allow players to continually join by specifying that captive mode should
+							be preserved when the experiment begins.
 						</li>
 						<li>
 							A set of normal form bimatrix games.
@@ -730,6 +735,9 @@
 						(If not enough players play, then round will advance by the given, and now maximum, time.)
 						For non-zero percentages, you can also specify a <q>grace time</q> in minutes: the experiment
 						won't automatically advance rounds until after this duration.
+						If there are no players to play (for example, when allowing players to dynamically join after
+						starting for fewer plays than total rounds), the round will advance immediately after any grace
+						time.
 					</p>
 					<p>
 						You can edit the instructions given to players&mdash;in fact, that's a good idea, as you
