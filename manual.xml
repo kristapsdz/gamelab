@@ -735,9 +735,9 @@
 						(If not enough players play, then round will advance by the given, and now maximum, time.)
 						For non-zero percentages, you can also specify a <q>grace time</q> in minutes: the experiment
 						won't automatically advance rounds until after this duration.
-						If there are no players to play (for example, when allowing players to dynamically join after
+						<!-- If there are no players to play (for example, when allowing players to dynamically join after
 						starting for fewer plays than total rounds), the round will advance immediately after any grace
-						time.
+						time. -->
 					</p>
 					<p>
 						You can edit the instructions given to players&mdash;in fact, that's a good idea, as you

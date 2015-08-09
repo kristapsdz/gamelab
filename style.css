@@ -144,6 +144,7 @@ div.input input			{ -webkit-appearance: none;
 				  font-size: 13pt;
 				  font-family: inherit;
 				  box-sizing: border-box; }
+div.input input[type=checkbox]	{ -webkit-appearance: checkbox; }
 div.input-check >*		{ cursor: pointer; }
 div.input textarea		{ height: 10ex; }
 div.input textarea.bigtext	{ height: 30ex; }

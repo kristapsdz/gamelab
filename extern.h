@@ -151,6 +151,7 @@ struct	player {
 	int64_t		 finalscore; /* number of tickets */
 	int64_t		 version; /* increment at update */
 	int64_t		 joined; /* round when joined experiment */
+	int64_t		 answer; /* answered questionnaire */
 	int64_t		 id; /* unique identifier */
 };
 
@@ -255,6 +256,7 @@ int		 db_player_play(const struct player *, int64_t,
 			int64_t, int64_t, mpq_t *, size_t);
 void		 db_player_reset_all(void);
 void		 db_player_reset_error(void);
+void		 db_player_set_answered(int64_t);
 void		 db_player_set_instr(int64_t, int64_t);
 void		 db_player_set_mailed(int64_t, const char *);
 void		 db_player_set_state(int64_t, enum pstate);

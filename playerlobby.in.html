@@ -42,7 +42,7 @@
 				doUnhide('ploaded');
 				doHide('ploading');
 
-				if (res.questionnaire) {
+				if (res.questionnaire && ! res.answered) {
 					doHide('main');
 					doUnhide('questionnaire');
 				} else {
@@ -73,7 +73,7 @@
 							<i class="fa fa-spinner"></i> Loading...
 						</p>
 					</section>
-					<section id="ploaded">
+					<section id="ploaded" class="noshow">
 						<h3>Participant Lobby</h3>
 						<div id="main">
 							<p>
@@ -106,16 +106,16 @@
 										<i class="fa fa-fw fa-square"></i>
 										<div class="inputgroup">
 											<div>
-												<input id="choice0" type="checkbox" />
-												<label>Choice0</label>
+												<input id="choice0" name="choice0" type="checkbox" value="1" />
+												<label for="choice0">Choice0</label>
 											</div>
 											<div>
-												<input id="choice1" type="checkbox" />
-												<label>Choice1</label>
+												<input id="choice1" name="choice1" type="checkbox" value="1" />
+												<label for="choice1">Choice1</label>
 											</div>
 											<div>
-												<input id="choice1" type="checkbox" />
-												<label>Choice2</label>
+												<input id="choice2" name="choice2" type="checkbox" value="1" />
+												<label for="choice2">Choice2</label>
 											</div>
 										</div>
 									</div>
@@ -126,7 +126,7 @@
 								<fieldset>
 									<div class="input">
 										<i class="fa fa-fw fa-square"></i>
-										<input required="required" type="text" placeholder="Answer Here" />
+										<input required="required" name="answer0" type="text" placeholder="Answer Here" />
 									</div>
 								</fieldset>
 								<fieldset>

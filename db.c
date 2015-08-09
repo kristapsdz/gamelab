@@ -544,11 +544,14 @@ db_expr_advance(void)
 		assert(tmp >= 0 && (uint64_t)tmp < SIZE_MAX);
 		if (0 == (allplayers[0] = tmp)) {
 			sqlite3_finalize(stmt);
+#if 0
 			fprintf(stderr, "Advancing round (at %" 
 				PRId64 "): no players in role 0\n",
 				expr->round);
 			round = expr->round + 1;
 			goto advance;
+#endif
+			goto fallthrough;
 		}
 
 		db_bind_int(stmt, 1, 1);
@@ -566,11 +569,14 @@ db_expr_advance(void)
 		 * Or should we have a "wait" timer as well?
 		 */
 		if (0 == (allplayers[1] = tmp)) {
+#if 0
 			fprintf(stderr, "Advancing round (at %" 
 				PRId64 "): no players in role 1\n",
 				expr->round);
 			round = expr->round + 1;
 			goto advance;
+#endif
+			goto fallthrough;
 		}
 
 		/*
@@ -607,6 +613,7 @@ db_expr_advance(void)
 			goto advance;
 		}
 	} 
+fallthrough:
 
 	/*
 	 * Round advancement according to the system time.
@@ -1101,6 +1108,20 @@ db_player_free(struct player *player)
 	free(player);
 }
 
+void
+db_player_set_answered(int64_t player)
+{
+	sqlite3_stmt	*stmt;
+
+	stmt = db_stmt
+		("UPDATE player SET answer=1 WHERE id=?");
+	db_bind_int(stmt, 1, player);
+	db_step(stmt, 0);
+	sqlite3_finalize(stmt);
+	fprintf(stderr, "Player %" PRId64 " has "
+		"answered questionnaire\n", player);
+}
+
 /*
  * Set Boolean "instr" whether want to see instructions on load.
  */
@@ -1132,7 +1153,7 @@ db_player_load(int64_t id)
 
 	stmt = db_stmt("SELECT email,state,id,enabled,"
 		"role,rseed,instr,finalrank,finalscore,autoadd,"
-	        "version,joined FROM player WHERE id=?");
+	        "version,joined,answer FROM player WHERE id=?");
 	db_bind_int(stmt, 1, id);
 	if (SQLITE_ROW != db_step(stmt, 0)) {
 		sqlite3_finalize(stmt);
@@ -1152,6 +1173,7 @@ db_player_load(int64_t id)
 	player->autoadd = sqlite3_column_int(stmt, 9);
 	player->version = sqlite3_column_int(stmt, 10);
 	player->joined = sqlite3_column_int(stmt, 11);
+	player->answer = sqlite3_column_int(stmt, 12);
 	sqlite3_finalize(stmt);
 	return(player);
 }
@@ -1168,7 +1190,7 @@ db_player_load_all(playerf fp, void *arg)
 
 	stmt = db_stmt("SELECT email,state,id,enabled,"
 		"role,rseed,instr,finalrank,finalscore,autoadd, "
-		"version,joined FROM player "
+		"version,joined,answer FROM player "
 		"ORDER BY email ASC");
 	while (SQLITE_ROW == db_step(stmt, 0)) {
 		memset(&player, 0, sizeof(struct player));
@@ -1185,6 +1207,7 @@ db_player_load_all(playerf fp, void *arg)
 		player.autoadd = sqlite3_column_int(stmt, 9);
 		player.version = sqlite3_column_int(stmt, 10);
 		player.joined = sqlite3_column_int(stmt, 11);
+		player.answer = sqlite3_column_int(stmt, 12);
 		(*fp)(&player, arg);
 		free(player.mail);
 	}
@@ -1697,7 +1720,7 @@ db_player_join(const struct player *player)
 	expr = db_expr_get(0);
 	assert(NULL != expr);
 
-	if (expr->questionnaire) {
+	if (expr->questionnaire && ! player->answer) {
 		db_trans_rollback();
 		fprintf(stderr, "Player %" PRId64 " asked to join "
 			"round %" PRId64 " without having "
@@ -2871,7 +2894,7 @@ db_expr_wipe(void)
 	db_exec("DELETE FROM player WHERE autoadd=1");
 	db_exec("UPDATE player SET version=0,instr=1,state=0,"
 		"enabled=1,finalrank=0,finalscore=0,hash='',"
-		"joined=-1");
+		"joined=-1,answer=0");
 	db_exec("UPDATE experiment SET "
 		"autoadd=0,autoaddpreserve=0,"
 		"state=0,total='0/1',round=-1,rounds=0,"

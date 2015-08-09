@@ -63,6 +63,10 @@ enum	page {
  * Input form field names.
  */
 enum	key {
+	KEY_ANSWER0,
+	KEY_CHOICE0,
+	KEY_CHOICE1,
+	KEY_CHOICE2,
 	KEY_EMAIL,
 	KEY_GAMEID,
 	KEY_INSTR,
@@ -102,6 +106,10 @@ static const char *const pages[PAGE__MAX] = {
 };
 
 static const struct kvalid keys[KEY__MAX] = {
+	{ kvalid_stringne, "answer0" }, /* KEY_ANSWER0 */
+	{ NULL, "choice0" }, /* KEY_CHOICE0 */
+	{ NULL, "choice1" }, /* KEY_CHOICE1 */
+	{ NULL, "choice2" }, /* KEY_CHOICE2 */
 	{ kvalid_email, "email" }, /* KEY_EMAIL */
 	{ kvalid_int, "gid" }, /* KEY_GAMEID */
 	{ NULL, "instr" }, /* KEY_INSTR */
@@ -333,9 +341,18 @@ senddoloadgame(const struct game *game, int64_t round, void *arg)
 }
 
 static void
-senddoanswer(struct kreq *r)
+senddoanswer(struct kreq *r, int64_t id)
 {
 
+	if ( ! (NULL != r->fieldmap[KEY_CHOICE0] &&
+		 NULL != r->fieldmap[KEY_CHOICE1] &&
+		 NULL != r->fieldmap[KEY_ANSWER0])) {
+		http_open(r, KHTTP_400);
+		khttp_body(r);
+		return;
+	}
+
+	db_player_set_answered(id);
 	http_open(r, KHTTP_200);
 	khttp_body(r);
 }
@@ -418,21 +435,27 @@ senddoloadquestions(struct kreq *r, int64_t playerid)
 {
 	struct expr	*expr;
 	struct kjsonreq	 req;
+	struct player	*player;
 
 	if (NULL == (expr = db_expr_get(1))) {
 		http_open(r, KHTTP_409);
 		khttp_body(r);
 		return;
-	}
+	} 
+	
+	player = db_player_load(playerid);
+	assert(NULL != player);
 
 	http_open(r, KHTTP_200);
 	khttp_body(r);
 	kjson_open(&req, r);
 	kjson_obj_open(&req);
 	kjson_putintp(&req, "questionnaire", expr->questionnaire);
+	kjson_putintp(&req, "answered", player->answer);
 	kjson_obj_close(&req);
 	kjson_close(&req);
 	db_expr_free(expr);
+	db_player_free(player);
 }
 
 static void
@@ -823,7 +846,7 @@ main(void)
 		senddoautoadd(&r);
 		break;
 	case (PAGE_DOANSWER):
-		senddoanswer(&r);
+		senddoanswer(&r, id);
 		break;
 	case (PAGE_DOINSTR):
 		senddoinstr(&r, id);

@@ -1,0 +1,16 @@
+<article data-sblg-article="1" data-sblg-tags="version">
+	<header>
+		<h1>1.0.10</h1>
+		<address>Kristaps Dzonsons</address>
+		<time datetime="2015-08-08">2015-08-08</time>
+	</header>
+	<aside>
+		<p>
+			Add the ability for players to have a brief questionnaire when they begin.
+			With this feature, players are put into the lobby before joining the game.
+			They are then required to answer some pre-made questions.
+			When the answer with success, they'll join the game itself.
+			This feature is still experimental: the questions have not been written.
+		</p>
+	</aside>
+</article>
