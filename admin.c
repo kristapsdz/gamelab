@@ -100,6 +100,7 @@ enum	key {
 	KEY_HISTORYFILE,
 	KEY_INSTR,
 	KEY_NAME,
+	KEY_NOLOTTERY,
 	KEY_P1,
 	KEY_P2,
 	KEY_PASSWORD,
@@ -215,6 +216,7 @@ static const struct kvalid keys[KEY__MAX] = {
 	{ kvalid_stringne, "historyfile" }, /* KEY_HISTORYFILE */
 	{ kvalid_stringne, "instr" }, /* KEY_INSTR */
 	{ kvalid_stringne, "name" }, /* KEY_NAME */
+	{ kvalid_int, "nolottery" }, /* KEY_NOLOTTERY */
 	{ kvalid_int, "p1" }, /* KEY_P1 */
 	{ kvalid_int, "p2" }, /* KEY_P2 */
 	{ kvalid_stringne, "password" }, /* KEY_PASSWORD */
@@ -1011,6 +1013,7 @@ senddostartexpr(struct kreq *r)
 	db_smtp_free(smtp);
 
 	if (kpairbad(r, KEY_DATE) ||
+		kpairbad(r, KEY_NOLOTTERY) ||
 		kpairbad(r, KEY_TIME) ||
 		kpairbad(r, KEY_ROUNDS) ||
 		kpairbad(r, KEY_PROUNDS) ||
@@ -1040,7 +1043,8 @@ senddostartexpr(struct kreq *r)
 		 r->fieldmap[KEY_INSTR]->parsed.s,
 		 r->fieldmap[KEY_URI]->parsed.s,
 		 NULL == r->fieldmap[KEY_HISTORYFILE] ?
-		 NULL : r->fieldmap[KEY_HISTORYFILE]->parsed.s)) {
+		 NULL : r->fieldmap[KEY_HISTORYFILE]->parsed.s,
+		 r->fieldmap[KEY_NOLOTTERY]->parsed.i)) {
 		http_open(r, KHTTP_409);
 		khttp_body(r);
 		return;

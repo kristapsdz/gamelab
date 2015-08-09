@@ -1099,6 +1099,14 @@ function loadExprSuccess(resp)
 		v = res.player.finalrank + res.player.finalscore;
 		doClearReplace('exprFinishedFinalRankEnd', v);
 		doClearReplace('exprCountdown', 'finished');
+		if (expr.nolottery) {
+			console.log('1');
+			doHide('exprLottery');
+		} else {
+			console.log('2');
+			doUnhide('exprLottery');
+		}
+
 		if (null == res.winner) {
 			doHide('exprFinishedResults');
 			doUnhide('exprFinishedWinWait');

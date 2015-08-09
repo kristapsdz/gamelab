@@ -376,6 +376,11 @@
 									the percentage to take affect so as to allow players to have a chance at
 									playing, and <i class="fa fa-group"></i> maximum number of simulataneous
 									players per player role (0, the default, for no limit).
+									Upload a <i class="fa fa-fw fa-file-code-o"></i> history of play (a JSON
+									file as created with by exporting the history) to be prepended to the
+									history shown to players.
+									Finally, set the toggle for <q>Do not show lottery</q> to suppress
+									information shown to users about the lottery system.
 								</p>
 								<div class="input">
 									<i class="fa fa-fw fa-link"></i>
@@ -525,6 +530,11 @@ column players played <q>B</q> was 0.650.
 									<i class="fa fa-fw fa-file-code-o"></i>
 									<input type="file" name="historyfile" id="historyfile" accept=".json" />
 								</div>
+								<div class="input input-check">
+									<i onclick="toggler('nolottery', 'nolotteryToggle');" id="nolotteryToggle" class="fa fa-fw fa-toggle-off"></i>
+									<span onclick="toggler('nolottery', 'nolotteryToggle');">Do not show lottery</span>
+								</div>
+								<input type="hidden" id="nolottery" name="nolottery" value="0" />
 							</section>
 							<div class="input input-submit">
 								<i class="fa fa-check"></i>

@@ -221,6 +221,7 @@ json_putexpr(struct kjsonreq *r, const struct expr *expr)
 	kjson_putintp(r, "end", (int64_t)expr->end);
 	kjson_putintp(r, "rounds", expr->rounds);
 	kjson_putintp(r, "prounds", expr->prounds);
+	kjson_putintp(r, "nolottery", expr->nolottery);
 	kjson_putintp(r, "minutes", expr->minutes);
 	kjson_putstringp(r, "loginURI", expr->loginuri);
 	kjson_putdoublep(r, "progress", frac);

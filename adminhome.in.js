@@ -120,7 +120,7 @@ function loadNewPlayersSuccess(resp)
 	if (null != (icon = document.getElementById('autoaddTogglePreserve'))) {
 		icon.classList.remove('fa-toggle-off');
 		icon.classList.remove('fa-toggle-on');
-		if (results.autoadd) {
+		if (results.autoaddpreserve) {
 			icon.classList.add('fa-toggle-on');
 			doValue('autoaddpreserve', 1);
 		} else {
@@ -675,8 +675,11 @@ function loadExprSuccess(resp)
 					 ', ticket ' +
 					 res.winners[i].winnum + ')'));
 			}
-		} else
+		} else if ( ! expr.nolottery) {
 			doUnhide('statusExprFinishedWin');
+		} else {
+			doHide('statusExprFinishedWin');
+		}
 		doClearReplace('exprCountdown', 'finished');
 	}  else if (expr.round < 0) {
 		next = expr.start - Math.floor(new Date().getTime() / 1000);

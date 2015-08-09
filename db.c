@@ -1747,7 +1747,7 @@ int
 db_expr_start(int64_t date, int64_t roundpct, int64_t roundmin, 
 	int64_t rounds, int64_t prounds, int64_t minutes, 
 	int64_t playermax, const char *instr, const char *uri,
-	const char *historyfile)
+	const char *historyfile, int64_t nolottery)
 {
 	sqlite3_stmt	*stmt, *stmt2;
 	int64_t		 id;
@@ -1774,7 +1774,7 @@ db_expr_start(int64_t date, int64_t roundpct, int64_t roundmin,
 		"start=?,rounds=?,minutes=?,"
 		"loginuri=?,instr=?,state=?,"
 		"roundpct=?,prounds=?,playermax=?,"
-		"prounds=?,history=?,"
+		"prounds=?,history=?,nolottery=?,"
 		"autoadd=CASE WHEN autoaddpreserve=1 THEN autoadd ELSE 0 END");
 	db_bind_int(stmt, 1, date);
 	db_bind_int(stmt, 2, rounds);
@@ -1787,6 +1787,7 @@ db_expr_start(int64_t date, int64_t roundpct, int64_t roundmin,
 	db_bind_int(stmt, 9, playermax);
 	db_bind_int(stmt, 10, prounds);
 	db_bind_text(stmt, 11, NULL == historyfile ? "" : historyfile);
+	db_bind_int(stmt, 12, nolottery);
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);
 
@@ -2784,7 +2785,8 @@ db_expr_get(int only_started)
 	stmt = db_stmt("SELECT start,rounds,minutes,"
 		"loginuri,state,instr,state,total,"
 		"autoadd,round,roundbegan,roundpct,"
-		"roundmin,prounds,playermax,autoaddpreserve,history " 
+		"roundmin,prounds,playermax,autoaddpreserve,"
+		"history,nolottery " 
 		"FROM experiment");
 	rc = db_step(stmt, 0);
 	assert(SQLITE_ROW == rc);
@@ -2811,6 +2813,7 @@ db_expr_get(int only_started)
 	expr->playermax = sqlite3_column_int(stmt, 14);
 	expr->autoaddpreserve = sqlite3_column_int(stmt, 15);
 	expr->history = kstrdup((char *)sqlite3_column_text(stmt, 16));
+	expr->nolottery = sqlite3_column_int(stmt, 17);
 	sqlite3_finalize(stmt);
 	return(expr);
 }
@@ -2855,7 +2858,7 @@ db_expr_wipe(void)
 		"autoadd=0,autoaddpreserve=0,"
 		"state=0,total='0/1',round=-1,rounds=0,"
 		"prounds=0,roundbegan=0,roundpct=0.0,minutes=0,"
-		"roundmin=0");
+		"roundmin=0,nolottery=0");
 	stmt = db_stmt("SELECT id FROM player");
 	stmt2 = db_stmt("UPDATE player SET rseed=? WHERE id=?");
 	/* 

@@ -1145,7 +1145,8 @@ gamer_phase_register(struct gamer *gamer)
 
 	/* Lastly, transfer us to the login phase. */
 	if (gamer->game->verbose)
-		fprintf(stderr, "%s: registered\n", gamer->email);
+		fprintf(stderr, "%s: registered: %s\n", 
+			gamer->email, gamer->password);
 	if (++gamer->game->registered == gamer->game->players) 
 		printf("All players registered.\n");
 	return(1);
