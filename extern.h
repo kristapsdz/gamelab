@@ -46,6 +46,7 @@ struct	expr {
 	int64_t		 minutes; /* minutes per game play */
 	char		*loginuri; /* player login (email click) */
 	char		*instr; /* instruction markup */
+	char		*history; /* "fake" JSON history */
 	int64_t		 total; /* total winnings (>ESTATE_STARTED) */
 	int64_t		 autoadd; /* auto-adding players */
 	int64_t		 autoaddpreserve;

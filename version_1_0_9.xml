@@ -7,9 +7,21 @@
 	</header>
 	<aside>
 		<p>
-			Continue to add features to the <q>bot</q> player to discover bottlenecks in <span class="nm">gamelab</span>.
+			Continue to add features to the <q>bot</q>
+			player to discover bottlenecks in <span
+				class="nm">gamelab</span>.
 			Document the JSON API in the <a href="manual.html">manual</a>.
 			Simplify the experimenter interface.
+			Fix round advancement in the event of zero
+			players (a <q>hole</q> where players joind in a
+			burst, then finished playing
+			while rounds remain, then new players join).
+			Allow the experimenter to upload a prior
+			game-play history to supplement the current
+			experiment's displayed history.
+			In using this feature, players are shown the
+			prior experiment's game-play as if it were to
+			have come before the current round.
 		</p>
 	</aside>
 </article>

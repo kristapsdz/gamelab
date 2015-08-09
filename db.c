@@ -500,12 +500,19 @@ db_expr_advance(void)
 	int64_t		 round, played, tmp;
 	sqlite3_stmt	*stmt;
 
-	/* Do nothing if we'we not started. */
+	/* 
+	 * Do nothing if we've not started. 
+	 */
 	if (NULL == (expr = db_expr_get(1)))
 		return;
 
-	/* Do nothing if we're not running. */
-	if ((t = time(NULL)) < expr->start) {
+	/* 
+	 * Do nothing if we're not running or have finished. 
+	 */
+	if (expr->round >= expr->rounds) {
+		db_expr_free(expr);
+		return;
+	} else if ((t = time(NULL)) < expr->start) {
 		db_expr_free(expr);
 		return;
 	} 
@@ -553,6 +560,11 @@ db_expr_advance(void)
 		tmp = sqlite3_column_int64(stmt, 0);
 		sqlite3_finalize(stmt);
 		assert(tmp >= 0 && (uint64_t)tmp < SIZE_MAX);
+		/*
+		 * FIXME: is this the right thing to do?
+		 * Would we rather wait for people to join?
+		 * Or should we have a "wait" timer as well?
+		 */
 		if (0 == (allplayers[1] = tmp)) {
 			fprintf(stderr, "Advancing round (at %" 
 				PRId64 "): no players in role 1\n",
@@ -603,12 +615,6 @@ db_expr_advance(void)
 	 * correct value!
 	 * However, this won't allow rounds to regress.
 	 */
-	if (t < expr->roundbegan) {
-		fprintf(stderr, "Round-advance time warp!\n");
-		db_expr_free(expr);
-		return;
-	} 
-
 	if (expr->round >= 0) 
 		round = expr->round +
 			(t - expr->roundbegan) / (expr->minutes * 60);
@@ -621,7 +627,12 @@ db_expr_advance(void)
 	if (round == expr->round) {
 		db_expr_free(expr);
 		return;
-	}
+	} else if (t < expr->roundbegan) {
+		fprintf(stderr, "Round-advance time warp!\n");
+		db_expr_free(expr);
+		return;
+	} 
+
 
 advance:
 	db_expr_free(expr);
@@ -1763,7 +1774,7 @@ db_expr_start(int64_t date, int64_t roundpct, int64_t roundmin,
 		"start=?,rounds=?,minutes=?,"
 		"loginuri=?,instr=?,state=?,"
 		"roundpct=?,prounds=?,playermax=?,"
-		"prounds=?,"
+		"prounds=?,history=?,"
 		"autoadd=CASE WHEN autoaddpreserve=1 THEN autoadd ELSE 0 END");
 	db_bind_int(stmt, 1, date);
 	db_bind_int(stmt, 2, rounds);
@@ -1775,6 +1786,7 @@ db_expr_start(int64_t date, int64_t roundpct, int64_t roundmin,
 	db_bind_int(stmt, 8, rounds);
 	db_bind_int(stmt, 9, playermax);
 	db_bind_int(stmt, 10, prounds);
+	db_bind_text(stmt, 11, NULL == historyfile ? "" : historyfile);
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);
 
@@ -2772,7 +2784,7 @@ db_expr_get(int only_started)
 	stmt = db_stmt("SELECT start,rounds,minutes,"
 		"loginuri,state,instr,state,total,"
 		"autoadd,round,roundbegan,roundpct,"
-		"roundmin,prounds,playermax,autoaddpreserve " 
+		"roundmin,prounds,playermax,autoaddpreserve,history " 
 		"FROM experiment");
 	rc = db_step(stmt, 0);
 	assert(SQLITE_ROW == rc);
@@ -2798,6 +2810,7 @@ db_expr_get(int only_started)
 	expr->prounds = sqlite3_column_int(stmt, 13);
 	expr->playermax = sqlite3_column_int(stmt, 14);
 	expr->autoaddpreserve = sqlite3_column_int(stmt, 15);
+	expr->history = kstrdup((char *)sqlite3_column_text(stmt, 16));
 	sqlite3_finalize(stmt);
 	return(expr);
 }
@@ -2810,6 +2823,7 @@ db_expr_free(struct expr *expr)
 
 	free(expr->loginuri);
 	free(expr->instr);
+	free(expr->history);
 	free(expr);
 }
 

@@ -181,6 +181,7 @@ json_putexpr(struct kjsonreq *r, const struct expr *expr)
 	time_t	 	 tt;
 	struct ktemplate t;
 	struct jsoncache c;
+	size_t		 sz;
 
 	frac = 0.0;
 
@@ -229,6 +230,11 @@ json_putexpr(struct kjsonreq *r, const struct expr *expr)
 	kjson_putintp(r, "roundmin", expr->roundmin);
 	kjson_putintp(r, "roundbegan", expr->roundbegan);
 	kjson_putintp(r, "autoadd", expr->autoadd);
+	if ('{' == expr->history[0] && (sz = strlen(expr->history)) > 2) {
+		khttp_puts(r->req, ", ");
+		khttp_write(r->req, expr->history + 1, sz - 2);
+	} else
+		kjson_putnullp(r, "history");
 	kjson_putintp(r, "autoaddpreserve", expr->autoaddpreserve);
 	kjson_obj_close(r);
 }
