@@ -806,9 +806,6 @@
 						This will e-mail a redacted database to the administrator.
 						The redacted bits consist of user and administrator e-mail passwords.
 					</p>
-					<figure>
-						<a href="gamelab.png"><img class="shadow" src="gamelab.png" alt="Gamelab Schema" /></a>
-					</figure>
 					<p>
 						The database schema is fairly straightforward.
 						It consists of the following tables.
@@ -857,6 +854,13 @@
 								experiment is wiped.
 							</p>
 							<dl>
+								<dt id="db-player-answer"><var>answer</var></dt>
+								<dd>
+									If the questionnaire facility has been enabled (via the <a
+										href="#db-experiment"><code>experiment</code></a> <a
+										href="#db-experiment-questionnaire"><var>questionnaire</var></a>),
+									this is non-zero if the questionnaire has been answered.
+								</dd>
 								<dt id="db-player-autoadd"><var>autoadd</var></dt>
 								<dd>
 									Player was auto-added (i.e., auto-added herself).
@@ -1042,6 +1046,40 @@
 							<dl>
 								<dt id="db-experiment-autoadd"><var>autoadd</var></dt>
 								<dd>The experiment is currently accepting (or did accept) auto-added players.</dd>
+								<dt id="db-experiment-autoaddpreserve"><var>autoaddpreserve</var></dt>
+								<dd>
+									Preserve the <a href="#db-experiment-autoadd"><var>autoadd</var></a> bit
+									during and after the experiment start.
+									This is useful for rolling experiments so as not to have a break between
+									starting the experiment and reenabling captive mode.
+								</dd>
+								<dt id="db-experiment-end"><var>end</var></dt>
+								<dd>An epoch-encoded (seconds) time and date when the experiment when the last
+									round of the experiment concludes.  This also corresponds to the
+									starting time plus the number of rounds times round duration.</dd>
+								<dt id="db-experiment-id"><var>id</var></dt>
+								<dd>Unique identifier.</dd>
+								<dt id="db-experiment-instr"><var>instr</var></dt>
+								<dd>The instructions shown to players.  This must contain valid HTML5.  It may
+									contain <code>@@gamelab-admin-email@@</code>, which is filled in with
+									the experimenter's configured e-mail address;
+									<code>@@gamelab-games@@</code> for the number of games;
+									<code>@@gamelab-rounds@@</code> for the number of rounds; and
+									<code>@@gamelab-round-time@@</code>, a decimal number of the number of
+									hours per round.</dd>
+								<dt id="db-experiment-loginuri"><var>loginuri</var></dt>
+								<dd>Set when the experiment begins (i.e., when <a
+										href="#db-experiment-state"><var>state</var></a> &gt;0), this is
+									the URL given to players in their initial e-mail for when they log in.
+									This is suffixed by
+									<code>?email=EMAIL&amp;password=PASSWORD</code>.</dd>
+								<dt id="db-experiment-minutes"><var>minutes</var></dt>
+								<dd>The number of minutes per round.  Minimum of one.</dd>
+								<dt id="db-experiment-nolottery"><var>nolottery</var></dt>
+								<dd>
+									If non-zero, do not show the lottery facility to players or the
+									administrator.
+								</dd>
 								<dt id="db-experiment-playermax"><var>playermax</var></dt>
 								<dd>
 									The maximum number of players per player role at any given time.
@@ -1054,20 +1092,13 @@
 									If &gt;0, players will not be allowed to play more than the given number
 									of rounds within the experiment.
 								</dd>
-								<dt id="db-experiment-state"><var>state</var></dt>
-								<dd>The running state of the experiment, being either <var>0</var>, for new
-									(still in the configuration stage); <var>1</var>, for started (players
-									can log in, though the experiment itself may not be accepting plays
-									yet); <var>2</var>, where the experiment has expired, but the winner has
-									not been chosen by the experimenter; or <var>3</var>, where the
-									experiment has expired and the winner has been chosen.</dd>
-								<dt id="db-experiment-start"><var>start</var></dt>
-								<dd>An epoch-encoded (seconds) time and date when the experiment when the first
-									round of the experiment begins.</dd>
-								<dt id="db-experiment-end"><var>end</var></dt>
-								<dd>An epoch-encoded (seconds) time and date when the experiment when the last
-									round of the experiment concludes.  This also corresponds to the
-									starting time plus the number of rounds times round duration.</dd>
+								<dt id="db-experiment-questionnaire"><var>questionnaire</var></dt>
+								<dd>
+									If non-zero, new players are not directly assigned a join round and must
+									use the lobby facility.
+									There, they will be asked questions and cannot proceed until all
+									questions have been answered.
+								</dd>
 								<dt id="db-experiment-round"><var>round</var></dt>
 								<dd>
 									The current round of the experiment, or -1 if the rounds have not begun incrementing.
@@ -1097,30 +1128,22 @@
 								</dd>
 								<dt id="db-experiment-rounds"><var>rounds</var></dt>
 								<dd>The number of rounds that will be played.  Minimum of one.</dd>
-								<dt id="db-experiment-minutes"><var>minutes</var></dt>
-								<dd>The number of minutes per round.  Minimum of one.</dd>
-								<dt id="db-experiment-loginuri"><var>loginuri</var></dt>
-								<dd>Set when the experiment begins (i.e., when <a
-										href="#db-experiment-state"><var>state</var></a> &gt;0), this is
-									the URL given to players in their initial e-mail for when they log in.
-									This is suffixed by
-									<code>?email=EMAIL&amp;password=PASSWORD</code>.</dd>
-								<dt id="db-experiment-instr"><var>instr</var></dt>
-								<dd>The instructions shown to players.  This must contain valid HTML5.  It may
-									contain <code>@@gamelab-admin-email@@</code>, which is filled in with
-									the experimenter's configured e-mail address;
-									<code>@@gamelab-games@@</code> for the number of games;
-									<code>@@gamelab-rounds@@</code> for the number of rounds; and
-									<code>@@gamelab-round-time@@</code>, a decimal number of the number of
-									hours per round.</dd>
+								<dt id="db-experiment-start"><var>start</var></dt>
+								<dd>An epoch-encoded (seconds) time and date when the experiment when the first
+									round of the experiment begins.</dd>
+								<dt id="db-experiment-state"><var>state</var></dt>
+								<dd>The running state of the experiment, being either <var>0</var>, for new
+									(still in the configuration stage); <var>1</var>, for started (players
+									can log in, though the experiment itself may not be accepting plays
+									yet); <var>2</var>, where the experiment has expired, but the winner has
+									not been chosen by the experimenter; or <var>3</var>, where the
+									experiment has expired and the winner has been chosen.</dd>
 								<dt id="db-experiment-total"><var>total</var></dt>
 								<dd>When the experiment finishes (i.e., when <a
 										href="#db-experiment-state"><var>state</var></a> is set to 2),
 									this is filled in with the total number of lottery tickets (the <a
 										href="#db-player-finalscore"><var>finalscore</var></a>) awarded to
 									all players.</dd>
-								<dt id="db-experiment-id"><var>id</var></dt>
-								<dd>Unique identifier.</dd>
 							</dl>
 						</dd>
 						<dt id="db-game"><code>game</code></dt>

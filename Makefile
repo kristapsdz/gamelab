@@ -114,7 +114,7 @@ lab: lab.o $(OBJS)
 
 admin.o lab.o $(OBJS): extern.h
 
-www: index.html manual.html gamelab.tgz gamelab.tgz.sha512 gamelab.bib gamelab.png
+www: index.html manual.html gamelab.tgz gamelab.tgz.sha512 gamelab.bib 
 
 gamelab.bib: gamelab.in.bib
 	sed -e "s!@VERSION@!$(VERSION)!g" \
@@ -145,7 +145,7 @@ installwww: www
 	mkdir -p $(PREFIX)
 	mkdir -p $(PREFIX)/snapshots
 	install -m 0444 index.html gamelab.bib manual.html index.css manual.css logo.png bchs-logo.png $(PREFIX)
-	install -m 0444 $(SCREENS) gamelab.png $(PREFIX)
+	install -m 0444 $(SCREENS) $(PREFIX)
 	install -m 0444 gamelab.tgz $(PREFIX)/snapshots
 	install -m 0444 gamelab.tgz.sha512 $(PREFIX)/snapshots
 	install -m 0444 gamelab.tgz $(PREFIX)/snapshots/gamelab-$(VERSION).tgz
@@ -154,9 +154,6 @@ installwww: www
 gamelab.db: gamelab.sql
 	rm -f $@
 	sqlite3 $@ < gamelab.sql
-
-gamelab.png: gamelab.dot
-	dot -Tpng -o$@ gamelab.dot
 
 manual.html: manual.xml
 	sed "s!@VERSION@!$(VERSION)!g" manual.xml >$@
@@ -181,5 +178,5 @@ adminhome.js playerautoadd.js playerhome.js: jsmin
 clean:
 	rm -f admin admin.o gamelab.db lab lab.o $(OBJS) jsmin gamers
 	rm -f $(BUILT) $(BUILTPS) 
-	rm -f index.html manual.html gamelab.tgz gamelab.tgz.sha512 gamelab.bib gamelab.png
+	rm -f index.html manual.html gamelab.tgz gamelab.tgz.sha512 gamelab.bib
 	rm -rf *.dSYM
