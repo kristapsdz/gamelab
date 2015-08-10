@@ -60,7 +60,6 @@ h3 				{ cursor: pointer;
 #loadNewPlayers li,
 #loadGames li			{ margin: 0; 
 				  padding: 0; }
-.table				{ display: table; }
 #loadPlayers .table,
 #loadNewPlayers .table,
 #loadGames .table		{ border-left: thin solid #c60; 
@@ -90,13 +89,16 @@ section.rolled >*:not(h3) 	{ padding: 0;
 section.unrolled >*:not(h3) 	{ max-height: 1000em; 
 				  margin-left: 1ex; 
 				  margin-right: 1ex; }
-.table				{ border-spacing: 1ex 0.5ex; }
+.table				{ display: table; 
+				  width: 100%;
+				  border-spacing: 1ex 0.5ex; }
 .table >*			{ display: table-row; }
 .table >* >*			{ display: table-cell; }
 .table-left-head		{ text-align: right; 
+				  width: 1%;
+				  white-space: nowrap;
 				  padding-right: 1ex;
 				  color: #444; }
-.table-top-head			{ color: #444; }
 footer				{ text-align: center; 
 				  padding: 1em 0;
 				  border-top: thin solid #bbb;
@@ -110,13 +112,18 @@ footer a:last-child		{ border-right: none;
 footer a:hover			{ color: #222; }
 .seconds, .error		{ color: darkred;
 				  font-weight: bolder; }
-*[class~="fa-toggle-off"]	{ color: black; }
-*[class~="fa-toggle-on"]	{ color: green; }
-*[class~="fa-remove"] 		{ color: red; }
-*[class~="fa-check"]		{ color: green; }
-progress			{ display: block;
-			   	  margin-bottom: 1ex;
-			   	  width: 100%; }
+#wipeExprCheckboxBox		{ border: thin solid #666;
+				  background-color: #ec3; 
+				  margin-right: 0.5ex;
+				  padding: 0.1ex 0ex;
+				  border-radius: 1ex; }
+*[class~="fa-toggle-on"]	{ color: #333; }
+*[class~="fa-toggle-on"]:hover	{ color: #000; }
+*[class~="fa-toggle-off"]	{ color: #888; }
+*[class~="fa-toggle-off"]:hover	{ color: #555; }
+*[class~="fa-remove"]		{ color: #333; }
+*[class~="fa-remove"]:hover	{ color: #000; }
+progress			{ width: 100%; }
 .noshow				{ display: none; }
 .canclose			{ position: relative; 
 				  padding: 1ex;

@@ -1005,10 +1005,6 @@ gamer_phase_login(struct gamer *gamer)
 		fprintf(stderr, "%s: bad response: %s -> %ld\n", 
 			gamer->email, gamer->url, code);
 		return(0);
-	} else if (NULL != gamer->parsed) {
-		fprintf(stderr, "%s: unexpected JSON: %s\n", 
-			gamer->email, gamer->url);
-		return(0);
 	}
 
 	/* Extract the Netscape-style cookie list. */

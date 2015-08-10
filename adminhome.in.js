@@ -298,7 +298,9 @@ function loadPlayersSuccess(resp)
 
 		/* Append whether the player is a row or column role. */
 		sup = document.createElement('i');
-		if (0 == parseInt(player.role))
+		if (player.joined < 0)
+			sup.className = 'fa fa-fw fa-spinner';
+		else if (0 == parseInt(player.role))
 			sup.className = 'fa fa-fw fa-bars';
 		else
 			sup.className = 'fa fa-fw fa-columns';
@@ -709,11 +711,14 @@ function loadExprSuccess(resp)
 			doClearReplace('statusExprRoundmin', expr.roundmin);
 		}
 		doValue('statusExprPBar', expr.progress);
-
 		doClearReplace('statusExprFrow', res.frow);
 		doClearReplace('statusExprFrowMax', res.frowmax);
+		doValue('statusExprFrowPct', 
+			0 == res.frowmax ? 0 : res.frow / res.frowmax);
 		doClearReplace('statusExprFcol', res.fcol);
 		doClearReplace('statusExprFcolMax', res.fcolmax);
+		doValue('statusExprFcolPct', 
+			0 == res.fcolmax ? 0 : res.fcol / res.fcolmax);
 
 		if (0 == res.frowmax || 0 == res.fcolmax) 
 			doUnhide('noplayers');
