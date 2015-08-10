@@ -51,6 +51,12 @@
 				}
 			}
 
+			function doInitFailure()
+			{
+
+				location.href = '@HTURI@/playerlogin.html';
+			}
+
 			function doInitSetup()
 			{
 
@@ -59,7 +65,7 @@
 			}
 		</script>
 	</head>
-	<body onload="sendQuery('@LABURI@/doloadquestions.json', doInitSetup, doInitSuccess, null);">
+	<body onload="sendQuery('@LABURI@/doloadquestions.json', doInitSetup, doInitSuccess, doInitFailure);">
 		<article>
 			<section>
 				<div id="top">

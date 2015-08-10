@@ -30,11 +30,27 @@ function doLogErr(err)
 	doUnhide(409 == err ? 'loginError' : 'loginSysError');
 }
 
-function doLogOk() 
+/*
+ * Handle success from the dologin.json script.
+ * This will return a small JSON body that indicates whether we should
+ * redirect to the main page for play or into the lobby.
+ * In the case of errors (uh-oh), just try the main page.
+ */
+function doLogOk(resp) 
 {
+	var res;
 
 	doValue('loggingin', 'Success! Redirecting...');
-	location.href = '@HTURI@/playerhome.html';
+
+	try {
+		res = JSON.parse(resp);
+	} catch (error) {
+		location.href = '@HTURI@/playerhome.html';
+		return;
+	}
+	location.href = res.needjoin ?
+		'@HTURI@/playerlobby.html' :
+		'@HTURI@/playerhome.html';
 }
 
 function doRegOk(resp) 

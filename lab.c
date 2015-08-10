@@ -144,19 +144,6 @@ kpairbad(struct kreq *r, enum key key)
 	return(NULL == r->fieldmap[key] || NULL != r->fieldnmap[key]);
 }
 
-static int
-player_valid(struct kreq *r, int64_t *playerid)
-{
-
-	if (kpairbad(r, KEY_EMAIL) || kpairbad(r, KEY_PASSWORD))
-		return(0);
-
-	return(db_player_valid
-		(playerid,
-		 r->fieldmap[KEY_EMAIL]->parsed.s,
-		 r->fieldmap[KEY_PASSWORD]->parsed.s));
-}
-
 static void
 http_open(struct kreq *r, enum khttp http)
 {
@@ -218,10 +205,10 @@ static void
 senddologin(struct kreq *r)
 {
 	struct sess	*sess;
-	int64_t	 	 playerid;
 	struct expr	*expr;
-
-	sess = NULL;
+	struct player	*player;
+	int		 needjoin;
+	struct kjsonreq	 req;
 
 	if (NULL == (expr = db_expr_get(1))) {
 		if (KMIME_TEXT_HTML == r->mime) {
@@ -231,26 +218,62 @@ senddologin(struct kreq *r)
 			http_open(r, KHTTP_409);
 			khttp_body(r);
 		}
-	} else if (player_valid(r, &playerid)) {
+	}
+
+	/* Now we know that the experiment is running. */
+
+	player = NULL;
+	if ( ! kpairbad(r, KEY_EMAIL) && ! kpairbad(r, KEY_PASSWORD)) 
+		player = db_player_valid
+			(r->fieldmap[KEY_EMAIL]->parsed.s,
+			 r->fieldmap[KEY_PASSWORD]->parsed.s);
+
+	sess = NULL;
+	if (NULL != player) {
+		/* Allocate our session, first. */
 		sess = db_player_sess_alloc
-			(playerid,
+			(player->id,
 			 NULL != r->reqmap[KREQU_USER_AGENT] ?
 			 r->reqmap[KREQU_USER_AGENT]->val : "");
 		assert(NULL != sess);
+
+		/* 
+		 * If applicable, try to "join" us now.
+		 * This just prevents us from bouncing the user around
+		 * when they finally try to log in.
+		 */
+		if ((needjoin = player->joined < 0))
+			needjoin = ! db_player_join(player);
+
 		if (KMIME_TEXT_HTML == r->mime) 
 			http_open(r, KHTTP_303);
 		else
 			http_open(r, KHTTP_200);
+
 		khttp_head(r, kresps[KRESP_SET_COOKIE],
 			"%s=%" PRId64 "; path=/; expires=", 
 			keys[KEY_SESSCOOKIE].name, sess->cookie);
 		khttp_head(r, kresps[KRESP_SET_COOKIE],
 			"%s=%" PRId64 "; path=/; expires=", 
 			keys[KEY_SESSID].name, sess->id);
-		if (KMIME_TEXT_HTML == r->mime)
-			send303(r, HTURI "/playerhome.html", PAGE__MAX, 0);
-		else
+
+		/*
+		 * If we're JSON, then indicate whether we should
+		 * redirect to the join page or the home page.
+		 * We do this in a JSON object so as not to overload the
+		 * HTTP codes toooo much.
+		 */
+		if (KMIME_TEXT_HTML != r->mime) {
 			khttp_body(r);
+			kjson_open(&req, r);
+			kjson_obj_open(&req);
+			kjson_putintp(&req, "needjoin", needjoin);
+			kjson_obj_close(&req);
+			kjson_close(&req);
+		} else 
+			send303(r, needjoin ?
+				HTURI "/playerlobby.html" :
+				HTURI "/playerhome.html", PAGE__MAX, 0);
 	} else {
 		if (KMIME_TEXT_HTML == r->mime) {
 			http_open(r, KHTTP_303);
@@ -263,6 +286,7 @@ senddologin(struct kreq *r)
 
 	db_expr_free(expr);
 	db_sess_free(sess);
+	db_player_free(player);
 }
 
 static void

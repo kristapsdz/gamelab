@@ -994,32 +994,25 @@ db_admin_valid_email(const char *email)
 	return(SQLITE_ROW == rc);
 }
 
-int
-db_player_valid(int64_t *id, const char *mail, const char *pass)
+struct player *
+db_player_valid(const char *mail, const char *pass)
 {
 	sqlite3_stmt	*stmt;
+	int64_t		 id;
 
 	stmt = db_stmt("SELECT hash,id FROM player WHERE email=?");
 	db_bind_text(stmt, 1, mail);
-
 	if (SQLITE_ROW != db_step(stmt, 0)) {
-		fprintf(stderr, "Player (%s) failed "
-			"login: no such player\n", mail);
 		sqlite3_finalize(stmt);
-		return(0);
+		return(NULL);
 	} 
-
-	*id = sqlite3_column_int(stmt, 1);
-
 	if ( ! db_crypt_check(sqlite3_column_text(stmt, 0), pass)) {
-		fprintf(stderr, "Player %" PRId64 " (%s) failed "
-			"login: bad password\n", *id, mail);
 		sqlite3_finalize(stmt);
-		return(0);
+		return(NULL);
 	}
-
+	id = sqlite3_column_int(stmt, 1);
 	sqlite3_finalize(stmt);
-	return(1);
+	return(db_player_load(id));
 }
 
 int

@@ -260,8 +260,7 @@ void		 db_player_set_answered(int64_t);
 void		 db_player_set_instr(int64_t, int64_t);
 void		 db_player_set_mailed(int64_t, const char *);
 void		 db_player_set_state(int64_t, enum pstate);
-int		 db_player_valid(int64_t *, 
-			const char *, const char *);
+struct player	*db_player_valid(const char *, const char *);
 
 void		 db_sess_delete(int64_t);
 void		 db_sess_free(struct sess *);
