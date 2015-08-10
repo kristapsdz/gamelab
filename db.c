@@ -1688,6 +1688,14 @@ db_player_join(const struct player *player)
 	expr = db_expr_get(0);
 	assert(NULL != expr);
 
+	if (expr->round + 1 >= expr->rounds) {
+		db_trans_rollback();
+		fprintf(stderr, "Player %" PRId64 " asked to join "
+			"after end of experiment\n", player->id);
+		db_expr_free(expr);
+		return(0);
+	}
+
 	if (expr->questionnaire && ! player->answer) {
 		db_trans_rollback();
 		fprintf(stderr, "Player %" PRId64 " asked to join "
