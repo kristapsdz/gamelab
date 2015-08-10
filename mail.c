@@ -370,7 +370,7 @@ mail_players(const char *uri, const char *loginuri)
 		assert(NULL != m.pass);
 		encto = kutil_urlencode(m.to);
 		encpass = kutil_urlencode(m.pass);
-		kasprintf(&m.login, "%s?email=%s&password=%s", 
+		kasprintf(&m.login, "%s?ident=%s&password=%s", 
 			loginuri, encto, encpass);
 		free(encto);
 		free(encpass);

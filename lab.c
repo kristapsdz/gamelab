@@ -67,8 +67,8 @@ enum	key {
 	KEY_CHOICE0,
 	KEY_CHOICE1,
 	KEY_CHOICE2,
-	KEY_EMAIL,
 	KEY_GAMEID,
+	KEY_IDENTIFIER,
 	KEY_INSTR,
 	KEY_PASSWORD,
 	KEY_ROUND,
@@ -110,8 +110,8 @@ static const struct kvalid keys[KEY__MAX] = {
 	{ NULL, "choice0" }, /* KEY_CHOICE0 */
 	{ NULL, "choice1" }, /* KEY_CHOICE1 */
 	{ NULL, "choice2" }, /* KEY_CHOICE2 */
-	{ kvalid_email, "email" }, /* KEY_EMAIL */
 	{ kvalid_int, "gid" }, /* KEY_GAMEID */
+	{ kvalid_stringne, "ident" }, /* KEY_IDENTIFIER */
 	{ NULL, "instr" }, /* KEY_INSTR */
 	{ kvalid_stringne, "password" }, /* KEY_PASSWORD */
 	{ kvalid_uint, "round" }, /* KEY_ROUND */
@@ -218,14 +218,15 @@ senddologin(struct kreq *r)
 			http_open(r, KHTTP_409);
 			khttp_body(r);
 		}
+		return;
 	}
 
 	/* Now we know that the experiment is running. */
 
 	player = NULL;
-	if ( ! kpairbad(r, KEY_EMAIL) && ! kpairbad(r, KEY_PASSWORD)) 
+	if ( ! kpairbad(r, KEY_IDENTIFIER) && ! kpairbad(r, KEY_PASSWORD)) 
 		player = db_player_valid
-			(r->fieldmap[KEY_EMAIL]->parsed.s,
+			(r->fieldmap[KEY_IDENTIFIER]->parsed.s,
 			 r->fieldmap[KEY_PASSWORD]->parsed.s);
 
 	sess = NULL;
@@ -408,14 +409,14 @@ senddoautoadd(struct kreq *r)
 		http_open(r, KHTTP_404);
 		khttp_body(r);
 		return;
-	} else if (NULL == r->fieldmap[KEY_EMAIL]) {
+	} else if (NULL == r->fieldmap[KEY_IDENTIFIER]) {
 		http_open(r, KHTTP_400);
 		khttp_body(r);
 		return;
 	} 
 
 	rc = db_player_create
-		(r->fieldmap[KEY_EMAIL]->parsed.s, &hash);
+		(r->fieldmap[KEY_IDENTIFIER]->parsed.s, &hash);
 
 	if (0 == rc) {
 		http_open(r, KHTTP_403);
@@ -425,8 +426,8 @@ senddoautoadd(struct kreq *r)
 		khttp_body(r);
 		kjson_open(&req, r);
 		kjson_obj_open(&req);
-		kjson_putstringp(&req, "email", 
-			r->fieldmap[KEY_EMAIL]->parsed.s);
+		kjson_putstringp(&req, keys[KEY_IDENTIFIER].name,
+			r->fieldmap[KEY_IDENTIFIER]->parsed.s);
 		kjson_putstringp(&req, "password", hash);
 		kjson_obj_close(&req);
 		kjson_close(&req);

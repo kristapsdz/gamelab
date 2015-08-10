@@ -713,7 +713,7 @@ gamer_init_register(struct gamer *gamer)
 	}
 
 	/* Our POST consists only of our email address. */
-	if ( ! buf_write(&gamer->post, "email=%s", gamer->email)) {
+	if ( ! buf_write(&gamer->post, "ident=%s", gamer->email)) {
 		fputs("buf_write\n", stderr);
 		return(0);
 	}
@@ -752,7 +752,7 @@ gamer_init_login(struct gamer *gamer)
 	 * Our POST consists of email and password. 
 	 * TODO: make sure about URL encoding?
 	 */
-	c = buf_write(&gamer->post, "email=%s&password=%s", 
+	c = buf_write(&gamer->post, "ident=%s&password=%s", 
 		gamer->email, gamer->password);
 	if ( ! c) {
 		fputs("buf_write\n", stderr);
@@ -1113,7 +1113,7 @@ gamer_phase_register(struct gamer *gamer)
 	} 
 
 	/* Make sure our email addresses match. */
-	if ( ! json_getstring(gamer, gamer->parsed, &mail, "email")) {
+	if ( ! json_getstring(gamer, gamer->parsed, &mail, "ident")) {
 		fputs("json_getstring\n", stderr);
 		return(0);
 	} else if (strcmp(mail, gamer->email)) {

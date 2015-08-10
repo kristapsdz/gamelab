@@ -710,7 +710,7 @@ function loadGraphs()
 		}
 		Flotr.draw(c, 
 			[{ data: data }],
-			{ xaxis: { ticks: [[ 0, 'oldest' ], [(j + k) + 1, 'newest']] },
+			{ xaxis: { ticks: [[ 0, 'oldest' ], [(j + k), 'newest']] },
 			  subtitle: 'Real payoff',
 		          shadowSize: 0,
 			  lines: { show: true },
@@ -736,7 +736,7 @@ function loadGraphs()
 		}
 		Flotr.draw(c, 
 			[{ data: data }],
-			{ xaxis: { ticks: [[ 0, 'oldest' ], [(j + k) + 1, 'newest']] },
+			{ xaxis: { ticks: [[ 0, 'oldest' ], [(j + k), 'newest']] },
 			  subtitle: 'Accumulated payoff',
 		          shadowSize: 0,
 			  lines: { show: true },

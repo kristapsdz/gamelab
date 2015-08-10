@@ -1073,7 +1073,7 @@
 										href="#db-experiment-state"><var>state</var></a> &gt;0), this is
 									the URL given to players in their initial e-mail for when they log in.
 									This is suffixed by
-									<code>?email=EMAIL&amp;password=PASSWORD</code>.</dd>
+									<code>?ident=EMAIL&amp;password=PASSWORD</code>.</dd>
 								<dt id="db-experiment-minutes"><var>minutes</var></dt>
 								<dd>The number of minutes per round.  Minimum of one.</dd>
 								<dt id="db-experiment-nolottery"><var>nolottery</var></dt>
@@ -1389,18 +1389,18 @@
 					<dl>
 						<dt id="seq-doautoadd">doautoadd.json (POST)</dt>
 						<dd>
-							Post your e-mail address using the <code>email</code> field name.
+							Post your e-mail address using the <code>ident</code> field name.
 							Returns HTTP error code 
 							400 (invalid or missing e-mail field), 
 							403 (player by that e-mail already exists),
 							404 (captive players disallowed), or
 							200 (success).
-							Upon success, the return body is a JSON object consisting of the <code>email</code> and
+							Upon success, the return body is a JSON object consisting of the <code>ident</code> and
 							<code>password</code> string fields.
 						</dd>
 						<dt id="seq-dologin">dologin.json (POST)</dt>
 						<dd>
-							Post your e-mail address and password using the <code>email</code> and
+							Post your e-mail address (or identifier) and password using the <code>ident</code> and
 							<code>password</code> field names.
 							Returns HTTP error code
 							400 (invalid or missing input fields),

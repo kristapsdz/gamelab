@@ -67,7 +67,7 @@ function doRegOk(resp)
 		return;
 	}
 
-	doValue('email', res.email);
+	doValue('ident', res.ident);
 	doValue('password', res.password);
 }
 
