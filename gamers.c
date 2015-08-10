@@ -1510,7 +1510,7 @@ main(int argc, char *argv[])
 					"curl_multi_info_read: %s: %s\n", 
 					ctx[i].email,
 					ctx[i].url,
-					curl_multi_strerror(cm));
+					curl_easy_strerror(msg->data.result));
 				goto out;
 			} else if ( ! gamer_event(&ctx[i])) {
 				fputs("gamer_event\n", stderr);
