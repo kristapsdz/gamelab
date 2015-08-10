@@ -1,0 +1,23 @@
+<article data-sblg-article="1" data-sblg-tags="version">
+	<header>
+		<h1>1.0.11</h1>
+		<address>Kristaps Dzonsons</address>
+		<time datetime="2015-08-08">2015-08-08</time>
+	</header>
+	<aside>
+		<p>
+			When logging in (either via JSON, such as with captive players, or via HTML as when using the form page or initial
+			e-mail), have the system detect whether the lobby should be used or the home page.
+			This prevents a needless and at times confusing redirect after hitting the homepage.
+		</p>
+		<p>
+			Lots of aesthetic clean-up for the experimenter: more straight-forward status, cleaner buttons to push, and a status
+			graph to see how many participants have played.
+		</p>
+		<p>
+			Stipulate a valid user e-mail address only for participants added over the experimenter console.
+			Otherwise, identifiers can be free-form.
+			This allows captive players to use non-email-based identifiers.
+		</p>
+	</aside>
+</article>

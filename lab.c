@@ -809,35 +809,30 @@ senddologout(struct kreq *r)
 	send303(r, HTURI "/playerlogin.html", PAGE__MAX, 0);
 }
 
-int
-main(void)
+static void
+doreq(struct kreq *r)
 {
-	struct kreq	 r;
 	int64_t		 id;
 	unsigned int	 bit;
 	
-	if (KCGI_OK != khttp_parse(&r, keys, KEY__MAX, 
-			pages, PAGE__MAX, PAGE_INDEX))
-		return(EXIT_FAILURE);
-
-	switch (r.method) {
+	switch (r->method) {
 	case (KMETHOD_GET):
 	case (KMETHOD_POST):
 		break;
 	case (KMETHOD_OPTIONS):
-		khttp_head(&r, kresps[KRESP_STATUS], 
+		khttp_head(r, kresps[KRESP_STATUS], 
 			"%s", khttps[KHTTP_200]);
-		khttp_head(&r, kresps[KRESP_ALLOW],
+		khttp_head(r, kresps[KRESP_ALLOW],
 			"GET POST OPTIONS");
-		khttp_body(&r);
-		goto out;
+		khttp_body(r);
+		return;
 	default:
-		http_open(&r, KHTTP_405);
-		khttp_body(&r);
-		goto out;
+		http_open(r, KHTTP_405);
+		khttp_body(r);
+		return;
 	}
 
-	switch (r.mime) {
+	switch (r->mime) {
 	case (KMIME_TEXT_HTML):
 		bit = PERM_HTML;
 		break;
@@ -845,63 +840,90 @@ main(void)
 		bit = PERM_JSON;
 		break;
 	default:
-		send404(&r);
-		goto out;
+		send404(r);
+		return;
 	}
 
-	if ( ! (perms[r.page] & bit)) {
-		send404(&r);
-		goto out;
+	if ( ! (perms[r->page] & bit)) {
+		send404(r);
+		return;
 	}
 
-	if ((perms[r.page] & PERM_LOGIN) && ! sess_valid(&r, &id)) {
-		if (KMIME_TEXT_HTML != r.mime) {
-			http_open(&r, KHTTP_403);
-			khttp_body(&r);
+	if ((perms[r->page] & PERM_LOGIN) && ! sess_valid(r, &id)) {
+		if (KMIME_TEXT_HTML != r->mime) {
+			http_open(r, KHTTP_403);
+			khttp_body(r);
 		} else
-			send303(&r, HTURI "/playerlogin.html", 
+			send303(r, HTURI "/playerlogin.html", 
 				PAGE__MAX, 1);
-		goto out;
+		return;
 	}
 
 	db_expr_advance();
 
-	switch (r.page) {
+	switch (r->page) {
 	case (PAGE_DOAUTOADD):
-		senddoautoadd(&r);
+		senddoautoadd(r);
 		break;
 	case (PAGE_DOANSWER):
-		senddoanswer(&r, id);
+		senddoanswer(r, id);
 		break;
 	case (PAGE_DOINSTR):
-		senddoinstr(&r, id);
+		senddoinstr(r, id);
 		break;
 	case (PAGE_DOLOADEXPR):
-		senddoloadexpr(&r, id);
+		senddoloadexpr(r, id);
 		break;
 	case (PAGE_DOLOADQUESTIONS):
-		senddoloadquestions(&r, id);
+		senddoloadquestions(r, id);
 		break;
 	case (PAGE_DOLOGIN):
-		senddologin(&r);
+		senddologin(r);
 		break;
 	case (PAGE_DOLOGOUT):
-		senddologout(&r);
+		senddologout(r);
 		break;
 	case (PAGE_DOPLAY):
-		senddoplay(&r, id);
+		senddoplay(r, id);
 		break;
 	case (PAGE_INDEX):
-		send303(&r, HTURI "/playerhome.html", PAGE__MAX, 1);
+		send303(r, HTURI "/playerhome.html", PAGE__MAX, 1);
 		break;
 	default:
-		http_open(&r, KHTTP_404);
-		khttp_body(&r);
+		http_open(r, KHTTP_404);
+		khttp_body(r);
 		break;
 	}
-
-out:
-	khttp_free(&r);
-	return(EXIT_SUCCESS);
 }
 
+int
+main(void)
+{
+	struct kreq	 r;
+	enum kcgi_err	 er;
+	struct kfcgi	*fcgi;
+
+	if (khttp_fcgi_test()) {
+		fprintf(stderr, "FastCGI!\n");
+		er = khttp_fcgi_init(&fcgi, keys, KEY__MAX, 
+			pages, PAGE__MAX, PAGE_INDEX);
+		fprintf(stderr, "Ok!\n");
+		if (KCGI_OK != er) 
+			return(EXIT_FAILURE);
+		while (KCGI_OK == khttp_fcgi_parse(fcgi, &r)) {
+			fprintf(stderr, "Connection!\n");
+			doreq(&r);
+			khttp_free(&r);
+		}
+		khttp_fcgi_free(fcgi);
+	} else {
+		er = khttp_parse(&r, keys, KEY__MAX, 
+			pages, PAGE__MAX, PAGE_INDEX);
+		if (KCGI_OK == er) {
+			doreq(&r);
+			khttp_free(&r);
+		}
+	}
+
+	return(EXIT_SUCCESS);
+}

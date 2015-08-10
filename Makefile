@@ -97,7 +97,8 @@ VERSIONS = version_1_0_1.xml \
 	   version_1_0_7.xml \
 	   version_1_0_8.xml \
 	   version_1_0_9.xml \
-	   version_1_0_10.xml
+	   version_1_0_10.xml \
+	   version_1_0_11.xml
 
 all: admin lab gamers $(BUILT) $(BUILTPS)
 
@@ -128,6 +129,7 @@ update: all
 	install -m 0755 admin $(CGIBIN)/admin.cgi
 	install -m 0755 admin $(CGIBIN)
 	install -m 0755 lab $(CGIBIN)/lab.cgi
+	install -m 0755 lab $(CGIBIN)/lab.fcgi
 	install -m 0755 lab $(CGIBIN)
 
 install: update gamelab.db

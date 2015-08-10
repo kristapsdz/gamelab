@@ -1099,10 +1099,8 @@ function loadExprSuccess(resp)
 		doClearReplace('exprFinishedFinalRankEnd', v);
 		doClearReplace('exprCountdown', 'finished');
 		if (expr.nolottery) {
-			console.log('1');
 			doHide('exprLottery');
 		} else {
-			console.log('2');
 			doUnhide('exprLottery');
 		}
 
