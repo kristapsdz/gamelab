@@ -612,8 +612,8 @@ function showHistory()
  */
 function loadGraphs()
 {
-	var	e, c, i, j, k, l, m, data, datas, graph, lot, 
-		avg, len, len2, matrix, hmatrix, sum, sub, gameidx, stratidx;
+	var	e, c, i, j, k, l, m, data, datas, lot, 
+		avg, len, matrix, hmatrix, sum, sub, gameidx, stratidx;
 
 	if (null == res)
 		return;
@@ -684,7 +684,7 @@ function loadGraphs()
 				label: 'Strategy ' + String.fromCharCode(97 + j)
 			};
 		}
-		graph = Flotr.draw(c, datas, 
+		Flotr.draw(c, datas, 
 			{ grid: { horizontalLines: 1 },
 			  xaxis: { ticks: [[ 0, 'oldest' ], [(l + k), 'newest']] },
 		          shadowSize: 0,
@@ -708,7 +708,7 @@ function loadGraphs()
 			lot = res.lotteries[j].plays[gameidx];
 			data.push([(j + k) + 1, null == lot ? 0.0 : lot.poff]);
 		}
-		graph = Flotr.draw(c, 
+		Flotr.draw(c, 
 			[{ data: data }],
 			{ xaxis: { ticks: [[ 0, 'oldest' ], [(j + k) + 1, 'newest']] },
 			  subtitle: 'Real payoff',
@@ -734,7 +734,7 @@ function loadGraphs()
 				l += lot.poff;
 			data.push([(j + k) + 1, l]);
 		}
-		graph = Flotr.draw(c, 
+		Flotr.draw(c, 
 			[{ data: data }],
 			{ xaxis: { ticks: [[ 0, 'oldest' ], [(j + k) + 1, 'newest']] },
 			  subtitle: 'Accumulated payoff',
@@ -788,7 +788,7 @@ function loadGraphs()
 				label: 'Strategy ' + String.fromCharCode(97 + j)
 			};
 		}
-		graph = Flotr.draw(c, datas, { 
+		Flotr.draw(c, datas, { 
 			bars: { show: true , shadowSize: 0, stacked: true, barWidth: 1.0, lineWidth: 1 }, 
 			grid: { horizontalLines: 1 },
 			xaxis: { ticks: [[ 0, 'oldest' ], [(l + k) - 1, 'newest']] },
@@ -830,7 +830,7 @@ function loadGraphs()
 				label: 'Strategy ' + String.fromCharCode(97 + j)
 			};
 		}
-		graph = Flotr.draw(c, datas, { 
+		Flotr.draw(c, datas, { 
 			bars: { show: true , shadowSize: 0, stacked: true, barWidth: 1.0, lineWidth: 1 }, 
 			grid: { horizontalLines: 1 },
 		        subtitle: 'Row player average strategy',
@@ -872,7 +872,7 @@ function loadGraphs()
 				label: 'Strategy ' + String.fromCharCode(65 + j)
 			};
 		}
-		graph = Flotr.draw(c, datas, { 
+		Flotr.draw(c, datas, { 
 			bars: { show: true , shadowSize: 0, stacked: true, barWidth: 1.0, lineWidth: 1 }, 
 			grid: { horizontalLines: 1 },
 			xaxis: { ticks: [[ 0, 'oldest' ], [(l + k) - 1, 'newest']] },
@@ -884,8 +884,7 @@ function loadGraphs()
 
 function loadHistory(res)
 {
-	var gamee, e, i, j, k, child, matrix, bmatrix, c, oc, 
-	    ravg, cavg, tbl, game, par, lot, list, listitem, data, graph, datas;
+	var gamee, e, i, j, k, child, bmatrix, c, oc, tbl, game;
 
 	loadGraphs();
 

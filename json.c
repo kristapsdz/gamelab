@@ -54,6 +54,7 @@ struct	jsoncache {
 struct	intvcache {
 	struct interval	*intv;
 	struct kjsonreq	*req;
+	int		 admin;
 };
 
 static int
@@ -114,7 +115,7 @@ json_putgamehistory(const struct game *g, void *arg)
 	assert(i < p->intv->periodsz);
 	per = &p->intv->periods[i];
 	for (i = 0; i < per->roundupsz; i++)
-		json_putroundup(req, NULL, per->roundups[i]);
+		json_putroundup(req, NULL, per->roundups[i], p->admin);
 	kjson_array_close(req);
 	kjson_obj_close(req);
 }
@@ -129,7 +130,7 @@ json_putgamehistory(const struct game *g, void *arg)
  * a zero-length array of game-play history.
  */
 void
-json_puthistory(struct kjsonreq *r, 
+json_puthistory(struct kjsonreq *r, int admin,
 	const struct expr *expr, struct interval *intv)
 {
 	struct intvcache p;
@@ -146,6 +147,7 @@ json_puthistory(struct kjsonreq *r,
 	else
 		p.intv = intv;
 	p.req = r;
+	p.admin = admin;
 
 	kjson_arrayp_open(r, "history");
 	db_game_load_all(json_putgamehistory, &p);
@@ -262,7 +264,7 @@ json_putmpq(struct kjsonreq *r, mpq_t val)
 
 void
 json_putroundup(struct kjsonreq *r, const char *name,
-	const struct roundup *roundup)
+	const struct roundup *roundup, int admin)
 {
 	size_t	 i, j, k;
 
@@ -272,6 +274,8 @@ json_putroundup(struct kjsonreq *r, const char *name,
 	}
 
 	kjson_objp_open(r, name);
+	if (admin)
+		kjson_putintp(r, "plays", roundup->plays);
 	kjson_putintp(r, "skip", roundup->skip);
 	kjson_arrayp_open(r, "avgp1");
 	for (i = 0; i < roundup->p1sz; i++)

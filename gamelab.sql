@@ -139,6 +139,7 @@ CREATE TABLE past (
 	currentsp2 TEXT NOT NULL,
 	skip INTEGER NOT NULL,
 	roundcount INTEGER NOT NULL,
+	count INTEGER NOT NULL,
 	unique (round, gameid)
 );
 

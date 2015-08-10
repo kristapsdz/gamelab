@@ -636,7 +636,7 @@ function loadNewExprSuccess(resp)
  */
 function loadExprSuccess(resp) 
 {
-	var res, e, i, chld, expr, li, div, href, span, next;
+	var res, e, i, j, chld, expr, li, div, href, span, next, data, datas;
 
 	try  { 
 		res = JSON.parse(resp);
@@ -730,6 +730,30 @@ function loadExprSuccess(resp)
 			doClearReplace('statusExprLobbysize', res.lobbysize);
 		} else
 			doHide('statusExprHasLobby');
+
+		e = doClear('statusExprGraph');
+		if (expr.round > 0) {
+			datas = [];
+			for (i = 0; i < res.history.length; i++) {
+				data = [];
+				data.push([0, 0]);
+				for (j = 0; j < res.history[0].roundups.length; j++) {
+					data.push([(j + 1), res.history[i].roundups[j].plays]);
+				}
+				datas[i] = {
+					data: data,
+					label: 'Game ' + String.fromCharCode(49 + i)
+				};
+			}
+			Flotr.draw(e, datas, 
+				{ grid: { horizontalLines: 1 },
+				  shadowSize: 0,
+				  subtitle: 'Plays',
+				  xaxis: { tickDecimals: 0 },
+				  yaxis: { min: 0.0, tickDecimals: 0 },
+				  lines: { show: true },
+				  points: { show: true }});
+		}
 	}
 }
 

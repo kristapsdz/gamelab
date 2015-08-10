@@ -1429,31 +1429,6 @@ db_expr_round_count(const struct expr *expr, int64_t round, int64_t role)
 	return(result);
 }
 
-/*
- * Count the number of players in role "role" who have finished giving
- * all plays for game "gameid", round "round".
- */
-size_t
-db_game_round_count(int64_t gameid, int64_t round, int64_t role)
-{
-	sqlite3_stmt	*stmt;
-	int		 rc;
-	int64_t		 result;
-
-	stmt = db_stmt("SELECT count(*) FROM choice "
-		"INNER JOIN player ON player.id = choice.playerid "
-		"WHERE round=? AND gameid=? AND player.role = ?");
-	db_bind_int(stmt, 1, round);
-	db_bind_int(stmt, 2, gameid);
-	db_bind_int(stmt, 3, role);
-	rc = db_step(stmt, 0);
-	assert(SQLITE_ROW == rc);
-	result = sqlite3_column_int64(stmt, 0);
-	assert(result >= 0 && (uint64_t)result < SIZE_MAX);
-	sqlite3_finalize(stmt);
-	return(result);
-}
-
 struct game *
 db_game_load(int64_t gameid)
 {
@@ -2468,7 +2443,7 @@ db_roundup_get(int64_t round, const struct game *game)
 	r->gameid = game->id;
 
 	stmt = db_stmt("SELECT averagesp1,averagesp2,skip,"
-		"roundcount,currentsp1,currentsp2 FROM past "
+		"roundcount,currentsp1,currentsp2,plays FROM past "
 		"WHERE round=? AND gameid=?");
 
 	db_bind_int(stmt, 1, r->round);
@@ -2489,6 +2464,7 @@ db_roundup_get(int64_t round, const struct game *game)
 		r->curp2 = mpq_str2mpqsinit
 			(sqlite3_column_text
 			 (stmt, 5), r->p2sz);
+		r->plays = sqlite3_column_int(stmt, 6);
 		sqlite3_finalize(stmt);
 		return(db_roundup_round(r));
 	}
@@ -2511,7 +2487,7 @@ db_roundup_game(const struct game *game,
 	struct period *period, int64_t round, int64_t gamesz)
 {
 	struct roundup	*r;
-	size_t		 i, count;
+	size_t		 i, count, fullcount;
 	sqlite3_stmt	*stmt;
 	mpq_t		 tmp, sum;
 	mpq_t		*aggrp1, *aggrp2;
@@ -2578,10 +2554,12 @@ again:
 	db_bind_int(stmt, 3, 0);
 	db_bind_int(stmt, 4, gamesz);
 
+	fullcount = 0;
 	for (count = 0; SQLITE_ROW == db_step(stmt, 0); count++)
 		mpq_summation_strvec(r->curp1, 
 			sqlite3_column_text(stmt, 0), r->p1sz);
 
+	fullcount += count;
 	if (0 == count)
 		goto aggregate;
 
@@ -2603,6 +2581,7 @@ again:
 		mpq_summation_strvec(r->curp2,
 			sqlite3_column_text(stmt, 0), r->p2sz);
 
+	fullcount += count;
 	if (0 == count) {
 		/* Zero out first strategy. */
 		mpq_set_ui(tmp, 0, 1);
@@ -2689,7 +2668,7 @@ aggregate:
 
 	stmt = db_stmt("INSERT INTO past (round,averagesp1,"
 		"averagesp2,gameid,skip,roundcount,currentsp1,"
-		"currentsp2) VALUES (?,?,?,?,?,?,?,?)");
+		"currentsp2,plays) VALUES (?,?,?,?,?,?,?,?,?)");
 
 	db_bind_int(stmt, 1, r->round);
 	db_bind_text(stmt, 2, aggrsp1);
@@ -2699,6 +2678,7 @@ aggregate:
 	db_bind_int(stmt, 6, r->roundcount);
 	db_bind_text(stmt, 7, cursp1);
 	db_bind_text(stmt, 8, cursp2);
+	db_bind_int(stmt, 9, fullcount);
 	rc = db_step(stmt, DB_STEP_CONSTRAINT);
 	sqlite3_finalize(stmt);
 

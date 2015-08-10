@@ -98,6 +98,7 @@ struct	roundup {
 	size_t		 roundcount; /* for denominator */
 	size_t		 p1sz; /* row player strategy size */
 	size_t		 p2sz; /* column player strategy size */
+	int64_t		 plays; /* plays in this round */
 	int64_t		 gameid; /* game identifier */
 	int64_t		 round; /* round identifier */
 };
@@ -227,7 +228,6 @@ int		 db_game_delete(int64_t);
 void		 db_game_free(struct game *);
 struct game	*db_game_load(int64_t);
 struct game	*db_game_load_array(size_t *);
-size_t		 db_game_round_count(int64_t, int64_t, int64_t);
 size_t		 db_game_round_count_done(int64_t, int64_t, size_t);
 void		 db_game_load_all(gamef fp, void *);
 void		 db_game_load_player(int64_t, 
@@ -280,7 +280,7 @@ void		 mail_backup(void);
 void		 mail_wipe(int);
 void		 mail_test(void);
 
-void		 json_puthistory(struct kjsonreq *, 
+void		 json_puthistory(struct kjsonreq *, int,
 			const struct expr *, struct interval *);
 void		 json_putplayer(struct kjsonreq *, const struct player *);
 void		 json_putmpqp(struct kjsonreq *, const char *, const mpq_t);
@@ -288,7 +288,7 @@ void		 json_putmpq(struct kjsonreq *, mpq_t);
 void		 json_putmpqs(struct kjsonreq *, 
 			const char *, mpq_t *, int64_t, int64_t);
 void		 json_putroundup(struct kjsonreq *, 
-			const char *, const struct roundup *);
+			const char *, const struct roundup *, int);
 void		 json_putexpr(struct kjsonreq *, const struct expr *);
 
 mpq_t		*mpq_str2mpqsinit(const unsigned char *, size_t);

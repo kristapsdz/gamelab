@@ -360,7 +360,7 @@ senddoloadgame(const struct game *game, int64_t round, void *arg)
 			break;
 	assert(i < p->intv->periodsz);
 	per = &p->intv->periods[i];
-	json_putroundup(req, "roundup", per->roundups[round - 1]);
+	json_putroundup(req, "roundup", per->roundups[round - 1], 0);
 	kjson_obj_close(req);
 }
 
@@ -653,7 +653,7 @@ again:
 		expr->round, senddoloadgame, &stor);
 	kjson_array_close(&req);
 
-	json_puthistory(&req, expr, stor.intv);
+	json_puthistory(&req, 0, expr, stor.intv);
 
 	pstor.playerid = playerid;
 	pstor.req = &req;

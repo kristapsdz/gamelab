@@ -166,15 +166,19 @@ index.html: index.xml $(VERSIONS)
 adminhome.js playerautoadd.js playerhome.js: jsmin
 
 .in.js.js:
+	rm -f $@
 	sed -e "s!@ADMINURI@!$(ADMINURI)!g" \
 		-e "s!@LABURI@!$(LABURI)!g" \
 		-e "s!@HTURI@!$(HTURI)!g" $< | ./jsmin >$@
+	chmod 444 $@
 
 .in.html.html:
+	rm -f $@
 	sed -e "s!@ADMINURI@!$(ADMINURI)!g" \
 		-e "s!@LABURI@!$(LABURI)!g" \
 		-e "s!@VERSION@!$(VERSION)!g" \
 		-e "s!@HTURI@!$(HTURI)!g" $< >$@
+	chmod 444 $@
 
 clean:
 	rm -f admin admin.o gamelab.db lab lab.o $(OBJS) jsmin gamers

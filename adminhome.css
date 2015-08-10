@@ -117,6 +117,12 @@ footer a:hover			{ color: #222; }
 				  margin-right: 0.5ex;
 				  padding: 0.1ex 0ex;
 				  border-radius: 1ex; }
+#statusExprGraph		{ height: 200px; 
+				  margin: 0;
+				  padding: 0;
+				  margin-left: auto;
+				  margin-right: auto;
+				  width: 95%; }
 *[class~="fa-toggle-on"]	{ color: #333; }
 *[class~="fa-toggle-on"]:hover	{ color: #000; }
 *[class~="fa-toggle-off"]	{ color: #888; }

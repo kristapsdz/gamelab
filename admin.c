@@ -331,11 +331,6 @@ sendcontent(struct kreq *r, enum cntt cntt)
 	khttp_template(r, NULL, fname);
 }
 
-struct	exprget {
-	struct kjsonreq	*req;
-	int64_t		 round;
-};
-
 static void
 sendwinners(const struct player *p, const struct winner *winner, void *arg)
 {
@@ -348,20 +343,6 @@ sendwinners(const struct player *p, const struct winner *winner, void *arg)
 	kjson_putintp(req, "winscore", p->finalscore);
 	kjson_putintp(req, "winnum", winner->rnum);
 	kjson_obj_close(req);
-}
-
-static void
-senddogetexprgame(const struct game *game, void *arg)
-{
-	struct exprget	*get = arg;
-
-	kjson_obj_open(get->req);
-	kjson_putstringp(get->req, "name", game->name);
-	kjson_putintp(get->req, "prow",
-		db_game_round_count(game->id, get->round, 0));
-	kjson_putintp(get->req, "pcol",
-		db_game_round_count(game->id, get->round, 1));
-	kjson_obj_close(get->req);
 }
 
 static void
@@ -389,14 +370,17 @@ senddogethistory(struct kreq *r)
 	struct expr	*expr;
 	struct kjsonreq	 req;
 
+	if (NULL == (expr = db_expr_get(1))) {
+		http_open(r, KHTTP_409);
+		khttp_body(r);
+		return;
+	}
+
 	http_open(r, KHTTP_200);
 	khttp_body(r);
 	kjson_open(&req, r);
 	kjson_obj_open(&req);
-
-	expr = db_expr_get(1);
-	json_puthistory(&req, expr, NULL);
-
+	json_puthistory(&req, 0, expr, NULL);
 	kjson_obj_close(&req);
 	kjson_close(&req);
 	db_expr_free(expr);
@@ -407,7 +391,6 @@ senddogetexpr(struct kreq *r)
 {
 	struct expr	*expr;
 	struct kjsonreq	 req;
-	struct exprget	 get;
 	size_t		 gamesz, round;
 
 	if (NULL == (expr = db_expr_get(1))) {
@@ -422,13 +405,9 @@ senddogetexpr(struct kreq *r)
 	kjson_open(&req, r);
 	kjson_obj_open(&req);
 	json_putexpr(&req, expr);
-	kjson_arrayp_open(&req, "games");
-	if (expr->round >= 0 && expr->round < expr->rounds) {
-		get.round = expr->round;
-		get.req = &req;
-		db_game_load_all(senddogetexprgame, &get);
-	} 
-	kjson_array_close(&req);
+
+	if (expr->round >= 0)
+		json_puthistory(&req, 1, expr, NULL);
 
 	if (expr->round >= 0 && expr->round < expr->rounds) {
 		gamesz = db_game_count_all();

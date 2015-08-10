@@ -8,6 +8,7 @@
 		<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet" />
 		<script src="@HTURI@/script.js"></script>
 		<script src="@HTURI@/adminhome.js"></script>
+		<script src="@HTURI@/flotr2.min.js"></script>
 	</head>
 	<body onload="loadGames(); loadPlayers(); loadExpr(); loadSmtp();" onclick="onNavUp();">
 		<header>
@@ -27,27 +28,34 @@
 				<div id="statusExprProg">
 					<p>
 						Welcome to <a href="http://www.kcons.eu/gamelab">gamelab</a> (version @VERSION@), the on-line game theory laboratory.
-						Your experiment is in round <span id="statusExprPRound"></span> of <span
-							id="statusExprPMax"></span> (<span id="statusExprPPmax"></span> per player), with each
-						round taking <span id="statusExprMins"></span> minutes.
+						Your experiment has <span id="statusExprPPmax"></span> rounds per player, with each round taking
+						<span id="statusExprMins"></span> minutes.
 						<span id="statusExprRoundpcting">
 							If each player role has at least <span id="statusExprRoundpct"></span>% plays, the round
 							will advance (with <span id="statusExprRoundmin"></span> minutes of grace time).
 						</span>
 					</p>
-					<progress max="1.0" id="statusExprPBar"></progress>
+					<div id="statusExprGraph"></div>
 					<div class="table">
 						<div>
-							<div class="table-left-head">Complete row plays:</div>
-							<div>
-								<span id="statusExprFrow"></span>/<span id="statusExprFrowMax"></span>
+							<div class="table-left-head">
+								Round <span id="statusExprPRound"></span>/<span id="statusExprPMax"></span> 
 							</div>
+							<div><progress max="1.0" id="statusExprPBar"></progress></div>
 						</div>
 						<div>
-							<div class="table-left-head">Complete column plays:</div>
-							<div>
+							<div class="table-left-head">
+								Row plays 
+								<span id="statusExprFrow"></span>/<span id="statusExprFrowMax"></span>
+							</div>
+							<div><progress max="1.0" id="statusExprFrowPct"></progress></div>
+						</div>
+						<div>
+							<div class="table-left-head">
+								Column plays
 								<span id="statusExprFcol"></span>/<span id="statusExprFcolMax"></span>
 							</div>
+							<div><progress max="1.0" id="statusExprFcolPct"></progress></div>
 						</div>
 					</div>
 					<div id="noplayers" class="noshow">
@@ -132,9 +140,12 @@
 						(The current round may not be the round you're reading&#8212;refresh this page to double-check.)
 					</div>
 					<div>
-						First you must click 
-						<span id="wipeExprCheckbox"><input type="checkbox" onclick="checkWipeButton(this);" /></span>
-						to verify that you're serious about doing any of this.
+						First, 
+						<span id="wipeExprCheckboxBox">
+							<input id="wipeExprCheckbox" type="checkbox" onclick="checkWipeButton(this);" />
+							<label for="wipeExprCheckbox">verify</label>
+						</span>
+						that you're serious about doing this.
 					</div>
 					<fieldset>
 						<div class="input input-submit">
