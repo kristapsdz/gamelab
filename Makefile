@@ -30,7 +30,7 @@ STATIC		 =
 
 # You really don't want to change anything below this line.
 
-VERSION	 = 1.0.9
+VERSION	 = 1.0.10
 VMONTH	 = August
 VYEAR	 = 2015
 CFLAGS 	+= -g -W -Wall -Wstrict-prototypes -Wno-unused-parameter -Wwrite-strings -I/usr/local/include
@@ -96,7 +96,8 @@ VERSIONS = version_1_0_1.xml \
 	   version_1_0_6.xml \
 	   version_1_0_7.xml \
 	   version_1_0_8.xml \
-	   version_1_0_9.xml
+	   version_1_0_9.xml \
+	   version_1_0_10.xml
 
 all: admin lab gamers $(BUILT) $(BUILTPS)
 
