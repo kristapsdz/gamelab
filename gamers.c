@@ -25,6 +25,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include <json-c/json.h>
 #include <curl/curl.h>
@@ -486,9 +487,8 @@ gamer_write(void *ptr, size_t sz, size_t nm, void *arg)
 	    er == json_tokener_continue)
 		return(sz * nm);
 
-	fprintf(stderr, "json_tokener_parse_ex: %s: %.*s\n",
-		json_tokener_error_desc(er),
-		(int)(nm * sz), ptr);
+	fprintf(stderr, "json_tokener_parse_ex: %s\n",
+		json_tokener_error_desc(er));
 	return(0);
 }
 
