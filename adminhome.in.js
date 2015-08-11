@@ -492,14 +492,54 @@ function doDisablePlayer(id)
 		e.setAttribute('data-gamelab-enabled', '0');
 }
 
-function doStatHighest(e, res)
+function doStatWinners(e, res)
 {
-	var i, sub;
+	var i, sub, subsub;
+
+	sub = document.createElement('li');
+	sub.className = 'statuslisthead';
+	subsub = document.createElement('span');
+	subsub.appendChild(document.createTextNode('tickets'));
+	sub.appendChild(subsub);
+	subsub = document.createElement('span');
+	subsub.appendChild(document.createTextNode('identifier'));
+	sub.appendChild(subsub);
+	e.appendChild(sub);
 
 	for (i = 0; i < res.highest.length; i++) {
 		sub = document.createElement('li');
-		sub.appendChild(document.createTextNode
-			(res.highest[i].score + ': ' + res.highest[i].player.mail));
+		subsub = document.createElement('span');
+		subsub.appendChild(document.createTextNode(res.highest[i].score));
+		sub.appendChild(subsub);
+		subsub = document.createElement('span');
+		subsub.appendChild(document.createTextNode(res.highest[i].player.mail));
+		sub.appendChild(subsub);
+		e.appendChild(sub);
+	}
+}
+
+function doStatHighest(e, res)
+{
+	var i, sub, subsub;
+
+	sub = document.createElement('li');
+	sub.className = 'statuslisthead';
+	subsub = document.createElement('span');
+	subsub.appendChild(document.createTextNode('Tickets'));
+	sub.appendChild(subsub);
+	subsub = document.createElement('span');
+	subsub.appendChild(document.createTextNode('Identifier'));
+	sub.appendChild(subsub);
+	e.appendChild(sub);
+
+	for (i = 0; i < res.highest.length; i++) {
+		sub = document.createElement('li');
+		subsub = document.createElement('span');
+		subsub.appendChild(document.createTextNode(res.highest[i].score));
+		sub.appendChild(subsub);
+		subsub = document.createElement('span');
+		subsub.appendChild(document.createTextNode(res.highest[i].player.mail));
+		sub.appendChild(subsub);
 		e.appendChild(sub);
 	}
 }
@@ -512,10 +552,10 @@ function doStatGraph(e, res)
 	for (i = 0; i < res.history.length; i++) {
 		data = [];
 		data.push([0, 0]);
-		for (j = 0; j < res.history[0].roundups.length; j++) {
+		for (j = 0; j < res.history[0].roundups.length; j++) 
 			data.push([(j + 1), res.history[i].roundups[j].plays]);
-		}
-		data.push([(j + 1), res.fcol + res.frow]);
+		if (res.expr.round < res.expr.rounds)
+			data.push([(j + 1), res.fcol + res.frow]);
 		datas[i] = {
 			data: data,
 			label: 'Game ' + String.fromCharCode(49 + i)
@@ -692,33 +732,53 @@ function loadExprSuccess(resp)
 		doHide('statusExprLoading');
 		doUnhide('statusExprFinished');
 		if (expr.postwin) {
+			doUnhide('statusExprFinishedWinnersBox');
 			doHide('statusExprFinishedWin');
 			e = doClear('statusExprFinishedWinners');
+			chld = document.createElement('li');
+			chld.className = 'statuslisthead';
+			span = document.createElement('span');
+			span.appendChild(document.createTextNode('mail'));
+			chld.appendChild(span);
+			span = document.createElement('span');
+			span.appendChild(document.createTextNode('rank'));
+			chld.appendChild(span);
+			span = document.createElement('span');
+			span.appendChild(document.createTextNode('ticket'));
+			chld.appendChild(span);
+			span = document.createElement('span');
+			span.appendChild(document.createTextNode('range'));
+			chld.appendChild(span);
+			e.appendChild(chld);
 			for (i = 0; i < res.winners.length; i++) {
 				chld = document.createElement('li');
 				e.appendChild(chld);
-				div = document.createElement('div');
-				chld.appendChild(div);
 				href = document.createElement('a');
 				href.setAttribute('href', 
 					'mailto:' + res.winners[i].email);
 				href.appendChild(document.createTextNode
 					(res.winners[i].email));
-				div.appendChild(href);
-				div.appendChild(document.createTextNode(': '));
-				div.appendChild(document.createTextNode
-					((res.winners[i].rank + 1)));
-				div.appendChild(document.createTextNode
-					(' (range ' + 
-					    res.winners[i].winrank + '\u2013' + 
-					 (res.winners[i].winrank + 
-					  res.winners[i].winscore) + 
-					 ', ticket ' +
-					 res.winners[i].winnum + ')'));
+				chld.appendChild(href);
+				span = document.createElement('span');
+				span.appendChild(document.createTextNode
+					(res.winners[i].rank + 1));
+				chld.appendChild(span);
+				span = document.createElement('span');
+				span.appendChild(document.createTextNode
+					(res.winners[i].winnum));
+				chld.appendChild(span);
+				span = document.createElement('span');
+				span.appendChild(document.createTextNode
+					(res.winners[i].winrank + 
+					 '\u2013' + (res.winners[i].winrank + 
+					  res.winners[i].winscore)));
+				chld.appendChild(span);
 			}
 		} else if ( ! expr.nolottery) {
+			doHide('statusExprFinishedWinnersBox');
 			doUnhide('statusExprFinishedWin');
 		} else {
+			doHide('statusExprFinishedWinnersBox');
 			doHide('statusExprFinishedWin');
 		}
 		doClearReplace('exprCountdown', 'finished');
@@ -773,7 +833,11 @@ function loadExprSuccess(resp)
 			doHide('statusExprHasLobby');
 
 		doStatGraph(doClear('statusExprGraph'), res);
-		doStatHighest(doClear('statusHighest'), res);
+		doHide('statusHighestBox');
+		if (expr.round > 0) {
+			doUnhide('statusHighestBox');
+			doStatHighest(doClear('statusHighest'), res);
+		}
 	}
 }
 

@@ -1178,7 +1178,7 @@ db_player_load_highest(playerscorefp fp, void *arg, int64_t round)
 	stmt = db_stmt("SELECT playerid,aggrtickets "
 		"FROM lottery "
 		"WHERE round=? "
-		"ORDER BY aggrtickets DESC LIMIT 10");
+		"ORDER BY aggrtickets DESC LIMIT 5");
 	db_bind_int(stmt, 1, round);
 
 	while (SQLITE_ROW == db_step(stmt, 0)) {

@@ -11,8 +11,9 @@
 			This prevents a needless and at times confusing redirect after hitting the homepage.
 		</p>
 		<p>
-			Lots of aesthetic clean-up for the experimenter: more straight-forward status, cleaner buttons to push, and a status
-			graph to see how many participants have played.
+			Lots of aesthetic clean-up for the experimenter: more straight-forward status, cleaner buttons to push, a status graph
+			to see how many participants have played, an a printout of the current top earners (by tickets, not payoff).
+
 			Also clean up the presentation of earnings for players: one style for lottery-less play, another for playing with the lottery.
 			This involved some internal simplification of how lotteries are computed.
 		</p>

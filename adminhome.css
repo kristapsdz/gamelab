@@ -117,12 +117,26 @@ footer a:hover			{ color: #222; }
 				  margin-right: 0.5ex;
 				  padding: 0.1ex 0ex;
 				  border-radius: 1ex; }
+.statuslist			{ list-style-type: none; 
+				  background-color: #eee; 
+				  border-radius: 1ex;
+				  padding: 0.25ex 1ex;
+				  margin: 0;
+				  border-spacing: 1ex 0.25ex;
+				  display: table; }
+.statuslistbox			{ margin: 0.5em 0; }
+.statuslist >*			{ display: table-row; 
+				  padding: 0; 
+				  margin: 0; }
+.statuslist >* >*		{ display: table-cell; }
+.statuslistcaption		{ font-size: 12pt; 
+				  padding-left: 8pt; }
+.statuslisthead			{ font-size: 12pt; 
+				  color: #666; }
 .statusgraph			{ height: 200px; 
 				  margin: 0;
 				  padding: 0;
-				  margin-left: auto;
-				  margin-right: auto;
-				  width: 95%; }
+				  width: 100%; }
 *[class~="fa-toggle-on"]	{ color: #333; }
 *[class~="fa-toggle-on"]:hover	{ color: #000; }
 *[class~="fa-toggle-off"]	{ color: #888; }
@@ -248,4 +262,8 @@ div.input input[type=time]	{ width: 20ex; }
 				  padding-right: 0.5ex;
 			 	  padding-top: 2em; }
 	h1			{ font-size: 18pt; }
+	.statusgraph		{ height: 150px; 
+				  margin-left: auto;
+				  margin-right: auto;
+				  width: 80%; }
 }
