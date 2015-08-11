@@ -1072,6 +1072,8 @@ function loadExprSuccess(resp)
 			doUnhide('historyNotYet');
 		}
 		doUnhide('exprNotAllFinished');
+		doClearReplace('exprNotAllFinishedScore', res.aggrlottery.toFixed(2));
+		doClearReplace('exprNotAllFinishedTickets', res.aggrtickets);
 		doHide('exprAllFinished');
 		doClearReplace('exprCountdown', 'finished');
 	} else {

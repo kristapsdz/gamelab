@@ -636,11 +636,13 @@ again:
 	if (db_player_lottery(expr->round - 1, playerid, cur, aggr, gamesz)) {
 		kjson_putdoublep(&req, "curlottery", mpq_get_d(cur));
 		kjson_putdoublep(&req, "aggrlottery", mpq_get_d(aggr));
+		kjson_putintp(&req, "aggrtickets", ceil(mpq_get_d(aggr)));
 		mpq_clear(cur);
 		mpq_clear(aggr);
 	} else {
 		kjson_putnullp(&req, "curlottery");
 		kjson_putnullp(&req, "aggrlottery");
+		kjson_putnullp(&req, "aggrtickets");
 	}
 
 	/* 
