@@ -30,7 +30,7 @@ STATIC		 =
 
 # You really don't want to change anything below this line.
 
-VERSION	 = 1.0.10
+VERSION	 = 1.0.11
 VMONTH	 = August
 VYEAR	 = 2015
 CFLAGS 	+= -g -W -Wall -Wstrict-prototypes -Wno-unused-parameter -Wwrite-strings -I/usr/local/include
