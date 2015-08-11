@@ -249,7 +249,8 @@ void		 db_player_free(struct player *);
 struct player	*db_player_load(int64_t);
 void		 db_player_load_all(playerf, void *);
 void		 db_player_load_highest(playerscorefp, void *);
-int		 db_player_lottery(int64_t, int64_t, mpq_t, mpq_t, size_t);
+int		 db_player_lottery(int64_t, int64_t, 
+		 	mpq_t, mpq_t, int64_t *, size_t);
 int		 db_player_join(const struct player *);
 char		*db_player_next_new(int64_t *, char **);
 struct sess	*db_player_sess_alloc(int64_t, const char *);

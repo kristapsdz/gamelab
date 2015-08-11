@@ -773,8 +773,7 @@ again:
 		mpq_clear(cmp);
 		mpq_clear(sum);
 		db_player_lottery((*expr)->rounds - 1, 
-			pids[i], cmp, sum, count);
-		score = (int64_t)ceil(mpq_get_d(sum));
+			pids[i], cmp, sum, &score, count);
 		db_bind_int(stmt, 1, total);
 		db_bind_int(stmt, 2, score);
 		db_bind_int(stmt, 3, pids[i]);
@@ -2122,13 +2121,13 @@ db_roundup_round(struct roundup *r)
  */
 int
 db_player_lottery(int64_t round, int64_t pid, 
-	mpq_t cur, mpq_t aggr, size_t count)
+	mpq_t cur, mpq_t aggr, int64_t *tics, size_t count)
 {
 	sqlite3_stmt	*stmt;
 	size_t		 i;
 	int		 rc;
 	char		*curstr, *aggrstr;
-	double		 v;
+	int64_t		 prevtics;
 	mpq_t		 prevcur, prevaggr;
 
 	if (round < 0)
@@ -2148,7 +2147,8 @@ again:
 	if (SQLITE_ROW == rc)
 		return(1);
 
-	if ( ! db_player_lottery(round - 1, pid, prevcur, prevaggr, count)) 
+	if ( ! db_player_lottery(round - 1, pid, 
+		 prevcur, prevaggr, &prevtics, count)) 
 		mpq_init(prevaggr);
 	else
 		mpq_clear(prevcur);
@@ -2175,7 +2175,7 @@ again:
 		assert(i == count);
 
 	mpq_add(aggr, cur, prevaggr);
-	v = ceil(mpq_get_d(aggr));
+	*tics = ceil(mpq_get_d(aggr));
 
 	/* Convert the current and last to strings. */
 	gmp_asprintf(&curstr, "%Qd", cur);
@@ -2186,7 +2186,7 @@ again:
 		"(aggrpayoff,aggrtickets,curpayoff,playerid,round) "
 		"VALUES (?,?,?,?,?)");
 	db_bind_text(stmt, 1, aggrstr);
-	db_bind_int(stmt, 2, (int64_t)v);
+	db_bind_int(stmt, 2, *tics);
 	db_bind_text(stmt, 3, curstr);
 	db_bind_int(stmt, 4, pid);
 	db_bind_int(stmt, 5, round);

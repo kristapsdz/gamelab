@@ -492,7 +492,7 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 	struct poffstor	 pstor;
 	struct winner	*win;
 	mpq_t		 cur, aggr;
-	int64_t	 	 i;
+	int64_t	 	 i, tics;
 	size_t		 gamesz;
 	struct kjsonreq	 req;
 	char		 buf[22];
@@ -633,10 +633,11 @@ again:
 	 * This will compute the lottery for (right now) only the last
 	 * lottery sequence.
 	 */
-	if (db_player_lottery(expr->round - 1, playerid, cur, aggr, gamesz)) {
+	if (db_player_lottery(expr->round - 1, 
+			playerid, cur, aggr, &tics, gamesz)) {
 		kjson_putdoublep(&req, "curlottery", mpq_get_d(cur));
 		kjson_putdoublep(&req, "aggrlottery", mpq_get_d(aggr));
-		kjson_putintp(&req, "aggrtickets", ceil(mpq_get_d(aggr)));
+		kjson_putintp(&req, "aggrtickets", tics);
 		mpq_clear(cur);
 		mpq_clear(aggr);
 	} else {
@@ -662,7 +663,8 @@ again:
 	pstor.req = &req;
 	kjson_arrayp_open(&req, "lotteries");
 	for (i = 0; i < expr->round; i++) {
-		db_player_lottery(i, playerid, cur, aggr, gamesz);
+		db_player_lottery(i, playerid, 
+			cur, aggr, &tics, gamesz);
 		kjson_obj_open(&req);
 		kjson_putdoublep(&req, "curlottery", mpq_get_d(cur));
 		kjson_putdoublep(&req, "aggrlottery", mpq_get_d(aggr));
