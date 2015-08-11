@@ -77,8 +77,8 @@ struct	rstats {
 	struct stats	 rx; /* read bytes */
 	struct stats	 rtt; /* round-trip time */
 	size_t		 plays; /* successful plays */
-	size_t		 firstplays; 
-	size_t		 lastplays; 
+	size_t		 firstplays; /* first round played */
+	size_t		 lastplays; /* last round played */
 	struct timeval	 start; /* first round play */
 	struct timeval	 end; /* last round play */
 };
@@ -124,6 +124,11 @@ struct 	cookie {
 	char		*val;
 };
 
+struct	ginfo {
+	int64_t		 strats;
+	int64_t		 id;
+};
+
 /*
  * A single player in the simulation.
  */
@@ -142,7 +147,11 @@ struct	gamer {
 	size_t		  	 rx; /* bytes read in xfer */
 	struct json_object	*parsed; /* parsed json object */
 	int64_t			 lastround; /* last seen round */
-	int64_t			 firstplays;
+	int64_t			 firstplays; /* first round played */
+	int64_t			 role; /* what role we're playing */
+	size_t			 gamecur; /* game being played */
+	size_t		 	 gamemax; /* games to play */
+	struct ginfo		*games; /* per-game info */
 	time_t			 unblock; /* when to unwait */
 	TAILQ_ENTRY(gamer)	 entries;
 };
@@ -408,6 +417,23 @@ json_getobj(const struct gamer *gamer,
 }
 
 static int
+json_getarray(const struct gamer *gamer, 
+	json_object *parent, json_object **obj, const char *name)
+{
+
+	if ( ! json_object_object_get_ex(parent, name, obj)) {
+		fprintf(stderr, "%s: no JSON `%s\': %s\n",
+			gamer->email, name, gamer->url);
+		return(0);
+	} else if (json_type_array != json_object_get_type(*obj)) {
+		fprintf(stderr, "%s: bad JSON `%s' type: %s\n",
+			gamer->email, name, gamer->url);
+		return(0);
+	}
+	return(1);
+}
+
+static int
 json_getint(const struct gamer *gamer, 
 	json_object *parent, int64_t *val, const char *name)
 {
@@ -617,6 +643,8 @@ gamer_init_play(struct gamer *gamer, int64_t round)
 
 	gamer->phase = PHASE_PLAY;
 
+	assert(gamer->gamecur < gamer->gamemax);
+
 	/* Start with the URL for the captive portal. */
 	if ( ! gamer_init(gamer, urls[PHASE_PLAY], 1)) {
 		fputs("gamer_init", stderr);
@@ -639,9 +667,14 @@ gamer_init_play(struct gamer *gamer, int64_t round)
 		return(0);
 	}
 
-	/* Our POST consists only of our email address. */
+	/* 
+	 * POST our round, game identifier (from the game structure),
+	 * and a set of strategies to play.
+	 */
 	rc = buf_write(&gamer->post, 
-		"round=%" PRId64 "&gid=1&index0=1", round);
+		"round=%" PRId64 "&gid=%" PRId64 "&index0=1", 
+		round, gamer->games[gamer->gamecur].id);
+
 	if ( ! rc) {
 		fputs("buf_write\n", stderr);
 		return(0);
@@ -658,6 +691,55 @@ gamer_init_play(struct gamer *gamer, int64_t round)
 	}
 
 	gamer->lastround = round;
+	return(1);
+}
+
+/*
+ * Determine the number of games and strategies per game.
+ * This should only be run once, in the first loadexpr with a valid
+ * round identifier.
+ */
+static int
+gamer_init_gameinfo(struct gamer *g)
+{
+	int64_t		    sz;
+	struct json_object *games, *obj;
+	size_t		    i;
+
+	assert(NULL == g->games);
+
+	if ( ! json_getint(g, g->parsed, &sz, "gamesz")) {
+		fputs("json_getint: gamesz\n", stderr);
+		return(0);
+	}
+
+	g->gamemax = sz;
+	if (NULL == (g->games = calloc(sz, sizeof(struct ginfo)))) {
+		perror(NULL);
+		return(0);
+	} 
+	if ( ! json_getarray(g, g->parsed, &games, "games")) {
+		fputs("json_getarray: games\n", stderr);
+		return(0);
+	}
+
+	for (i = 0; i < (size_t)sz; i++) {
+		obj = json_object_array_get_idx(games, i);
+		if (NULL == obj) {
+			fputs("json_object_array_get_idx\n", stderr);
+			return(0);
+		} 
+		if ( ! json_getint(g, obj, &g->games[i].id, "id")) {
+			fputs("json_getint: games.id\n", stderr);
+			return(0);
+		}
+		assert(0 == g->role || 1 == g->role);
+		if ( ! json_getint(g, obj, &g->games[i].strats, 
+			 0 == g->role ? "p1" : "p2")) {
+			fputs("json_getint: games.p1,p2\n", stderr);
+			return(0);
+		}
+	}
 	return(1);
 }
 
@@ -816,7 +898,27 @@ gamer_phase_play(struct gamer *gamer)
 	} else if ( ! gamer_reset(gamer)) {
 		fputs("gamer_reset\n", stderr);
 		return(0);
-	} else if ( ! gamer_init_loadexpr(gamer)) {
+	} 
+
+	assert(gamer->gamecur < gamer->gamemax);
+	if (gamer->game->verbose)
+		fprintf(stderr, "%s: played game %" PRId64 
+			 "(%zu/%zu), round %" PRId64 "\n", 
+			 gamer->email, 
+			 gamer->games[gamer->gamecur].id, 
+			 gamer->gamecur + 1, gamer->gamemax,
+			 gamer->lastround);
+
+	/* Increment which game in the experiment we're playing. */
+	if (++gamer->gamecur < gamer->gamemax) {
+		if ( ! gamer_init_play(gamer, gamer->lastround)) {
+			fputs("game_init_loadexpr", stderr);
+			return(0);
+		}
+		return(1);
+	}
+	
+	if ( ! gamer_init_loadexpr(gamer)) {
 		fputs("game_init_loadexpr", stderr);
 		return(0);
 	}
@@ -834,10 +936,6 @@ gamer_phase_play(struct gamer *gamer)
 
 	rstats_round(gamer->game, gamer->lastround);
 	gamer->game->rounds[gamer->lastround + 1].plays++;
-
-	if (gamer->game->verbose)
-		fprintf(stderr, "%s: played %" PRId64 "\n",
-			gamer->email, gamer->lastround);
 	return(1);
 }
 
@@ -846,7 +944,7 @@ gamer_phase_play(struct gamer *gamer)
  * Using this information, we'll construct a play sequence.
  */
 static int
-gamer_phase_loadexpr(struct gamer *gamer)
+gamer_phase_loadexpr(struct gamer *g)
 {
 	CURLcode	    cc;
 	long		    code;
@@ -854,7 +952,7 @@ gamer_phase_loadexpr(struct gamer *gamer)
 	struct json_object *expr, *player;
 
 	/* First make sure we have HTTP code 200. */
-	cc = curl_easy_getinfo(gamer->conn, 
+	cc = curl_easy_getinfo(g->conn, 
 		CURLINFO_RESPONSE_CODE, &code);
 	if (CURLE_OK != cc) {
 		fprintf(stderr, "curl_easy_getinfo: "
@@ -863,9 +961,9 @@ gamer_phase_loadexpr(struct gamer *gamer)
 		return(0);
 	} else if (200 != code) {
 		fprintf(stderr, "%s: bad response: %s -> %ld\n", 
-			gamer->email, gamer->url, code);
+			g->email, g->url, code);
 		return(0);
-	} else if ( ! json_check(gamer)) {
+	} else if ( ! json_check(g)) {
 		fputs("json_check\n", stderr);
 		return(0);
 	}
@@ -874,27 +972,41 @@ gamer_phase_loadexpr(struct gamer *gamer)
 	 * Gather data from the JSON result.
 	 * Start with the experiment, then the player.
 	 */
-	if ( ! json_getobj(gamer, gamer->parsed, &expr, "expr")) {
-		fputs("json_getobj\n", stderr);
+	if ( ! json_getobj(g, g->parsed, &expr, "expr")) {
+		fputs("json_getobj: expr\n", stderr);
 		return(0);
-	} else if ( ! json_getint(gamer, expr, &round, "round")) {
-		fputs("json_getint\n", stderr);
+	} else if ( ! json_getint(g, expr, &round, "round")) {
+		fputs("json_getint: expr.round\n", stderr);
 		return(0);
-	} else if ( ! json_getint(gamer, expr, &rounds, "rounds")) {
-		fputs("json_getint\n", stderr);
+	} else if ( ! json_getint(g, expr, &rounds, "rounds")) {
+		fputs("json_getint: expr.rounds\n", stderr);
 		return(0);
-	} else if ( ! json_getint(gamer, expr, &prounds, "prounds")) {
-		fputs("json_getint\n", stderr);
+	} else if ( ! json_getint(g, expr, &prounds, "prounds")) {
+		fputs("json_getint: expr.prounds\n", stderr);
 		return(0);
 	} 
 	
-	if ( ! json_getobj(gamer, gamer->parsed, &player, "player")) {
-		fputs("json_getobj\n", stderr);
+	if ( ! json_getobj(g, g->parsed, &player, "player")) {
+		fputs("json_getobj: player\n", stderr);
 		return(0);
-	} else if ( ! json_getint(gamer, player, &joined, "joined")) {
-		fputs("json_getint\n", stderr);
+	} else if ( ! json_getint(g, player, &joined, "joined")) {
+		fputs("json_getint: player.joined\n", stderr);
+		return(0);
+	} else if ( ! json_getint(g, player, &g->role, "role")) {
+		fputs("json_getint: player.role\n", stderr);
 		return(0);
 	}
+
+	/*
+	 * If we're playing the game and have initialised the array of
+	 * game identifiers, do so now.
+	 */
+	if (NULL == g->games && round >= 0)
+		if ( ! gamer_init_gameinfo(g)) {
+			fprintf(stderr, "%s: could not initialise "
+				"game structure\n", g->email);
+			return(0);
+		}
 
 	/*
 	 * Examine the result.
@@ -907,65 +1019,66 @@ gamer_phase_loadexpr(struct gamer *gamer)
 		 * Experiment hasn't begun yet or we haven't joined the
 		 * game such that we can play.
 		 */
-		if ( ! gamer_reset(gamer)) {
+		if ( ! gamer_reset(g)) {
 			fputs("gamer_reset\n", stderr);
 			return(0);
-		} else if ( ! gamer_init_loadexpr(gamer)) {
+		} else if ( ! gamer_init_loadexpr(g)) {
 			fputs("gamer_init_loadexpr", stderr);
 			return(0);
 		}
 		return(1);
 	} else if (round == rounds) {
 		/* Experiment has finished. */
-		assert(gamer->lastround < round);
-		gamer->game->finished++;
-		gamer->phase = PHASE__MAX;
-		if (gamer->game->verbose)
+		assert(g->lastround < round);
+		g->game->finished++;
+		g->phase = PHASE__MAX;
+		if (g->game->verbose)
 			fprintf(stderr, "%s: done (experiment "
-				"finished)\n", gamer->email);
-		rstats_round(gamer->game, gamer->lastround);
-		gamer->game->rounds[gamer->lastround + 1].lastplays++;
+				"finished)\n", g->email);
+		rstats_round(g->game, g->lastround);
+		g->game->rounds[g->lastround + 1].lastplays++;
 		return(1);
-	} else if (gamer->lastround > round) {
+	} else if (g->lastround > round) {
 		/* We played a round in the future...? */
 		fprintf(stderr, "%s: time-warp: %s -> %" 
-			PRId64 " > %" PRId64 "\n", gamer->email, 
-			gamer->url, gamer->lastround, round);
+			PRId64 " > %" PRId64 "\n", g->email, 
+			g->url, g->lastround, round);
 		return(0);
 	} else if (joined >= 0 && prounds > 0 &&
 		 round >= joined + prounds) {
 		/* Our play period has finished. */
-		assert(gamer->lastround < round);
-		gamer->game->finished++;
-		gamer->phase = PHASE__MAX;
-		if (gamer->game->verbose)
+		assert(g->lastround < round);
+		g->game->finished++;
+		g->phase = PHASE__MAX;
+		if (g->game->verbose)
 			fprintf(stderr, "%s: done (play "
-				"period finished)\n", gamer->email);
-		rstats_round(gamer->game, gamer->lastround);
-		gamer->game->rounds[gamer->lastround + 1].lastplays++;
+				"period finished)\n", g->email);
+		rstats_round(g->game, g->lastround);
+		g->game->rounds[g->lastround + 1].lastplays++;
 		return(1);
-	} else if (gamer->lastround < round) {
+	} else if (g->lastround < round) {
 		/* Play the round. */
-		if ( ! gamer_reset(gamer)) {
+		g->gamecur = 0;
+		if ( ! gamer_reset(g)) {
 			fputs("gamer_reset\n", stderr);
 			return(0);
-		} else if ( ! gamer_init_play(gamer, round)) {
+		} else if ( ! gamer_init_play(g, round)) {
 			fputs("game_init_play", stderr);
 			return(0);
 		}
-		if (gamer->game->verbose)
+		if (g->game->verbose)
 			fprintf(stderr, "%s: entering round %" 
-				PRId64 "\n", gamer->email, round);
+				PRId64 "\n", g->email, round);
 		return(1);
 	} 
 
-	assert(round == gamer->lastround);
+	assert(round == g->lastround);
 	assert(round >= 0 && round < rounds);
 	/* We've already played the round. */
-	if ( ! gamer_reset(gamer)) {
+	if ( ! gamer_reset(g)) {
 		fputs("gamer_reset\n", stderr);
 		return(0);
-	} else if ( ! gamer_init_loadexpr(gamer)) {
+	} else if ( ! gamer_init_loadexpr(g)) {
 		fputs("gamer_init_loadexpr", stderr);
 		return(0);
 	}
@@ -1614,6 +1727,7 @@ out:
 			curl_multi_remove_handle(game.curl, ctx[i].conn);
 			curl_easy_cleanup(ctx[i].conn);
 		}
+		free(ctx[i].games);
 		free(ctx[i].email);
 		free(ctx[i].password);
 		free(ctx[i].sessid);
