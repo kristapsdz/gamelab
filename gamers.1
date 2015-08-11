@@ -1,0 +1,88 @@
+.Dd $Mdocdate$
+.Dt GAMERS 1
+.Os
+.Sh NAME
+.Nm gamers
+.Nd bot player for gamelab
+.\" .Sh LIBRARY
+.\" For sections 2, 3, and 9 only.
+.\" Not used in OpenBSD.
+.Sh SYNOPSIS
+.Nm gamers
+.Op Fl erv
+.Op Fl n Ar players
+.Op Fl w Ar time|min:max
+.Op Fl W Ar max
+.Ar url
+.Sh DESCRIPTION
+The
+.Nm
+utility will play
+.Ar players
+captive players for as many rounds as configured in gamelab, which must
+be join-able (captive players and accepting registrations) at laboratory
+address
+.Ar url .
+By default, it simulates two players who unrelentingly pound the server
+with connections, always playing the first strategy of experiment games.
+The options are as follows:
+.Bl -tag -width Ds
+.It Fl e
+Play equal weight for each strategy in each game.
+.It Fl r
+Play a random mixture for each strategy in each game (summing to one, of
+course).
+.It Fl v
+Print more information as the system runs.
+This will not disrupt the statistics that follow the game.
+.It Fl n Ar players
+Use
+.Ar players ,
+which must be greater than or equal to two.
+.It Fl w Ar time|min:max
+Impose a waiting time between connections.
+This can either be a hard time
+.Ar time ,
+in seconds, or a random range between
+.Ar min
+and
+.Ar max
+seconds.
+.It Fl W Ar max
+Impose a random wait before starting to join the game.
+(Simulates stochastic arrivals.)
+This will be between zero and
+.Ar max
+seconds.
+.El
+.Pp
+When
+.Nm
+completes, it will print all sorts of useful statistics about how the
+gamelab behaved.
+During play, it will emit rounds as they pass.
+.\" .Sh CONTEXT
+.\" For section 9 functions only.
+.\" .Sh IMPLEMENTATION NOTES
+.\" Not used in OpenBSD.
+.\" .Sh RETURN VALUES
+.\" For sections 2, 3, and 9 function return values only.
+.\" .Sh ENVIRONMENT
+.\" For sections 1, 6, 7, and 8 only.
+.\" .Sh FILES
+.Sh EXIT STATUS
+.Ex -std
+.\" For sections 1, 6, and 8 only.
+.\" .Sh DIAGNOSTICS
+.\" For sections 1, 4, 6, 7, 8, and 9 printf/stderr messages only.
+.\" .Sh ERRORS
+.\" For sections 2, 3, 4, and 9 errno settings only.
+.\" .Sh SEE ALSO
+.\" .Xr kcgi 3
+.\" .Sh STANDARDS
+.\" .Sh HISTORY
+.\" .Sh AUTHORS
+.\" .Sh CAVEATS
+.\" .Sh BUGS
+.\" .Sh SECURITY CONSIDERATIONS
+.\" Not used in OpenBSD.

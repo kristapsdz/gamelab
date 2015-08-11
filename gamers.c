@@ -107,6 +107,7 @@ struct	game {
 	time_t		 waitmax; /* stochastic waiting max */
 	struct gamerq	 waiting; /* between connections */
 	int		 equal;
+	int		 random;
 };
 
 /*
@@ -670,7 +671,7 @@ gamer_init(struct gamer *gamer, const char *url, int post)
 static int
 gamer_init_play(struct gamer *g, int64_t round)
 {
-	size_t		 i, sz;
+	size_t		 i, sz, cur, v;
 	int	 	 rc;
 	CURLcode	 cc;
 
@@ -713,6 +714,25 @@ gamer_init_play(struct gamer *g, int64_t round)
 				fputs("buf_append\n", stderr);
 				return(0);
 			}
+		}
+	} else if (g->game->random) {
+		sz = g->games[g->gamecur].strats;
+		cur = 1000;
+		for (i = 0; i < sz - 1; i++) {
+			v = arc4random_uniform(cur);
+			rc = buf_append(&g->post, 
+				"&index%zu=%zu/1000", i, v);
+			if ( ! rc) {
+				fputs("buf_append\n", stderr);
+				return(0);
+			}
+			cur -= v;
+		}
+		rc = buf_append(&g->post, 
+			"&index%zu=%zu/1000", i, cur);
+		if ( ! rc) {
+			fputs("buf_append\n", stderr);
+			return(0);
 		}
 	} else if ( ! buf_append(&g->post, "&index0=1")) {
 		fputs("buf_append\n", stderr);
@@ -1380,10 +1400,13 @@ main(int argc, char *argv[])
 	game.players = 2;
 	TAILQ_INIT(&game.waiting);
 
-	while (-1 != (c = getopt(argc, argv, "en:vw:W:"))) 
+	while (-1 != (c = getopt(argc, argv, "ern:vw:W:"))) 
 		switch (c) {
 		case ('e'):
 			game.equal = 1;
+			break;
+		case ('r'):
+			game.random = 1;
 			break;
 		case ('n'):
 			game.players = atoi(optarg);
@@ -1790,7 +1813,7 @@ out:
 	return(rc ? EXIT_SUCCESS : EXIT_FAILURE);
 usage:
 	fprintf(stderr, "usage: %s "
-		"[-ev] "
+		"[-erv] "
 		"[-n players] "
 		"[-w [time|min:max]] "
 		"[-W max] "
