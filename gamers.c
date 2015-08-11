@@ -106,6 +106,7 @@ struct	game {
 	time_t		 waitmin; /* stochastic waiting min */
 	time_t		 waitmax; /* stochastic waiting max */
 	struct gamerq	 waiting; /* between connections */
+	int		 equal;
 };
 
 /*
@@ -177,6 +178,37 @@ stddev(const struct stats *s)
 	if (s->n < 2)
 		return(0.0);
 	return(sqrt(s->M2 / (double)(s->n - 1)));
+}
+
+static int
+buf_append(struct buf *buf, const char *fmt, ...)
+{
+	va_list	 ap, app;
+	void	*p;
+	int	 ret;
+	size_t	 nsz, offs;
+
+	va_start(ap, fmt);
+	va_copy(app, ap);
+	if (-1 == (ret = vsnprintf(NULL, 0, fmt, ap))) {
+		perror("vsnprintf");
+		return(0);
+	}
+	nsz = buf->bsz + (size_t)ret + (0 == buf->bsz ? 1 : 0);
+	if (nsz > buf->bmax) {
+		if (NULL == (p = realloc(buf->b, nsz))) {
+			perror(NULL);
+			return(0);
+		}
+		buf->b = p;
+		buf->bmax = nsz;
+	}
+	offs = buf->bsz - (0 == buf->bsz ? 0 : 1);
+	ret = vsnprintf(buf->b + offs, buf->bmax - offs, fmt, app);
+	va_end(ap);
+	assert(-1 != ret && (size_t)ret + 1 <= buf->bmax - offs);
+	buf->bsz += ret + (0 == buf->bsz ? 1 : 0);
+	return(1);
 }
 
 /*
@@ -636,30 +668,29 @@ gamer_init(struct gamer *gamer, const char *url, int post)
 }
 
 static int
-gamer_init_play(struct gamer *gamer, int64_t round)
+gamer_init_play(struct gamer *g, int64_t round)
 {
+	size_t		 i, sz;
 	int	 	 rc;
 	CURLcode	 cc;
 
-	gamer->phase = PHASE_PLAY;
+	g->phase = PHASE_PLAY;
 
-	assert(gamer->gamecur < gamer->gamemax);
+	assert(g->gamecur < g->gamemax);
 
 	/* Start with the URL for the captive portal. */
-	if ( ! gamer_init(gamer, urls[PHASE_PLAY], 1)) {
+	if ( ! gamer_init(g, urls[PHASE_PLAY], 1)) {
 		fputs("gamer_init", stderr);
 		return(0);
 	}
 
-	rc = buf_write(&gamer->cookie, 
-		"sessid=%s;sesscookie=%s", 
-		gamer->sessid, gamer->sesscookie);
+	rc = buf_write(&g->cookie, "sessid=%s;"
+		"sesscookie=%s", g->sessid, g->sesscookie);
 	if ( ! rc) {
 		fputs("buf_write\n", stderr);
 		return(0);
 	}
-	cc = curl_easy_setopt(gamer->conn, 
-		CURLOPT_COOKIE, gamer->cookie.b);
+	cc = curl_easy_setopt(g->conn, CURLOPT_COOKIE, g->cookie.b);
         if (CURLE_OK != cc) {
 		fprintf(stderr, "curl_easy_setopt: "
 			"CURLOPT_COOKIE: %s\n",
@@ -667,22 +698,30 @@ gamer_init_play(struct gamer *gamer, int64_t round)
 		return(0);
 	}
 
-	/* 
-	 * POST our round, game identifier (from the game structure),
-	 * and a set of strategies to play.
-	 */
-	rc = buf_write(&gamer->post, 
-		"round=%" PRId64 "&gid=%" PRId64 "&index0=1", 
-		round, gamer->games[gamer->gamecur].id);
-
+	rc = buf_write(&g->post, "round=%" PRId64 "&gid=%" 
+		PRId64, round, g->games[g->gamecur].id);
 	if ( ! rc) {
 		fputs("buf_write\n", stderr);
 		return(0);
 	}
+	if (g->game->equal) {
+		sz = g->games[g->gamecur].strats;
+		for (i = 0; i < sz; i++) {
+			rc = buf_append(&g->post, 
+				"&index%zu=1/%zu", i, sz);
+			if ( ! rc) {
+				fputs("buf_append\n", stderr);
+				return(0);
+			}
+		}
+	} else if ( ! buf_append(&g->post, "&index0=1")) {
+		fputs("buf_append\n", stderr);
+		return(0);
+	}
 
 	/* Add the POST field to the request. */
-	cc = curl_easy_setopt(gamer->conn, 
-		CURLOPT_POSTFIELDS, gamer->post.b);
+	cc = curl_easy_setopt(g->conn, 
+		CURLOPT_POSTFIELDS, g->post.b);
 	if (CURLE_OK != cc) {
 		fprintf(stderr, "curl_easy_setopt: "
 			"CURLOPT_POSTFIELDS: %s\n",
@@ -690,7 +729,7 @@ gamer_init_play(struct gamer *gamer, int64_t round)
 		return(0);
 	}
 
-	gamer->lastround = round;
+	g->lastround = round;
 	return(1);
 }
 
@@ -1341,8 +1380,11 @@ main(int argc, char *argv[])
 	game.players = 2;
 	TAILQ_INIT(&game.waiting);
 
-	while (-1 != (c = getopt(argc, argv, "n:vw:W:"))) 
+	while (-1 != (c = getopt(argc, argv, "en:vw:W:"))) 
 		switch (c) {
+		case ('e'):
+			game.equal = 1;
+			break;
 		case ('n'):
 			game.players = atoi(optarg);
 			break;
@@ -1748,7 +1790,7 @@ out:
 	return(rc ? EXIT_SUCCESS : EXIT_FAILURE);
 usage:
 	fprintf(stderr, "usage: %s "
-		"[-v] "
+		"[-ev] "
 		"[-n players] "
 		"[-w [time|min:max]] "
 		"[-W max] "

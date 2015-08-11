@@ -13,11 +13,17 @@
 		<p>
 			Lots of aesthetic clean-up for the experimenter: more straight-forward status, cleaner buttons to push, and a status
 			graph to see how many participants have played.
+			Also clean up the presentation of earnings for players: one style for lottery-less play, another for playing with the lottery.
+			This involved some internal simplification of how lotteries are computed.
 		</p>
 		<p>
 			Stipulate a valid user e-mail address only for participants added over the experimenter console.
 			Otherwise, identifiers can be free-form.
 			This allows captive players to use non-email-based identifiers.
+		</p>
+		<p>
+			Lastly, significantly improve the <q>bot</q> playing utility to handle multiple games and randomised (instead of
+			consistent) strategies.
 		</p>
 	</aside>
 </article>
