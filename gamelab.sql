@@ -139,8 +139,8 @@ CREATE TABLE past (
 	currentsp1 TEXT NOT NULL,
 	currentsp2 TEXT NOT NULL,
 	skip INTEGER NOT NULL,
+	plays INTEGER NOT NULL,
 	roundcount INTEGER NOT NULL,
-	count INTEGER NOT NULL,
 	unique (round, gameid)
 );
 

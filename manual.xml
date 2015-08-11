@@ -1249,45 +1249,70 @@
 								and <a href="#db-game"><code>game</code></a> when a round has concluded.
 							</p>
 							<dl>
-								<dt id="db-past-round"><var>round</var></dt>
-								<dd>The round starting at zero.</dd>
-								<dt id="db-past-gameid"><var>gameid</var></dt>
-								<dd>A foreign key reference to the <a href="#db-game"><code>game</code></a>
-									<a href="#db-game-id"><var>id</var></a>.</dd>
 								<dt id="db-past-averagesp1"><var>averagesp1</var></dt>
-								<dd>For the row player, the accumulated weighted average strategy mixture of all
+								<dd>
+									For the row player, the accumulated weighted average strategy mixture of
+									all
 									previous rounds, with previous rounds being exponentially decayed.  That
 									is, the <a href="#db-past-currentsp1"><var>currentsp1</var></a> plus
 									half of the last round's weighted average and so on.
 									If a round does not have enough plays by either player role to produce
 									payoffs, it is omitted from the accumulation sequence.
 									This is recorded as a space-separated sequence of rational numbers, one
-									per strategy.</dd>
+									per strategy.
+								</dd>
 								<dt id="db-past-averagesp2"><var>averagesp2</var></dt>
-								<dd>Like <a href="#db-past-averagesp1"><var>averagesp1</var></a> but for the
-									column player.</dd>
+								<dd>
+									Like <a href="#db-past-averagesp1"><var>averagesp1</var></a> but for the
+									column player.
+								</dd>
 								<dt id="db-past-currentsp1"><var>currentsp1</var></dt>
-								<dd>For the row player, the average strategy mixture of the current round.
+								<dd>
+									For the row player, the average strategy mixture of the current round.
 									Strategy mixtures are only considered for <a
 										href="#db-choice"><code>choice</code></a> rows where the <a
 										href="#db-player"><code>player</code></a> played all games
 									for the round, so this will be a set of zeroes if no players completed
 									all games.
 									This is recorded as a space-separated sequence of rational numbers, one
-									per strategy.</dd>
+									per strategy.
+								</dd>
 								<dt id="db-past-currentsp2"><var>currentsp2</var></dt>
-								<dd>Like <a href="#db-past-currentsp1"><var>currentsp1</var></a> but for the
-									column player.</dd>
-								<dt id="db-past-skip"><var>skip</var></dt>
-								<dd>If zero row or column players played all games, this is set to <var>1</var>,
-									else it is <var>0</var> (sufficient players played).</dd>
-								<dd>The accumulated count of rounds not skipping, i.e., the count of zero-valued
+								<dd>
+									Like <a href="#db-past-currentsp1"><var>currentsp1</var></a> but for the
+									column player.
+								</dd>
+								<dt id="db-past-gameid"><var>gameid</var></dt>
+								<dd>
+									A foreign key reference to the <a href="#db-game"><code>game</code></a>
+									<a href="#db-game-id"><var>id</var></a>.
+								</dd>
+								<dt id="db-past-id"><var>id</var></dt>
+								<dd>
+									Unique identifier.
+								</dd>
+								<dt id="db-past-plays"><var>plays</var></dt>
+								<dd>
+									The total number of plays that were submitted (over all games) in this
+									round if and only if the player submitted for all games in that round.
+								</dd>
+								<dt id="db-past-round"><var>round</var></dt>
+								<dd>
+									The round starting at zero.
+								</dd>
+								<dt id="db-past-roundcount"><var>roundcount</var></dt>
+								<dd>
+									The accumulated count of rounds not skipping, i.e., the count of zero-valued
 									<a href="#db-past-skip"><var>skip</var></a> rounds.  This is used for
 									computing the accumulated weighted average, which is really the sum of
 									all (non-zero) weighted previous rounds divided by the exponential
-									sum.</dd>
-								<dt id="db-past-id"><var>id</var></dt>
-								<dd>Unique identifier.</dd>
+									sum.
+								</dd>
+								<dt id="db-past-skip"><var>skip</var></dt>
+								<dd>
+									If zero row or column players played all games, this is set to
+									<var>1</var>, else it is <var>0</var> (sufficient players played).
+								</dd>
 							</dl>
 						</dd>
 						<dt id="db-smtp"><code>smtp</code></dt>
