@@ -1170,14 +1170,17 @@ db_player_load(int64_t id)
 }
 
 void
-db_player_load_highest(playerscorefp fp, void *arg)
+db_player_load_highest(playerscorefp fp, void *arg, int64_t round)
 {
 	sqlite3_stmt	*stmt;
 	struct player	*player;
 
 	stmt = db_stmt("SELECT playerid,aggrtickets "
 		"FROM lottery "
+		"WHERE round=? "
 		"ORDER BY aggrtickets DESC LIMIT 10");
+	db_bind_int(stmt, 1, round);
+
 	while (SQLITE_ROW == db_step(stmt, 0)) {
 		player = db_player_load
 			(sqlite3_column_int(stmt, 0));

@@ -436,8 +436,8 @@ senddogetexpr(struct kreq *r)
 	kjson_putintp(&req, "lobbysize", db_expr_lobbysize());
 
 	kjson_arrayp_open(&req, "highest");
-	if (expr->round >= 0)
-		db_player_load_highest(sendhighest, &req);
+	if (expr->round > 0)
+		db_player_load_highest(sendhighest, &req, expr->round - 1);
 	kjson_array_close(&req);
 
 	if (ESTATE_POSTWIN == expr->state) {

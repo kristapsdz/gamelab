@@ -492,6 +492,45 @@ function doDisablePlayer(id)
 		e.setAttribute('data-gamelab-enabled', '0');
 }
 
+function doStatHighest(e, res)
+{
+	var i, sub;
+
+	for (i = 0; i < res.highest.length; i++) {
+		sub = document.createElement('li');
+		sub.appendChild(document.createTextNode
+			(res.highest[i].score + ': ' + res.highest[i].player.mail));
+		e.appendChild(sub);
+	}
+}
+
+function doStatGraph(e, res)
+{
+	var datas, data, i, j;
+
+	datas = [];
+	for (i = 0; i < res.history.length; i++) {
+		data = [];
+		data.push([0, 0]);
+		for (j = 0; j < res.history[0].roundups.length; j++) {
+			data.push([(j + 1), res.history[i].roundups[j].plays]);
+		}
+		data.push([(j + 1), res.fcol + res.frow]);
+		datas[i] = {
+			data: data,
+			label: 'Game ' + String.fromCharCode(49 + i)
+		};
+	}
+	Flotr.draw(e, datas, 
+		{ grid: { horizontalLines: 1 },
+		  shadowSize: 0,
+		  subtitle: 'Plays',
+		  xaxis: { tickDecimals: 0 },
+		  yaxis: { min: 0.0, tickDecimals: 0 },
+		  lines: { show: true },
+		  points: { show: true }});
+}
+
 function loadSmtpSetup()
 {
 
@@ -683,6 +722,8 @@ function loadExprSuccess(resp)
 			doHide('statusExprFinishedWin');
 		}
 		doClearReplace('exprCountdown', 'finished');
+		doStatGraph(doClear('statusExprGraph2'), res);
+		doStatHighest(doClear('statusHighest2'), res);
 	}  else if (expr.round < 0) {
 		next = expr.start - Math.floor(new Date().getTime() / 1000);
 		doUnhide('statusExprWaiting');
@@ -731,28 +772,8 @@ function loadExprSuccess(resp)
 		} else
 			doHide('statusExprHasLobby');
 
-		e = doClear('statusExprGraph');
-		datas = [];
-		for (i = 0; i < res.history.length; i++) {
-			data = [];
-			data.push([0, 0]);
-			for (j = 0; j < res.history[0].roundups.length; j++) {
-				data.push([(j + 1), res.history[i].roundups[j].plays]);
-			}
-			data.push([(j + 1), res.fcol + res.frow]);
-			datas[i] = {
-				data: data,
-				label: 'Game ' + String.fromCharCode(49 + i)
-			};
-		}
-		Flotr.draw(e, datas, 
-			{ grid: { horizontalLines: 1 },
-			  shadowSize: 0,
-			  subtitle: 'Plays',
-			  xaxis: { tickDecimals: 0 },
-			  yaxis: { min: 0.0, tickDecimals: 0 },
-			  lines: { show: true },
-			  points: { show: true }});
+		doStatGraph(doClear('statusExprGraph'), res);
+		doStatHighest(doClear('statusHighest'), res);
 	}
 }
 

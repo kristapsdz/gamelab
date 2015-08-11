@@ -117,7 +117,7 @@ footer a:hover			{ color: #222; }
 				  margin-right: 0.5ex;
 				  padding: 0.1ex 0ex;
 				  border-radius: 1ex; }
-#statusExprGraph		{ height: 200px; 
+.statusgraph			{ height: 200px; 
 				  margin: 0;
 				  padding: 0;
 				  margin-left: auto;
