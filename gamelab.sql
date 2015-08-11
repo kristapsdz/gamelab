@@ -50,6 +50,7 @@ CREATE TABLE lottery (
 	round INTEGER NOT NULL,
 	playerid INTEGER REFERENCES player(id) NOT NULL,
 	aggrpayoff TEXT NOT NULL,
+	aggrtickets INTEGER NOT NULL DEFAULT(0),
 	curpayoff TEXT NOT NULL,
 	id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
 	UNIQUE (round, playerid)

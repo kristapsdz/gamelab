@@ -744,7 +744,6 @@ again:
 	 * Don't worry about simultaneous updates because the tally will
 	 * be the same in each one.
 	 */
-	fprintf(stderr, "Computing total lottery tickets...\n");
 
 	mpq_init(sum);
 	mpq_init(cmp);
@@ -1169,6 +1168,26 @@ db_player_load(int64_t id)
 	player->answer = sqlite3_column_int(stmt, 12);
 	sqlite3_finalize(stmt);
 	return(player);
+}
+
+void
+db_player_load_highest(playerscorefp fp, void *arg)
+{
+	sqlite3_stmt	*stmt;
+	struct player	*player;
+
+	stmt = db_stmt("SELECT playerid,aggrtickets "
+		"FROM lottery "
+		"ORDER BY aggrtickets DESC LIMIT 10");
+	while (SQLITE_ROW == db_step(stmt, 0)) {
+		player = db_player_load
+			(sqlite3_column_int(stmt, 0));
+		assert(NULL != player);
+		fp(player, sqlite3_column_int(stmt, 1), arg);
+		db_player_free(player);
+	}
+
+	sqlite3_finalize(stmt);
 }
 
 /*
@@ -2102,13 +2121,14 @@ db_roundup_round(struct roundup *r)
  * accumulated (inclusive).
  */
 int
-db_player_lottery(int64_t round, 
-	int64_t pid, mpq_t cur, mpq_t aggr, size_t count)
+db_player_lottery(int64_t round, int64_t pid, 
+	mpq_t cur, mpq_t aggr, size_t count)
 {
 	sqlite3_stmt	*stmt;
 	size_t		 i;
 	int		 rc;
 	char		*curstr, *aggrstr;
+	double		 v;
 	mpq_t		 prevcur, prevaggr;
 
 	if (round < 0)
@@ -2155,18 +2175,21 @@ again:
 		assert(i == count);
 
 	mpq_add(aggr, cur, prevaggr);
+	v = ceil(mpq_get_d(aggr));
 
 	/* Convert the current and last to strings. */
 	gmp_asprintf(&curstr, "%Qd", cur);
 	gmp_asprintf(&aggrstr, "%Qd", aggr);
 
 	/* Record both in database. */
-	stmt = db_stmt("INSERT INTO lottery (aggrpayoff,"
-		"curpayoff,playerid,round) VALUES (?,?,?,?)");
+	stmt = db_stmt("INSERT INTO lottery "
+		"(aggrpayoff,aggrtickets,curpayoff,playerid,round) "
+		"VALUES (?,?,?,?)");
 	db_bind_text(stmt, 1, aggrstr);
-	db_bind_text(stmt, 2, curstr);
-	db_bind_int(stmt, 3, pid);
-	db_bind_int(stmt, 4, round);
+	db_bind_int(stmt, 2, (int64_t)v);
+	db_bind_text(stmt, 3, curstr);
+	db_bind_int(stmt, 4, pid);
+	db_bind_int(stmt, 5, round);
 	rc = db_step(stmt, DB_STEP_CONSTRAINT);
 	sqlite3_finalize(stmt);
 

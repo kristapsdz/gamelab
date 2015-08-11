@@ -925,15 +925,17 @@
 									href="#db-game"><code>game</code></a> rows in a round.
 							</p>
 							<dl>
-								<dt id="db-lottery-round"><var>round</var></dt>
-								<dd>The round number (starting at zero).</dd>
-								<dt id="db-lottery-playerid"><var>playerid</var></dt>
-								<dd>A foreign key reference to the <a href="#db-player"><code>player</code></a>
-									<a href="#db-player-id"><var>id</var></a>.</dd>
 								<dt id="db-lottery-aggrpayoff"><var>aggrpayoff</var></dt>
-								<dd>The player's aggregate payoff (as a rational number) computing by adding the
-									previous round's aggregate payoff to the current <a
-										href="#db-lottery-curpayoff"><var>curpayoff</var></a>.</dd>
+								<dd>
+									The player's aggregate payoff (as a rational number) computing by adding
+									the previous round's aggregate payoff to the current <a
+										href="#db-lottery-curpayoff"><var>curpayoff</var></a>.
+								</dd>
+								<dt id="db-lottery-aggrtickets"><var>aggrtickets</var></dt>
+								<dd>
+									The value of <a href="#db-lottery-aggrpayoff"><var>aggrpayoff</var></a>
+									represented as a natural number of tickets.
+								</dd>
 								<dt id="db-lottery-curpayoff"><var>curpayoff</var></dt>
 								<dd>The player's current payoff (as a rational number) computing by accumulating
 									her <a href="#db-payoff"><code>payoff</code></a> <a
@@ -943,6 +945,11 @@
 									games.</dd>
 								<dt id="db-lottery-id"><var>id</var></dt>
 								<dd>Unique identifier.</dd>
+								<dt id="db-lottery-playerid"><var>playerid</var></dt>
+								<dd>A foreign key reference to the <a href="#db-player"><code>player</code></a>
+									<a href="#db-player-id"><var>id</var></a>.</dd>
+								<dt id="db-lottery-round"><var>round</var></dt>
+								<dd>The round number (starting at zero).</dd>
 							</dl>
 						</dd>
 						<dt id="db-gameplay"><code>gameplay</code></dt>

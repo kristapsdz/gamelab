@@ -332,6 +332,17 @@ sendcontent(struct kreq *r, enum cntt cntt)
 }
 
 static void
+sendhighest(const struct player *p, int64_t score, void *arg)
+{
+	struct kjsonreq	*req = arg;
+
+	kjson_obj_open(req);
+	kjson_putintp(req, "score", score);
+	json_putplayer(req, p);
+	kjson_obj_close(req);
+}
+
+static void
 sendwinners(const struct player *p, const struct winner *winner, void *arg)
 {
 	struct kjsonreq	*req = arg;
@@ -423,6 +434,11 @@ senddogetexpr(struct kreq *r)
 	}
 
 	kjson_putintp(&req, "lobbysize", db_expr_lobbysize());
+
+	kjson_arrayp_open(&req, "highest");
+	if (expr->round >= 0)
+		db_player_load_highest(sendhighest, &req);
+	kjson_array_close(&req);
 
 	if (ESTATE_POSTWIN == expr->state) {
 		kjson_arrayp_open(&req, "winners");
