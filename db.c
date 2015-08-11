@@ -2184,7 +2184,7 @@ again:
 	/* Record both in database. */
 	stmt = db_stmt("INSERT INTO lottery "
 		"(aggrpayoff,aggrtickets,curpayoff,playerid,round) "
-		"VALUES (?,?,?,?)");
+		"VALUES (?,?,?,?,?)");
 	db_bind_text(stmt, 1, aggrstr);
 	db_bind_int(stmt, 2, (int64_t)v);
 	db_bind_text(stmt, 3, curstr);
