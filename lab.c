@@ -56,6 +56,7 @@ enum	page {
 	PAGE_DOLOGOUT,
 	PAGE_DOPLAY,
 	PAGE_INDEX,
+	PAGE_MTURK,
 	PAGE__MAX
 };
 
@@ -64,16 +65,19 @@ enum	page {
  */
 enum	key {
 	KEY_ANSWER0,
+	KEY_ASSIGNMENTID,
 	KEY_CHOICE0,
 	KEY_CHOICE1,
 	KEY_CHOICE2,
 	KEY_GAMEID,
+	KEY_HITID,
 	KEY_IDENTIFIER,
 	KEY_INSTR,
 	KEY_PASSWORD,
 	KEY_ROUND,
 	KEY_SESSCOOKIE,
 	KEY_SESSID,
+	KEY_WORKERID,
 	KEY__MAX
 };
 
@@ -91,6 +95,7 @@ static	unsigned int perms[PAGE__MAX] = {
 	PERM_HTML | PERM_LOGIN, /* PAGE_DOLOGOUT */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOPLAY */
 	PERM_HTML | PERM_LOGIN, /* PAGE_INDEX */
+	PERM_HTML, /* PAGE_MTURK */
 };
 
 static const char *const pages[PAGE__MAX] = {
@@ -103,20 +108,24 @@ static const char *const pages[PAGE__MAX] = {
 	"dologout", /* PAGE_DOLOGOUT */
 	"doplay", /* PAGE_DOPLAY */
 	"index", /* PAGE_INDEX */
+	"mturk", /* PAGE_MTURK */
 };
 
 static const struct kvalid keys[KEY__MAX] = {
 	{ kvalid_stringne, "answer0" }, /* KEY_ANSWER0 */
+	{ kvalid_stringne, "assignmentId" }, /* KEY_ASSIGNMENTID */
 	{ NULL, "choice0" }, /* KEY_CHOICE0 */
 	{ NULL, "choice1" }, /* KEY_CHOICE1 */
 	{ NULL, "choice2" }, /* KEY_CHOICE2 */
 	{ kvalid_int, "gid" }, /* KEY_GAMEID */
+	{ kvalid_stringne, "hitId" }, /* KEY_HITID */
 	{ kvalid_stringne, "ident" }, /* KEY_IDENTIFIER */
 	{ NULL, "instr" }, /* KEY_INSTR */
 	{ kvalid_stringne, "password" }, /* KEY_PASSWORD */
 	{ kvalid_uint, "round" }, /* KEY_ROUND */
 	{ kvalid_int, "sesscookie" }, /* KEY_SESSCOOKIE */
 	{ kvalid_int, "sessid" }, /* KEY_SESSID */
+	{ kvalid_stringne, "workerId" }, /* KEY_WORKERID */
 };
 
 /*
@@ -188,6 +197,90 @@ send303(struct kreq *r, const char *pg, enum page dest, int st)
 	khttp_puts(r, "Redirecting...");
 	free(full);
 	free(page);
+}
+
+/*
+ * Log in a Mechanial Turk player.
+ * This is only for use via HTML (i.e., the mturk interface).
+ * Returns error 200 if the player is logged in.
+ * If failure occurs, the player is 303'd to the captive registration page.
+ */
+static void
+sendmturk(struct kreq *r)
+{
+	struct sess	*sess;
+	struct expr	*expr;
+	struct player	*player;
+	int		 rc, needjoin, preview;
+	char		*hash;
+	const char	*id, *hitid;
+
+	/* Get the experiment and workerId we're here to enter. */
+	if (NULL == (expr = db_expr_get(1))) {
+		http_open(r, KHTTP_303);
+		send303(r, HTURI "/playerautoadd.html", PAGE__MAX, 0);
+		return;
+	} else if (NULL == r->fieldmap[KEY_WORKERID] ||
+			NULL == r->fieldmap[KEY_HITID]) {
+		http_open(r, KHTTP_303);
+		send303(r, HTURI "/playerautoadd.html", PAGE__MAX, 0);
+		db_expr_free(expr);
+		return;
+	} else if (0 == expr->autoadd) {
+		http_open(r, KHTTP_303);
+		send303(r, HTURI "/playerautoadd.html", PAGE__MAX, 0);
+		db_expr_free(expr);
+		return;
+	}
+
+	preview = NULL != r->fieldmap[KEY_ASSIGNMENTID] &&
+		0 == strcmp("ASSIGNMENT_ID_NOT_AVAILABLE",
+			r->fieldmap[KEY_ASSIGNMENTID]->parsed.s);
+
+	/* Add the worker to the system. */
+	id = r->fieldmap[KEY_WORKERID]->parsed.s;
+	hitid = r->fieldmap[KEY_HITID]->parsed.s;
+	if (0 == (rc = db_player_create(id, &hash, hitid))) {
+		http_open(r, KHTTP_303);
+		send303(r, HTURI "/playerautoadd.html", PAGE__MAX, 0);
+		db_expr_free(expr);
+		free(hash);
+		return;
+	}
+
+	player = db_player_valid(id, hash);
+	assert(NULL != player);
+	free(hash);
+
+	sess = db_player_sess_alloc(player->id,
+		 NULL != r->reqmap[KREQU_USER_AGENT] ?
+		 r->reqmap[KREQU_USER_AGENT]->val : "");
+	assert(NULL != sess);
+
+	/* 
+	 * If applicable, try to "join" us now.
+	 * This just prevents us from bouncing the user around
+	 * when they finally try to log in.
+	 */
+	needjoin = 0 == preview && player->joined < 0;
+	if (needjoin)
+		needjoin = ! db_player_join(player);
+
+	http_open(r, KHTTP_303);
+	khttp_head(r, kresps[KRESP_SET_COOKIE],
+		"%s=%" PRId64 "; path=/; expires=", 
+		keys[KEY_SESSCOOKIE].name, sess->cookie);
+	khttp_head(r, kresps[KRESP_SET_COOKIE],
+		"%s=%" PRId64 "; path=/; expires=", 
+		keys[KEY_SESSID].name, sess->id);
+
+	send303(r, needjoin ?
+		HTURI "/playerlobby.html" :
+		HTURI "/playerhome.html", PAGE__MAX, 0);
+
+	db_expr_free(expr);
+	db_sess_free(sess);
+	db_player_free(player);
 }
 
 /*
@@ -416,7 +509,7 @@ senddoautoadd(struct kreq *r)
 	} 
 
 	rc = db_player_create
-		(r->fieldmap[KEY_IDENTIFIER]->parsed.s, &hash);
+		(r->fieldmap[KEY_IDENTIFIER]->parsed.s, &hash, NULL);
 
 	if (0 == rc) {
 		http_open(r, KHTTP_403);
@@ -889,6 +982,9 @@ doreq(struct kreq *r)
 		break;
 	case (PAGE_DOPLAY):
 		senddoplay(r, id);
+		break;
+	case (PAGE_MTURK):
+		sendmturk(r);
 		break;
 	case (PAGE_INDEX):
 		send303(r, HTURI "/playerhome.html", PAGE__MAX, 1);

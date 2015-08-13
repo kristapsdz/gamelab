@@ -1096,6 +1096,7 @@ db_player_free(struct player *player)
 	if (NULL == player)
 		return;
 	free(player->mail);
+	free(player->hitid);
 	free(player);
 }
 
@@ -1144,7 +1145,7 @@ db_player_load(int64_t id)
 
 	stmt = db_stmt("SELECT email,state,id,enabled,"
 		"role,rseed,instr,finalrank,finalscore,autoadd,"
-	        "version,joined,answer FROM player WHERE id=?");
+	        "version,joined,answer,hitid FROM player WHERE id=?");
 	db_bind_int(stmt, 1, id);
 	if (SQLITE_ROW != db_step(stmt, 0)) {
 		sqlite3_finalize(stmt);
@@ -1165,28 +1166,41 @@ db_player_load(int64_t id)
 	player->version = sqlite3_column_int(stmt, 10);
 	player->joined = sqlite3_column_int(stmt, 11);
 	player->answer = sqlite3_column_int(stmt, 12);
+	player->hitid = kstrdup((char *)sqlite3_column_text(stmt, 13));
 	sqlite3_finalize(stmt);
 	return(player);
 }
 
 void
-db_player_load_highest(playerscorefp fp, void *arg, int64_t round)
+db_player_load_highest(playerscorefp fp, 
+	void *arg, int64_t round, size_t limit)
 {
 	sqlite3_stmt	*stmt;
 	struct player	*player;
+	mpq_t		 aggr;
 
-	stmt = db_stmt("SELECT playerid,aggrtickets "
-		"FROM lottery "
-		"WHERE round=? "
-		"ORDER BY aggrtickets DESC LIMIT 5");
-	db_bind_int(stmt, 1, round);
+	if (limit > 0) {
+		stmt = db_stmt("SELECT playerid,aggrtickets,"
+			"aggrpayoff FROM lottery WHERE round=? "
+			"ORDER BY aggrtickets DESC LIMIT ?");
+		db_bind_int(stmt, 1, round);
+		db_bind_int(stmt, 2, limit);
+	} else {
+		stmt = db_stmt("SELECT playerid,aggrtickets,"
+			"aggrpayoff FROM lottery WHERE round=? "
+			"ORDER BY aggrtickets DESC");
+		db_bind_int(stmt, 1, round);
+	}
 
 	while (SQLITE_ROW == db_step(stmt, 0)) {
 		player = db_player_load
 			(sqlite3_column_int(stmt, 0));
 		assert(NULL != player);
-		fp(player, sqlite3_column_int(stmt, 1), arg);
+		mpq_str2mpqinit(sqlite3_column_text(stmt, 2), aggr);
+		fp(player, mpq_get_d(aggr),
+			sqlite3_column_int(stmt, 1), arg);
 		db_player_free(player);
+		mpq_clear(aggr);
 	}
 
 	sqlite3_finalize(stmt);
@@ -1204,7 +1218,7 @@ db_player_load_all(playerf fp, void *arg)
 
 	stmt = db_stmt("SELECT email,state,id,enabled,"
 		"role,rseed,instr,finalrank,finalscore,autoadd, "
-		"version,joined,answer FROM player "
+		"version,joined,answer,hitid FROM player "
 		"ORDER BY email ASC");
 	while (SQLITE_ROW == db_step(stmt, 0)) {
 		memset(&player, 0, sizeof(struct player));
@@ -1222,8 +1236,11 @@ db_player_load_all(playerf fp, void *arg)
 		player.version = sqlite3_column_int(stmt, 10);
 		player.joined = sqlite3_column_int(stmt, 11);
 		player.answer = sqlite3_column_int(stmt, 12);
+		player.hitid = kstrdup
+			((char *)sqlite3_column_text(stmt, 13));
 		(*fp)(&player, arg);
 		free(player.mail);
+		free(player.hitid);
 	}
 
 	sqlite3_finalize(stmt);
@@ -1591,7 +1608,7 @@ err:
  * NULL if errors have occurred.
  */
 int
-db_player_create(const char *email, char **pass)
+db_player_create(const char *email, char **pass, const char *hitid)
 {
 	sqlite3_stmt	*stmt;
 	int		 rc;
@@ -1602,11 +1619,12 @@ db_player_create(const char *email, char **pass)
 
 	hash = db_crypt_mkpass();
 	stmt = db_stmt("INSERT INTO player "
-		"(email,rseed,hash,autoadd) VALUES (?,?,?,?)");
+		"(email,rseed,hash,autoadd,hitid) VALUES (?,?,?,?,?)");
 	db_bind_text(stmt, 1, email);
 	db_bind_int(stmt, 2, arc4random_uniform(INT32_MAX) + 1);
 	db_bind_text(stmt, 3, hash);
 	db_bind_int(stmt, 4, NULL != pass);
+	db_bind_text(stmt, 5, NULL == hitid ? "" : hitid);
 	rc = db_step(stmt, DB_STEP_CONSTRAINT);
 	sqlite3_finalize(stmt);
 	if (SQLITE_DONE == rc) {

@@ -142,6 +142,7 @@ enum	pstate {
  */
 struct	player {
 	char		*mail; /* e-mail address */
+	char		*hitid; /* mturk id (or empty) */
 	enum pstate	 state; /* state of participant */
 	int		 enabled; /* whether can login */
 	int		 autoadd; /* whether auto-added */
@@ -186,7 +187,7 @@ typedef void	(*gamef)(const struct game *, void *);
 typedef void	(*gameroundf)(const struct game *, int64_t, void *);
 typedef void	(*winnerf)(const struct player *, const struct winner *, void *);
 typedef void	(*playerf)(const struct player *, void *);
-typedef void	(*playerscorefp)(const struct player *, int64_t, void *);
+typedef void	(*playerscorefp)(const struct player *, double, int64_t, void *);
 
 char		*db_admin_get_mail(void);
 int64_t		 db_admin_get_flags(void);
@@ -241,14 +242,15 @@ int		 db_payoff_get(int64_t, int64_t, int64_t, mpq_t);
 
 size_t		 db_player_count_all(void);
 size_t		 db_player_count_plays(int64_t, int64_t);
-int		 db_player_create(const char *, char **);
+int		 db_player_create(const char *, char **, const char *);
 int		 db_player_delete(int64_t);
 void		 db_player_disable(int64_t);
 void		 db_player_enable(int64_t);
 void		 db_player_free(struct player *);
 struct player	*db_player_load(int64_t);
 void		 db_player_load_all(playerf, void *);
-void		 db_player_load_highest(playerscorefp, void *, int64_t);
+void		 db_player_load_highest(playerscorefp, 
+			void *, int64_t, size_t);
 int		 db_player_lottery(int64_t, int64_t, 
 		 	mpq_t, mpq_t, int64_t *, size_t);
 int		 db_player_join(const struct player *);

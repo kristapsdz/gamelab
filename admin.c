@@ -50,6 +50,7 @@ enum	page {
 	PAGE_DODISABLEPLAYER,
 	PAGE_DOENABLEPLAYER,
 	PAGE_DOGETEXPR,
+	PAGE_DOGETHIGHEST,
 	PAGE_DOGETHISTORY,
 	PAGE_DOGETNEWEXPR,
 	PAGE_DOLOADGAMES,
@@ -125,6 +126,7 @@ enum	key {
 #define	PERM_LOGIN	0x01
 #define	PERM_HTML	0x08
 #define	PERM_JSON	0x10
+#define PERM_CSV	0x02
 
 static	unsigned int perms[PAGE__MAX] = {
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOADDGAME */
@@ -140,6 +142,7 @@ static	unsigned int perms[PAGE__MAX] = {
 	PERM_JSON | PERM_LOGIN, /* PAGE_DODISABLEPLAYER */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOENABLEPLAYER */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOGETEXPR */
+	PERM_CSV | PERM_LOGIN, /* PAGE_DOGETHIGHEST */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOGETHISTORY */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOGETNEWEXPR */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOLOADGAMES */
@@ -172,6 +175,7 @@ static const char *const pages[PAGE__MAX] = {
 	"dodisableplayer", /* PAGE_DODISABLEPLAYER */
 	"doenableplayer", /* PAGE_DOENABLEPLAYER */
 	"dogetexpr", /* PAGE_DOGETEXPR */
+	"dogethighest", /* PAGE_DOGETHIGHEST */
 	"dogethistory", /* PAGE_DOGETHISTORY */
 	"dogetnewexpr", /* PAGE_DOGETNEWEXPR */
 	"doloadgames", /* PAGE_DOLOADGAMES */
@@ -332,12 +336,29 @@ sendcontent(struct kreq *r, enum cntt cntt)
 }
 
 static void
-sendhighest(const struct player *p, int64_t score, void *arg)
+sendhighestcsv(const struct player *p, double poff, int64_t score, void *arg)
+{
+	struct kreq	*req = arg;
+	char		 buf[64];
+
+	snprintf(buf, sizeof(buf), "%" PRId64, score);
+	khttp_puts(req, buf);
+	khttp_putc(req, ',');
+	snprintf(buf, sizeof(buf), "%g", poff);
+	khttp_puts(req, buf);
+	khttp_putc(req, ',');
+	khttp_puts(req, p->mail);
+	khttp_putc(req, '\n');
+}
+
+static void
+sendhighest(const struct player *p, double poff, int64_t score, void *arg)
 {
 	struct kjsonreq	*req = arg;
 
 	kjson_obj_open(req);
 	kjson_putintp(req, "score", score);
+	kjson_putdoublep(req, "payoff", poff);
 	json_putplayer(req, p);
 	kjson_obj_close(req);
 }
@@ -398,6 +419,26 @@ senddogethistory(struct kreq *r)
 }
 
 static void
+senddogethighest(struct kreq *r)
+{
+	struct expr	*expr;
+
+	http_open(r, KHTTP_200);
+	khttp_body(r);
+
+	if (NULL == (expr = db_expr_get(1)))
+		khttp_puts(r, "Experiment not started");
+	else if (expr->round <= 0)
+		khttp_puts(r, "No rounds finished.");
+	else
+		db_player_load_highest
+			(sendhighestcsv, r, 
+			 expr->round - 1, 0);
+
+	db_expr_free(expr);
+}
+
+static void
 senddogetexpr(struct kreq *r)
 {
 	struct expr	*expr;
@@ -437,7 +478,8 @@ senddogetexpr(struct kreq *r)
 
 	kjson_arrayp_open(&req, "highest");
 	if (expr->round > 0)
-		db_player_load_highest(sendhighest, &req, expr->round - 1);
+		db_player_load_highest
+			(sendhighest, &req, expr->round - 1, 5);
 	kjson_array_close(&req);
 
 	if (ESTATE_POSTWIN == expr->state) {
@@ -792,7 +834,7 @@ senddoaddplayers(struct kreq *r)
 			continue;
 		if (NULL == (mail = valid_email(tok)))
 			continue;
-		 db_player_create(mail, NULL);
+		 db_player_create(mail, NULL, NULL);
 	}
 
 	free(sv);
@@ -1024,7 +1066,6 @@ senddostartexpr(struct kreq *r)
 		r->fieldmap[KEY_DATE]->parsed.i +
 		r->fieldmap[KEY_TIME]->parsed.i <= (int64_t)time(NULL) ||
 		NULL == smtp ||
-		db_player_count_all() < 2 ||
 		db_game_count_all() < 1) {
 		http_open(r, KHTTP_400);
 		khttp_body(r);
@@ -1255,6 +1296,9 @@ main(void)
 	case (KMIME_APP_JSON):
 		bit = PERM_JSON;
 		break;
+	case (KMIME_TEXT_CSV):
+		bit = PERM_CSV;
+		break;
 	default:
 		send404(&r);
 		goto out;
@@ -1316,6 +1360,9 @@ main(void)
 		break;
 	case (PAGE_DOENABLEPLAYER):
 		senddoenableplayer(&r);
+		break;
+	case (PAGE_DOGETHIGHEST):
+		senddogethighest(&r);
 		break;
 	case (PAGE_DOGETEXPR):
 		senddogetexpr(&r);

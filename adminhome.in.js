@@ -320,6 +320,13 @@ function loadPlayersSuccess(resp)
 			span.appendChild(document.createTextNode(' '));
 			span.appendChild(icon);
 		}
+		if (null != player.hitid) {
+		console.log('hitid = ' + player.hitid);
+			icon = document.createElement('i');
+			icon.className = 'fa fa-amazon';
+			span.appendChild(document.createTextNode(' '));
+			span.appendChild(icon);
+		}
 	}
 }
 
@@ -525,10 +532,13 @@ function doStatHighest(e, res)
 	sub = document.createElement('li');
 	sub.className = 'statuslisthead';
 	subsub = document.createElement('span');
-	subsub.appendChild(document.createTextNode('Tickets'));
+	subsub.appendChild(document.createTextNode('tickets'));
 	sub.appendChild(subsub);
 	subsub = document.createElement('span');
-	subsub.appendChild(document.createTextNode('Identifier'));
+	subsub.appendChild(document.createTextNode('payoff'));
+	sub.appendChild(subsub);
+	subsub = document.createElement('span');
+	subsub.appendChild(document.createTextNode('identifier'));
 	sub.appendChild(subsub);
 	e.appendChild(sub);
 
@@ -536,6 +546,9 @@ function doStatHighest(e, res)
 		sub = document.createElement('li');
 		subsub = document.createElement('span');
 		subsub.appendChild(document.createTextNode(res.highest[i].score));
+		sub.appendChild(subsub);
+		subsub = document.createElement('span');
+		subsub.appendChild(document.createTextNode(res.highest[i].payoff));
 		sub.appendChild(subsub);
 		subsub = document.createElement('span');
 		subsub.appendChild(document.createTextNode(res.highest[i].player.mail));
