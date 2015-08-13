@@ -868,7 +868,63 @@
 									These players are never e-mailed.
 								</dd>
 								<dt id="db-player-email"><var>email</var></dt>
-								<dd>Player e-mail address.  This is unique in the set of all players.</dd>
+								<dd>
+									Player e-mail address or identifier, in the event of a captive player.  
+									This is unique in the set of all players.
+								</dd>
+								<dt id="db-player-enabled"><var>enabled</var></dt>
+								<dd>
+									Whether a player is allowed to login during an experiment.
+								</dd>
+								<dt id="db-player-finalrank"><var>finalrank</var></dt>
+								<dd>
+									The minimum of the slot of the player's tickets among all players' tickets.
+									For example, given 100 players with roughly 10 tickets each, this might
+									be <var>543</var> to indicate that slot <var>543</var> to <var>543</var>
+									plus <a href="#db-player-finalscore"><var>finalscore</var></a> are this
+									player's slots in the lottery.
+								</dd>
+								<dt id="db-player-finalscore"><var>finalscore</var></dt>
+								<dd>
+									Set to the accumulated payoffs from the <a
+										href="#db-lottery"><code>lottery</code></a> <a
+										href="#db-lottery-aggrpayoff"><var>aggrpayoff</var></a>
+									rounded up to the nearest integer.
+								</dd>
+								<dt id="db-player-hash"><var>hash</var></dt>
+								<dd>
+									The player's password set when the experiment is started (i.e., when the <a
+										href="#db-experiment"><code>experiment</code></a> <a
+										href="#db-experiment-state"><var>state</var></a> is &gt;0) or
+									when reset, or when a captive player registeres. 
+									<strong>Note</strong>: this is stored in the clear: it is not a hash.
+								</dd>
+								<dt id="db-player-hitid"><var>hitid</var></dt>
+								<dd>
+									If the player joined from Mechanical Turk, the HIT identifier.
+									Otherwise set to the empty string.
+								</dd>
+								<dt id="db-player-id"><var>id</var></dt>
+								<dd>
+									Unique identifier.
+								</dd>
+								<dt id="db-player-instr"><var>instr</var></dt>
+								<dd>
+									Whether the player should be shown instructions when she logs in (versus
+									being taken directly to the game-play tab).
+								</dd>
+								<dt id="db-player-rseed"><var>rseed</var></dt>
+								<dd>
+									A non-zero cryptographically random number given to the player when created.
+								</dd>
+								<dt id="db-player-role"><var>role</var></dt>
+								<dd>
+									The player role (<var>0</var> for row player, <var>1</var> for column
+									player) set when the <a
+										href="#db-experiment"><code>experiment</code></a> <a
+										href="#db-experiment-state"><var>state</var></a> is
+									&gt;0 or when the player joins.
+								</dd>
 								<dt id="db-player-state"><var>state</var></dt>
 								<dd>
 									The state of a player can be <var>0</var>, meaning the player is
@@ -876,38 +932,6 @@
 									mailed her password; <var>2</var>, the player has logged in; and
 									<var>3</var>, an error occured when the password e-mail was attempted.
 								</dd>
-								<dt id="db-player-enabled"><var>enabled</var></dt>
-								<dd>Whether a player is allowed to login during an experiment.</dd>
-								<dt id="db-player-rseed"><var>rseed</var></dt>
-								<dd>A non-zero cryptographically random number given to the player when created.</dd>
-								<dt id="db-player-role"><var>role</var></dt>
-								<dd>The player role (<var>0</var> for row player, <var>1</var> for column
-									player) set when the <a
-										href="#db-experiment"><code>experiment</code></a> <a
-										href="#db-experiment-state"><var>state</var></a> is
-									&gt;0.</dd>
-								<dt id="db-player-instr"><var>instr</var></dt>
-								<dd>Whether the player should be shown instructions when she logs in (versus
-									being taken directly to the game-play tab).</dd>
-								<dt id="db-player-finalrank"><var>finalrank</var></dt>
-								<dd>The minimum of the slot of the player's tickets among all players' tickets.
-									For example, given 100 players with roughly 10 tickets each, this might
-									be <var>543</var> to indicate that slot <var>543</var> to <var>543</var>
-									plus <a href="#db-player-finalscore"><var>finalscore</var></a> are this
-									player's slots in the lottery.</dd>
-								<dt id="db-player-finalscore"><var>finalscore</var></dt>
-								<dd>Set to the accumulated payoffs from the <a
-										href="#db-lottery"><code>lottery</code></a> <a
-										href="#db-lottery-aggrpayoff"><var>aggrpayoff</var></a>
-									rounded up to the nearest integer.</dd>
-								<dt id="db-player-hash"><var>hash</var></dt>
-								<dd>The player's password set when the experiment is started (i.e., when the <a
-										href="#db-experiment"><code>experiment</code></a> <a
-										href="#db-experiment-state"><var>state</var></a> is &gt;0) or
-									when reset. <strong>Note</strong>: this is stored in the clear: it is
-									not (yet) a hash.</dd>
-								<dt id="db-player-id"><var>id</var></dt>
-								<dd>Unique identifier.</dd>
 								<dt id="db-player-version"><var>version</var></dt>
 								<dd>
 									A number from zero that indicates the number of time the player field
