@@ -707,7 +707,8 @@ db_winners_load_all(void *arg, winnerf fp)
 	struct winner	 win;
 
 	stmt = db_stmt("SELECT playerid,winrank,rnum "
-		"FROM winner WHERE winner=1");
+		"FROM winner WHERE winner=1 "
+		"ORDER BY winrank ASC");
 
 	while (SQLITE_ROW == db_step(stmt, 0)) {
 		memset(&win, 0, sizeof(struct winner));
@@ -2162,6 +2163,7 @@ again:
 	if (SQLITE_ROW == (rc = db_step(stmt, 0))) {
 		mpq_str2mpqinit(sqlite3_column_text(stmt, 0), aggr);
 		mpq_str2mpqinit(sqlite3_column_text(stmt, 1), cur);
+		*tics = ceil(mpq_get_d(aggr));
 	}
 	sqlite3_finalize(stmt);
 

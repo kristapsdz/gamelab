@@ -1111,6 +1111,7 @@ function loadExprSuccess(resp)
 			doUnhide('exprFinishedWinWait');
 			doHide('exprFinishedWin');
 			doHide('exprFinishedLose');
+			doHide('exprFinishedWinHead');
 			doHide('exprFinishedWinRnums');
 			setTimeout(loadExpr, 1000 * 60);
 		} else if (res.winner < 0) {
@@ -1118,19 +1119,27 @@ function loadExprSuccess(resp)
 			doHide('exprFinishedWinWait');
 			doHide('exprFinishedWin');
 			doUnhide('exprFinishedLose');
+			doUnhide('exprFinishedWinHead');
 			doUnhide('exprFinishedWinRnums');
 			e = doClear('exprFinishedRnums');
-			for (i = 0; i < res.winrnums.length; i++)
+			for (i = 0; i < res.winrnums.length; i++) {
+				if (i > 0)
+					e.appendChild(document.createTextNode(', '));
 				e.appendChild(document.createTextNode(res.winrnums[i]));
+			}
 		} else {
 			doUnhide('exprFinishedResults');
 			doHide('exprFinishedWinWait');
 			doUnhide('exprFinishedWin');
 			doHide('exprFinishedLose');
+			doUnhide('exprFinishedWinHead');
 			doUnhide('exprFinishedWinRnums');
 			e = doClear('exprFinishedRnums');
-			for (i = 0; i < res.winrnums.length; i++)
+			for (i = 0; i < res.winrnums.length; i++) {
+				if (i > 0)
+					e.appendChild(document.createTextNode(', '));
 				e.appendChild(document.createTextNode(res.winrnums[i]));
+			}
 			doClearReplace('exprFinishedWinRank', (res.winner + 1));
 			doClearReplace('exprFinishedWinRnum', res.winrnum);
 		}
