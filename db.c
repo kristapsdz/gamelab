@@ -36,6 +36,8 @@
 
 #include "extern.h"
 
+#define	DB_TRIES	200
+
 /*
  * The database, its location, and its statement (if any).
  * This is opened on-demand (see db_tryopen()) and closed automatically
@@ -74,7 +76,7 @@ db_tryopen(void)
 
 	attempt = 0;
 again:
-	if (100 == attempt) {
+	if (DB_TRIES == attempt) {
 		fprintf(stderr, "sqlite3_open: busy database\n");
 		exit(EXIT_FAILURE);
 	}
@@ -111,7 +113,7 @@ db_step(sqlite3_stmt *stmt, unsigned int flags)
 	assert(NULL != stmt);
 	assert(NULL != db);
 again:
-	if (100 == attempt) {
+	if (DB_TRIES == attempt) {
 		fprintf(stderr, "sqlite3_step: busy database\n");
 		exit(EXIT_FAILURE);
 	}
@@ -152,29 +154,29 @@ db_stmt(const char *sql)
 
 	db_tryopen();
 again:
-	if (100 == attempt) {
-		fprintf(stderr, "sqlite3_stmt: busy database\n");
+	if (DB_TRIES == attempt) {
+		fprintf(stderr, "sqlite3_prepare_v2: busy database\n");
 		exit(EXIT_FAILURE);
 	}
 
 	rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
 
 	if (SQLITE_BUSY == rc) {
-		fprintf(stderr, "sqlite3_stmt: "
-			"busy database (%zu)\n", attempt);
 		usleep(arc4random_uniform(100000));
 		attempt++;
 		goto again;
 	} else if (SQLITE_LOCKED == rc) {
-		fprintf(stderr, "sqlite3_stmt: "
-			"locked database (%zu)\n", attempt);
 		usleep(arc4random_uniform(100000));
 		attempt++;
 		goto again;
-	} else if (SQLITE_OK == rc)
+	} else if (SQLITE_OK == rc) {
+		if (attempt > 0)
+			fprintf(stderr, "sqlite3_prepare_v2: "
+				"success after %zu tries\n", attempt);
 		return(stmt);
+	}
 
-	fprintf(stderr, "sqlite3_stmt: %s: %s\n", sqlite3_errmsg(db), sql);
+	fprintf(stderr, "sqlite3_stmt: %s (%s)\n", sqlite3_errmsg(db), sql);
 	sqlite3_finalize(stmt);
 	exit(EXIT_FAILURE);
 }
@@ -223,7 +225,7 @@ db_exec(const char *sql)
 	int	rc;
 
 again:
-	if (100 == attempt) {
+	if (DB_TRIES == attempt) {
 		fprintf(stderr, "sqlite3_exec: busy database\n");
 		exit(EXIT_FAILURE);
 	}
@@ -232,21 +234,21 @@ again:
 	rc = sqlite3_exec(db, sql, NULL, NULL, NULL);
 
 	if (SQLITE_BUSY == rc) {
-		fprintf(stderr, "sqlite3_exec: "
-			"busy database (%zu)\n", attempt);
 		usleep(arc4random_uniform(100000));
 		attempt++;
 		goto again;
 	} else if (SQLITE_LOCKED == rc) {
-		fprintf(stderr, "sqlite3_exec: "
-			"locked database (%zu)\n", attempt);
 		usleep(arc4random_uniform(100000));
 		attempt++;
 		goto again;
-	} else if (SQLITE_OK == rc)
+	} else if (SQLITE_OK == rc) {
+		if (attempt > 0)
+			fprintf(stderr, "sqlite3_exec: "
+				"success after %zu tries\n", attempt);
 		return;
+	}
 
-	fprintf(stderr, "sqlite3_exec: %s\n", sqlite3_errmsg(db));
+	fprintf(stderr, "sqlite3_exec: %s (%s)\n", sqlite3_errmsg(db), sql);
 	exit(EXIT_FAILURE);
 }
 
