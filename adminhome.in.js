@@ -129,7 +129,7 @@ function loadNewPlayersSuccess(resp)
 		}
 	}
 
-	if (results.autoadd)
+	if (results.autoadd || results.mturk)
 		doUnhide('captiveGame');
 	else
 		doHide('captiveGame');

@@ -100,6 +100,7 @@ enum	key {
 	KEY_GAMEID,
 	KEY_HISTORYFILE,
 	KEY_INSTR,
+	KEY_MTURK,
 	KEY_NAME,
 	KEY_NOLOTTERY,
 	KEY_P1,
@@ -220,6 +221,7 @@ static const struct kvalid keys[KEY__MAX] = {
 	{ kvalid_int, "gid" }, /* KEY_GAMEID */
 	{ kvalid_stringne, "historyfile" }, /* KEY_HISTORYFILE */
 	{ kvalid_stringne, "instr" }, /* KEY_INSTR */
+	{ kvalid_int, "mturk" }, /* KEY_MTURK */
 	{ kvalid_stringne, "name" }, /* KEY_NAME */
 	{ kvalid_int, "nolottery" }, /* KEY_NOLOTTERY */
 	{ kvalid_int, "p1" }, /* KEY_P1 */
@@ -421,21 +423,11 @@ senddogethistory(struct kreq *r)
 static void
 senddogethighest(struct kreq *r)
 {
-	struct expr	*expr;
 
 	http_open(r, KHTTP_200);
 	khttp_body(r);
 
-	if (NULL == (expr = db_expr_get(1)))
-		khttp_puts(r, "Experiment not started");
-	else if (expr->round <= 0)
-		khttp_puts(r, "No rounds finished.");
-	else
-		db_player_load_highest
-			(sendhighestcsv, r, 
-			 expr->round - 1, 0);
-
-	db_expr_free(expr);
+	db_player_load_highest(sendhighestcsv, r, 0);
 }
 
 static void
@@ -478,8 +470,7 @@ senddogetexpr(struct kreq *r)
 
 	kjson_arrayp_open(&req, "highest");
 	if (expr->round > 0)
-		db_player_load_highest
-			(sendhighest, &req, expr->round - 1, 5);
+		db_player_load_highest(sendhighest, &req, 5);
 	kjson_array_close(&req);
 
 	if (ESTATE_POSTWIN == expr->state) {
@@ -821,6 +812,8 @@ senddoaddplayers(struct kreq *r)
 	db_expr_setautoadd
 		(NULL != r->fieldmap[KEY_AUTOADD] ?
 		 r->fieldmap[KEY_AUTOADD]->parsed.i : 0,
+		 NULL != r->fieldmap[KEY_MTURK] ?
+		 r->fieldmap[KEY_MTURK]->parsed.i : 0,
 		 NULL != r->fieldmap[KEY_AUTOADDPRESERVE] ?
 		 r->fieldmap[KEY_AUTOADDPRESERVE]->parsed.i : 0);
 
@@ -878,6 +871,7 @@ senddoloadplayers(struct kreq *r)
 	kjson_open(&req, r);
 	kjson_obj_open(&req);
 	kjson_putintp(&req, "autoadd", expr->autoadd);
+	kjson_putintp(&req, "mturk", expr->mturk);
 	kjson_putintp(&req, "autoaddpreserve", expr->autoaddpreserve);
 	kjson_arrayp_open(&req, "players");
 	db_player_load_all(senddoloadplayer, &req);

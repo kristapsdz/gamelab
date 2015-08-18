@@ -226,7 +226,7 @@ sendmturk(struct kreq *r)
 		send303(r, HTURI "/playerautoadd.html", PAGE__MAX, 0);
 		db_expr_free(expr);
 		return;
-	} else if (0 == expr->autoadd) {
+	} else if (0 == expr->mturk) {
 		http_open(r, KHTTP_303);
 		send303(r, HTURI "/playerautoadd.html", PAGE__MAX, 0);
 		db_expr_free(expr);

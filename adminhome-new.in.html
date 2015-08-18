@@ -279,23 +279,32 @@
 								<span onclick="toggler('autoadd', 'autoaddToggle');">Allow captive players</span>
 							</div>
 							<div class="input input-check">
+								<i onclick="toggler('mturk', 'mturkToggle');" id="mturkToggle" class="fa fa-fw fa-toggle-off"></i>
+								<span onclick="toggler('mturk', 'mturkToggle');">Allow Mechanical Turk players</span>
+							</div>
+							<div class="input input-check">
 								<i onclick="toggler('autoaddpreserve', 'autoaddTogglePreserve');" id="autoaddTogglePreserve" class="fa fa-fw fa-toggle-off"></i>
-								<span onclick="toggler('autoaddpreserve', 'autoaddTogglePreserve');">Preserve captive mode after startup</span>
+								<span onclick="toggler('autoaddpreserve', 'autoaddTogglePreserve');">Preserve modes after startup</span>
 							</div>
 							<div class="input input-submit">
 								<i class="fa fa-fw fa-check"></i>
 								<input id="addPlayersSubmit" type="submit" value="Submit" />
 							</div>
 							<input type="hidden" id="autoadd" name="autoadd" value="0" />
+							<input type="hidden" id="mturk" name="mturk" value="0" />
 							<input type="hidden" id="autoaddpreserve" name="autoaddpreserve" value="0" />
 						</fieldset>
 					</form>
 					<div id="captiveGame">
-						<strong>Note</strong>: you have opted for a captive experiment.
+						<strong>Note</strong>: you have opted for a captive or Mechanical Turk experiment.
 						To enter the captive portal, your players will need to access <a
 							href="@HTURI@/playerautoadd.html">@HTURI@/playerautoadd.html</a> in order to log in.
-						Once you start the experiment, captive players will be disabled, but you can enable it again if
-						you wish to continue adding players.
+						They can do this <strong>at any time after now</strong>.
+						Mechanical Turkers must use <a href="@LABURI@/mturk.html">@LABURI@/mturk.html</a>.
+						They can use this <strong>after you've committed the experiment</strong>, so make sure they have
+						enough time after you commit your parameters and the experiment start time.
+						Once you start the experiment, captive and Mechanical Turk players will be disabled, but you can
+						enable it again if you wish to continue adding players.
 					</div>
 				</section>
 				<section class="rolled" id="startExprSection">

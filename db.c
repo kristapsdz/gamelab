@@ -36,7 +36,7 @@
 
 #include "extern.h"
 
-#define	DB_TRIES	200
+#define DB_STEP_CONSTRAINT 0x01
 
 /*
  * The database, its location, and its statement (if any).
@@ -60,6 +60,16 @@ db_close(void)
 }
 
 static void
+db_sleep(size_t attempt)
+{
+
+	if (attempt < 10)
+		usleep(arc4random_uniform(100000));
+	else
+		usleep(arc4random_uniform(400000));
+}
+
+static void
 db_tryopen(void)
 {
 	size_t	 attempt;
@@ -76,33 +86,25 @@ db_tryopen(void)
 
 	attempt = 0;
 again:
-	if (DB_TRIES == attempt) {
-		fprintf(stderr, "sqlite3_open: busy database\n");
-		exit(EXIT_FAILURE);
-	}
-
 	rc = sqlite3_open(DATADIR "/gamelab.db", &db);
 	if (SQLITE_BUSY == rc) {
-		usleep(arc4random_uniform(100000));
-		attempt++;
+		db_sleep(attempt++);
 		goto again;
 	} else if (SQLITE_LOCKED == rc) {
-		usleep(arc4random_uniform(100000));
-		attempt++;
+		db_sleep(attempt++);
 		goto again;
 	} else if (SQLITE_OK == rc) {
-		if (attempt > 0) 
-			fprintf(stderr, "sqlite3_open: "
-				"success after %zu tries\n", attempt);
 		sqlite3_busy_timeout(db, 500);
+		if (0 == attempt)
+			return;
+		fprintf(stderr, "sqlite3_open: success "
+			"after %zu retries\n", attempt);
 		return;
 	} 
 
 	fprintf(stderr, "sqlite3_open: %s\n", sqlite3_errmsg(db));
 	exit(EXIT_FAILURE);
 }
-
-#define DB_STEP_CONSTRAINT 0x01
 
 static int
 db_step(sqlite3_stmt *stmt, unsigned int flags)
@@ -113,27 +115,20 @@ db_step(sqlite3_stmt *stmt, unsigned int flags)
 	assert(NULL != stmt);
 	assert(NULL != db);
 again:
-	if (DB_TRIES == attempt) {
-		fprintf(stderr, "sqlite3_step: busy database\n");
-		exit(EXIT_FAILURE);
-	}
-
 	rc = sqlite3_step(stmt);
 	if (SQLITE_BUSY == rc) {
-		usleep(arc4random_uniform(100000));
-		attempt++;
+		db_sleep(attempt++);
 		goto again;
 	} else if (SQLITE_LOCKED == rc) {
-		usleep(arc4random_uniform(100000));
-		attempt++;
+		db_sleep(attempt++);
 		goto again;
 	}
 
-	if (SQLITE_DONE == rc || SQLITE_ROW == rc ||
-	    (SQLITE_CONSTRAINT == rc && DB_STEP_CONSTRAINT & flags))
-		if (attempt > 0)
-			fprintf(stderr, "sqlite3_step: "
-				"success after %zu tries\n", attempt);
+	if (attempt > 0 &&
+	   (SQLITE_DONE == rc || SQLITE_ROW == rc ||
+	    (SQLITE_CONSTRAINT == rc && DB_STEP_CONSTRAINT & flags)))
+		fprintf(stderr, "sqlite3_step: success "
+			"after %zu retries\n", attempt);
 
 	if (SQLITE_DONE == rc || SQLITE_ROW == rc)
 		return(rc);
@@ -154,29 +149,24 @@ db_stmt(const char *sql)
 
 	db_tryopen();
 again:
-	if (DB_TRIES == attempt) {
-		fprintf(stderr, "sqlite3_prepare_v2: busy database\n");
-		exit(EXIT_FAILURE);
-	}
-
 	rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
 
 	if (SQLITE_BUSY == rc) {
-		usleep(arc4random_uniform(100000));
-		attempt++;
+		db_sleep(attempt++);
 		goto again;
 	} else if (SQLITE_LOCKED == rc) {
-		usleep(arc4random_uniform(100000));
-		attempt++;
+		db_sleep(attempt++);
 		goto again;
 	} else if (SQLITE_OK == rc) {
-		if (attempt > 0)
-			fprintf(stderr, "sqlite3_prepare_v2: "
-				"success after %zu tries\n", attempt);
+		if (0 == attempt)
+			return(stmt);
+		fprintf(stderr, "sqlite3_prepare_v2: "
+			"success after %zu retries\n", attempt);
 		return(stmt);
 	}
 
-	fprintf(stderr, "sqlite3_stmt: %s (%s)\n", sqlite3_errmsg(db), sql);
+	fprintf(stderr, "sqlite3_stmt: %s (%s)\n", 
+		sqlite3_errmsg(db), sql);
 	sqlite3_finalize(stmt);
 	exit(EXIT_FAILURE);
 }
@@ -189,7 +179,8 @@ db_bind_text(sqlite3_stmt *stmt, size_t pos, const char *val)
 	if (SQLITE_OK == sqlite3_bind_text
 		(stmt, pos, val, -1, SQLITE_STATIC))
 		return;
-	fprintf(stderr, "sqlite3_bind_text: %s\n", sqlite3_errmsg(db));
+	fprintf(stderr, "sqlite3_bind_text: "
+		"%s\n", sqlite3_errmsg(db));
 	sqlite3_finalize(stmt);
 	exit(EXIT_FAILURE);
 }
@@ -201,7 +192,8 @@ db_bind_double(sqlite3_stmt *stmt, size_t pos, double val)
 	assert(pos > 0);
 	if (SQLITE_OK == sqlite3_bind_double(stmt, pos, val))
 		return;
-	fprintf(stderr, "sqlite3_bind_double: %s\n", sqlite3_errmsg(db));
+	fprintf(stderr, "sqlite3_bind_double: "
+		"%s\n", sqlite3_errmsg(db));
 	sqlite3_finalize(stmt);
 	exit(EXIT_FAILURE);
 }
@@ -213,7 +205,8 @@ db_bind_int(sqlite3_stmt *stmt, size_t pos, int64_t val)
 	assert(pos > 0);
 	if (SQLITE_OK == sqlite3_bind_int64(stmt, pos, val))
 		return;
-	fprintf(stderr, "sqlite3_bind_int64: %s\n", sqlite3_errmsg(db));
+	fprintf(stderr, "sqlite3_bind_int64: "
+		"%s\n", sqlite3_errmsg(db));
 	sqlite3_finalize(stmt);
 	exit(EXIT_FAILURE);
 }
@@ -225,30 +218,25 @@ db_exec(const char *sql)
 	int	rc;
 
 again:
-	if (DB_TRIES == attempt) {
-		fprintf(stderr, "sqlite3_exec: busy database\n");
-		exit(EXIT_FAILURE);
-	}
-
 	assert(NULL != db);
 	rc = sqlite3_exec(db, sql, NULL, NULL, NULL);
 
 	if (SQLITE_BUSY == rc) {
-		usleep(arc4random_uniform(100000));
-		attempt++;
+		db_sleep(attempt++);
 		goto again;
 	} else if (SQLITE_LOCKED == rc) {
-		usleep(arc4random_uniform(100000));
-		attempt++;
+		db_sleep(attempt++);
 		goto again;
 	} else if (SQLITE_OK == rc) {
-		if (attempt > 0)
-			fprintf(stderr, "sqlite3_exec: "
-				"success after %zu tries\n", attempt);
+		if (0 == attempt)
+			return;
+		fprintf(stderr, "sqlite3_exec: success "
+			"after %zu retries\n", attempt);
 		return;
 	}
 
-	fprintf(stderr, "sqlite3_exec: %s (%s)\n", sqlite3_errmsg(db), sql);
+	fprintf(stderr, "sqlite3_exec: %s (%s)\n", 
+		sqlite3_errmsg(db), sql);
 	exit(EXIT_FAILURE);
 }
 
@@ -1175,25 +1163,23 @@ db_player_load(int64_t id)
 }
 
 void
-db_player_load_highest(playerscorefp fp, 
-	void *arg, int64_t round, size_t limit)
+db_player_load_highest(playerscorefp fp, void *arg, size_t limit)
 {
 	sqlite3_stmt	*stmt;
 	struct player	*player;
 	mpq_t		 aggr;
 
 	if (limit > 0) {
-		stmt = db_stmt("SELECT playerid,aggrtickets,"
-			"aggrpayoff FROM lottery WHERE round=? "
+		stmt = db_stmt("SELECT playerid,max(aggrtickets),"
+			"aggrpayoff FROM lottery "
+			"GROUP BY playerid "
 			"ORDER BY aggrtickets DESC LIMIT ?");
-		db_bind_int(stmt, 1, round);
-		db_bind_int(stmt, 2, limit);
-	} else {
-		stmt = db_stmt("SELECT playerid,aggrtickets,"
-			"aggrpayoff FROM lottery WHERE round=? "
+		db_bind_int(stmt, 1, limit);
+	} else
+		stmt = db_stmt("SELECT playerid,max(aggrtickets),"
+			"aggrpayoff FROM lottery "
+			"GROUP BY playerid "
 			"ORDER BY aggrtickets DESC");
-		db_bind_int(stmt, 1, round);
-	}
 
 	while (SQLITE_ROW == db_step(stmt, 0)) {
 		player = db_player_load
@@ -1681,18 +1667,21 @@ db_expr_lobbysize(void)
  * ESTATE_NEW is in effect.
  */
 void
-db_expr_setautoadd(int64_t autoadd, int64_t preserve)
+db_expr_setautoadd(int64_t autoadd, int64_t mturk, int64_t preserve)
 {
 	sqlite3_stmt	*stmt;
 
 	stmt = db_stmt("UPDATE experiment SET "
-		"autoadd=?,autoaddpreserve=?");
+		"autoadd=?,mturk=?,autoaddpreserve=?");
 	db_bind_int(stmt, 1, autoadd ? 1 : 0);
-	db_bind_int(stmt, 2, preserve ? 1 : 0);
+	db_bind_int(stmt, 2, mturk ? 1 : 0);
+	db_bind_int(stmt, 3, preserve ? 1 : 0);
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);
-	fprintf(stderr, "Administrator %s captive (%s preserve)\n",
+	fprintf(stderr, "Administrator %s captive, "
+		"%s mturk: %s preserve\n",
 		autoadd ? "enabled" : "disabled",
+		mturk ? "enabled" : "disabled",
 		preserve ? "do" : "do not");
 }
 
@@ -1827,7 +1816,10 @@ db_expr_start(int64_t date, int64_t roundpct, int64_t roundmin,
 		"loginuri=?,instr=?,state=?,"
 		"roundpct=?,prounds=?,playermax=?,"
 		"prounds=?,history=?,nolottery=?,questionnaire=?,"
-		"autoadd=CASE WHEN autoaddpreserve=1 THEN autoadd ELSE 0 END");
+		"autoadd=CASE WHEN autoaddpreserve=1 "
+			"THEN autoadd ELSE 0 END,"
+		"mturk=CASE WHEN autoaddpreserve=1 "
+			"THEN mturk ELSE 0 END");
 	db_bind_int(stmt, 1, date);
 	db_bind_int(stmt, 2, rounds);
 	db_bind_int(stmt, 3, minutes);
@@ -2855,7 +2847,7 @@ db_expr_get(int only_started)
 		"loginuri,state,instr,state,total,"
 		"autoadd,round,roundbegan,roundpct,"
 		"roundmin,prounds,playermax,autoaddpreserve,"
-		"history,nolottery,questionnaire " 
+		"history,nolottery,questionnaire,mturk " 
 		"FROM experiment");
 	rc = db_step(stmt, 0);
 	assert(SQLITE_ROW == rc);
@@ -2884,6 +2876,7 @@ db_expr_get(int only_started)
 	expr->history = kstrdup((char *)sqlite3_column_text(stmt, 16));
 	expr->nolottery = sqlite3_column_int(stmt, 17);
 	expr->questionnaire = sqlite3_column_int(stmt, 18);
+	expr->mturk = sqlite3_column_int(stmt, 19);
 	sqlite3_finalize(stmt);
 	return(expr);
 }
@@ -2925,7 +2918,7 @@ db_expr_wipe(void)
 		"enabled=1,finalrank=0,finalscore=0,hash='',"
 		"joined=-1,answer=0");
 	db_exec("UPDATE experiment SET "
-		"autoadd=0,autoaddpreserve=0,"
+		"autoadd=0,mturk=0,autoaddpreserve=0,"
 		"state=0,total='0/1',round=-1,rounds=0,"
 		"prounds=0,roundbegan=0,roundpct=0.0,minutes=0,"
 		"roundmin=0,nolottery=0,questionnaire=0");

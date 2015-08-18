@@ -49,6 +49,7 @@ struct	expr {
 	char		*history; /* "fake" JSON history */
 	int64_t		 total; /* total winnings (>ESTATE_STARTED) */
 	int64_t		 autoadd; /* auto-adding players */
+	int64_t		 mturk; /* mechanical turk players */
 	int64_t		 autoaddpreserve; /* keep autoadd on start */
 	int64_t		 round; /* round (<0 initial, then >=0) */
 	int64_t		 nolottery; /* don't show lottery info */
@@ -214,7 +215,7 @@ struct expr	*db_expr_get(int);
 size_t		 db_expr_lobbysize(void);
 size_t		 db_expr_round_count
 			(const struct expr *, int64_t, int64_t);
-void		 db_expr_setautoadd(int64_t, int64_t);
+void		 db_expr_setautoadd(int64_t, int64_t, int64_t);
 void		 db_expr_setinstr(const char *);
 int		 db_expr_start(int64_t, int64_t, int64_t, 
 			int64_t, int64_t, int64_t, int64_t, 
@@ -249,8 +250,7 @@ void		 db_player_enable(int64_t);
 void		 db_player_free(struct player *);
 struct player	*db_player_load(int64_t);
 void		 db_player_load_all(playerf, void *);
-void		 db_player_load_highest(playerscorefp, 
-			void *, int64_t, size_t);
+void		 db_player_load_highest(playerscorefp, void *, size_t);
 int		 db_player_lottery(int64_t, int64_t, 
 		 	mpq_t, mpq_t, int64_t *, size_t);
 int		 db_player_join(const struct player *);
