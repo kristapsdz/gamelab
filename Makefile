@@ -38,6 +38,9 @@ CFLAGS	+= -DDATADIR=\"$(RDATADIR)\" -DHTURI=\"$(HTURI)\"
 PAGES 	 = addplayer.eml \
 	   backupfail.eml \
 	   backupsuccess.eml \
+	   instructions-lottery.html \
+	   instructions-nolottery.html \
+	   instructions-mturk.html \
 	   test.eml
 BUILTPS	 = adminhome-new.html \
 	   adminhome-started.html

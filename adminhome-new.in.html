@@ -399,131 +399,27 @@
 								</div>
 								<div class="input">
 									<i class="fa fa-fw fa-code"></i>
-									<textarea id="instrText" class="bigtext" required="required" name="instr"><p>Welcome to the experiment!</p>
-
-<p>
-You are participating in an experiment in which you will use this web page to play a number of games. 
-Depending on your own and others' choices you can earn a substantial amount of money by winning a lottery at the end of the experiment. 
-Your chances to win the lottery depend in
-part on how well you understand these instructions, so read them carefully.
-</p>
-<p>
-Below you will find all the information you need to participate. Feel free to contact <a
-	       href="mailto:@@gamelab-admin-email@@">@@gamelab-admin-email@@</a> if you have any additional questions.
-</p>
-<h3>Experimental overview</h3>
-<p>
-The experiment is divided into @@gamelab-rounds@@ rounds and each round is open during @@gamelab-round-time@@ hours. 
-In each round you play @@gamelab-games@@ games. 
-These games are the same in all rounds.
-</p>
-<p>
-In all games you have the opportunity to get payoffs depending how you and others play. 
-Your payoffs are calculated as soon as a round closes, given that you have played all @@gamelab-games@@ games in the round.
-</p>
-<p>
-When a new round begins you can view your payoffs from the previous round directly on the <q>Play</q> tab.
-A more detailed summary of your payoffs for each game from all previous rounds, along with the total sum of your payoffs, is available on the
-<q>History</q> tab.
-</p>
-<h3>Game setup</h3>
-<p>
-Each game is represented in a game bimatrix (a table) where one player chooses row and the other column. 
-You are a row player in all games and rounds. 
-Your payoff is the first number in each cell and will always have the color of this box: <i class="gamelab-colour fa fa-square"></i>.
-The column player's payoff is the second number in each cell and will always have the color of this box: <i class="gamelab-ocolour fa
-	fa-square"></i>.
-</p>
-<p>
-When you play you may either select a pure strategy (one row) or a mixed strategy (a probability distribution over the rows). 
-In the first case, you assign probability one to the row you want to play. 
-In the second case, you select positive probabilities for multiple rows, as long as they sum to one. 
-Your choice of strategy is your private information and is never shared with any other participant.
-</p>
-<p>
-When you have decided on a strategy (pure or mixed), click on each row that is included in your strategy and assign the corresponding probability in the input field. 
-Any row that you don't select will be assigned probability zero. 
-Once this is done, click the <q>Submit Play</q> button to submit your play.
-</p>
-<p>
-After you have submitted your play, click the <q>Go to next game</q> button to proceed to the next game.
-</p>
-<h3>Payoffs</h3>
-<p>
-After each round, you are matched against all column players and your strategy is played against each of their strategies. 
-In each game, you are given the average payoff of your strategy against all column players.
-</p>
-<p>
-Your final payoff from a round is calculated as the sum of your payoffs from all @@gamelab-games@@ games. 
-Your overall payoff in the experiment is the sum of your final payoffs from all rounds.
-</p>
-<p>
-You can view information about your previous payoffs at the <q>History</q> tab at any time.
-</p>
-<h3>Lottery tickets and picking the winner</h3>
-<p>
-At the end of the experiment your overall payoff is transformed into the equivalent number of lottery tickets. 
-(Should your overall payoff be a non-integer number, we will round off upwards.) 
-Each lottery ticket will be assigned a unique number. Out of all tickets to all participants in the experiment, one lottery ticket will be
-randomly drawn to win a prize of 10 000 SEK.
-</p>
-<p>
-In drawing the winning ticket, we will use the Swedish Lotto system.
-More exactly, we will use a quasi-random process in which an initial seed determines the winning number (the exact code is available upon request). 
-To make sure that the initial seed is completely random it will be determined by a random draw by a third party. 
-More precisely, the seed will be the <q>Tilläggsnummer</q> from the first <q><a target="_blank" 
-		href="https://svenskaspel.se/?pageid=/resultat/lottolordag">Lotto 1</a></q> draw after the final round of the experiment.
-</p>
-<p>
-Once the initial seed is drawn, the winning lottery ticket will be computed and the winner will be contacted.
-</p>
-<h3>History of play</h3>
-<p>
-You can view how a game was played in the previous round by looking at the history table directly on the <q>Play</q> tab when playing that game. 
-A full summary of play in all previous rounds is available on the <q>History</q> tab.
-</p>
-<p>
-The history table summarizes how players in both roles (including you) have played in the previous round. 
-The number in the white cells in the matrix shows the share of plays that ended in that cell in the last round. 
-The first number in the gray cells shows in what share of plays that row or column strategy was used. 
-The number in brackets in the gray cells to the right show your payoff, represented by [U], should you have played the pure strategy
-associated with each row in the previous round.
-</p>
-<p>
-An example of a history table:
-</p>
-<div class="history" style="max-width: 20em;">
-  <div>
-    <div style="width: 1%;" class="labelaside"></div>
-    <div style="width: 32%;" class="labelatop">A</div>
-    <div style="width: 32%;" class="labelatop">B</div>
-    <div style="width: 32%;" class="sumaside">&#x2211; [<span class="gamelab-colour">U</span>]</div>
-  </div>
-  <div>
-    <div class="labelatop">a</div>
-    <div class="mix">0.315</div>
-    <div class="mix">0.585</div>
-    <div class="sumaside sum">0.900 [<span class="gamelab-colour">U</span>]</div>
-  </div>
-  <div>
-    <div class="labelatop">b</div>
-    <div class="mix">0.035</div>
-    <div class="mix">0.065</div>
-    <div class="sumaside sum">0.100 [<span class="gamelab-colour">U</span>]</div>
-  </div>
-  <div>
-    <div class="labelaside">&#x2211;</div>
-    <div class="sumbelow sum">0.350</div>
-    <div class="sumbelow sum">0.650</div>
-    <div class="sumaside"></div>
-  </div>
-</div>
-<p>
-From the history table we see that the share of plays ending in the combination <q>a</q> and <q>A</q> was 0.315 in the last round while the
-share of plays ending in <q>a</q> and <q>B</q> was 0.585. 
-Looking at the numbers in the gray cells we see that the share of plays in which row players played <q>a</q> was 0.9, and the share in which
-column players played <q>B</q> was 0.650.
-</p></textarea>
+									<div>
+										<div>
+											<input value="lottery" id="default-lottery" checked="checked" type="radio" name="instr" />
+											<label for="default-lottery">Lottery</label>
+										</div>
+										<div>
+											<input value="nolottery" id="default-nolottery" type="radio" name="instr" />
+											<label for="default-lottery">No Lottery</label>
+										</div>
+										<div>
+											<input value="mturk" id="default-mturk" type="radio" name="instr" />
+											<label for="default-mturk">Mechanical Turk</label>
+										</div>
+										<div>
+											<input value="custom" id="default-custom" type="radio" name="instr" />
+											<div>
+												<label for="default-custom">Custom: </label>
+												<input type="file" name="instrFile" />
+											</div>
+										</div>
+									</div>
 								</div>
 								<div class="input">
 									<i class="fa fa-fw fa-gears"></i>

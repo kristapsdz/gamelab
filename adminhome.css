@@ -203,6 +203,15 @@ div.input input			{ -webkit-appearance: none;
 				  font-size: 13pt;
 				  font-family: inherit;
 				  box-sizing: border-box; }
+div.input > div input		{ width: auto; }
+div.input > div			{ display: table; 
+				  border-spacing: 0;
+				  background-color: #fff; 
+				  width: 95%; }
+div.input > div >*		{ display: table-row; }
+div.input > div >* >*		{ display: table-cell; 
+				  line-height: 200%;
+				  vertical-align: baseline; }
 div.input input[readonly]	{ background-color: #ddd; }
 div.input-check >*		{ cursor: pointer; }
 div.input textarea		{ height: 10ex; }

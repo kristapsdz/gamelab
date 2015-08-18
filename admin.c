@@ -14,11 +14,14 @@
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
+#include <sys/mman.h>
 #include <sys/param.h>
+#include <sys/stat.h>
 #include <sys/wait.h>
 
 #include <assert.h>
 #include <ctype.h>
+#include <fcntl.h>
 #include <inttypes.h>
 #include <stdio.h>
 #include <stdint.h>
@@ -32,6 +35,14 @@
 #include <kcgijson.h>
 
 #include "extern.h"
+
+enum	instrs {
+	INSTR_LOTTERY,
+	INSTR_NOLOTTERY,
+	INSTR_MTURK,
+	INSTR_CUSTOM,
+	INSTR__MAX
+};
 
 /*
  * Unique pages under the CGI "directory".
@@ -100,6 +111,7 @@ enum	key {
 	KEY_GAMEID,
 	KEY_HISTORYFILE,
 	KEY_INSTR,
+	KEY_INSTRFILE,
 	KEY_MTURK,
 	KEY_NAME,
 	KEY_NOLOTTERY,
@@ -221,6 +233,7 @@ static const struct kvalid keys[KEY__MAX] = {
 	{ kvalid_int, "gid" }, /* KEY_GAMEID */
 	{ kvalid_stringne, "historyfile" }, /* KEY_HISTORYFILE */
 	{ kvalid_stringne, "instr" }, /* KEY_INSTR */
+	{ kvalid_stringne, "instrFile" }, /* KEY_INSTRFILE */
 	{ kvalid_int, "mturk" }, /* KEY_MTURK */
 	{ kvalid_stringne, "name" }, /* KEY_NAME */
 	{ kvalid_int, "nolottery" }, /* KEY_NOLOTTERY */
@@ -1039,24 +1052,29 @@ static void
 senddostartexpr(struct kreq *r)
 {
 	pid_t		 pid;
-	char		*loginuri, *uri;
+	char		*loginuri, *uri, *map;
 	struct smtp	*smtp;
+	const char	*instdat;
+	enum instrs	 inst;
+	int		 fd;
+	struct stat	 st;
+	size_t		 sz;
 
 	smtp = db_smtp_get();
 	db_smtp_free(smtp);
 
 	if (kpairbad(r, KEY_DATE) ||
-		kpairbad(r, KEY_NOLOTTERY) ||
-		kpairbad(r, KEY_QUESTIONNAIRE) ||
-		kpairbad(r, KEY_TIME) ||
-		kpairbad(r, KEY_ROUNDS) ||
-		kpairbad(r, KEY_PROUNDS) ||
-		kpairbad(r, KEY_ROUNDPCT) ||
-		kpairbad(r, KEY_ROUNDMIN) ||
-		kpairbad(r, KEY_PLAYERMAX) ||
-		kpairbad(r, KEY_INSTR) ||
-		kpairbad(r, KEY_MINUTES) ||
-		kpairbad(r, KEY_URI) ||
+	    kpairbad(r, KEY_NOLOTTERY) ||
+	    kpairbad(r, KEY_QUESTIONNAIRE) ||
+	    kpairbad(r, KEY_TIME) ||
+	    kpairbad(r, KEY_ROUNDS) ||
+	    kpairbad(r, KEY_PROUNDS) ||
+	    kpairbad(r, KEY_ROUNDPCT) ||
+	    kpairbad(r, KEY_ROUNDMIN) ||
+	    kpairbad(r, KEY_PLAYERMAX) ||
+	    kpairbad(r, KEY_INSTR) ||
+	    kpairbad(r, KEY_MINUTES) ||
+	    kpairbad(r, KEY_URI) ||
 		r->fieldmap[KEY_DATE]->parsed.i +
 		r->fieldmap[KEY_TIME]->parsed.i <= (int64_t)time(NULL) ||
 		NULL == smtp ||
@@ -1064,7 +1082,54 @@ senddostartexpr(struct kreq *r)
 		http_open(r, KHTTP_400);
 		khttp_body(r);
 		return;
-	} else if ( ! db_expr_start
+	} 
+
+	inst = INSTR__MAX;
+	if (0 == strcmp("custom", r->fieldmap[KEY_INSTR]->parsed.s))
+		inst = kpairbad(r, KEY_INSTRFILE) ? 
+			INSTR__MAX : INSTR_CUSTOM;
+	if (0 == strcmp("mturk", r->fieldmap[KEY_INSTR]->parsed.s))
+		inst = INSTR_MTURK;
+	if (0 == strcmp("lottery", r->fieldmap[KEY_INSTR]->parsed.s))
+		inst = INSTR_LOTTERY;
+	if (0 == strcmp("nolottery", r->fieldmap[KEY_INSTR]->parsed.s))
+		inst = INSTR_NOLOTTERY;
+
+	if (INSTR__MAX == inst) {
+		http_open(r, KHTTP_400);
+		khttp_body(r);
+		return;
+	} 
+
+	if (INSTR_LOTTERY == inst || 
+	    INSTR_NOLOTTERY == inst ||
+	    INSTR_MTURK == inst) {
+		fd = open(INSTR_LOTTERY == inst ?
+			  DATADIR "/instructions-lottery.html" :
+			  (INSTR_NOLOTTERY == inst ?
+			   DATADIR "/instructions-nolottery.html" :
+			   DATADIR "/instructions-mturk.html"),
+			  O_RDONLY, 0);
+		if (-1 == fd || -1 == fstat(fd, &st)) {
+			http_open(r, KHTTP_400);
+			khttp_body(r);
+			if (-1 != fd)
+				close(fd);
+			return;
+		}
+		sz = (size_t)st.st_size;
+		map = mmap(NULL, sz, PROT_READ, MAP_SHARED, fd, 0);
+		if (MAP_FAILED == map) {
+			http_open(r, KHTTP_400);
+			khttp_body(r);
+			close(fd);
+			return;
+		}
+		instdat = map;
+	} else 
+		instdat = r->fieldmap[KEY_INSTRFILE]->parsed.s;
+	
+	if ( ! db_expr_start
 		(r->fieldmap[KEY_DATE]->parsed.i +
 		 r->fieldmap[KEY_TIME]->parsed.i,
 		 r->fieldmap[KEY_ROUNDPCT]->parsed.i,
@@ -1073,7 +1138,7 @@ senddostartexpr(struct kreq *r)
 		 r->fieldmap[KEY_PROUNDS]->parsed.i,
 		 r->fieldmap[KEY_MINUTES]->parsed.i,
 		 r->fieldmap[KEY_PLAYERMAX]->parsed.i,
-		 r->fieldmap[KEY_INSTR]->parsed.s,
+		 instdat,
 		 r->fieldmap[KEY_URI]->parsed.s,
 		 NULL == r->fieldmap[KEY_HISTORYFILE] ?
 		 NULL : r->fieldmap[KEY_HISTORYFILE]->parsed.s,
@@ -1081,7 +1146,18 @@ senddostartexpr(struct kreq *r)
 		 r->fieldmap[KEY_QUESTIONNAIRE]->parsed.i)) {
 		http_open(r, KHTTP_409);
 		khttp_body(r);
+		if (INSTR_LOTTERY == inst || 
+		    INSTR_NOLOTTERY == inst ||
+		    INSTR_MTURK == inst) {
+			munmap(map, sz);
+			close(fd);
+		}
 		return;
+	} else if (INSTR_LOTTERY == inst || 
+		   INSTR_NOLOTTERY == inst ||
+		   INSTR_MTURK == inst) {
+		munmap(map, sz);
+		close(fd);
 	}
 
 	http_open(r, KHTTP_200);
