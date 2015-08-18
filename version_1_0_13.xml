@@ -1,0 +1,21 @@
+<article data-sblg-article="1" data-sblg-tags="version">
+	<header>
+		<h1>1.0.13</h1>
+		<address>Kristaps Dzonsons</address>
+		<time datetime="2015-08-18">2015-08-18</time>
+	</header>
+	<aside>
+		<p>
+			Split out the option to have Mechanical Turk players from that of ordinary captive players.
+			While working on administration, finally clean up instructions.
+			As it is now, experimenters can select from several defaults (lottery, no lottery, and Mechanical Turk) or upload custom
+			instructions.
+			These can still be changed in the usual way.
+		</p>
+		<p>
+			This also marks the first <q>no-wait</q> database implementation: connections will now wait perpetually in order to be
+			serviced instead of timing out.
+			This is part of a broader set of actions to reduce database contention for large (multi-hundred) player games.
+		</p>
+	</aside>
+</article>
