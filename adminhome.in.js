@@ -88,6 +88,23 @@ function doSetup(submitName, errName)
 	}
 }
 
+function checkToggle(name, enable)
+{
+	var icon;
+
+	if (null == (icon = document.getElementById(name)))
+		return;
+	icon.classList.remove('fa-toggle-off');
+	icon.classList.remove('fa-toggle-on');
+	if (enable) {
+		icon.classList.add('fa-toggle-on');
+		doValue('autoadd', 1);
+	} else {
+		icon.classList.add('fa-toggle-off');
+		doValue('autoadd', 0);
+	}
+}
+
 /*
  * This is called by loadNewPlayers() when the AJAX request has
  * completed with the list response.
@@ -105,29 +122,9 @@ function loadNewPlayersSuccess(resp)
 		return;
 	}
 
-	if (null != (icon = document.getElementById('autoaddToggle'))) {
-		icon.classList.remove('fa-toggle-off');
-		icon.classList.remove('fa-toggle-on');
-		if (results.autoadd) {
-			icon.classList.add('fa-toggle-on');
-			doValue('autoadd', 1);
-		} else {
-			icon.classList.add('fa-toggle-off');
-			doValue('autoadd', 0);
-		}
-	}
-
-	if (null != (icon = document.getElementById('autoaddTogglePreserve'))) {
-		icon.classList.remove('fa-toggle-off');
-		icon.classList.remove('fa-toggle-on');
-		if (results.autoaddpreserve) {
-			icon.classList.add('fa-toggle-on');
-			doValue('autoaddpreserve', 1);
-		} else {
-			icon.classList.add('fa-toggle-off');
-			doValue('autoaddpreserve', 0);
-		}
-	}
+	checkToggle('autoaddToggle', results.autoadd);
+	checkToggle('mturkToggle', results.mturk);
+	checkToggle('autoaddTogglePreserve', results.autoaddpreserve);
 
 	if (results.autoadd || results.mturk)
 		doUnhide('captiveGame');
@@ -240,17 +237,8 @@ function loadPlayersSuccess(resp)
 		return;
 	}
 
-	if (null != (icon = document.getElementById('autoaddToggle'))) {
-		icon.classList.remove('fa-toggle-off');
-		icon.classList.remove('fa-toggle-on');
-		if (results.autoadd) {
-			icon.classList.add('fa-toggle-on');
-			doValue('autoadd', 1);
-		} else {
-			icon.classList.add('fa-toggle-off');
-			doValue('autoadd', 0);
-		}
-	}
+	checkToggle('autoaddToggle', results.autoadd);
+	checkToggle('mturkToggle', results.mturk);
 
 	players = results.players;
 

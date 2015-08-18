@@ -263,11 +263,16 @@
 								<i onclick="toggler('autoadd', 'autoaddToggle');" id="autoaddToggle" class="fa fa-fw fa-toggle-off"></i>
 								<span onclick="toggler('autoadd', 'autoaddToggle');">Allow Captive Players</span>
 							</div>
+							<div class="input input-check">
+								<i onclick="toggler('mturk', 'mturkToggle');" id="mturkToggle" class="fa fa-fw fa-toggle-off"></i>
+								<span onclick="toggler('mturk', 'mturkToggle');">Allow Mechanical Turk players</span>
+							</div>
 							<div class="input input-submit">
 								<i class="fa fa-fw fa-check"></i>
 								<input id="addPlayersSubmit" type="submit" value="Submit" />
 							</div>
 							<input type="hidden" id="autoadd" name="autoadd" value="0" />
+							<input type="hidden" id="mturk" name="mturk" value="0" />
 						</fieldset>
 					</form>
 				</section>
