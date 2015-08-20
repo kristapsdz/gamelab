@@ -30,7 +30,7 @@ STATIC		 =
 
 # You really don't want to change anything below this line.
 
-VERSION	 = 1.0.13
+VERSION	 = 1.0.14
 VMONTH	 = August
 VYEAR	 = 2015
 CFLAGS 	+= -g -W -Wall -Wstrict-prototypes -Wno-unused-parameter -Wwrite-strings -I/usr/local/include
@@ -75,6 +75,7 @@ SRCS	 = Makefile \
 	   lab.c \
 	   mail.c \
 	   mpq.c \
+	   mturkpreview.in.html \
 	   playerautoadd.in.html \
 	   playerautoadd.in.js \
 	   playerhome.in.html \
@@ -84,6 +85,7 @@ SRCS	 = Makefile \
 	   privacy.in.html
 BUILT	 = adminhome.js \
 	   adminlogin.html \
+	   mturkpreview.html \
 	   playerautoadd.html \
 	   playerautoadd.js \
 	   playerlobby.html \
@@ -103,7 +105,8 @@ VERSIONS = version_1_0_1.xml \
 	   version_1_0_10.xml \
 	   version_1_0_11.xml \
 	   version_1_0_12.xml \
-	   version_1_0_13.xml
+	   version_1_0_13.xml \
+	   version_1_0_14.xml
 
 all: admin lab gamers $(BUILT) $(BUILTPS)
 

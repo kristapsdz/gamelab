@@ -225,9 +225,17 @@ sendmturk(struct kreq *r)
 	struct sess	*sess;
 	struct expr	*expr;
 	struct player	*player;
-	int		 rc, needjoin, preview;
+	int		 rc, needjoin;
 	char		*hash;
 	const char	*id, *hitid;
+
+	if (NULL != r->fieldmap[KEY_ASSIGNMENTID] && 
+	    0 == strcmp("ASSIGNMENT_ID_NOT_AVAILABLE", 
+		        r->fieldmap[KEY_ASSIGNMENTID]->parsed.s)) {
+		http_open(r, KHTTP_303);
+		send303(r, HTURI "/mturkpreview.html", PAGE__MAX, 0);
+		return;
+	}
 
 	/* Get the experiment and workerId we're here to enter. */
 	if (NULL == (expr = db_expr_get(1))) {
@@ -246,10 +254,6 @@ sendmturk(struct kreq *r)
 		db_expr_free(expr);
 		return;
 	}
-
-	preview = NULL != r->fieldmap[KEY_ASSIGNMENTID] &&
-		0 == strcmp("ASSIGNMENT_ID_NOT_AVAILABLE",
-			r->fieldmap[KEY_ASSIGNMENTID]->parsed.s);
 
 	/* Add the worker to the system. */
 	id = r->fieldmap[KEY_WORKERID]->parsed.s;
@@ -276,7 +280,7 @@ sendmturk(struct kreq *r)
 	 * This just prevents us from bouncing the user around
 	 * when they finally try to log in.
 	 */
-	needjoin = 0 == preview && player->joined < 0;
+	needjoin = player->joined < 0;
 	if (needjoin)
 		needjoin = ! db_player_join(player, QUESTIONS);
 

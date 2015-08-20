@@ -88,7 +88,7 @@ function doSetup(submitName, errName)
 	}
 }
 
-function checkToggle(name, enable)
+function checkToggle(name, tname, enable)
 {
 	var icon;
 
@@ -98,10 +98,10 @@ function checkToggle(name, enable)
 	icon.classList.remove('fa-toggle-on');
 	if (enable) {
 		icon.classList.add('fa-toggle-on');
-		doValue('autoadd', 1);
+		doValue(tname, 1);
 	} else {
 		icon.classList.add('fa-toggle-off');
-		doValue('autoadd', 0);
+		doValue(tname, 0);
 	}
 }
 
@@ -122,9 +122,9 @@ function loadNewPlayersSuccess(resp)
 		return;
 	}
 
-	checkToggle('autoaddToggle', results.autoadd);
-	checkToggle('mturkToggle', results.mturk);
-	checkToggle('autoaddTogglePreserve', results.autoaddpreserve);
+	checkToggle('autoaddToggle', 'autoadd', results.autoadd);
+	checkToggle('mturkToggle', 'mturk', results.mturk);
+	checkToggle('autoaddTogglePreserve', 'autoaddpreserve', results.autoaddpreserve);
 
 	if (results.autoadd || results.mturk)
 		doUnhide('captiveGame');
@@ -237,8 +237,8 @@ function loadPlayersSuccess(resp)
 		return;
 	}
 
-	checkToggle('autoaddToggle', results.autoadd);
-	checkToggle('mturkToggle', results.mturk);
+	checkToggle('autoaddToggle', 'autoadd', results.autoadd);
+	checkToggle('mturkToggle', 'mturk', results.mturk);
 
 	players = results.players;
 
