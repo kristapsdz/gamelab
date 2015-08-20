@@ -13,6 +13,8 @@ section section 		{ background-color: #fff;
 				  border: thin solid #ccc;
 				  margin: 0; 
 				  padding: 0; }
+section section section		{ border: none; 
+				  border-top: thin solid #ccc; }
 section section >* 		{ margin: 0; }
 section section fieldset	{ padding: 1em; }
 section section form		{ margin: 0;
@@ -21,8 +23,15 @@ section section form		{ margin: 0;
 section section p		{ margin: 0;
 				  padding: 1em; }
 #questionnaire fieldset		{ padding: 0;
-				  border-spacing: 0;
+				  border-spacing: 0 1ex;
 				  padding-bottom: 1ex; }
+.poffs 				{ display: table;
+				  border-spacing: 1em 0;
+				  padding: 1em;
+				  margin: 0; }
+.poffs > *			{ display: table-row; }
+.poffs > * > *			{ display: table-cell; 
+				  vertical-align: middle; }
 section section .error >*	{ padding: 1em 1em 0 1em; }
 @media only screen and (max-width: 480px), only screen and (max-device-width: 480px) {
 #top				{ text-align: center; 

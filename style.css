@@ -145,6 +145,7 @@ div.input input			{ -webkit-appearance: none;
 				  font-family: inherit;
 				  box-sizing: border-box; }
 div.input input[type=checkbox]	{ -webkit-appearance: checkbox; }
+div.input input[type=radio]	{ -webkit-appearance: radio; }
 div.input-check >*		{ cursor: pointer; }
 div.input textarea		{ height: 10ex; }
 div.input textarea.bigtext	{ height: 30ex; }
@@ -163,6 +164,7 @@ div.input-submit button:hover,
 div.input-submit input:hover	{ color: #ddd; }
 div.input button,
 div.input input[type=checkbox],
+div.input input[type=radio],
 div.input input[type=date],
 div.input input[type=submit]	{ width: auto; }
 div.input input[type=number]	{ width: 20ex; }

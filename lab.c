@@ -32,6 +32,8 @@
 
 #include "extern.h"
 
+#define	QUESTIONS 5
+
 struct	intvstor {
 	struct interval	*intv;
 	struct kjsonreq	*req;
@@ -65,10 +67,13 @@ enum	page {
  */
 enum	key {
 	KEY_ANSWER0,
+	KEY_ANSWERID,
 	KEY_ASSIGNMENTID,
 	KEY_CHOICE0,
 	KEY_CHOICE1,
 	KEY_CHOICE2,
+	KEY_CHOICE3,
+	KEY_CHOICE4,
 	KEY_GAMEID,
 	KEY_HITID,
 	KEY_IDENTIFIER,
@@ -111,12 +116,21 @@ static const char *const pages[PAGE__MAX] = {
 	"mturk", /* PAGE_MTURK */
 };
 
+static int kvalid_choice0(struct kpair *);
+static int kvalid_choice1(struct kpair *);
+static int kvalid_choice2(struct kpair *);
+static int kvalid_choice3(struct kpair *);
+static int kvalid_choice4(struct kpair *);
+
 static const struct kvalid keys[KEY__MAX] = {
 	{ kvalid_stringne, "answer0" }, /* KEY_ANSWER0 */
+	{ kvalid_int, "aid" }, /* KEY_ANSWERID */
 	{ kvalid_stringne, "assignmentId" }, /* KEY_ASSIGNMENTID */
-	{ NULL, "choice0" }, /* KEY_CHOICE0 */
-	{ NULL, "choice1" }, /* KEY_CHOICE1 */
-	{ NULL, "choice2" }, /* KEY_CHOICE2 */
+	{ kvalid_choice0, "choice0" }, /* KEY_CHOICE0 */
+	{ kvalid_choice1, "choice1" }, /* KEY_CHOICE1 */
+	{ kvalid_choice2, "choice2" }, /* KEY_CHOICE2 */
+	{ kvalid_choice3, "choice3" }, /* KEY_CHOICE3 */
+	{ kvalid_choice4, "choice4" }, /* KEY_CHOICE4 */
 	{ kvalid_int, "gid" }, /* KEY_GAMEID */
 	{ kvalid_stringne, "hitId" }, /* KEY_HITID */
 	{ kvalid_stringne, "ident" }, /* KEY_IDENTIFIER */
@@ -264,7 +278,7 @@ sendmturk(struct kreq *r)
 	 */
 	needjoin = 0 == preview && player->joined < 0;
 	if (needjoin)
-		needjoin = ! db_player_join(player);
+		needjoin = ! db_player_join(player, QUESTIONS);
 
 	http_open(r, KHTTP_303);
 	khttp_head(r, kresps[KRESP_SET_COOKIE],
@@ -337,7 +351,7 @@ senddologin(struct kreq *r)
 		 * when they finally try to log in.
 		 */
 		if ((needjoin = player->joined < 0))
-			needjoin = ! db_player_join(player);
+			needjoin = ! db_player_join(player, QUESTIONS);
 
 		if (KMIME_TEXT_HTML == r->mime) 
 			http_open(r, KHTTP_303);
@@ -458,20 +472,90 @@ senddoloadgame(const struct game *game, int64_t round, void *arg)
 	kjson_obj_close(req);
 }
 
+static int
+kvalid_choice4(struct kpair *kp)
+{
+
+	if ( ! kvalid_uint(kp))
+		return(0);
+	return(30 == kp->parsed.i);
+}
+
+static int
+kvalid_choice3(struct kpair *kp)
+{
+
+	if ( ! kvalid_uint(kp))
+		return(0);
+	return(6 == kp->parsed.i);
+}
+
+static int
+kvalid_choice2(struct kpair *kp)
+{
+
+	if ( ! kvalid_uint(kp))
+		return(0);
+	return(0 == kp->parsed.i);
+}
+
+static int
+kvalid_choice1(struct kpair *kp)
+{
+
+	if ( ! kvalid_uint(kp))
+		return(0);
+	return(3 == kp->parsed.i);
+}
+
+static int
+kvalid_choice0(struct kpair *kp)
+{
+
+	if ( ! kvalid_uint(kp))
+		return(0);
+	return(3 == kp->parsed.i);
+}
+
 static void
 senddoanswer(struct kreq *r, int64_t id)
 {
+	int	 ok;
 
-	if ( ! (NULL != r->fieldmap[KEY_CHOICE0] &&
-		 NULL != r->fieldmap[KEY_CHOICE1] &&
-		 NULL != r->fieldmap[KEY_ANSWER0])) {
+	if (NULL == r->fieldmap[KEY_ANSWERID]) {
 		http_open(r, KHTTP_400);
 		khttp_body(r);
 		return;
 	}
 
-	db_player_set_answered(id);
-	http_open(r, KHTTP_200);
+	switch (r->fieldmap[KEY_ANSWERID]->parsed.i) {
+	case (0):
+		ok = NULL != r->fieldmap[KEY_CHOICE0];
+		break;
+	case (1):
+		ok = NULL != r->fieldmap[KEY_CHOICE1];
+		break;
+	case (2):
+		ok = NULL != r->fieldmap[KEY_CHOICE2];
+		break;
+	case (3):
+		ok = NULL != r->fieldmap[KEY_CHOICE3];
+		break;
+	case (4):
+		ok = NULL != r->fieldmap[KEY_CHOICE4];
+		break;
+	default:
+		ok = 0;
+		break;
+	}
+
+	if (ok) {
+		db_player_set_answered(id, 
+			r->fieldmap[KEY_ANSWERID]->parsed.i);
+		http_open(r, KHTTP_200);
+	} else
+		http_open(r, KHTTP_400);
+
 	khttp_body(r);
 }
 
@@ -608,7 +692,7 @@ again:
 	 */
 	if (player->joined < 0) {
 		db_expr_free(expr);
-		if (db_player_join(player)) {
+		if (db_player_join(player, QUESTIONS)) {
 			db_player_free(player);
 			goto again;
 		}

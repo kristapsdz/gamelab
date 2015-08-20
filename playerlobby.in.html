@@ -9,24 +9,27 @@
 		<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" rel="stylesheet" />
 		<script src="@HTURI@/script.js"></script>
 		<script>
+			var ques = 0;
+
 			function doError(err) 
 			{
 
-				document.getElementById('questionSubmit').value = 'Submit';
-				doUnhide('questionError');
+				console.log('moop');
+				doValue('questionSubmit' + ques, 'Submit');
+				doUnhide('questionerror' + ques);
 			}
 
 			function doSuccess() 
 			{
 
-				document.getElementById('questionSubmit').value = 'Success!  Reloading...';
+				doValue('questionSubmit' + ques, 'Success!  Reloading...');
 				window.location.reload(true);
 			}
 
 			function doSetup() 
 			{
-				doHide('questionError');
-				document.getElementById('questionSubmit').value = 'Submitting...';
+				doHide('questionerror' + ques);
+				doValue('questionSubmit' + ques, 'Submitting...');
 			}
 
 			function doInitSuccess(resp)
@@ -42,9 +45,12 @@
 				doUnhide('ploaded');
 				doHide('ploading');
 
-				if (res.questionnaire && ! res.answered) {
+				ques = res.answered;
+
+				if (res.questionnaire && res.answered < 5) {
 					doHide('main');
 					doUnhide('questionnaire');
+					doUnhide('question' + res.answered);
 				} else {
 					doUnhide('main');
 					doHide('questionnaire');
@@ -92,54 +98,332 @@
 								Before playing, you must answer some questions.
 							</p>
 							<p>
-								In this HIT you will use this web page to play a number of games. Before being
-								able to play you have to read through some short instructions and will be asked
-								to answer a few questions to make sure you understand. You can read these
+								In this experiment you will use this web page to play a number of games. Before
+								being able to play you have to read through some short instructions and will be
+								asked to answer a few questions to make sure you understand. You can read these
 								instructions again once you have answered all questions.
 							</p>
-							<p class="error noshow" id="questionError">
-								One or more answers wrong.
-								Please try again.
+							<p>
+								Since you can earn a substantial amount as a bonus payment in addition to the
+								HIT completion fee it is important that you read the instructions carefully.
 							</p>
-							<form action="@LABURI@/doanswer.json" method="post" onsubmit="return(sendForm(this, doSetup, doError, doSuccess));">
-								<div>
-									What is the following?
-								</div>
-								<fieldset>
-									<div class="input">
-										<i class="fa fa-fw fa-square"></i>
-										<div class="inputgroup">
-											<div>
-												<input id="choice0" name="choice0" type="checkbox" value="1" />
-												<label for="choice0">Choice0</label>
-											</div>
-											<div>
-												<input id="choice1" name="choice1" type="checkbox" value="1" />
-												<label for="choice1">Choice1</label>
-											</div>
-											<div>
-												<input id="choice2" name="choice2" type="checkbox" value="1" />
-												<label for="choice2">Choice2</label>
+							<section id="question0" class="noshow">
+								<p class="error noshow" id="questionerror0">
+									Answer incorrect.
+									Please try again.
+								</p>
+								<p>
+									Assume you will participate in ten rounds. Each round consists of
+									choices for the three games.
+									In addition to the HIT completion fee you will earn a bonus payment that
+									depends on your own and others’ choices in the games.
+									Each round will last for at least ten minutes. It
+									will take approximately one hundred minutes to finish this HIT.
+								</p>
+								<p>
+									How many games will you play in each round?
+								</p>
+								<form action="@LABURI@/doanswer.json" method="post"
+									onsubmit="return(sendForm(this, doSetup, doError, doSuccess));">
+									<input type="hidden" name="aid" value="0" />
+									<fieldset>
+										<div class="input">
+											<i class="fa fa-fw fa-square"></i>
+											<div class="inputgroup">
+												<div>
+													<input id="choice0a" name="choice0" type="radio" value="2" />
+													<label for="choice0a">2</label>
+												</div>
+												<div>
+													<input id="choice0b" name="choice0" type="radio" value="3" />
+													<label for="choice0b">3</label>
+												</div>
+												<div>
+													<input id="choice0c" name="choice0" type="radio" value="4" />
+													<label for="choice0c">4</label>
+												</div>
+												<div>
+													<input id="choice0d" name="choice0" type="radio" value="5" />
+													<label for="choice0d">5</label>
+												</div>
+												<div>
+													<input id="choice0e" name="choice0" type="radio" value="6" />
+													<label for="choice0e">6</label>
+												</div>
 											</div>
 										</div>
+										<div class="input input-submit">
+											<i class="fa fa-fw fa-check"></i>
+											<input id="questionSubmit0" type="submit" value="Submit" />
+										</div>
+									</fieldset>
+								</form>
+							</section>
+							<section id="question1" class="noshow">
+								<p class="error noshow" id="questionerror1">
+									Answer incorrect.
+									Please try again.
+								</p>
+								<p>
+									Each game is represented in a table where you always choose row(s). You
+									will be playing with other players, some also choose row(s) and others
+									choose column(s).  Your payoff (which contributes to your bonus payment)
+									for a given row and column combination is the first number in each cell,
+									shown in: <i class="fa fa-square" style="color: red;"></i>. The column
+									player’s payoff is the second number in each cell, shown in: <i
+										class="fa fa-square" style="color: blue;"></i>.
+								</p>
+								<div class="poffs">
+									<div>
+										<div></div>
+										<div>A</div>
+										<div>B</div>
 									</div>
-								</fieldset>
-								<div>
-									What is the following?
+									<div>
+										<div>a</div>
+										<div><span style="color: red;">4</span>, <span style="color: blue;">8</span></div>
+										<div><span style="color: red;">3</span>, <span style="color: blue;">4</span></div>
+									</div>
+									<div>
+										<div>b</div>
+										<div><span style="color: red;">8</span>, <span style="color: blue;">2</span></div>
+										<div><span style="color: red;">2</span>, <span style="color: blue;">9</span></div>
+									</div>
 								</div>
-								<fieldset>
-									<div class="input">
-										<i class="fa fa-fw fa-square"></i>
-										<input required="required" name="answer0" type="text" placeholder="Answer Here" />
+								<p>
+									What is your payoff from the combinations of row a and column B in the game
+									table below?
+								</p>
+								<form action="@LABURI@/doanswer.json" method="post"
+									onsubmit="return(sendForm(this, doSetup, doError, doSuccess));">
+									<input type="hidden" name="aid" value="1" />
+									<fieldset>
+										<div class="input">
+											<i class="fa fa-fw fa-square"></i>
+											<div class="inputgroup">
+												<div>
+													<input id="choice1a" name="choice1" type="radio" value="2" />
+													<label for="choice1a">2</label>
+												</div>
+												<div>
+													<input id="choice1b" name="choice1" type="radio" value="3" />
+													<label for="choice1b">3</label>
+												</div>
+												<div>
+													<input id="choice1c" name="choice1" type="radio" value="4" />
+													<label for="choice1c">4</label>
+												</div>
+												<div>
+													<input id="choice1d" name="choice1" type="radio" value="8" />
+													<label for="choice1d">8</label>
+												</div>
+												<div>
+													<input id="choice1e" name="choice1" type="radio" value="9" />
+													<label for="choice1e">9</label>
+												</div>
+											</div>
+										</div>
+										<div class="input input-submit">
+											<i class="fa fa-fw fa-check"></i>
+											<input id="questionSubmit1" type="submit" value="Submit" />
+										</div>
+									</fieldset>
+								</form>
+							</section>
+							<section id="question2" class="noshow">
+								<p class="error noshow" id="questionerror2">
+									Answer incorrect.
+									Please try again.
+								</p>
+								<p>
+									Being a row player you will have to choose which row(s) to play. You can only
+									get payoffs from the row(s) you play. However, column players will be choosing
+									which column(s) to play so you don’t have full control over which payoff you
+									get.
+								</p>
+								<div class="poffs">
+									<div>
+										<div></div>
+										<div>A</div>
+										<div>B</div>
 									</div>
-								</fieldset>
-								<fieldset>
-									<div class="input input-submit">
-										<i class="fa fa-fw fa-check"></i>
-										<input id="questionSubmit" type="submit" value="Submit" />
+									<div>
+										<div>a</div>
+										<div><span style="color: red;">4</span>, <span style="color: blue;">8</span></div>
+										<div><span style="color: red;">3</span>, <span style="color: blue;">4</span></div>
 									</div>
-								</fieldset>
-							</form>
+									<div>
+										<div>b</div>
+										<div><span style="color: red;">8</span>, <span style="color: blue;">2</span></div>
+										<div><span style="color: red;">2</span>, <span style="color: blue;">9</span></div>
+									</div>
+								</div>
+								<p>
+									What is your payoff from the combinations of row a and column B in the game
+									table below?
+								</p>
+								<form action="@LABURI@/doanswer.json" method="post"
+									onsubmit="return(sendForm(this, doSetup, doError, doSuccess));">
+									<input type="hidden" name="aid" value="2" />
+									<fieldset>
+										<div class="input">
+											<i class="fa fa-fw fa-square"></i>
+											<div class="inputgroup">
+												<div>
+													<input id="choice2a" name="choice2" type="radio" value="3" />
+													<label for="choice2a">3</label>
+												</div>
+												<div>
+													<input id="choice2b" name="choice2" type="radio" value="2" />
+													<label for="choice2b">2</label>
+												</div>
+												<div>
+													<input id="choice2c" name="choice2" type="radio" value="8" />
+													<label for="choice2c">8</label>
+												</div>
+												<div>
+													<input id="choice2d" name="choice2" type="radio" value="9" />
+													<label for="choice2d">9</label>
+												</div>
+												<div>
+													<input id="choice2e" name="choice2" type="radio" value="0" />
+													<label for="choice2e">Can't Tell</label>
+												</div>
+											</div>
+										</div>
+										<div class="input input-submit">
+											<i class="fa fa-fw fa-check"></i>
+											<input id="questionSubmit2" type="submit" value="Submit" />
+										</div>
+									</fieldset>
+								</form>
+							</section>
+							<section id="question3" class="noshow">
+								<p class="error noshow" id="questionerror3">
+									Answer incorrect.
+									Please try again.
+								</p>
+								<p>
+									When choosing row(s) you must give each played row a weight. A weight of
+									1 means that payoffs (for you and the column player) will always be
+									calculated based on that row. A weight of, for example 1/3 means that
+									1/3 of the payoffs will be calculated from that row. Any combination of
+									weights is possible as long as the sum of all weights is 1. Remember
+									that the column(s) from which your payoffs are calculated are chosen by
+									the column players.
+								</p>
+								<div class="poffs">
+									<div>
+										<div></div>
+										<div>A</div>
+										<div>B</div>
+									</div>
+									<div>
+										<div>a</div>
+										<div><span style="color: red;">4</span>, <span style="color: blue;">8</span></div>
+										<div><span style="color: red;">3</span>, <span style="color: blue;">4</span></div>
+									</div>
+									<div>
+										<div>b</div>
+										<div><span style="color: red;">8</span>, <span style="color: blue;">2</span></div>
+										<div><span style="color: red;">2</span>, <span style="color: blue;">9</span></div>
+									</div>
+								</div>
+								<p>
+									If the column players play column A with weight 1, and you play row a
+									with weight 1/3 and column b with weight 1/3, what would your payoff be?
+								</p>
+								<form action="@LABURI@/doanswer.json" method="post"
+									onsubmit="return(sendForm(this, doSetup, doError, doSuccess));">
+									<input type="hidden" name="aid" value="3" />
+									<fieldset>
+										<div class="input">
+											<i class="fa fa-fw fa-square"></i>
+											<div class="inputgroup">
+												<div>
+													<input id="choice3a" name="choice3" type="radio" value="3" />
+													<label for="choice3a">3</label>
+												</div>
+												<div>
+													<input id="choice3b" name="choice3" type="radio" value="4" />
+													<label for="choice3b">4</label>
+												</div>
+												<div>
+													<input id="choice3c" name="choice3" type="radio" value="6" />
+													<label for="choice3c">6</label>
+												</div>
+												<div>
+													<input id="choice3d" name="choice3" type="radio" value="8" />
+													<label for="choice3d">8</label>
+												</div>
+												<div>
+													<input id="choice3e" name="choice3" type="radio" value="9" />
+													<label for="choice3e">9</label>
+												</div>
+											</div>
+										</div>
+										<div class="input input-submit">
+											<i class="fa fa-fw fa-check"></i>
+											<input id="questionSubmit3" type="submit" value="Submit" />
+										</div>
+									</fieldset>
+								</form>
+							</section>
+							<section id="question4" class="noshow">
+								<p class="error noshow" id="questionerror4">
+									Answer incorrect.
+									Please try again.
+								</p>
+								<p>
+									Your payoff from a game depends on how you play (which row(s) you choose
+									and the weight you assign to the row(s)) and on how the column players
+									play on average (which column(s) they choose and the weight they assign
+									to the column(s)).  At the end of the HIT your bonus payment will be
+									calculated by summing your payoffs from all games in all rounds and
+									converting the points to US dollars at a 1 point = $1 rate. You must
+									make choices for all games in a round in order to receive bonus payments
+									from that round.
+								</p>
+								<p>
+									If you earn 30 points in total from the 10 rounds, how large will your
+									bonus payment be?
+								</p>
+								<form action="@LABURI@/doanswer.json" method="post"
+									onsubmit="return(sendForm(this, doSetup, doError, doSuccess));">
+									<input type="hidden" name="aid" value="4" />
+									<fieldset>
+										<div class="input">
+											<i class="fa fa-fw fa-square"></i>
+											<div class="inputgroup">
+												<div>
+													<input id="choice4a" name="choice4" type="radio" value="10" />
+													<label for="choice4a">$10</label>
+												</div>
+												<div>
+													<input id="choice4b" name="choice4" type="radio" value="20" />
+													<label for="choice4b">$20</label>
+												</div>
+												<div>
+													<input id="choice4c" name="choice4" type="radio" value="30" />
+													<label for="choice4c">$30</label>
+												</div>
+												<div>
+													<input id="choice4d" name="choice4" type="radio" value="40" />
+													<label for="choice4d">$40</label>
+												</div>
+												<div>
+													<input id="choice4e" name="choice4" type="radio" value="50" />
+													<label for="choice4e">$50</label>
+												</div>
+											</div>
+										</div>
+										<div class="input input-submit">
+											<i class="fa fa-fw fa-check"></i>
+											<input id="questionSubmit4" type="submit" value="Submit" />
+										</div>
+									</fieldset>
+								</form>
+							</section>
 						</div>
 					</section>
 				</div>

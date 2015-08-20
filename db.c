@@ -1092,17 +1092,20 @@ db_player_free(struct player *player)
 }
 
 void
-db_player_set_answered(int64_t player)
+db_player_set_answered(int64_t player, int64_t answer)
 {
 	sqlite3_stmt	*stmt;
 
-	stmt = db_stmt
-		("UPDATE player SET answer=1 WHERE id=?");
-	db_bind_int(stmt, 1, player);
+	stmt = db_stmt("UPDATE player SET "
+		"answer=CASE WHEN answer=? THEN "
+		"answer+1 ELSE answer END WHERE id=?");
+	db_bind_int(stmt, 1, answer);
+	db_bind_int(stmt, 2, player);
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);
 	fprintf(stderr, "Player %" PRId64 " has "
-		"answered questionnaire\n", player);
+		"answered question %" PRId64 "\n", 
+		player, answer);
 }
 
 /*
@@ -1708,7 +1711,7 @@ db_expr_setinstr(const char *instr)
  * If so, we schedule her to play.
  */
 int
-db_player_join(const struct player *player)
+db_player_join(const struct player *player, int64_t answers)
 {
 	sqlite3_stmt	*stmt;
 	int64_t		 count, count0, count1, role;
@@ -1727,7 +1730,7 @@ db_player_join(const struct player *player)
 		return(0);
 	}
 
-	if (expr->questionnaire && ! player->answer) {
+	if (expr->questionnaire && answers != player->answer) {
 		db_trans_rollback();
 		fprintf(stderr, "Player %" PRId64 " asked to join "
 			"round %" PRId64 " without having "
