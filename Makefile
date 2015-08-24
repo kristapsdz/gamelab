@@ -53,6 +53,7 @@ SCREENS	 = screen-admin1.png \
 	   screen-admin7.png
 STATICS	 = adminhome.css \
 	   adminlogin.css \
+	   mturkpreview1.png  \
 	   playerhome.css \
 	   playerlobby.css \
 	   playerlogin.css \

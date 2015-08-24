@@ -2,11 +2,13 @@
 	<header>
 		<h1>1.0.14</h1>
 		<address>Kristaps Dzonsons</address>
-		<time datetime="2015-08-18">2015-08-18</time>
+		<time datetime="2015-08-24">2015-08-24</time>
 	</header>
 	<aside>
 		<p>
-			Flesh out the questionnaire.
+			Flesh out the questionnaire, which is an optional sequence wherein players must correctly answer a series of questions
+			before playing.
+			Also record the number of attempts (and starting time) of each questionnaire instance.
 		</p>
 	</aside>
 </article>
