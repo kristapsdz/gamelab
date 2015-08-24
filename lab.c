@@ -533,6 +533,7 @@ static void
 senddoanswer(struct kreq *r, int64_t id)
 {
 	int	 ok;
+	int64_t	 rank;
 
 	if (NULL == r->fieldmap[KEY_ANSWERID]) {
 		http_open(r, KHTTP_400);
@@ -540,7 +541,10 @@ senddoanswer(struct kreq *r, int64_t id)
 		return;
 	}
 
-	switch (r->fieldmap[KEY_ANSWERID]->parsed.i) {
+	rank = r->fieldmap[KEY_ANSWERID]->parsed.i;
+	db_player_questionnaire(id, rank);
+	
+	switch (rank) {
 	case (0):
 		ok = NULL != r->fieldmap[KEY_CHOICE0];
 		break;

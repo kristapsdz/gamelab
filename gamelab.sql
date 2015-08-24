@@ -86,6 +86,15 @@ CREATE TABLE choice (
 	UNIQUE (round, playerid, gameid)
 );
 
+CREATE TABLE questionnaire (
+	playerid INTEGER REFERENCES player(id) NOT NULL,
+	tries INTEGER NOT NULL DEFAULT(0),
+	rank INTEGER NOT NULL,
+	first INTEGER NOT NULL,
+	id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+	UNIQUE (playerid, rank)
+);
+
 CREATE TABLE experiment (
 	state INTEGER NOT NULL DEFAULT(0),
 	start INTEGER DEFAULT(0),

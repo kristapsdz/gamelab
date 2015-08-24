@@ -255,6 +255,7 @@ int		 db_player_lottery(int64_t, int64_t,
 		 	mpq_t, mpq_t, int64_t *, size_t);
 int		 db_player_join(const struct player *, int64_t);
 char		*db_player_next_new(int64_t *, char **);
+void		 db_player_questionnaire(int64_t, int64_t);
 struct sess	*db_player_sess_alloc(int64_t, const char *);
 int		 db_player_sess_valid(int64_t *, int64_t, int64_t);
 int		 db_player_play(const struct player *, int64_t, 

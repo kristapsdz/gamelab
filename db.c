@@ -2896,6 +2896,29 @@ db_expr_free(struct expr *expr)
 	free(expr);
 }
 
+void
+db_player_questionnaire(int64_t playerid, int64_t rank)
+{
+	sqlite3_stmt	*stmt;
+	int		 rc;
+
+	stmt = db_stmt("INSERT INTO questionnaire "
+		"(playerid,rank,first) VALUES (?,?,?)");
+	db_bind_int(stmt, 1, playerid);
+	db_bind_int(stmt, 2, rank);
+	db_bind_int(stmt, 3, time(NULL));
+	rc = db_step(stmt, DB_STEP_CONSTRAINT);
+	sqlite3_finalize(stmt);
+	
+	stmt = db_stmt("UPDATE questionnaire "
+		"SET tries=tries+1 WHERE "
+		"playerid=? AND rank=?");
+	db_bind_int(stmt, 1, playerid);
+	db_bind_int(stmt, 2, rank);
+	db_step(stmt, 0);
+	sqlite3_finalize(stmt);
+}
+
 /*
  * Wipe a database, effectively putting us in the initial state.
  * We essentially remove all state as well as "captive" players.
