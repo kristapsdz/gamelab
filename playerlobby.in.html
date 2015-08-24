@@ -47,7 +47,7 @@
 
 				ques = res.answered;
 
-				if (res.questionnaire && res.answered < 5) {
+				if (res.questionnaire && res.answered < 7) {
 					doHide('main');
 					doUnhide('questionnaire');
 					doUnhide('question' + res.answered);
@@ -69,6 +69,60 @@
 				doHide('ploaded');
 				doUnhide('ploading');
 			}
+
+			function prowOut(source, id)
+			{
+				var e;
+
+				if (null != (e = document.getElementById('index' + id))) {
+					if (e.hasAttribute('disabled'))
+						return;
+					source.classList.remove('hover');
+					e.parentNode.classList.remove('ihover');
+				}
+			}
+
+			function prowOver(source, id)
+			{
+				var e;
+
+				if (null != (e = document.getElementById('index' + id))) {
+					if (e.hasAttribute('disabled'))
+						return;
+					source.classList.add('hover');
+					e.parentNode.classList.add('ihover');
+				}
+			}
+
+			function prowClick(source, id)
+			{
+				var e;
+
+				if (null == (e = document.getElementById('index' + id)))
+					return;
+
+				if (e.hasAttribute('disabled'))
+					return;
+
+				if (e.hasAttribute('readonly')) {
+					source.classList.add('active');
+					e.value = '0';
+					e.removeAttribute('readonly');
+					e.select();
+					e.parentNode.classList.add('iactive');
+				} else {
+					source.classList.remove('active');
+					e.value = '';
+					e.setAttribute('readonly', 'readonly');
+					e.parentNode.classList.remove('iactive');
+				}
+
+				if (source.classList.contains('hover'))
+					source.classList.remove('hover');
+				if (e.parentNode.classList.contains('ihover'))
+					e.parentNode.classList.remove('ihover');
+			}
+
 		</script>
 	</head>
 	<body onload="sendQuery('@LABURI@/doloadquestions.json', doInitSetup, doInitSuccess, doInitFailure);">
@@ -98,9 +152,9 @@
 								Before playing, you must answer some questions.
 							</p>
 							<p>
-								In this experiment you will use this web page to play a number of games. Before
-								being able to play you have to read through some short instructions and will be
-								asked to answer a few questions to make sure you understand. You can read these
+								In this HIT you will use this web page to play a number of games. Before being
+								able to play you have to read through some short instructions and will be asked
+								to answer a few questions to make sure you understand. You can read these
 								instructions again once you have answered all questions.
 							</p>
 							<p>
@@ -113,12 +167,12 @@
 									Please try again.
 								</p>
 								<p>
-									Assume you will participate in ten rounds. Each round consists of
-									choices for the three games.
+									You will participate in ten rounds. Each round consists of choices for
+									the the same five games.
 									In addition to the HIT completion fee you will earn a bonus payment that
 									depends on your own and others’ choices in the games.
-									Each round will last for at least ten minutes. It
-									will take approximately one hundred minutes to finish this HIT.
+									Each round will last for at least two minutes. It will take
+									approximately one hundred minutes to finish this HIT.
 								</p>
 								<p>
 									How many games will you play in each round?
@@ -131,23 +185,23 @@
 											<i class="fa fa-fw fa-square"></i>
 											<div class="inputgroup">
 												<div>
-													<input id="choice0a" name="choice0" type="radio" value="2" />
+													<input id="choice0a" name="choice0" type="radio" value="0" />
 													<label for="choice0a">2</label>
 												</div>
 												<div>
-													<input id="choice0b" name="choice0" type="radio" value="3" />
+													<input id="choice0b" name="choice0" type="radio" value="1" />
 													<label for="choice0b">3</label>
 												</div>
 												<div>
-													<input id="choice0c" name="choice0" type="radio" value="4" />
+													<input id="choice0c" name="choice0" type="radio" value="2" />
 													<label for="choice0c">4</label>
 												</div>
 												<div>
-													<input id="choice0d" name="choice0" type="radio" value="5" />
+													<input id="choice0d" name="choice0" type="radio" value="3" />
 													<label for="choice0d">5</label>
 												</div>
 												<div>
-													<input id="choice0e" name="choice0" type="radio" value="6" />
+													<input id="choice0e" name="choice0" type="radio" value="4" />
 													<label for="choice0e">6</label>
 												</div>
 											</div>
@@ -202,23 +256,23 @@
 											<i class="fa fa-fw fa-square"></i>
 											<div class="inputgroup">
 												<div>
-													<input id="choice1a" name="choice1" type="radio" value="2" />
+													<input id="choice1a" name="choice1" type="radio" value="0" />
 													<label for="choice1a">2</label>
 												</div>
 												<div>
-													<input id="choice1b" name="choice1" type="radio" value="3" />
+													<input id="choice1b" name="choice1" type="radio" value="1" />
 													<label for="choice1b">3</label>
 												</div>
 												<div>
-													<input id="choice1c" name="choice1" type="radio" value="4" />
+													<input id="choice1c" name="choice1" type="radio" value="2" />
 													<label for="choice1c">4</label>
 												</div>
 												<div>
-													<input id="choice1d" name="choice1" type="radio" value="8" />
+													<input id="choice1d" name="choice1" type="radio" value="3" />
 													<label for="choice1d">8</label>
 												</div>
 												<div>
-													<input id="choice1e" name="choice1" type="radio" value="9" />
+													<input id="choice1e" name="choice1" type="radio" value="4" />
 													<label for="choice1e">9</label>
 												</div>
 											</div>
@@ -270,23 +324,23 @@
 											<i class="fa fa-fw fa-square"></i>
 											<div class="inputgroup">
 												<div>
-													<input id="choice2a" name="choice2" type="radio" value="3" />
+													<input id="choice2a" name="choice2" type="radio" value="0" />
 													<label for="choice2a">3</label>
 												</div>
 												<div>
-													<input id="choice2b" name="choice2" type="radio" value="2" />
+													<input id="choice2b" name="choice2" type="radio" value="1" />
 													<label for="choice2b">2</label>
 												</div>
 												<div>
-													<input id="choice2c" name="choice2" type="radio" value="8" />
+													<input id="choice2c" name="choice2" type="radio" value="2" />
 													<label for="choice2c">8</label>
 												</div>
 												<div>
-													<input id="choice2d" name="choice2" type="radio" value="9" />
+													<input id="choice2d" name="choice2" type="radio" value="3" />
 													<label for="choice2d">9</label>
 												</div>
 												<div>
-													<input id="choice2e" name="choice2" type="radio" value="0" />
+													<input id="choice2e" name="choice2" type="radio" value="4" />
 													<label for="choice2e">Can't Tell</label>
 												</div>
 											</div>
@@ -341,23 +395,23 @@
 											<i class="fa fa-fw fa-square"></i>
 											<div class="inputgroup">
 												<div>
-													<input id="choice3a" name="choice3" type="radio" value="3" />
+													<input id="choice3a" name="choice3" type="radio" value="0" />
 													<label for="choice3a">3</label>
 												</div>
 												<div>
-													<input id="choice3b" name="choice3" type="radio" value="4" />
+													<input id="choice3b" name="choice3" type="radio" value="1" />
 													<label for="choice3b">4</label>
 												</div>
 												<div>
-													<input id="choice3c" name="choice3" type="radio" value="6" />
+													<input id="choice3c" name="choice3" type="radio" value="2" />
 													<label for="choice3c">6</label>
 												</div>
 												<div>
-													<input id="choice3d" name="choice3" type="radio" value="8" />
+													<input id="choice3d" name="choice3" type="radio" value="3" />
 													<label for="choice3d">8</label>
 												</div>
 												<div>
-													<input id="choice3e" name="choice3" type="radio" value="9" />
+													<input id="choice3e" name="choice3" type="radio" value="4" />
 													<label for="choice3e">9</label>
 												</div>
 											</div>
@@ -371,6 +425,130 @@
 							</section>
 							<section id="question4" class="noshow">
 								<p class="error noshow" id="questionerror4">
+									Answer incorrect.
+									Please try again.
+								</p>
+								<p>
+									To choose row(s), click all rows you want to play and then input the
+									weight you want to assign the rows you have selected in their
+									corresponding fields. When you have selected rows and weights, click the
+									<q>Submit</q> button and then the <q>Go to next game</q> button to
+									proceed to the next game.
+								</p>
+								<div class="payoffs" style="max-width: 20em;">
+									<div class="labelaside">
+										<div></div>
+										<div class="labelatop">A</div>
+										<div class="labelatop">B</div>
+									</div>
+									<div id="payoffRow0" onclick="prowClick(this, 0);" onmouseover="prowOver(this, 0);" onmouseout="prowOut(this, 0);">
+										<div class="labelaside">a</div>
+										<div class="pair">
+											<div style="color: red;">4</div>
+											<div style="color: blue;">8</div>
+										</div>
+										<div class="pair">
+											<div style="color: red;">3</div>
+											<div style="color: blue;">4</div>
+										</div>
+									</div>
+									<div id="payoffRow1" onclick="prowClick(this, 1);" onmouseover="prowOver(this, 1);" onmouseout="prowOut(this, 1);">
+										<div class="labelaside">b</div>
+										<div class="pair">
+											<div style="color: red;">8</div>
+											<div style="color: blue;">2</div>
+										</div>
+										<div class="pair">
+											<div style="color: red;">2</div>
+											<div style="color: blue;">9</div>
+										</div>
+									</div>
+								</div>
+								<form action="@LABURI@/doanswer.json" method="post"
+									onsubmit="return(sendForm(this, doSetup, doError, doSuccess));">
+									<input type="hidden" name="aid" value="4" />
+									<fieldset>
+										<div class="input">
+											<span class="strat">a</span>
+											<input type="text" readonly="readonly" id="index0" name="choice4a" onkeypress="return(disableEnter(event))">
+										</div>
+										<div class="input">
+											<span class="strat">b</span>
+											<input type="text" readonly="readonly" id="index1" name="choice4b" onkeypress="return(disableEnter(event))">
+										</div>
+										<div class="input input-submit">
+											<i class="fa fa-fw fa-check"></i>
+											<input type="submit" value="Submit play">
+										</div>
+									</fieldset>
+								</form>
+							</section>
+							<section id="question5" class="noshow">
+								<p class="error noshow" id="questionerror5">
+									Answer incorrect.
+									Please try again.
+								</p>
+								<p>
+									To choose row(s), click all rows you want to play and then input the
+									weight you want to assign the rows you have selected in their
+									corresponding fields. When you have selected rows and weights, click the
+									<q>Submit</q> button and then the <q>Go to next game</q> button to
+									proceed to the next game.
+								</p>
+								<p>
+									Try playing both row a &amp; b in the game below, you can assign them
+									any weight you want.
+								</p>
+								<div class="payoffs" style="max-width: 20em;">
+									<div class="labelaside">
+										<div></div>
+										<div class="labelatop">A</div>
+										<div class="labelatop">B</div>
+									</div>
+									<div id="payoffRow2" onclick="prowClick(this, 2);" onmouseover="prowOver(this, 2);" onmouseout="prowOut(this, 2);">
+										<div class="labelaside">a</div>
+										<div class="pair">
+											<div style="color: red;">4</div>
+											<div style="color: blue;">8</div>
+										</div>
+										<div class="pair">
+											<div style="color: red;">3</div>
+											<div style="color: blue;">4</div>
+										</div>
+									</div>
+									<div id="payoffRow3" onclick="prowClick(this, 3);" onmouseover="prowOver(this, 3);" onmouseout="prowOut(this, 3);">
+										<div class="labelaside">b</div>
+										<div class="pair">
+											<div style="color: red;">8</div>
+											<div style="color: blue;">2</div>
+										</div>
+										<div class="pair">
+											<div style="color: red;">2</div>
+											<div style="color: blue;">9</div>
+										</div>
+									</div>
+								</div>
+								<form action="@LABURI@/doanswer.json" method="post"
+									onsubmit="return(sendForm(this, doSetup, doError, doSuccess));">
+									<input type="hidden" name="aid" value="5" />
+									<fieldset>
+									<div class="input">
+										<span class="strat">a</span>
+										<input type="text" readonly="readonly" id="index2" name="choice5a" onkeypress="return(disableEnter(event))">
+									</div>
+									<div class="input">
+										<span class="strat">b</span>
+										<input type="text" readonly="readonly" id="index3" name="choice5b" onkeypress="return(disableEnter(event))">
+									</div>
+									<div class="input input-submit">
+										<i class="fa fa-fw fa-check"></i>
+										<input type="submit" value="Submit play">
+									</div>
+								</fieldset>
+								</form>
+							</section>
+							<section id="question6" class="noshow">
+								<p class="error noshow" id="questionerror6">
 									Answer incorrect.
 									Please try again.
 								</p>
@@ -390,36 +568,84 @@
 								</p>
 								<form action="@LABURI@/doanswer.json" method="post"
 									onsubmit="return(sendForm(this, doSetup, doError, doSuccess));">
-									<input type="hidden" name="aid" value="4" />
+									<input type="hidden" name="aid" value="6" />
 									<fieldset>
 										<div class="input">
 											<i class="fa fa-fw fa-square"></i>
 											<div class="inputgroup">
 												<div>
-													<input id="choice4a" name="choice4" type="radio" value="10" />
-													<label for="choice4a">$10</label>
+													<input id="choice6a" name="choice6" type="radio" value="0" />
+													<label for="choice6a">$10</label>
 												</div>
 												<div>
-													<input id="choice4b" name="choice4" type="radio" value="20" />
-													<label for="choice4b">$20</label>
+													<input id="choice6b" name="choice6" type="radio" value="1" />
+													<label for="choice6b">$20</label>
 												</div>
 												<div>
-													<input id="choice4c" name="choice4" type="radio" value="30" />
-													<label for="choice4c">$30</label>
+													<input id="choice6c" name="choice6" type="radio" value="2" />
+													<label for="choice6c">$30</label>
 												</div>
 												<div>
-													<input id="choice4d" name="choice4" type="radio" value="40" />
-													<label for="choice4d">$40</label>
+													<input id="choice6d" name="choice6" type="radio" value="3" />
+													<label for="choice6d">$40</label>
 												</div>
 												<div>
-													<input id="choice4e" name="choice4" type="radio" value="50" />
-													<label for="choice4e">$50</label>
+													<input id="choice6e" name="choice6" type="radio" value="4" />
+													<label for="choice6e">$50</label>
 												</div>
 											</div>
 										</div>
 										<div class="input input-submit">
 											<i class="fa fa-fw fa-check"></i>
-											<input id="questionSubmit4" type="submit" value="Submit" />
+											<input id="questionSubmit6" type="submit" value="Submit" />
+										</div>
+									</fieldset>
+								</form>
+							</section>
+							<section id="question7" class="noshow">
+								<p class="error noshow" id="questionerror7">
+									Answer incorrect.
+									Please try again.
+								</p>
+								<p>
+									To get information about a game in previous rounds you can look at the
+									graphs on the play page and on the <q>History</q> tab. The graphs gives
+									you information about things such as your previous payoffs, how much
+									payoff you would have gotten by choosing each row with full weight (1)
+									in previous rounds, and the average choices of the row and column
+									players in previous rounds.
+								</p>
+								<p>
+									Example graph form a game with three rows:
+								</p>
+								<p>
+									Based on the graph above: In the last round, choosing what row with full
+									weight would have given you the highest payoff?
+								</p>
+								<form action="@LABURI@/doanswer.json" method="post"
+									onsubmit="return(sendForm(this, doSetup, doError, doSuccess));">
+									<input type="hidden" name="aid" value="7" />
+									<fieldset>
+										<div class="input">
+											<i class="fa fa-fw fa-square"></i>
+											<div class="inputgroup">
+												<div>
+													<input id="choice7a" name="choice7" type="radio" value="0" />
+													<label for="choice7a">a</label>
+												</div>
+												<div>
+													<input id="choice7b" name="choice7" type="radio" value="1" />
+													<label for="choice7b">b</label>
+												</div>
+												<div>
+													<input id="choice7c" name="choice7" type="radio" value="2" />
+													<label for="choice7c">c</label>
+												</div>
+											</div>
+										</div>
+										<div class="input input-submit">
+											<i class="fa fa-fw fa-check"></i>
+											<input id="questionSubmit7" type="submit" value="Submit" />
 										</div>
 									</fieldset>
 								</form>

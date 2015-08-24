@@ -32,7 +32,7 @@
 
 #include "extern.h"
 
-#define	QUESTIONS 5
+#define	QUESTIONS 7
 
 struct	intvstor {
 	struct interval	*intv;
@@ -73,7 +73,11 @@ enum	key {
 	KEY_CHOICE1,
 	KEY_CHOICE2,
 	KEY_CHOICE3,
-	KEY_CHOICE4,
+	KEY_CHOICE4A,
+	KEY_CHOICE4B,
+	KEY_CHOICE5A,
+	KEY_CHOICE5B,
+	KEY_CHOICE6,
 	KEY_GAMEID,
 	KEY_HITID,
 	KEY_IDENTIFIER,
@@ -120,7 +124,7 @@ static int kvalid_choice0(struct kpair *);
 static int kvalid_choice1(struct kpair *);
 static int kvalid_choice2(struct kpair *);
 static int kvalid_choice3(struct kpair *);
-static int kvalid_choice4(struct kpair *);
+static int kvalid_choice6(struct kpair *);
 
 static const struct kvalid keys[KEY__MAX] = {
 	{ kvalid_stringne, "answer0" }, /* KEY_ANSWER0 */
@@ -130,7 +134,11 @@ static const struct kvalid keys[KEY__MAX] = {
 	{ kvalid_choice1, "choice1" }, /* KEY_CHOICE1 */
 	{ kvalid_choice2, "choice2" }, /* KEY_CHOICE2 */
 	{ kvalid_choice3, "choice3" }, /* KEY_CHOICE3 */
-	{ kvalid_choice4, "choice4" }, /* KEY_CHOICE4 */
+	{ NULL, "choice4a" }, /* KEY_CHOICE4A */
+	{ NULL, "choice4b" }, /* KEY_CHOICE4B */
+	{ NULL, "choice5a" }, /* KEY_CHOICE5A */
+	{ NULL, "choice5b" }, /* KEY_CHOICE5B */
+	{ kvalid_choice6, "choice6" }, /* KEY_CHOICE6 */
 	{ kvalid_int, "gid" }, /* KEY_GAMEID */
 	{ kvalid_stringne, "hitId" }, /* KEY_HITID */
 	{ kvalid_stringne, "ident" }, /* KEY_IDENTIFIER */
@@ -477,12 +485,12 @@ senddoloadgame(const struct game *game, int64_t round, void *arg)
 }
 
 static int
-kvalid_choice4(struct kpair *kp)
+kvalid_choice6(struct kpair *kp)
 {
 
 	if ( ! kvalid_uint(kp))
 		return(0);
-	return(30 == kp->parsed.i);
+	return(2 == kp->parsed.i);
 }
 
 static int
@@ -491,7 +499,7 @@ kvalid_choice3(struct kpair *kp)
 
 	if ( ! kvalid_uint(kp))
 		return(0);
-	return(6 == kp->parsed.i);
+	return(2 == kp->parsed.i);
 }
 
 static int
@@ -500,7 +508,7 @@ kvalid_choice2(struct kpair *kp)
 
 	if ( ! kvalid_uint(kp))
 		return(0);
-	return(0 == kp->parsed.i);
+	return(4 == kp->parsed.i);
 }
 
 static int
@@ -509,7 +517,7 @@ kvalid_choice1(struct kpair *kp)
 
 	if ( ! kvalid_uint(kp))
 		return(0);
-	return(3 == kp->parsed.i);
+	return(1 == kp->parsed.i);
 }
 
 static int
@@ -546,7 +554,11 @@ senddoanswer(struct kreq *r, int64_t id)
 		ok = NULL != r->fieldmap[KEY_CHOICE3];
 		break;
 	case (4):
-		ok = NULL != r->fieldmap[KEY_CHOICE4];
+	case (5):
+		ok = 1;
+		break;
+	case (6):
+		ok = NULL != r->fieldmap[KEY_CHOICE6];
 		break;
 	default:
 		ok = 0;
