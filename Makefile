@@ -82,6 +82,7 @@ SRCS	 = Makefile \
 	   playerhome.in.html \
 	   playerhome.in.js \
 	   playerlobby.in.html \
+	   playerlobby.in.js \
 	   playerlogin.in.html \
 	   privacy.in.html
 BUILT	 = adminhome.js \
@@ -90,6 +91,7 @@ BUILT	 = adminhome.js \
 	   playerautoadd.html \
 	   playerautoadd.js \
 	   playerlobby.html \
+	   playerlobby.js \
 	   playerhome.html \
 	   playerhome.js \
 	   playerlogin.html \
@@ -174,7 +176,7 @@ index.html: index.xml $(VERSIONS)
 	sblg -t index.xml -o- $(VERSIONS) | \
 		sed "s!@VERSION@!$(VERSION)!g" >$@
 
-adminhome.js playerautoadd.js playerhome.js: jsmin
+adminhome.js playerautoadd.js playerlobby.js playerhome.js: jsmin
 
 .in.js.js:
 	rm -f $@

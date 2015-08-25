@@ -125,6 +125,7 @@ static int kvalid_choice1(struct kpair *);
 static int kvalid_choice2(struct kpair *);
 static int kvalid_choice3(struct kpair *);
 static int kvalid_choice6(struct kpair *);
+static int kvalid_rational(struct kpair *);
 
 static const struct kvalid keys[KEY__MAX] = {
 	{ kvalid_stringne, "answer0" }, /* KEY_ANSWER0 */
@@ -134,10 +135,10 @@ static const struct kvalid keys[KEY__MAX] = {
 	{ kvalid_choice1, "choice1" }, /* KEY_CHOICE1 */
 	{ kvalid_choice2, "choice2" }, /* KEY_CHOICE2 */
 	{ kvalid_choice3, "choice3" }, /* KEY_CHOICE3 */
-	{ NULL, "choice4a" }, /* KEY_CHOICE4A */
-	{ NULL, "choice4b" }, /* KEY_CHOICE4B */
-	{ NULL, "choice5a" }, /* KEY_CHOICE5A */
-	{ NULL, "choice5b" }, /* KEY_CHOICE5B */
+	{ kvalid_rational, "choice4a" }, /* KEY_CHOICE4A */
+	{ kvalid_rational, "choice4b" }, /* KEY_CHOICE4B */
+	{ kvalid_rational, "choice5a" }, /* KEY_CHOICE5A */
+	{ kvalid_rational, "choice5b" }, /* KEY_CHOICE5B */
 	{ kvalid_choice6, "choice6" }, /* KEY_CHOICE6 */
 	{ kvalid_int, "gid" }, /* KEY_GAMEID */
 	{ kvalid_stringne, "hitId" }, /* KEY_HITID */
@@ -494,12 +495,27 @@ kvalid_choice6(struct kpair *kp)
 }
 
 static int
+kvalid_rational(struct kpair *kp)
+{
+	mpq_t	 mpq;
+	int	 rc;
+
+	if (0 == kp->valsz)
+		return(1);
+
+	mpq_init(mpq);
+	if ((rc = mpq_str2mpqu(kp->val, mpq)))
+		mpq_clear(mpq);
+	return(rc);
+}
+
+static int
 kvalid_choice3(struct kpair *kp)
 {
 
 	if ( ! kvalid_uint(kp))
 		return(0);
-	return(2 == kp->parsed.i);
+	return(0 == kp->parsed.i);
 }
 
 static int
@@ -534,6 +550,8 @@ senddoanswer(struct kreq *r, int64_t id)
 {
 	int	 ok;
 	int64_t	 rank;
+	mpq_t	 one, sum, v1, v2;
+	size_t	 c1, c2;
 
 	if (NULL == r->fieldmap[KEY_ANSWERID]) {
 		http_open(r, KHTTP_400);
@@ -558,8 +576,37 @@ senddoanswer(struct kreq *r, int64_t id)
 		ok = NULL != r->fieldmap[KEY_CHOICE3];
 		break;
 	case (4):
+		/* FALLTHROUGH */
 	case (5):
-		ok = 1;
+		c1 = 4 == rank ? KEY_CHOICE4A : KEY_CHOICE5A;
+		c2 = 4 == rank ? KEY_CHOICE4B : KEY_CHOICE5B;
+		ok = NULL != r->fieldmap[c1] &&
+		     NULL != r->fieldmap[c2];
+		if ( ! ok)
+			break;
+		if (5 == rank) {
+			ok = r->fieldmap[c1]->valsz &&
+			     r->fieldmap[c2]->valsz;
+			if ( ! ok)
+				break;
+		}
+		mpq_init(one);
+		mpq_init(sum);
+		mpq_init(v1);
+		mpq_init(v2);
+		if (r->fieldmap[c1]->valsz)
+			mpq_str2mpqu(r->fieldmap[c1]->val, v1);
+		if (r->fieldmap[c2]->valsz)
+			mpq_str2mpqu(r->fieldmap[c2]->val, v2);
+		mpq_summation(sum, v1);
+		mpq_summation(sum, v2);
+		mpq_set_ui(one, 1, 1);
+		mpq_canonicalize(one);
+		ok = mpq_equal(one, sum);
+		mpq_clear(sum);
+		mpq_clear(one);
+		mpq_clear(v1);
+		mpq_clear(v2);
 		break;
 	case (6):
 		ok = NULL != r->fieldmap[KEY_CHOICE6];

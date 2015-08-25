@@ -1,4 +1,5 @@
 body				{ background-color: #eee; }
+article				{ padding: 3em 30% 1em 30%; }
 #top img			{ height: 42pt; 
 				  margin-bottom: -2pt; }
 #top				{ text-align: right; 
@@ -45,6 +46,7 @@ div.payoffs > div.hover .pair	{ box-shadow: 2px 2px 2px #000; }
 div.payoffs > div .pair		{ background-color: #ddd; }
 div.payoffs > div.active .pair	{ background-color: #fff; 
 				  box-shadow: 1px 1px 1px #444; }
+.standalone			{ margin: 1em; }
 .poffs 				{ display: table;
 				  border-spacing: 1em 0;
 				  padding: 1em;
@@ -53,7 +55,13 @@ div.payoffs > div.active .pair	{ background-color: #fff;
 .poffs > * > *			{ display: table-cell; 
 				  vertical-align: middle; }
 section section .error >*	{ padding: 1em 1em 0 1em; }
+em				{ font-style: normal;
+				  font-weight: bold; }
+@media only screen and (max-width: 1028px), only screen and (max-device-width: 1028px) {
+article				{ padding: 3em 20% 1em 20%; }
+}
 @media only screen and (max-width: 480px), only screen and (max-device-width: 480px) {
+article				{ padding: 1em 4% 1em 4%; }
 #top				{ text-align: center; 
 				  padding: 1ex; }
 }

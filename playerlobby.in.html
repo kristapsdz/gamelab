@@ -3,127 +3,12 @@
 	<head>
 		<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
 		<meta charset="utf-8" /> 
-		<title>Gamelab | Participant Login</title>
+		<title>Gamelab | Participant Lobby</title>
 		<link rel="stylesheet" href="@HTURI@/style.css" type="text/css" />
 		<link rel="stylesheet" href="@HTURI@/playerlobby.css" type="text/css" />
 		<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" rel="stylesheet" />
 		<script src="@HTURI@/script.js"></script>
-		<script>
-			var ques = 0;
-
-			function doError(err) 
-			{
-
-				console.log('moop');
-				doValue('questionSubmit' + ques, 'Submit');
-				doUnhide('questionerror' + ques);
-			}
-
-			function doSuccess() 
-			{
-
-				doValue('questionSubmit' + ques, 'Success!  Reloading...');
-				window.location.reload(true);
-			}
-
-			function doSetup() 
-			{
-				doHide('questionerror' + ques);
-				doValue('questionSubmit' + ques, 'Submitting...');
-			}
-
-			function doInitSuccess(resp)
-			{
-				var res;
-
-				try  { 
-					res = JSON.parse(resp);
-				} catch (error) {
-					return;
-				}
-
-				doUnhide('ploaded');
-				doHide('ploading');
-
-				ques = res.answered;
-
-				if (res.questionnaire && res.answered < 7) {
-					doHide('main');
-					doUnhide('questionnaire');
-					doUnhide('question' + res.answered);
-				} else {
-					doUnhide('main');
-					doHide('questionnaire');
-				}
-			}
-
-			function doInitFailure()
-			{
-
-				location.href = '@HTURI@/playerlogin.html';
-			}
-
-			function doInitSetup()
-			{
-
-				doHide('ploaded');
-				doUnhide('ploading');
-			}
-
-			function prowOut(source, id)
-			{
-				var e;
-
-				if (null != (e = document.getElementById('index' + id))) {
-					if (e.hasAttribute('disabled'))
-						return;
-					source.classList.remove('hover');
-					e.parentNode.classList.remove('ihover');
-				}
-			}
-
-			function prowOver(source, id)
-			{
-				var e;
-
-				if (null != (e = document.getElementById('index' + id))) {
-					if (e.hasAttribute('disabled'))
-						return;
-					source.classList.add('hover');
-					e.parentNode.classList.add('ihover');
-				}
-			}
-
-			function prowClick(source, id)
-			{
-				var e;
-
-				if (null == (e = document.getElementById('index' + id)))
-					return;
-
-				if (e.hasAttribute('disabled'))
-					return;
-
-				if (e.hasAttribute('readonly')) {
-					source.classList.add('active');
-					e.value = '0';
-					e.removeAttribute('readonly');
-					e.select();
-					e.parentNode.classList.add('iactive');
-				} else {
-					source.classList.remove('active');
-					e.value = '';
-					e.setAttribute('readonly', 'readonly');
-					e.parentNode.classList.remove('iactive');
-				}
-
-				if (source.classList.contains('hover'))
-					source.classList.remove('hover');
-				if (e.parentNode.classList.contains('ihover'))
-					e.parentNode.classList.remove('ihover');
-			}
-
-		</script>
+		<script src="@HTURI@/playerlobby.js"></script>
 	</head>
 	<body onload="sendQuery('@LABURI@/doloadquestions.json', doInitSetup, doInitSuccess, doInitFailure);">
 		<article>
@@ -148,19 +33,27 @@
 							</p>
 						</div>
 						<div id="questionnaire">
-							<p>
-								Before playing, you must answer some questions.
-							</p>
-							<p>
-								In this HIT you will use this web page to play a number of games. Before being
-								able to play you have to read through some short instructions and will be asked
-								to answer a few questions to make sure you understand. You can read these
-								instructions again once you have answered all questions.
-							</p>
-							<p>
-								Since you can earn a substantial amount as a bonus payment in addition to the
-								HIT completion fee it is important that you read the instructions carefully.
-							</p>
+							<section id="question-1" class="noshow">
+								<p>
+									Before playing, you must answer some questions.
+								</p>
+								<p>
+									In this HIT you will use this web page to play a number of games. Before being
+									able to play you have to read through some short instructions and will be asked
+									to answer a few questions to make sure you understand. You can read these
+									instructions again once you have answered all questions.
+								</p>
+								<p>
+									Since you can earn a substantial amount as a bonus payment in addition to the
+									HIT completion fee it is important that you read the instructions carefully.
+								</p>
+								<div class="standalone">
+									<div class="input input-submit">
+										<i class="fa fa-fw fa-check"></i>
+										<button onclick="startQuestions();">Start</button>
+									</div>
+								</div>
+							</section>
 							<section id="question0" class="noshow">
 								<p class="error noshow" id="questionerror0">
 									Answer incorrect.
@@ -212,6 +105,17 @@
 										</div>
 									</fieldset>
 								</form>
+							</section>
+							<section id="question0-correct" class="noshow">
+								<p>
+									That's right!
+								</p>
+								<div class="standalone">
+									<div class="input input-submit">
+										<i class="fa fa-fw fa-check"></i>
+										<button onclick="window.location.reload();">Next Question</button>
+									</div>
+								</div>
 							</section>
 							<section id="question1" class="noshow">
 								<p class="error noshow" id="questionerror1">
@@ -284,6 +188,17 @@
 									</fieldset>
 								</form>
 							</section>
+							<section id="question1-correct" class="noshow">
+								<p>
+									That's right!
+								</p>
+								<div class="standalone">
+									<div class="input input-submit">
+										<i class="fa fa-fw fa-check"></i>
+										<button onclick="window.location.reload();">Next Question</button>
+									</div>
+								</div>
+							</section>
 							<section id="question2" class="noshow">
 								<p class="error noshow" id="questionerror2">
 									Answer incorrect.
@@ -351,6 +266,18 @@
 										</div>
 									</fieldset>
 								</form>
+							</section>
+							<section id="question2-correct" class="noshow">
+								<p>
+									That's right!
+									In order to know what your payoff, is it is necessary to know how the column players played.
+								</p>
+								<div class="standalone">
+									<div class="input input-submit">
+										<i class="fa fa-fw fa-check"></i>
+										<button onclick="window.location.reload();">Next Question</button>
+									</div>
+								</div>
 							</section>
 							<section id="question3" class="noshow">
 								<p class="error noshow" id="questionerror3">
@@ -423,6 +350,18 @@
 									</fieldset>
 								</form>
 							</section>
+							<section id="question3-correct" class="noshow">
+								<p>
+									That’s right! 1/2 of the payoffs from row <em>a</em> and column A is 0.5, and 1/2 of
+									the payoffs from row <em>b</em> and column A is 2.5. Together that's 3.
+								</p>
+								<div class="standalone">
+									<div class="input input-submit">
+										<i class="fa fa-fw fa-check"></i>
+										<button onclick="window.location.reload();">Next Question</button>
+									</div>
+								</div>
+							</section>
 							<section id="question4" class="noshow">
 								<p class="error noshow" id="questionerror4">
 									Answer incorrect.
@@ -483,6 +422,14 @@
 									</fieldset>
 								</form>
 							</section>
+							<section id="question4-correct" class="noshow">
+								<div class="standalone">
+									<div class="input input-submit">
+										<i class="fa fa-fw fa-check"></i>
+										<button onclick="window.location.reload();">Go to next game</button>
+									</div>
+								</div>
+							</section>
 							<section id="question5" class="noshow">
 								<p class="error noshow" id="questionerror5">
 									Answer incorrect.
@@ -496,7 +443,7 @@
 									proceed to the next game.
 								</p>
 								<p>
-									Try playing both row a &amp; b in the game below, you can assign them
+									Try playing both row <em>a</em> &amp; <em>b</em> in the game below, you can assign them
 									any weight you want.
 								</p>
 								<div class="payoffs" style="max-width: 20em;">
@@ -546,6 +493,14 @@
 									</div>
 								</fieldset>
 								</form>
+							</section>
+							<section id="question5-correct" class="noshow">
+								<div class="standalone">
+									<div class="input input-submit">
+										<i class="fa fa-fw fa-check"></i>
+										<button onclick="window.location.reload();">Go to next game</button>
+									</div>
+								</div>
 							</section>
 							<section id="question6" class="noshow">
 								<p class="error noshow" id="questionerror6">
@@ -602,6 +557,17 @@
 									</fieldset>
 								</form>
 							</section>
+							<section id="question6-correct" class="noshow">
+								<p>
+									That’s right. 30 points times $1/point is $30.
+								</p>
+								<div class="standalone">
+									<div class="input input-submit">
+										<i class="fa fa-fw fa-check"></i>
+										<button onclick="window.location.reload();">Next Question</button>
+									</div>
+								</div>
+							</section>
 							<section id="question7" class="noshow">
 								<p class="error noshow" id="questionerror7">
 									Answer incorrect.
@@ -649,6 +615,22 @@
 										</div>
 									</fieldset>
 								</form>
+							</section>
+							<section id="question7-correct" class="noshow">
+								<p>
+									Great! That’s the end of the instructions. You can go through them again
+									at any time by clicking the <q>Instructions</q> tab in the menu.
+								</p>
+								<p>
+									Click <q>Start playing</q> to begin, there might be a short wait before your
+									first round.
+								</p>
+								<div class="standalone">
+									<div class="input input-submit">
+										<i class="fa fa-fw fa-check"></i>
+										<button onclick="window.location.reload();">Start Playing</button>
+									</div>
+								</div>
 							</section>
 						</div>
 					</section>
