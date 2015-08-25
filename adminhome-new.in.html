@@ -26,9 +26,7 @@
 				To deploy an experiment, complete the form below.
 				Use the on-line <a href="http://www.kcons.eu/gamelab/manual.html">manual</a> for help.
 				Good luck!
-				To start an experiment, you must set the <q>Mail Server</q>, <q>Games</q>, <q>Players</q>, and <q>Experiment
-					Parameters</q>.
-				The rest are optional (but recommended).
+				To start an experiment, you need only set <q>Games</q> and <q>Experiment Parameters</q>.
 			</p>
 			<section>
 				<section class="rolled" id="changePassSection">
@@ -264,9 +262,6 @@
 					<div>
 						Add players to the game using this form.
 						Players consist of e-mail addresses separated by white-space (newlines, tabs, spaces, whatever).
-						If you set the <q>Allow Captive Players</q> toggle, then players may add themselves.
-						Captive players will not be e-mailed when the experiment is started, nor will they be remembered
-						when the experiment is wiped.
 					</div>
 					<form action="@ADMINURI@/doaddplayers.json" method="post" id="addPlayers" onsubmit="return(addNewPlayers(this));">
 						<fieldset>
@@ -274,6 +269,20 @@
 								<i class="fa fa-fw fa-users"></i>
 								<textarea name="players" placeholder="Space-separated player e-mail addresses..."></textarea>
 							</div>
+							<div class="input input-submit">
+								<i class="fa fa-fw fa-check"></i>
+								<input id="addPlayersSubmit" type="submit" value="Submit" />
+							</div>
+						</fieldset>
+					</form>
+					<div>
+						If you set the <q>Allow Captive Players</q> toggle, then players may add themselves.
+						Mechanical Turk players may be similarly enabled.
+						Captive players will not be e-mailed when the experiment is started, nor will they be remembered
+						when the experiment is wiped.
+					</div>
+					<form action="@ADMINURI@/doaddplayers.json" method="post" id="addPlayers2" onsubmit="return(addNewPlayers2(this));">
+						<fieldset>
 							<div class="input input-check">
 								<i onclick="toggler('autoadd', 'autoaddToggle');" id="autoaddToggle" class="fa fa-fw fa-toggle-off"></i>
 								<span onclick="toggler('autoadd', 'autoaddToggle');">Allow captive players</span>
@@ -288,7 +297,7 @@
 							</div>
 							<div class="input input-submit">
 								<i class="fa fa-fw fa-check"></i>
-								<input id="addPlayersSubmit" type="submit" value="Submit" />
+								<input id="addPlayersSubmit2" type="submit" value="Submit" />
 							</div>
 							<input type="hidden" id="autoadd" name="autoadd" value="0" />
 							<input type="hidden" id="mturk" name="mturk" value="0" />

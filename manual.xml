@@ -109,20 +109,21 @@
 				<section id="participants">
 					<h3>Participants</h3>
 					<p>
-						Experiment participants are identified by an e-mail address, or in <q>captive</q> configurations
-						(wherein participants register on-the-spot), by an opaque identifier.
+						Experiment participants are identified by an e-mail address, 
+						an opaque identifier in <q>captive</q> configurations, or a worker identifier in Mechanical Turk
+						configurations.
 						Your game can have as many participants as the server (or the experimenter!) can handle.
 						In general, the more the merrier.
-						You can even have participants join after the experiment has begun.
+						If you wish, participants can also join after the experiment has begun.
 					</p>
 					<p>
-						Participants are assigned by the experimenter or assign themselves in a captive configuration:
-						the experimenter chooses which (or a combination of both) during experiment preparation.
-						In the former case, participants are e-mailed a password and login credentials when the
+						Participants are assigned by the experimenter or assign themselves in a captive or Mechanical
+						Turk configuration.
+						In the first case, participants are e-mailed a password and login credentials when the
 						experimenter begins the experiment.
-						If assigned after the experiment has started, the experimenter must manually mail passwords.
+						(If no e-mail server has been configured, they are not e-mailed.)
 						These participants can log in and log out over the course of the experiment.
-						In the latter case, participants are not e-mailed, and are assumed to be <q>captive</q> for the
+						In the latter cases, participants are not e-mailed, and are assumed to be <q>captive</q> for the
 						duration of the experiment.
 					</p>
 					<p>

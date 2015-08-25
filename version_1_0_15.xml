@@ -1,0 +1,16 @@
+<article data-sblg-article="1" data-sblg-tags="version">
+	<header>
+		<h1>1.0.15</h1>
+		<address>Kristaps Dzonsons</address>
+		<time datetime="2015-08-25">2015-08-25</time>
+	</header>
+	<aside>
+		<p>
+			Continue polishing questions so that they have a <q>success</q> post-question phase, the game-choice boxes are properly
+			checked, and some minor formatting issues managed.
+			Also lift the restriction that administrator e-mail information must be set.
+			If it's not, players simply are not e-mailed.
+			This is reflected in the administrator instructions.
+		</p>
+	</aside>
+</article>

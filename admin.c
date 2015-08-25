@@ -1053,15 +1053,11 @@ senddostartexpr(struct kreq *r)
 {
 	pid_t		 pid;
 	char		*loginuri, *uri, *map;
-	struct smtp	*smtp;
 	const char	*instdat;
 	enum instrs	 inst;
 	int		 fd;
 	struct stat	 st;
 	size_t		 sz;
-
-	smtp = db_smtp_get();
-	db_smtp_free(smtp);
 
 	if (kpairbad(r, KEY_DATE) ||
 	    kpairbad(r, KEY_NOLOTTERY) ||
@@ -1077,7 +1073,6 @@ senddostartexpr(struct kreq *r)
 	    kpairbad(r, KEY_URI) ||
 		r->fieldmap[KEY_DATE]->parsed.i +
 		r->fieldmap[KEY_TIME]->parsed.i <= (int64_t)time(NULL) ||
-		NULL == smtp ||
 		db_game_count_all() < 1) {
 		http_open(r, KHTTP_400);
 		khttp_body(r);

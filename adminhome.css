@@ -68,6 +68,9 @@ h3:hover 			{ background-color: #666; }
 h3 span				{ color: #fff; }
 h3 i:last-child			{ position: absolute;
 				  right: 0.5ex; }
+#checkGameLoad2 		{ color: red; }
+#checkGameLoad2[class~="fa-check-square-o"]	
+				{ color: green; }
 article				{ background-color: #fff;
 				  padding: 3em 20% 1em 20%; }
 ul				{ list-style-type: none; }

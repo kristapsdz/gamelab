@@ -179,6 +179,7 @@ div.input input[readonly]	{ background-color: #ddd; }
 			  	  height: 200px; 
 				  z-index: 0; }
 #graphFig .legend		{ text-align: center; }
+#graphButtons			{ text-align: center; }
 #graphButtons > *		{ display: inline-block; }
 #graphButtons button		{ font-size: 12pt; 
 				  border: thin solid black;

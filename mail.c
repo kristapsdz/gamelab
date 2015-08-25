@@ -361,12 +361,20 @@ mail_players(const char *uri, const char *loginuri)
 	struct ktemplate   t;
 	int		   rc;
 
-	if (NULL == (curl = mail_init(&m, &t)))
-		return;
+	if (NULL == (curl = mail_init(&m, &t))) 
+		fprintf(stderr, "Attempt to mail players "
+			"without e-mail configuration\n");
 
 	m.uri = uri;
 
 	while (NULL != (m.to = db_player_next_new(&id, &m.pass))) {
+		if (NULL == curl) {
+			db_player_set_mailed(id, m.pass);
+			free(m.to);
+			free(m.pass);
+			continue;
+		}
+
 		assert(NULL != m.pass);
 		encto = kutil_urlencode(m.to);
 		encpass = kutil_urlencode(m.pass);
@@ -396,7 +404,8 @@ mail_players(const char *uri, const char *loginuri)
 		mail_clear(&m, &recpts);
 	}
 
-	mail_free(&m, curl, recpts);
+	if (NULL != curl)
+		mail_free(&m, curl, recpts);
 }
 
 /*
@@ -413,8 +422,11 @@ mail_test(void)
 	struct ktemplate   t;
 	int		   rc;
 
-	if (NULL == (curl = mail_init(&m, &t)))
+	if (NULL == (curl = mail_init(&m, &t))) {
+		fprintf(stderr, "Email test requested "
+			"but email not configured\n");
 		return;
+	}
 
 	m.to = db_admin_get_mail();
 	rc = khttp_templatex(&t, DATADIR 
@@ -440,7 +452,7 @@ out:
 }
 
 static void 
-mail_backupfail(void)
+mail_backupfail(const char *fname)
 {
 	CURL		  *curl;
 	CURLcode 	   res;
@@ -449,8 +461,11 @@ mail_backupfail(void)
 	struct ktemplate   t;
 	int		   rc;
 
-	if (NULL == (curl = mail_init(&m, &t)))
+	if (NULL == (curl = mail_init(&m, &t))) {
+		fprintf(stderr, "%s: Database backup failed "
+			"and not emailed\n", fname);
 		return;
+	}
 
 	m.to = db_admin_get_mail();
 	rc = khttp_templatex(&t, DATADIR 
@@ -502,11 +517,14 @@ mail_backup(void)
 		"%s/backup-%s.db", DATADIR, date);
 
 	if ( ! db_backup(fname)) {
-		mail_backupfail();
+		mail_backupfail(fname);
 		return;
 	} 
 
 	if (NULL == (curl = mail_init(&m, &t))) {
+		fprintf(stderr, "%s/backup-%s.db: Database "
+			"backed up but not emailed\n",
+			DATADIR, date);
 		remove(fname);
 		return;
 	}

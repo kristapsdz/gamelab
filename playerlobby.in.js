@@ -55,6 +55,7 @@ function doInitSuccess(resp)
 	} else {
 		doUnhide('main');
 		doHide('questionnaire');
+		setTimeout(function(){location.href = '@HTURI@/playerhome.html'; }, 10000);
 	}
 }
 

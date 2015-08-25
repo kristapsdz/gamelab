@@ -138,26 +138,28 @@
 						<span>Experiment Control</span>
 					</h3>
 					<div>
-						Control the progress of your experiment here.
-						<strong>Warning</strong>: this may affect the state of your experiment, so be careful!
-						When you <i class="fa fa-database"></i> back up, the database is safely copied on-disc and you're
-						e-mailed a redacted (of identifiable information) copy.
-						When you <i class="fa fa-recycle"></i> wipe, the experiment is backed-up, e-mailed, then its data
-						wiped.
-						(The experiment configuration remains.)
-						To <i class="fa fa-refresh"></i> hard-wipe is the same as wiping, but the experiment is neither
-						backed up nor e-mailed.
-						Lastly, you may <i class="fa fa-arrow-circle-o-right"></i> advance the current round of your
-						experiment.
-						(The current round may not be the round you're reading&#8212;refresh this page to double-check.)
-					</div>
-					<div>
-						First, 
+						Control the progress of your experiment here.  <strong>Warning</strong>: this may affect the
+						state of your experiment, so be careful!  To perform any action, first
 						<span id="wipeExprCheckboxBox">
 							<input id="wipeExprCheckbox" type="checkbox" onclick="checkWipeButton(this);" />
 							<label for="wipeExprCheckbox">verify</label>
 						</span>
 						that you're serious about doing this.
+					</div>
+					<div>
+						Backing up involves creating a redacted copy of the database on disc.  If e-mail has been
+						configured, the back-up is then e-mailed to the administrator.
+					</div>
+					<fieldset>
+						<div class="input input-submit">
+							<i class="fa fa-fw fa-database"></i>
+							<button type="button" id="backupButton" onclick="backup();" disabled="disabled">Backup Experiment</button>
+						</div>
+					</fieldset>
+					<div>
+						When you wipe, the experiment is backed-up, conditionally e-mailed, then its data wiped (though
+						some components, such as the games, remain).  To hard-wipe is the same as wiping, but the
+						experiment is neither backed up nor e-mailed.
 					</div>
 					<fieldset>
 						<div class="input input-submit">
@@ -168,10 +170,12 @@
 							<i class="fa fa-fw fa-refresh"></i>
 							<button type="button" id="wipeCleanExprButton" onclick="wipeCleanExpr();" disabled="disabled">Hard-Wipe Experiment</button>
 						</div>
-						<div class="input input-submit">
-							<i class="fa fa-fw fa-database"></i>
-							<button type="button" id="backupButton" onclick="backup();" disabled="disabled">Backup Experiment</button>
-						</div>
+					</fieldset>
+					<div>
+						Lastly, you may advance the current round of your experiment.  (The current round may not be the
+						round you're reading&#8212;refresh this page to double-check.)
+					</div>
+					<fieldset>
 						<div class="input input-submit">
 							<i class="fa fa-fw fa-arrow-circle-o-right"></i>
 							<button type="button" id="advanceButton" onclick="advanceRound();" disabled="disabled">Advance Round</button>
@@ -210,7 +214,8 @@
 						column role.
 						However, they may also be in the <i class="fa fa-spinner"></i> lobby, in which case they are not
 						yet assigned a role.
-						Players may be <i class="fa fa-thumb-tack"></i> captive.
+						Players also may be <i class="fa fa-thumb-tack"></i> captive or
+						<i class="fa fa-amazon"></i> Mechanical Turk workers.
 					</div>
 					<div>
 						<ul id="loadPlayers">
@@ -234,24 +239,27 @@
 							</fieldset>
 						</form>
 					</div>
+					<div>
+						Reset all players' passwords by clicking the button.
+						This will not contact the players: it will only reset the password.
+						Reconfiguring involves setting the password on newly-added players (and e-mailing them, if a
+						e-mail server has been specified) or players whose prior configuration failed due to a bad
+						e-mail server.
+					</div>
 					<fieldset>
 						<div class="input input-submit">
 							<i class="fa fa-send"></i>
-							<button type="button" id="resetPasswordButton" onclick="resetPasswords();">Reset All Passwords</button>
+							<button type="button" id="resetPasswordButton" onclick="resetPasswords();">Reset passwords</button>
 						</div>
 						<div class="input input-submit">
 							<i class="fa fa-send"></i>
-							<button type="button" id="recheckSmtpButton" onclick="reTestSmtp();">Resend Error Mails</button>
+							<button type="button" id="recheckSmtpButton" onclick="reTestSmtp();">Reconfigure</button>
 						</div>
 					</fieldset>
 					<div>
 						Add players to the game using this form.
 						Players consist of e-mail addresses separated by white-space (newlines, tabs, spaces, whatever).
-						If you set the <q>Allow Captive Players</q> toggle, then players may add themselves.
-						Captive players will not be e-mailed when the experiment is started, nor will they be remembered
-						when the experiment is wiped.
-						When you're finished adding all players, click <q>Resend Error Mails</q> to make sure they've
-						been e-mailed their passwords.
+						When you're finished adding all players, you must reconfigure.
 					</div>
 					<form action="@ADMINURI@/doaddplayers.json" method="post" id="addPlayers" onsubmit="return(addPlayers(this));">
 						<fieldset>
@@ -259,6 +267,19 @@
 								<i class="fa fa-fw fa-users"></i>
 								<textarea name="players" placeholder="Space-separated player e-mail addresses..."></textarea>
 							</div>
+							<div class="input input-submit">
+								<i class="fa fa-fw fa-check"></i>
+								<input id="addPlayersSubmit" type="submit" value="Submit" />
+							</div>
+						</fieldset>
+					</form>
+					<div>
+						If you set the <q>Allow Captive Players</q> toggle, then players may add themselves.
+						Captive players will not be e-mailed when the experiment is started, nor will they be remembered
+						when the experiment is wiped.
+					</div>
+					<form action="@ADMINURI@/doaddplayers.json" method="post" id="addPlayers2" onsubmit="return(addPlayers2(this));">
+						<fieldset>
 							<div class="input input-check">
 								<i onclick="toggler('autoadd', 'autoaddToggle');" id="autoaddToggle" class="fa fa-fw fa-toggle-off"></i>
 								<span onclick="toggler('autoadd', 'autoaddToggle');">Allow Captive Players</span>
@@ -269,7 +290,7 @@
 							</div>
 							<div class="input input-submit">
 								<i class="fa fa-fw fa-check"></i>
-								<input id="addPlayersSubmit" type="submit" value="Submit" />
+								<input id="addPlayersSubmit2" type="submit" value="Submit" />
 							</div>
 							<input type="hidden" id="autoadd" name="autoadd" value="0" />
 							<input type="hidden" id="mturk" name="mturk" value="0" />

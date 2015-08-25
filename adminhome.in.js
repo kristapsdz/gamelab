@@ -193,10 +193,10 @@ function doShowPlayer(name)
 
 	switch (parseInt(e.getAttribute('data-gamelab-status'))) {
 	case (0):
-		doClearReplace('playerInfoStatus', 'not e-mailed');
+		doClearReplace('playerInfoStatus', 'not configured');
 		break;
 	case (1):
-		doClearReplace('playerInfoStatus', 'e-mailed');
+		doClearReplace('playerInfoStatus', 'configured');
 		break;
 	case (2):
 		doClearReplace('playerInfoStatus', 'logged in');
@@ -895,6 +895,15 @@ function addGame(form)
 		function() { doSuccess('addGameSubmit', 'addGame'); loadNewGames(); }));
 }
 
+function addNewPlayers2(form)
+{
+
+	return(sendForm(form, 
+		function() { doSetup('addPlayersSubmit2', null); },
+		function(err) { doError(err, 'addPlayersSubmit2', null); },
+		function () { doSuccess('addPlayersSubmit2', 'addPlayers2'); loadNewPlayers(); }));
+}
+
 function addNewPlayers(form)
 {
 
@@ -904,12 +913,21 @@ function addNewPlayers(form)
 		function () { doSuccess('addPlayersSubmit', 'addPlayers'); loadNewPlayers(); }));
 }
 
+function addPlayers2(form)
+{
+
+	return(sendForm(form, 
+		function() { doSetup('addPlayersSubmit2', null); },
+		function(err) { doError(err, 'addPlayersSubmit2', null); },
+		function () { doSuccess('addPlayersSubmit2', 'addPlayers2'); loadPlayers(); }));
+}
+
 function addPlayers(form)
 {
 
 	return(sendForm(form, 
 		function() { doSetup('addPlayersSubmit', null); },
-		function(err) { doError(err, 'addPlayersSubmit', 'addPlayersErr'); },
+		function(err) { doError(err, 'addPlayersSubmit', null); },
 		function () { doSuccess('addPlayersSubmit', 'addPlayers'); loadPlayers(); }));
 }
 
