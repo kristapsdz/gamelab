@@ -91,6 +91,7 @@ TAILQ_HEAD(gamerq, gamer);
 struct	game {
 	size_t		 finished; /* how many have finished */
 	int		 verbose; /* verbose operation */
+	int		 compress; /* gzip compression */
 	CURLM		*curl; /* the multi handle */
 	struct stats	 total_rx; /* total read bytes */
 	struct stats	 total_rtt; /* total round-trip time */
@@ -635,6 +636,17 @@ gamer_init(struct gamer *gamer, const char *url, int post)
 			"CURLOPT_URL: %s\n",
 			curl_easy_strerror(cc));
 		return(0);
+	}
+
+	if (gamer->game->compress) {
+		cc = curl_easy_setopt(gamer->conn, 
+			CURLOPT_ENCODING, "");
+		if (CURLE_OK != cc) {
+			fprintf(stderr, "curl_easy_setopt: "
+				"CURLOPT_ENCODING: %s\n",
+				curl_easy_strerror(cc));
+			return(0);
+		}
 	}
 
 	cc = curl_easy_setopt(gamer->conn, 
@@ -1317,6 +1329,8 @@ gamer_phase_register(struct gamer *gamer)
 			gamer->email, gamer->password);
 	if (++gamer->game->registered == gamer->game->players) 
 		printf("All players registered.\n");
+	else if (gamer->game->registered == 2) 
+		printf("Enough players registered for play.\n");
 	return(1);
 }
 
@@ -1400,8 +1414,11 @@ main(int argc, char *argv[])
 	game.players = 2;
 	TAILQ_INIT(&game.waiting);
 
-	while (-1 != (c = getopt(argc, argv, "ern:vw:W:"))) 
+	while (-1 != (c = getopt(argc, argv, "cern:vw:W:"))) 
 		switch (c) {
+		case ('c'):
+			game.compress = 1;
+			break;
 		case ('e'):
 			game.equal = 1;
 			break;
@@ -1813,7 +1830,7 @@ out:
 	return(rc ? EXIT_SUCCESS : EXIT_FAILURE);
 usage:
 	fprintf(stderr, "usage: %s "
-		"[-erv] "
+		"[-cerv] "
 		"[-n players] "
 		"[-w [time|min:max]] "
 		"[-W max] "

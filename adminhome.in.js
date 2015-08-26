@@ -179,24 +179,29 @@ function doShowPlayer(name)
 
 	if (null == (e = document.getElementById(name)))
 		return;
-	if ( ! e.hasAttribute('data-gamelab-status'))
-		return;
-	if ( ! e.hasAttribute('data-gamelab-mail'))
-		return;
-	if ( ! e.hasAttribute('data-gamelab-enabled'))
-		return;
-	if ( ! e.hasAttribute('data-gamelab-playerid'))
+	if ( ! e.hasAttribute('data-gamelab-status') ||
+	     ! e.hasAttribute('data-gamelab-mail') ||
+	     ! e.hasAttribute('data-gamelab-enabled') ||
+	     ! e.hasAttribute('data-gamelab-hitid') ||
+	     ! e.hasAttribute('data-gamelab-joined') ||
+	     ! e.hasAttribute('data-gamelab-answer') ||
+	     ! e.hasAttribute('data-gamelab-playerid'))
 		return;
 
 	doValue('playerInfoId', e.getAttribute('data-gamelab-playerid'));
-	doClearReplace('playerInfoEmail', e.getAttribute('data-gamelab-mail'));
+	doClearReplace('playerInfoEmail', 
+		e.getAttribute('data-gamelab-mail'));
+	doClearReplace('playerInfoJoined', 
+		e.getAttribute('data-gamelab-joined'));
+	doClearReplace('playerInfoAnswer', 
+		e.getAttribute('data-gamelab-answer'));
 
 	switch (parseInt(e.getAttribute('data-gamelab-status'))) {
 	case (0):
 		doClearReplace('playerInfoStatus', 'not configured');
 		break;
 	case (1):
-		doClearReplace('playerInfoStatus', 'configured');
+		doClearReplace('playerInfoStatus', 'not logged in');
 		break;
 	case (2):
 		doClearReplace('playerInfoStatus', 'logged in');
@@ -240,6 +245,8 @@ function loadPlayersSuccess(resp)
 	checkToggle('autoaddToggle', 'autoadd', results.autoadd);
 	checkToggle('mturkToggle', 'mturk', results.mturk);
 
+	doPlayerGraph(doClear('playerExprGraph'), results);
+
 	players = results.players;
 
 	/* We have no players... */
@@ -264,6 +271,9 @@ function loadPlayersSuccess(resp)
 		span.setAttribute('data-gamelab-mail', player.mail);
 		span.setAttribute('data-gamelab-enabled', player.enabled);
 		span.setAttribute('data-gamelab-playerid', player.id);
+		span.setAttribute('data-gamelab-answer', player.answer);
+		span.setAttribute('data-gamelab-hitid', player.hitid);
+		span.setAttribute('data-gamelab-joined', player.joined);
 
 		/*
 		 * Append the toggle-able link for enabling or disable
@@ -309,7 +319,6 @@ function loadPlayersSuccess(resp)
 			span.appendChild(icon);
 		}
 		if (null != player.hitid) {
-		console.log('hitid = ' + player.hitid);
 			icon = document.createElement('i');
 			icon.className = 'fa fa-amazon';
 			span.appendChild(document.createTextNode(' '));
@@ -545,29 +554,75 @@ function doStatHighest(e, res)
 	}
 }
 
+/*
+ * Graph the number of current players.
+ * This will graph the existing and historical player counts, then
+ * project that into the future based on the projected number of rounds
+ * per player after joining.
+ */
+function doPlayerGraph(e, res)
+{
+	var data, datas, i, j, p, max;
+
+	data = [];
+	for (i = 0; i < res.players.length; i++) {
+		p = res.players[i].player;
+		if (p.joined < 0)
+			continue;
+		/* 
+		 * This is inefficient: just top up the number of
+		 * projected rounds incrementally.
+		 */
+		for (j = 0; j < res.prounds; j++) {
+			while (p.joined + j >= data.length)
+				data.push(0);
+			data[p.joined + j]++;
+		}
+	}
+
+	/* Convert into point format. */
+	datas = [];
+	datas.push([0, 0]);
+	max = 0;
+	for (i = 0; i < data.length; i++)  {
+		datas.push([i + 1, data[i]]);
+		if (data[i] > max)
+			max = data[i];
+	}
+	datas.push([i + 1, 0]);
+
+	Flotr.draw(e, [ { data: datas }, {data: [[res.round + 1, 0], [res.round + 1, max]]} ], 
+		{ grid: { horizontalLines: 1 },
+		  shadowSize: 0,
+		  subtitle: 'Projected Participants',
+		  xaxis: { min: 0, tickDecimals: 0 },
+		  yaxis: { min: 0.0, tickDecimals: 0, autoscaleMargin: 1, autoscale: true },
+		  lines: { show: true },
+		  points: { show: true }});
+}
+
 function doStatGraph(e, res)
 {
-	var datas, data, i, j;
+	var datas, data, j;
 
 	datas = [];
-	for (i = 0; i < res.history.length; i++) {
-		data = [];
-		data.push([0, 0]);
+	data = [];
+	data.push([0, 0]);
+	if (null != res.history) {
 		for (j = 0; j < res.history[0].roundups.length; j++) 
-			data.push([(j + 1), res.history[i].roundups[j].plays]);
+			data.push([(j + 1), res.history[0].roundups[j].plays]);
 		if (res.expr.round < res.expr.rounds)
 			data.push([(j + 1), res.fcol + res.frow]);
-		datas[i] = {
-			data: data,
-			label: 'Game ' + String.fromCharCode(49 + i)
-		};
 	}
+	datas[0] = {
+		data: data,
+	};
 	Flotr.draw(e, datas, 
 		{ grid: { horizontalLines: 1 },
 		  shadowSize: 0,
 		  subtitle: 'Plays',
 		  xaxis: { tickDecimals: 0 },
-		  yaxis: { min: 0.0, tickDecimals: 0 },
+		  yaxis: { min: 0.0, tickDecimals: 0, autoscaleMargin: 1, autoscale: true },
 		  lines: { show: true },
 		  points: { show: true }});
 }
@@ -727,6 +782,7 @@ function loadExprSuccess(resp)
 	expr = res.expr;
 
 	doClearReplace('instr', expr.instr);
+	doStatGraph(doClear('statusExprGraph'), res);
 
 	if (expr.round >= expr.rounds) {
 		doHide('statusExprProg');
@@ -783,7 +839,6 @@ function loadExprSuccess(resp)
 			doHide('statusExprFinishedWin');
 		}
 		doClearReplace('exprCountdown', 'finished');
-		doStatGraph(doClear('statusExprGraph2'), res);
 		doStatHighest(doClear('statusHighest2'), res);
 	}  else if (expr.round < 0) {
 		next = expr.start - Math.floor(new Date().getTime() / 1000);
@@ -833,7 +888,7 @@ function loadExprSuccess(resp)
 		} else
 			doHide('statusExprHasLobby');
 
-		doStatGraph(doClear('statusExprGraph'), res);
+		/*doStatGraph(doClear('statusExprGraph'), res);*/
 		doHide('statusHighestBox');
 		if (expr.round > 0) {
 			doUnhide('statusHighestBox');

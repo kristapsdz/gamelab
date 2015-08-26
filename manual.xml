@@ -46,6 +46,7 @@
 					<li>
 						<a href="#intro">Introduction</a>
 						<ul>
+							<li><a href="#questionnaire">Questionnaire</a></li>
 							<li><a href="#participants">Participants</a></li>
 							<li><a href="#games">Games</a></li>
 							<li><a href="#gameplay">Game-play</a></li>
@@ -76,9 +77,9 @@
 							<li><a href="#firstlogin">First Login</a></li>
 							<li><a href="#firstexperiment">First Experiment</a></li>
 							<li><a href="#runningexperiments">Running Experiments</a></li>
-							<li><a href="#analysingexperiments">Analysing Experiments</a></li>
 						</ul>
 					</li>
+					<li><a href="#analysingexperiments">Analysing Experiments</a></li>
 					<li>
 						<a href="#api">Programmable API</a>
 						<ul>
@@ -106,6 +107,22 @@
 					After the last round, players' points award lottery tickets, and winners are drawn by selecting lottery
 					tickets.
 				</p>
+				<section id="questionnaire">
+					<h3>Questionnaire</h3>
+					<p>
+						The experimenter may stipulate that participants step through a questionnaire before being
+						allowed to play.
+						Specifically, the participants will be able to log in, but will be placed in a <q>lobby</q>
+						where they'll answer questions before beginning.
+						The <q>lobby</q> concept is also used for dynamic participants.
+					</p>
+					<p>
+						The questionnaire is designed to ensure that participants know how to play with minimum bias
+						toward a given configuration.
+						Results are recorded (duration of answering, number of tries, etc.) so experimenters may
+						correlate performance with outcome.
+					</p>
+				</section>
 				<section id="participants">
 					<h3>Participants</h3>
 					<p>
@@ -127,7 +144,16 @@
 						duration of the experiment.
 					</p>
 					<p>
-						When the experiment begins, participants are randomly assigned a player role per game.
+						Participants may be added (or add themselves) before an experiment begins, so the participation
+						is static; or be added (or add themselves) both before and after the experiment has begun.
+						In this dynamic case, experimenters can limit the number of simultaneous participants, allowing
+						for a constant flow of participants joining and leaving the system as the experiment progresses.
+						Participants that have logged in but cannot yet play due to the concurrent-participant limit are
+						placed in a <q>lobby</q> until they join the experiment.
+					</p>
+					<p>
+						When the experiment begins or when participants otherwise join, participants are randomly
+						assigned a player role per game.
 						This defines whether the participant plays as the row or column player.
 						Experiments always have an equal assignment of row and column players unless the total number of
 						players is odd, in which case the extra player is assigned a random role.
@@ -184,6 +210,9 @@
 						the participant role's average mixture.
 						Moreover, it includes the participant's accumulation of points, points per round, and the
 						hypothetical points per round of playing pure strategies.
+						Experimenters may also provide a <q>seed</q> history that is prepended to the actual history of
+						play. 
+						This allows the results of prior experiments to be incorporated into the current one.
 					</p>
 				</section>
 				<section id="lottery">
@@ -197,6 +226,7 @@
 					</p>
 					<p>
 						The experimenter may then trigger the lottery from the administration console.
+						(Experiments may also run without a lobby.)
 						This consists of seeding a deterministic random number generator with a given value.
 						Each of these values is mapped into the lottery tickets to choose a winner.
 						A participant is only chosen once for winning: if the random number re-selects a participant,
@@ -229,6 +259,12 @@
 						The JavaScript used by <span class="nm">gamelab</span> is fairly recent, so it's unlikely that
 						older browser will work properly.
 						Check that your browser supports <code>ClassList</code> and <code>FormData</code>.
+					</p>
+					<p>
+						Graphs play a significant role in <span class="nm">gamelab</span>.
+						The interface includes a local copy of <a
+							href="http://www.humblesoftware.com/flotr2/">flotr2</a> for drawing line and bar graphs.
+						These graphs will display properly on any modern web browser.
 					</p>
 					<p>
 						The user interface also makes use of cookies to store your session materials.
@@ -335,8 +371,8 @@
 					</p>
 					<p>
 						Note that several newer web servers only work with FastCGI scripts.
-						<span class="nm">Gamelab</span> does not run under FastCGI (yet), so you'll need to install the
-						appropriate proxy for a CGI script.
+						<span class="nm">Gamelab</span> does run under FastCGI, but the interface is still under
+						development.
 					</p>
 				</section>
 				<section id="dependencies">
@@ -501,11 +537,13 @@
 						<dt><span class="file">adminhome.js</span></dt>
 						<dt><span class="file">adminlogin.html</span></dt>
 						<dt><span class="file">playerautoadd.html</span></dt>
+						<dt><span class="file">playerautoadd.js</span></dt>
 						<dt><span class="file">playerhome.css</span></dt>
 						<dt><span class="file">playerhome.js</span></dt>
 						<dt><span class="file">playerhome.html</span></dt>
 						<dt><span class="file">playerlobby.css</span></dt>
 						<dt><span class="file">playerlobby.html</span></dt>
+						<dt><span class="file">playerlobby.js</span></dt>
 						<dt><span class="file">playerlogin.html</span></dt>
 						<dt><span class="file">privacy.html</span></dt>
 						<dt><span class="file">style.css</span></dt>
@@ -798,618 +836,618 @@
 						Note that captive players are not retained if the database is wiped.
 					</p>
 				</section>
-				<section id="analysingexperiments">
-					<h3>Analysing Experiments</h3>
-					<p>
-						At this time, <span class="nm">gamelab</span> doesn't have any special functionality for
-						analysing played (or in-flight) experiments.
-						You can, however, directly access the <a href="http://sqlite.org">SQLite</a> game database by
-						backing up on the administrative console.
-						This will e-mail a redacted database to the administrator.
-						The redacted bits consist of user and administrator e-mail passwords.
-					</p>
-					<p>
-						The database schema is fairly straightforward.
-						It consists of the following tables.
-						In all of these, note that <q>Unique Identifier</q> fields are non-zero SQLite <q>rowid</q> fields.
-						Rational numbers are stored as text, such as <var>1/2</var> or just <var>2</var>, starting with
-						<var>0/1</var>.
-					</p>
-					<dl>
-						<dt id="db-winner"><code>winner</code></dt>
-						<dd>
-							<p>
-								The <code>winner</code> table consists of rows corresponding to a player and her
-								winner status.
-								This table does not exist until the <a
-									href="db-experiment-status"><var>status</var></a> field of the <a
-									href="#db-experiment"><code>experiment</code></a> is set to
-								<var>3</var>.
-								This table is deleted when the database is wiped.
-							</p>
-							<dl>
-								<dt id="db-winner-playerid"><var>playerid</var></dt>
-								<dd>A foreign key reference to the <a href="#db-player"><code>player</code></a> table.</dd>
-								<dt id="db-winner-winner"><var>winner</var></dt>
-								<dd>
-									Boolean value as to whether the player is a winner.
-									If this is <var>false</var>, then the <a
-										href="#db-winner-winrank"><var>winrank</var></a> and
-									<a href="#db-winner-rnum"><var>rnum</var></a> columns are undefined.
-								</dd>
-								<dt id="db-winner-winrank"><var>winrank</var></dt>
-								<dd>If the player is a winner, the rank (first, second, third draw...) of their winning.</dd>
-								<dt id="db-winner-rnum"><var>rnum</var></dt>
-								<dd>
-									The random number modulo the total number of tickts used for this winning draw.
-									In other words, this is the winning lottery ticket.
-								</dd>
-								<dt id="db-winner-id"><var>id</var></dt>
-								<dd>Unique identifier.</dd>
-							</dl>
-						</dd>
-						<dt id="db-player"><code>player</code></dt>
-						<dd>
-							<p>
-								The central <code>player</code> table consists of all participants.
-								The <a href="#db-player-hash"><var>hash</var></a> variable is redacted when the
-								experiment is wiped.
-							</p>
-							<dl>
-								<dt id="db-player-answer"><var>answer</var></dt>
-								<dd>
-									If the questionnaire facility has been enabled (via the <a
-										href="#db-experiment"><code>experiment</code></a> <a
-										href="#db-experiment-questionnaire"><var>questionnaire</var></a>),
-									this is non-zero if the questionnaire has been answered.
-								</dd>
-								<dt id="db-player-autoadd"><var>autoadd</var></dt>
-								<dd>
-									Player was auto-added (i.e., auto-added herself).
-									These players are never e-mailed.
-								</dd>
-								<dt id="db-player-email"><var>email</var></dt>
-								<dd>
-									Player e-mail address or identifier, in the event of a captive player.  
-									This is unique in the set of all players.
-								</dd>
-								<dt id="db-player-enabled"><var>enabled</var></dt>
-								<dd>
-									Whether a player is allowed to login during an experiment.
-								</dd>
-								<dt id="db-player-finalrank"><var>finalrank</var></dt>
-								<dd>
-									The minimum of the slot of the player's tickets among all players' tickets.
-									For example, given 100 players with roughly 10 tickets each, this might
-									be <var>543</var> to indicate that slot <var>543</var> to <var>543</var>
-									plus <a href="#db-player-finalscore"><var>finalscore</var></a> are this
-									player's slots in the lottery.
-								</dd>
-								<dt id="db-player-finalscore"><var>finalscore</var></dt>
-								<dd>
-									Set to the accumulated payoffs from the <a
-										href="#db-lottery"><code>lottery</code></a> <a
-										href="#db-lottery-aggrpayoff"><var>aggrpayoff</var></a>
-									rounded up to the nearest integer.
-								</dd>
-								<dt id="db-player-hash"><var>hash</var></dt>
-								<dd>
-									The player's password set when the experiment is started (i.e., when the <a
-										href="#db-experiment"><code>experiment</code></a> <a
-										href="#db-experiment-state"><var>state</var></a> is &gt;0) or
-									when reset, or when a captive player registeres. 
-									<strong>Note</strong>: this is stored in the clear: it is not a hash.
-								</dd>
-								<dt id="db-player-hitid"><var>hitid</var></dt>
-								<dd>
-									If the player joined from Mechanical Turk, the HIT identifier.
-									Otherwise set to the empty string.
-								</dd>
-								<dt id="db-player-id"><var>id</var></dt>
-								<dd>
-									Unique identifier.
-								</dd>
-								<dt id="db-player-instr"><var>instr</var></dt>
-								<dd>
-									Whether the player should be shown instructions when she logs in (versus
-									being taken directly to the game-play tab).
-								</dd>
-								<dt id="db-player-questionnaire"><var>questionnaire</var></dt>
-								<dd>
-									The number of questions the player has entered, if applicable.
-									See <a href="#db-experiment-questionnaire"><var>questionnaire</var></a>.
-								</dd>
-								<dt id="db-player-rseed"><var>rseed</var></dt>
-								<dd>
-									A non-zero cryptographically random number given to the player when created.
-								</dd>
-								<dt id="db-player-role"><var>role</var></dt>
-								<dd>
-									The player role (<var>0</var> for row player, <var>1</var> for column
-									player) set when the <a
-										href="#db-experiment"><code>experiment</code></a> <a
-										href="#db-experiment-state"><var>state</var></a> is
-									&gt;0 or when the player joins.
-								</dd>
-								<dt id="db-player-state"><var>state</var></dt>
-								<dd>
-									The state of a player can be <var>0</var>, meaning the player is
-									newly-added and has no password; <var>1</var> when the player has been
-									mailed her password; <var>2</var>, the player has logged in; and
-									<var>3</var>, an error occured when the password e-mail was attempted.
-								</dd>
-								<dt id="db-player-version"><var>version</var></dt>
-								<dd>
-									A number from zero that indicates the number of time the player field
-									has been updated.
-									This is used to make the player object cachable.
-								</dd>
-							</dl>
-						</dd>
-						<dt id="db-lottery"><code>lottery</code></dt>
-						<dd>
-							<p>
-								A lottery is created for an individual <a
-									href="#db-player"><code>player</code></a> when that player has been
-								granted <a href="#db-payoff"><code>payoff</code></a> for all <a
-									href="#db-game"><code>game</code></a> rows in a round.
-							</p>
-							<dl>
-								<dt id="db-lottery-aggrpayoff"><var>aggrpayoff</var></dt>
-								<dd>
-									The player's aggregate payoff (as a rational number) computing by adding
-									the previous round's aggregate payoff to the current <a
-										href="#db-lottery-curpayoff"><var>curpayoff</var></a>.
-								</dd>
-								<dt id="db-lottery-aggrtickets"><var>aggrtickets</var></dt>
-								<dd>
-									The value of <a href="#db-lottery-aggrpayoff"><var>aggrpayoff</var></a>
-									represented as a natural number of tickets.
-								</dd>
-								<dt id="db-lottery-curpayoff"><var>curpayoff</var></dt>
-								<dd>The player's current payoff (as a rational number) computing by accumulating
-									her <a href="#db-payoff"><code>payoff</code></a> <a
-										href="#db-payoff-payoff"><var>payoff</var></a> for all
-									games in the experiment.
-									This is set to <var>0/1</var> if the player has not played all
-									games.</dd>
-								<dt id="db-lottery-id"><var>id</var></dt>
-								<dd>Unique identifier.</dd>
-								<dt id="db-lottery-playerid"><var>playerid</var></dt>
-								<dd>A foreign key reference to the <a href="#db-player"><code>player</code></a>
-									<a href="#db-player-id"><var>id</var></a>.</dd>
-								<dt id="db-lottery-round"><var>round</var></dt>
-								<dd>The round number (starting at zero).</dd>
-							</dl>
-						</dd>
-						<dt id="db-gameplay"><code>gameplay</code></dt>
-						<dd>
-							<p>
-								During a given round, this records a <a
-									href="#db-player"><code>player</code></a>'s status in terms of number of
-								<a href="#db-choice"><code>choice</code></a> rows (plays) made.
-							</p>
-							<dl>
-								<dt id="db-gameplay-round"><var>round</var></dt>
-								<dd>The round number (starting at zero).</dd>
-								<dt id="db-gameplay-choices"><var>choices</var></dt>
-								<dd>The number of games this player has played, i.e., the count of <a
-										href="#db-choice"><code>choice</code></a> rows.</dd>
-								<dt id="db-gameplay-playerid"><var>playerid</var></dt>
-								<dd>A foreign key reference to the <a href="#db-player"><code>player</code></a>
-									<a href="#db-player-id"><var>id</var></a>. When this equals the number
-									of games, the player has played all games for a round.</dd>
-								<dt id="db-gameplay-id"><var>id</var></dt>
-								<dd>Unique identifier.</dd>
-							</dl>
-						</dd>
-						<dt id="db-payoff"><code>payoff</code></dt>
-						<dd>
-							<p>
-								When the given round has completed, this consists of the payoff of the player's
-								<a href="#db-choice"><code>choice</code></a> strategy mix for a given <a
-									href="#db-game"><code>game</code></a> when played against the average
-								strategy of the opposing player role.
-							</p>
-							<dl>
-								<dt id="db-payoff-round"><var>round</var></dt>
-								<dd>The round number (starting at zero).</dd>
-								<dt id="db-payoff-playerid"><var>playerid</var></dt>
-								<dd>A foreign key reference to the <a href="#db-player"><code>player</code></a>
-									<a href="#db-player-id"><var>id</var></a>. When this equals the number
-									of games, the player has played all games for a round.</dd>
-								<dt id="db-payoff-gameid"><var>gameid</var></dt>
-								<dd>A foreign key reference to the <a href="#db-game"><code>game</code></a>
-									<a href="#db-game-id"><var>id</var></a>.</dd>
-								<dt id="db-payoff-payoff"><var>payoff</var></dt>
-								<dd>A rational number of the payoff.</dd>
-								<dt id="db-payoff-id"><var>id</var></dt>
-								<dd>Unique identifier.</dd>
-							</dl>
-						</dd>
-						<dt id="db-choice"><code>choice</code></dt>
-						<dd>
-							<p>
-								A strategy mixture created when a <a href="#db-player"><code>player</code></a>
-								plays a round in a <a href="#db-game"><code>game</code></a>.
-							</p>
-							<dl>
-								<dt id="db-choice-round"><var>round</var></dt>
-								<dd>
-									The round number (starting at zero).
-								</dd>
-								<dt id="db-choice-sessid"><var>sessid</var></dt>
-								<dd>
-									The <a href="#db-sess"><code>sess</code></a> used when submitting this choice mixture.
-								</dd>
-								<dt id="db-choice-created"><var>created</var></dt>
-								<dd>
-									The epoch timestamp when this choice was made.
-								</dd>
-								<dt id="db-choice-strats"><var>strats</var></dt>
-								<dd>
-									A text (space-separated) list of rational numbers of the strategy mixture
-									ordered from the top if a row-playing <a
-										href="#db-player-role"><var>role</var></a> or left if a
-									column-player.
-								</dd>
-								<dt id="db-choice-stratsz"><var>stratsz</var></dt>
-								<dd>
-									Number of entries in <a href="#db-choice-strats"><var>strats</var></a>.
-									This obviously equals the number of strategies available to the player
-									in that <a href="#db-game"><code>game</code></a>, given the player <a
-										href="#db-player-role"><var>role</var></a>.
-								</dd>
-								<dt id="db-choice-playerid"><var>playerid</var></dt>
-								<dd>
-									A foreign key reference to the <a href="#db-player"><code>player</code></a>
-									<a href="#db-player-id"><var>id</var></a>.
-								</dd>
-								<dt id="db-choice-gameid"><var>gameid</var></dt>
-								<dd>
-									A foreign key reference to the <a href="#db-game"><code>game</code></a>
-									<a href="#db-game-id"><var>id</var></a>.
-								</dd>
-								<dt id="db-choice-id"><var>id</var></dt>
-								<dd>Unique identifier.</dd>
-							</dl>
-						</dd>
-						<dt id="db-experiment"><code>experiment</code></dt>
-						<dd>
-							<p>
-								This describes an experiment configured by the experimenter.
-								There is always one (and only one) row in this table.
-								It is initialised to default values.
-							</p>
-							<dl>
-								<dt id="db-experiment-autoadd"><var>autoadd</var></dt>
-								<dd>The experiment is currently accepting (or did accept) auto-added players.</dd>
-								<dt id="db-experiment-autoaddpreserve"><var>autoaddpreserve</var></dt>
-								<dd>
-									Preserve the <a href="#db-experiment-autoadd"><var>autoadd</var></a> bit
-									during and after the experiment start.
-									This is useful for rolling experiments so as not to have a break between
-									starting the experiment and reenabling captive mode.
-								</dd>
-								<dt id="db-experiment-end"><var>end</var></dt>
-								<dd>An epoch-encoded (seconds) time and date when the experiment when the last
-									round of the experiment concludes.  This also corresponds to the
-									starting time plus the number of rounds times round duration.</dd>
-								<dt id="db-experiment-id"><var>id</var></dt>
-								<dd>Unique identifier.</dd>
-								<dt id="db-experiment-instr"><var>instr</var></dt>
-								<dd>The instructions shown to players.  This must contain valid HTML5.  It may
-									contain <code>@@gamelab-admin-email@@</code>, which is filled in with
-									the experimenter's configured e-mail address;
-									<code>@@gamelab-games@@</code> for the number of games;
-									<code>@@gamelab-rounds@@</code> for the number of rounds; and
-									<code>@@gamelab-round-time@@</code>, a decimal number of the number of
-									hours per round.</dd>
-								<dt id="db-experiment-loginuri"><var>loginuri</var></dt>
-								<dd>Set when the experiment begins (i.e., when <a
-										href="#db-experiment-state"><var>state</var></a> &gt;0), this is
-									the URL given to players in their initial e-mail for when they log in.
-									This is suffixed by
-									<code>?ident=EMAIL&amp;password=PASSWORD</code>.</dd>
-								<dt id="db-experiment-minutes"><var>minutes</var></dt>
-								<dd>The number of minutes per round.  Minimum of one.</dd>
-								<dt id="db-experiment-nolottery"><var>nolottery</var></dt>
-								<dd>
-									If non-zero, do not show the lottery facility to players or the
-									administrator.
-								</dd>
-								<dt id="db-experiment-playermax"><var>playermax</var></dt>
-								<dd>
-									The maximum number of players per player role at any given time.
-									If zero, the number of players is unbound.
-								</dd>
-								<dt id="db-experiment-prounds"><var>prounds</var></dt>
-								<dd>
-									The number of rounds playable by each player.
-									If zero, players will play until the end of the experiment.
-									If &gt;0, players will not be allowed to play more than the given number
-									of rounds within the experiment.
-								</dd>
-								<dt id="db-experiment-questionnaire"><var>questionnaire</var></dt>
-								<dd>
-									If non-zero, new players are not directly assigned a join round and must
-									use the lobby facility.
-									There, they will be asked questions and cannot proceed until all
-									questions have been answered.
-								</dd>
-								<dt id="db-experiment-round"><var>round</var></dt>
-								<dd>
-									The current round of the experiment, or -1 if the rounds have not begun incrementing.
-									This will be set to <a
-										href="#db-experiment-rounds"><var>rounds</var></a> when the
-									experiment concludes.
-								</dd>
-								<dt id="db-experiment-roundbegan"><var>roundbegan</var></dt>
-								<dd>
-									If <a href="#db-experiment-round"><var>round</var></a> is non-negative,
-									then the timestamp (epoch) when the round was incremented.
-									Otherwise, this is zero.
-								</dd>
-								<dt id="db-experiment-roundmin"><var>roundmin</var></dt>
-								<dd>
-									If <a href="#db-experiment-roundpct"><var>roundpct</var></a> is
-									non-zero, this is the <q>grace time</q> (in minutes) before which the
-									round will automatically advance giving the percentage.
-								</dd>
-								<dt id="db-experiment-roundpct"><var>roundpct</var></dt>
-								<dd>
-									If &gt;0, this represents the fraction of players per role who play all
-									games and determine that the round automatically advances.
-									In other words, if set to 0.5 (50%), then from both player roles, if 50%
-									or more players have played all games, the round advances in advance of
-									the set round termination time.
-								</dd>
-								<dt id="db-experiment-rounds"><var>rounds</var></dt>
-								<dd>The number of rounds that will be played.  Minimum of one.</dd>
-								<dt id="db-experiment-start"><var>start</var></dt>
-								<dd>An epoch-encoded (seconds) time and date when the experiment when the first
-									round of the experiment begins.</dd>
-								<dt id="db-experiment-state"><var>state</var></dt>
-								<dd>The running state of the experiment, being either <var>0</var>, for new
-									(still in the configuration stage); <var>1</var>, for started (players
-									can log in, though the experiment itself may not be accepting plays
-									yet); <var>2</var>, where the experiment has expired, but the winner has
-									not been chosen by the experimenter; or <var>3</var>, where the
-									experiment has expired and the winner has been chosen.</dd>
-								<dt id="db-experiment-total"><var>total</var></dt>
-								<dd>When the experiment finishes (i.e., when <a
-										href="#db-experiment-state"><var>state</var></a> is set to 2),
-									this is filled in with the total number of lottery tickets (the <a
-										href="#db-player-finalscore"><var>finalscore</var></a>) awarded to
-									all players.</dd>
-							</dl>
-						</dd>
-						<dt id="db-game"><code>game</code></dt>
-						<dd>
-							<p>
-								A game is a payoff bimatrix configured by the experimenter.
-								There may be any non-zero number of games in a running experiment.
-							</p>
-							<dl>
-								<dt id="db-game-p1"><var>p1</var></dt>
-								<dd>The number of strategies for the row player.</dd>
-								<dt id="db-game-p2"><var>p2</var></dt>
-								<dd>The number of strategies for the column player.</dd>
-								<dt id="db-game-payoffs"><var>payoffs</var></dt>
-								<dd>A list of payoffs from the top-left to the bottom-right of the payoff
-									matrix, ordered row-player payoff, column-player payoff.
-									See <a href="#firstexperiment">First Experiment</a> configuration for
-									more.</dd>
-								<dt id="db-game-name"><var>name</var></dt>
-								<dd>The name of the experiment.  This is shown only to the experimenter.</dd>
-								<dt id="db-game-id"><var>id</var></dt>
-								<dd>Unique identifier.</dd>
-							</dl>
-						</dd>
-						<dt id="db-sess"><code>sess</code></dt>
-						<dd>
-							<p>
-								A session.
-								Sessions are the usual browser session used when players (or the experimenter)
-								are interacting with the system.
-							</p>
-							<dl>
-								<dt id="db-sess-created"><var>created</var></dt>
-								<dd>
-									An epoch timestamp of when the session was originally created.
-								</dd>
-								<dt id="db-sess-cookie"><var>cookie</var></dt>
-								<dd>
-									A cryptographically random cookie assigned to each session.
-									This is used as a security feature so that people can't guess others'
-									session identifiers and re-use them.
-									When a session has expired or the user is logged out, this is set to
-									zero.
-									(Session entries are never deleted.)
-								</dd>
-								<dt id="db-sess-playerid"><var>playerid</var></dt>
-								<dd>
-									A foreign key reference to the <a
-										href="#db-player"><code>player</code></a> <a
-										href="#db-player-id"><var>id</var></a>.
-									For experimenter logins, this value is <var>null</var>.
-								</dd>
-								<dt id="db-sess-useragent"><var>useragent</var></dt>
-								<dd>
-									The user-agent as reported by the player's (or administrator's) browser.
-									Remember: these are easy to fake, so they shouldn't be taken as
-									authoritative, but suggestive.
-									Also note that this is set when the player first creates the session
-									(cookie), and may not reflect later plays.
-									(But usually does.)
-								</dd>
-								<dt id="db-sess-id"><var>id</var></dt>
-								<dd>Unique identifier.</dd>
-							</dl>
-						</dd>
-						<dt id="db-admin"><code>admin</code></dt>
-						<dd>
-							<p>
-								Administrator (a.k.a. experimenter) credentials.
-								There is always one (and only one) row that exists, initialised to default
-								values.
-							</p>
-							<dl>
-								<dt id="db-admin-email"><var>email</var></dt>
-								<dd>The experimenter e-mail address.  This is used as a predefined template
-									value for the instructions.  It is also used as the destination for
-									backups of the database.  Initialises to <code>foo@example.com</code>.</dd>
-								<dt id="db-admin-hash"><var>hash</var></dt>
-								<dd>The experimenter password.  <strong>Note</strong>: this is stored as
-									cleartext, so it is not really a hash (yet).  Initialises to
-									<code>xyzzy</code>.</dd>
-								<dt id="db-admin-isset"><var>isset</var></dt>
-								<dd>
-									Bit-field on whether the email and hash have been set by the user.
-									Contains 0x01 if the e-mail has been set, 0x02 for the password.
-								</dd>
-								<dt id="db-admin-id"><var>id</var></dt>
-								<dd>Unique identifier.</dd>
-							</dl>
-						</dd>
-						<dt id="db-past"><code>past</code></dt>
-						<dd>
-							<p>
-								Records the average strategy mixture of a given player role for a given round
-								and <a href="#db-game"><code>game</code></a> when a round has concluded.
-							</p>
-							<dl>
-								<dt id="db-past-averagesp1"><var>averagesp1</var></dt>
-								<dd>
-									For the row player, the accumulated weighted average strategy mixture of
-									all
-									previous rounds, with previous rounds being exponentially decayed.  That
-									is, the <a href="#db-past-currentsp1"><var>currentsp1</var></a> plus
-									half of the last round's weighted average and so on.
-									If a round does not have enough plays by either player role to produce
-									payoffs, it is omitted from the accumulation sequence.
-									This is recorded as a space-separated sequence of rational numbers, one
-									per strategy.
-								</dd>
-								<dt id="db-past-averagesp2"><var>averagesp2</var></dt>
-								<dd>
-									Like <a href="#db-past-averagesp1"><var>averagesp1</var></a> but for the
-									column player.
-								</dd>
-								<dt id="db-past-currentsp1"><var>currentsp1</var></dt>
-								<dd>
-									For the row player, the average strategy mixture of the current round.
-									Strategy mixtures are only considered for <a
-										href="#db-choice"><code>choice</code></a> rows where the <a
-										href="#db-player"><code>player</code></a> played all games
-									for the round, so this will be a set of zeroes if no players completed
-									all games.
-									This is recorded as a space-separated sequence of rational numbers, one
-									per strategy.
-								</dd>
-								<dt id="db-past-currentsp2"><var>currentsp2</var></dt>
-								<dd>
-									Like <a href="#db-past-currentsp1"><var>currentsp1</var></a> but for the
-									column player.
-								</dd>
-								<dt id="db-past-gameid"><var>gameid</var></dt>
-								<dd>
-									A foreign key reference to the <a href="#db-game"><code>game</code></a>
-									<a href="#db-game-id"><var>id</var></a>.
-								</dd>
-								<dt id="db-past-id"><var>id</var></dt>
-								<dd>
-									Unique identifier.
-								</dd>
-								<dt id="db-past-plays"><var>plays</var></dt>
-								<dd>
-									The total number of plays that were submitted (over all games) in this
-									round if and only if the player submitted for all games in that round.
-								</dd>
-								<dt id="db-past-round"><var>round</var></dt>
-								<dd>
-									The round starting at zero.
-								</dd>
-								<dt id="db-past-roundcount"><var>roundcount</var></dt>
-								<dd>
-									The accumulated count of rounds not skipping, i.e., the count of zero-valued
-									<a href="#db-past-skip"><var>skip</var></a> rounds.  This is used for
-									computing the accumulated weighted average, which is really the sum of
-									all (non-zero) weighted previous rounds divided by the exponential
-									sum.
-								</dd>
-								<dt id="db-past-skip"><var>skip</var></dt>
-								<dd>
-									If zero row or column players played all games, this is set to
-									<var>1</var>, else it is <var>0</var> (sufficient players played).
-								</dd>
-							</dl>
-						</dd>
-						<dt id="db-questionnaire"><code>questionnaire</code></dt>
-						<dd>
-							<p>
-								The questionnaire is an optional set of questions given to each player.
-								These players must submit a set number of correct answers before joining the game.
+			</section>
+			<section id="analysingexperiments">
+				<h2>Analysing Experiments</h2>
+				<p>
+					At this time, <span class="nm">gamelab</span> doesn't have any special functionality for
+					analysing played (or in-flight) experiments.
+					You can, however, directly access the <a href="http://sqlite.org">SQLite</a> game database by
+					backing up on the administrative console.
+					This will e-mail a redacted database to the administrator.
+					The redacted bits consist of user and administrator e-mail passwords.
+				</p>
+				<p>
+					The database schema is fairly straightforward.
+					It consists of the following tables.
+					In all of these, note that <q>Unique Identifier</q> fields are non-zero SQLite <q>rowid</q> fields.
+					Rational numbers are stored as text, such as <var>1/2</var> or just <var>2</var>, starting with
+					<var>0/1</var>.
+				</p>
+				<dl>
+					<dt id="db-winner"><code>winner</code></dt>
+					<dd>
+						<p>
+							The <code>winner</code> table consists of rows corresponding to a player and her
+							winner status.
+							This table does not exist until the <a
+								href="db-experiment-status"><var>status</var></a> field of the <a
+								href="#db-experiment"><code>experiment</code></a> is set to
+							<var>3</var>.
+							This table is deleted when the database is wiped.
+						</p>
+						<dl>
+							<dt id="db-winner-playerid"><var>playerid</var></dt>
+							<dd>A foreign key reference to the <a href="#db-player"><code>player</code></a> table.</dd>
+							<dt id="db-winner-winner"><var>winner</var></dt>
+							<dd>
+								Boolean value as to whether the player is a winner.
+								If this is <var>false</var>, then the <a
+									href="#db-winner-winrank"><var>winrank</var></a> and
+								<a href="#db-winner-rnum"><var>rnum</var></a> columns are undefined.
+							</dd>
+							<dt id="db-winner-winrank"><var>winrank</var></dt>
+							<dd>If the player is a winner, the rank (first, second, third draw...) of their winning.</dd>
+							<dt id="db-winner-rnum"><var>rnum</var></dt>
+							<dd>
+								The random number modulo the total number of tickts used for this winning draw.
+								In other words, this is the winning lottery ticket.
+							</dd>
+							<dt id="db-winner-id"><var>id</var></dt>
+							<dd>Unique identifier.</dd>
+						</dl>
+					</dd>
+					<dt id="db-player"><code>player</code></dt>
+					<dd>
+						<p>
+							The central <code>player</code> table consists of all participants.
+							The <a href="#db-player-hash"><var>hash</var></a> variable is redacted when the
+							experiment is wiped.
+						</p>
+						<dl>
+							<dt id="db-player-answer"><var>answer</var></dt>
+							<dd>
+								If the questionnaire facility has been enabled (via the <a
+									href="#db-experiment"><code>experiment</code></a> <a
+									href="#db-experiment-questionnaire"><var>questionnaire</var></a>),
+								this is non-zero if the questionnaire has been answered.
+							</dd>
+							<dt id="db-player-autoadd"><var>autoadd</var></dt>
+							<dd>
+								Player was auto-added (i.e., auto-added herself).
+								These players are never e-mailed.
+							</dd>
+							<dt id="db-player-email"><var>email</var></dt>
+							<dd>
+								Player e-mail address or identifier, in the event of a captive player.  
+								This is unique in the set of all players.
+							</dd>
+							<dt id="db-player-enabled"><var>enabled</var></dt>
+							<dd>
+								Whether a player is allowed to login during an experiment.
+							</dd>
+							<dt id="db-player-finalrank"><var>finalrank</var></dt>
+							<dd>
+								The minimum of the slot of the player's tickets among all players' tickets.
+								For example, given 100 players with roughly 10 tickets each, this might
+								be <var>543</var> to indicate that slot <var>543</var> to <var>543</var>
+								plus <a href="#db-player-finalscore"><var>finalscore</var></a> are this
+								player's slots in the lottery.
+							</dd>
+							<dt id="db-player-finalscore"><var>finalscore</var></dt>
+							<dd>
+								Set to the accumulated payoffs from the <a
+									href="#db-lottery"><code>lottery</code></a> <a
+									href="#db-lottery-aggrpayoff"><var>aggrpayoff</var></a>
+								rounded up to the nearest integer.
+							</dd>
+							<dt id="db-player-hash"><var>hash</var></dt>
+							<dd>
+								The player's password set when the experiment is started (i.e., when the <a
+									href="#db-experiment"><code>experiment</code></a> <a
+									href="#db-experiment-state"><var>state</var></a> is &gt;0) or
+								when reset, or when a captive player registeres. 
+								<strong>Note</strong>: this is stored in the clear: it is not a hash.
+							</dd>
+							<dt id="db-player-hitid"><var>hitid</var></dt>
+							<dd>
+								If the player joined from Mechanical Turk, the HIT identifier.
+								Otherwise set to the empty string.
+							</dd>
+							<dt id="db-player-id"><var>id</var></dt>
+							<dd>
+								Unique identifier.
+							</dd>
+							<dt id="db-player-instr"><var>instr</var></dt>
+							<dd>
+								Whether the player should be shown instructions when she logs in (versus
+								being taken directly to the game-play tab).
+							</dd>
+							<dt id="db-player-questionnaire"><var>questionnaire</var></dt>
+							<dd>
+								The number of questions the player has entered, if applicable.
 								See <a href="#db-experiment-questionnaire"><var>questionnaire</var></a>.
-								These rows are unique per player-rank.
-							</p>
-							<dl>
-								<dt id="db-questionnaire-first"><var>first</var></dt>
-								<dd>
-									The epoch time when the row is created.
-								</dd>
-								<dt id="db-questionnaire-id"><var>id</var></dt>
-								<dd>
-									Unique identifier.
-								</dd>
-								<dt id="db-questionnaire-playerid"><var>playerid</var></dt>
-								<dd>
-									The associated <a href="#db-player"><code>player</code></a>.
-								</dd>
-								<dt id="db-questionnaire-rank"><var>rank</var></dt>
-								<dd>
-									The question number starting at zero.
-								</dd>
-								<dt id="db-questionnaire-tries"><var>tries</var></dt>
-								<dd>
-									The number of tries, correct or not.
-									This is zero only in the race after initially creating the row and
-									noting an attempt.
-								</dd>
-							</dl>
-						</dd>
-						<dt id="db-smtp"><code>smtp</code></dt>
-						<dd>
-							<p>
-								This consists of the SMTP server information used in sending e-mails.
-								There is always only one row set, which defaults to empty values (see <a
-									href="#db-smtp-isset"><var>isset</var></a>).
-							</p>
-							<dl>
-								<dt id="db-smtp-user"><var>user</var></dt>
-								<dd>The SMTP server username (used for logging in).</dd>
-								<dt id="db-smtp-email"><var>email</var></dt>
-								<dd>The e-mail address used as the <q>From</q> address in all communication from
-									the server to players and the experimenter.
-									It is usually the same as the experimenter <a
-										href="#db-admin-email"><var>email</var></a> set in the <a
-										href="#db-admin"><code>admin</code></a> table, but may be set as
-									a standard <q>No-Reply</q>. (This is discouraged, as your players should
-									be able to reply to you if things go wrong.)
-								<dt id="db-smtp-pass"><var>pass</var></dt>
-								<dd>The SMTP username's password (used for logging in).  <strong>Note</strong>
-									that this is stored in cleartext, so make sure that your password isn't
-									used elsewhere.</dd>
-								<dt id="db-smtp-server"><var>server</var></dt>
-								<dd>The SMTP server in <code>smtp://server:port</code> format.</dd>
-								<dt id="db-smtp-isset"><var>isset</var></dt>
-								<dd>Whether these entries have been set.</dd>
-								<dt id="db-smtp-id"><var>id</var></dt>
-								<dd>Unique identifier.</dd>
-							</dl>
-						</dd>
-					</dl>
-				</section>
+							</dd>
+							<dt id="db-player-rseed"><var>rseed</var></dt>
+							<dd>
+								A non-zero cryptographically random number given to the player when created.
+							</dd>
+							<dt id="db-player-role"><var>role</var></dt>
+							<dd>
+								The player role (<var>0</var> for row player, <var>1</var> for column
+								player) set when the <a
+									href="#db-experiment"><code>experiment</code></a> <a
+									href="#db-experiment-state"><var>state</var></a> is
+								&gt;0 or when the player joins.
+							</dd>
+							<dt id="db-player-state"><var>state</var></dt>
+							<dd>
+								The state of a player can be <var>0</var>, meaning the player is
+								newly-added and has no password; <var>1</var> when the player has been
+								mailed her password; <var>2</var>, the player has logged in; and
+								<var>3</var>, an error occured when the password e-mail was attempted.
+							</dd>
+							<dt id="db-player-version"><var>version</var></dt>
+							<dd>
+								A number from zero that indicates the number of time the player field
+								has been updated.
+								This is used to make the player object cachable.
+							</dd>
+						</dl>
+					</dd>
+					<dt id="db-lottery"><code>lottery</code></dt>
+					<dd>
+						<p>
+							A lottery is created for an individual <a
+								href="#db-player"><code>player</code></a> when that player has been
+							granted <a href="#db-payoff"><code>payoff</code></a> for all <a
+								href="#db-game"><code>game</code></a> rows in a round.
+						</p>
+						<dl>
+							<dt id="db-lottery-aggrpayoff"><var>aggrpayoff</var></dt>
+							<dd>
+								The player's aggregate payoff (as a rational number) computing by adding
+								the previous round's aggregate payoff to the current <a
+									href="#db-lottery-curpayoff"><var>curpayoff</var></a>.
+							</dd>
+							<dt id="db-lottery-aggrtickets"><var>aggrtickets</var></dt>
+							<dd>
+								The value of <a href="#db-lottery-aggrpayoff"><var>aggrpayoff</var></a>
+								represented as a natural number of tickets.
+							</dd>
+							<dt id="db-lottery-curpayoff"><var>curpayoff</var></dt>
+							<dd>The player's current payoff (as a rational number) computing by accumulating
+								her <a href="#db-payoff"><code>payoff</code></a> <a
+									href="#db-payoff-payoff"><var>payoff</var></a> for all
+								games in the experiment.
+								This is set to <var>0/1</var> if the player has not played all
+								games.</dd>
+							<dt id="db-lottery-id"><var>id</var></dt>
+							<dd>Unique identifier.</dd>
+							<dt id="db-lottery-playerid"><var>playerid</var></dt>
+							<dd>A foreign key reference to the <a href="#db-player"><code>player</code></a>
+								<a href="#db-player-id"><var>id</var></a>.</dd>
+							<dt id="db-lottery-round"><var>round</var></dt>
+							<dd>The round number (starting at zero).</dd>
+						</dl>
+					</dd>
+					<dt id="db-gameplay"><code>gameplay</code></dt>
+					<dd>
+						<p>
+							During a given round, this records a <a
+								href="#db-player"><code>player</code></a>'s status in terms of number of
+							<a href="#db-choice"><code>choice</code></a> rows (plays) made.
+						</p>
+						<dl>
+							<dt id="db-gameplay-round"><var>round</var></dt>
+							<dd>The round number (starting at zero).</dd>
+							<dt id="db-gameplay-choices"><var>choices</var></dt>
+							<dd>The number of games this player has played, i.e., the count of <a
+									href="#db-choice"><code>choice</code></a> rows.</dd>
+							<dt id="db-gameplay-playerid"><var>playerid</var></dt>
+							<dd>A foreign key reference to the <a href="#db-player"><code>player</code></a>
+								<a href="#db-player-id"><var>id</var></a>. When this equals the number
+								of games, the player has played all games for a round.</dd>
+							<dt id="db-gameplay-id"><var>id</var></dt>
+							<dd>Unique identifier.</dd>
+						</dl>
+					</dd>
+					<dt id="db-payoff"><code>payoff</code></dt>
+					<dd>
+						<p>
+							When the given round has completed, this consists of the payoff of the player's
+							<a href="#db-choice"><code>choice</code></a> strategy mix for a given <a
+								href="#db-game"><code>game</code></a> when played against the average
+							strategy of the opposing player role.
+						</p>
+						<dl>
+							<dt id="db-payoff-round"><var>round</var></dt>
+							<dd>The round number (starting at zero).</dd>
+							<dt id="db-payoff-playerid"><var>playerid</var></dt>
+							<dd>A foreign key reference to the <a href="#db-player"><code>player</code></a>
+								<a href="#db-player-id"><var>id</var></a>. When this equals the number
+								of games, the player has played all games for a round.</dd>
+							<dt id="db-payoff-gameid"><var>gameid</var></dt>
+							<dd>A foreign key reference to the <a href="#db-game"><code>game</code></a>
+								<a href="#db-game-id"><var>id</var></a>.</dd>
+							<dt id="db-payoff-payoff"><var>payoff</var></dt>
+							<dd>A rational number of the payoff.</dd>
+							<dt id="db-payoff-id"><var>id</var></dt>
+							<dd>Unique identifier.</dd>
+						</dl>
+					</dd>
+					<dt id="db-choice"><code>choice</code></dt>
+					<dd>
+						<p>
+							A strategy mixture created when a <a href="#db-player"><code>player</code></a>
+							plays a round in a <a href="#db-game"><code>game</code></a>.
+						</p>
+						<dl>
+							<dt id="db-choice-round"><var>round</var></dt>
+							<dd>
+								The round number (starting at zero).
+							</dd>
+							<dt id="db-choice-sessid"><var>sessid</var></dt>
+							<dd>
+								The <a href="#db-sess"><code>sess</code></a> used when submitting this choice mixture.
+							</dd>
+							<dt id="db-choice-created"><var>created</var></dt>
+							<dd>
+								The epoch timestamp when this choice was made.
+							</dd>
+							<dt id="db-choice-strats"><var>strats</var></dt>
+							<dd>
+								A text (space-separated) list of rational numbers of the strategy mixture
+								ordered from the top if a row-playing <a
+									href="#db-player-role"><var>role</var></a> or left if a
+								column-player.
+							</dd>
+							<dt id="db-choice-stratsz"><var>stratsz</var></dt>
+							<dd>
+								Number of entries in <a href="#db-choice-strats"><var>strats</var></a>.
+								This obviously equals the number of strategies available to the player
+								in that <a href="#db-game"><code>game</code></a>, given the player <a
+									href="#db-player-role"><var>role</var></a>.
+							</dd>
+							<dt id="db-choice-playerid"><var>playerid</var></dt>
+							<dd>
+								A foreign key reference to the <a href="#db-player"><code>player</code></a>
+								<a href="#db-player-id"><var>id</var></a>.
+							</dd>
+							<dt id="db-choice-gameid"><var>gameid</var></dt>
+							<dd>
+								A foreign key reference to the <a href="#db-game"><code>game</code></a>
+								<a href="#db-game-id"><var>id</var></a>.
+							</dd>
+							<dt id="db-choice-id"><var>id</var></dt>
+							<dd>Unique identifier.</dd>
+						</dl>
+					</dd>
+					<dt id="db-experiment"><code>experiment</code></dt>
+					<dd>
+						<p>
+							This describes an experiment configured by the experimenter.
+							There is always one (and only one) row in this table.
+							It is initialised to default values.
+						</p>
+						<dl>
+							<dt id="db-experiment-autoadd"><var>autoadd</var></dt>
+							<dd>The experiment is currently accepting (or did accept) auto-added players.</dd>
+							<dt id="db-experiment-autoaddpreserve"><var>autoaddpreserve</var></dt>
+							<dd>
+								Preserve the <a href="#db-experiment-autoadd"><var>autoadd</var></a> bit
+								during and after the experiment start.
+								This is useful for rolling experiments so as not to have a break between
+								starting the experiment and reenabling captive mode.
+							</dd>
+							<dt id="db-experiment-end"><var>end</var></dt>
+							<dd>An epoch-encoded (seconds) time and date when the experiment when the last
+								round of the experiment concludes.  This also corresponds to the
+								starting time plus the number of rounds times round duration.</dd>
+							<dt id="db-experiment-id"><var>id</var></dt>
+							<dd>Unique identifier.</dd>
+							<dt id="db-experiment-instr"><var>instr</var></dt>
+							<dd>The instructions shown to players.  This must contain valid HTML5.  It may
+								contain <code>@@gamelab-admin-email@@</code>, which is filled in with
+								the experimenter's configured e-mail address;
+								<code>@@gamelab-games@@</code> for the number of games;
+								<code>@@gamelab-rounds@@</code> for the number of rounds; and
+								<code>@@gamelab-round-time@@</code>, a decimal number of the number of
+								hours per round.</dd>
+							<dt id="db-experiment-loginuri"><var>loginuri</var></dt>
+							<dd>Set when the experiment begins (i.e., when <a
+									href="#db-experiment-state"><var>state</var></a> &gt;0), this is
+								the URL given to players in their initial e-mail for when they log in.
+								This is suffixed by
+								<code>?ident=EMAIL&amp;password=PASSWORD</code>.</dd>
+							<dt id="db-experiment-minutes"><var>minutes</var></dt>
+							<dd>The number of minutes per round.  Minimum of one.</dd>
+							<dt id="db-experiment-nolottery"><var>nolottery</var></dt>
+							<dd>
+								If non-zero, do not show the lottery facility to players or the
+								administrator.
+							</dd>
+							<dt id="db-experiment-playermax"><var>playermax</var></dt>
+							<dd>
+								The maximum number of players per player role at any given time.
+								If zero, the number of players is unbound.
+							</dd>
+							<dt id="db-experiment-prounds"><var>prounds</var></dt>
+							<dd>
+								The number of rounds playable by each player.
+								If zero, players will play until the end of the experiment.
+								If &gt;0, players will not be allowed to play more than the given number
+								of rounds within the experiment.
+							</dd>
+							<dt id="db-experiment-questionnaire"><var>questionnaire</var></dt>
+							<dd>
+								If non-zero, new players are not directly assigned a join round and must
+								use the lobby facility.
+								There, they will be asked questions and cannot proceed until all
+								questions have been answered.
+							</dd>
+							<dt id="db-experiment-round"><var>round</var></dt>
+							<dd>
+								The current round of the experiment, or -1 if the rounds have not begun incrementing.
+								This will be set to <a
+									href="#db-experiment-rounds"><var>rounds</var></a> when the
+								experiment concludes.
+							</dd>
+							<dt id="db-experiment-roundbegan"><var>roundbegan</var></dt>
+							<dd>
+								If <a href="#db-experiment-round"><var>round</var></a> is non-negative,
+								then the timestamp (epoch) when the round was incremented.
+								Otherwise, this is zero.
+							</dd>
+							<dt id="db-experiment-roundmin"><var>roundmin</var></dt>
+							<dd>
+								If <a href="#db-experiment-roundpct"><var>roundpct</var></a> is
+								non-zero, this is the <q>grace time</q> (in minutes) before which the
+								round will automatically advance giving the percentage.
+							</dd>
+							<dt id="db-experiment-roundpct"><var>roundpct</var></dt>
+							<dd>
+								If &gt;0, this represents the fraction of players per role who play all
+								games and determine that the round automatically advances.
+								In other words, if set to 0.5 (50%), then from both player roles, if 50%
+								or more players have played all games, the round advances in advance of
+								the set round termination time.
+							</dd>
+							<dt id="db-experiment-rounds"><var>rounds</var></dt>
+							<dd>The number of rounds that will be played.  Minimum of one.</dd>
+							<dt id="db-experiment-start"><var>start</var></dt>
+							<dd>An epoch-encoded (seconds) time and date when the experiment when the first
+								round of the experiment begins.</dd>
+							<dt id="db-experiment-state"><var>state</var></dt>
+							<dd>The running state of the experiment, being either <var>0</var>, for new
+								(still in the configuration stage); <var>1</var>, for started (players
+								can log in, though the experiment itself may not be accepting plays
+								yet); <var>2</var>, where the experiment has expired, but the winner has
+								not been chosen by the experimenter; or <var>3</var>, where the
+								experiment has expired and the winner has been chosen.</dd>
+							<dt id="db-experiment-total"><var>total</var></dt>
+							<dd>When the experiment finishes (i.e., when <a
+									href="#db-experiment-state"><var>state</var></a> is set to 2),
+								this is filled in with the total number of lottery tickets (the <a
+									href="#db-player-finalscore"><var>finalscore</var></a>) awarded to
+								all players.</dd>
+						</dl>
+					</dd>
+					<dt id="db-game"><code>game</code></dt>
+					<dd>
+						<p>
+							A game is a payoff bimatrix configured by the experimenter.
+							There may be any non-zero number of games in a running experiment.
+						</p>
+						<dl>
+							<dt id="db-game-p1"><var>p1</var></dt>
+							<dd>The number of strategies for the row player.</dd>
+							<dt id="db-game-p2"><var>p2</var></dt>
+							<dd>The number of strategies for the column player.</dd>
+							<dt id="db-game-payoffs"><var>payoffs</var></dt>
+							<dd>A list of payoffs from the top-left to the bottom-right of the payoff
+								matrix, ordered row-player payoff, column-player payoff.
+								See <a href="#firstexperiment">First Experiment</a> configuration for
+								more.</dd>
+							<dt id="db-game-name"><var>name</var></dt>
+							<dd>The name of the experiment.  This is shown only to the experimenter.</dd>
+							<dt id="db-game-id"><var>id</var></dt>
+							<dd>Unique identifier.</dd>
+						</dl>
+					</dd>
+					<dt id="db-sess"><code>sess</code></dt>
+					<dd>
+						<p>
+							A session.
+							Sessions are the usual browser session used when players (or the experimenter)
+							are interacting with the system.
+						</p>
+						<dl>
+							<dt id="db-sess-created"><var>created</var></dt>
+							<dd>
+								An epoch timestamp of when the session was originally created.
+							</dd>
+							<dt id="db-sess-cookie"><var>cookie</var></dt>
+							<dd>
+								A cryptographically random cookie assigned to each session.
+								This is used as a security feature so that people can't guess others'
+								session identifiers and re-use them.
+								When a session has expired or the user is logged out, this is set to
+								zero.
+								(Session entries are never deleted.)
+							</dd>
+							<dt id="db-sess-playerid"><var>playerid</var></dt>
+							<dd>
+								A foreign key reference to the <a
+									href="#db-player"><code>player</code></a> <a
+									href="#db-player-id"><var>id</var></a>.
+								For experimenter logins, this value is <var>null</var>.
+							</dd>
+							<dt id="db-sess-useragent"><var>useragent</var></dt>
+							<dd>
+								The user-agent as reported by the player's (or administrator's) browser.
+								Remember: these are easy to fake, so they shouldn't be taken as
+								authoritative, but suggestive.
+								Also note that this is set when the player first creates the session
+								(cookie), and may not reflect later plays.
+								(But usually does.)
+							</dd>
+							<dt id="db-sess-id"><var>id</var></dt>
+							<dd>Unique identifier.</dd>
+						</dl>
+					</dd>
+					<dt id="db-admin"><code>admin</code></dt>
+					<dd>
+						<p>
+							Administrator (a.k.a. experimenter) credentials.
+							There is always one (and only one) row that exists, initialised to default
+							values.
+						</p>
+						<dl>
+							<dt id="db-admin-email"><var>email</var></dt>
+							<dd>The experimenter e-mail address.  This is used as a predefined template
+								value for the instructions.  It is also used as the destination for
+								backups of the database.  Initialises to <code>foo@example.com</code>.</dd>
+							<dt id="db-admin-hash"><var>hash</var></dt>
+							<dd>The experimenter password.  <strong>Note</strong>: this is stored as
+								cleartext, so it is not really a hash (yet).  Initialises to
+								<code>xyzzy</code>.</dd>
+							<dt id="db-admin-isset"><var>isset</var></dt>
+							<dd>
+								Bit-field on whether the email and hash have been set by the user.
+								Contains 0x01 if the e-mail has been set, 0x02 for the password.
+							</dd>
+							<dt id="db-admin-id"><var>id</var></dt>
+							<dd>Unique identifier.</dd>
+						</dl>
+					</dd>
+					<dt id="db-past"><code>past</code></dt>
+					<dd>
+						<p>
+							Records the average strategy mixture of a given player role for a given round
+							and <a href="#db-game"><code>game</code></a> when a round has concluded.
+						</p>
+						<dl>
+							<dt id="db-past-averagesp1"><var>averagesp1</var></dt>
+							<dd>
+								For the row player, the accumulated weighted average strategy mixture of
+								all
+								previous rounds, with previous rounds being exponentially decayed.  That
+								is, the <a href="#db-past-currentsp1"><var>currentsp1</var></a> plus
+								half of the last round's weighted average and so on.
+								If a round does not have enough plays by either player role to produce
+								payoffs, it is omitted from the accumulation sequence.
+								This is recorded as a space-separated sequence of rational numbers, one
+								per strategy.
+							</dd>
+							<dt id="db-past-averagesp2"><var>averagesp2</var></dt>
+							<dd>
+								Like <a href="#db-past-averagesp1"><var>averagesp1</var></a> but for the
+								column player.
+							</dd>
+							<dt id="db-past-currentsp1"><var>currentsp1</var></dt>
+							<dd>
+								For the row player, the average strategy mixture of the current round.
+								Strategy mixtures are only considered for <a
+									href="#db-choice"><code>choice</code></a> rows where the <a
+									href="#db-player"><code>player</code></a> played all games
+								for the round, so this will be a set of zeroes if no players completed
+								all games.
+								This is recorded as a space-separated sequence of rational numbers, one
+								per strategy.
+							</dd>
+							<dt id="db-past-currentsp2"><var>currentsp2</var></dt>
+							<dd>
+								Like <a href="#db-past-currentsp1"><var>currentsp1</var></a> but for the
+								column player.
+							</dd>
+							<dt id="db-past-gameid"><var>gameid</var></dt>
+							<dd>
+								A foreign key reference to the <a href="#db-game"><code>game</code></a>
+								<a href="#db-game-id"><var>id</var></a>.
+							</dd>
+							<dt id="db-past-id"><var>id</var></dt>
+							<dd>
+								Unique identifier.
+							</dd>
+							<dt id="db-past-plays"><var>plays</var></dt>
+							<dd>
+								The total number of plays that were submitted (over all games) in this
+								round if and only if the player submitted for all games in that round.
+							</dd>
+							<dt id="db-past-round"><var>round</var></dt>
+							<dd>
+								The round starting at zero.
+							</dd>
+							<dt id="db-past-roundcount"><var>roundcount</var></dt>
+							<dd>
+								The accumulated count of rounds not skipping, i.e., the count of zero-valued
+								<a href="#db-past-skip"><var>skip</var></a> rounds.  This is used for
+								computing the accumulated weighted average, which is really the sum of
+								all (non-zero) weighted previous rounds divided by the exponential
+								sum.
+							</dd>
+							<dt id="db-past-skip"><var>skip</var></dt>
+							<dd>
+								If zero row or column players played all games, this is set to
+								<var>1</var>, else it is <var>0</var> (sufficient players played).
+							</dd>
+						</dl>
+					</dd>
+					<dt id="db-questionnaire"><code>questionnaire</code></dt>
+					<dd>
+						<p>
+							The questionnaire is an optional set of questions given to each player.
+							These players must submit a set number of correct answers before joining the game.
+							See <a href="#db-experiment-questionnaire"><var>questionnaire</var></a>.
+							These rows are unique per player-rank.
+						</p>
+						<dl>
+							<dt id="db-questionnaire-first"><var>first</var></dt>
+							<dd>
+								The epoch time when the row is created.
+							</dd>
+							<dt id="db-questionnaire-id"><var>id</var></dt>
+							<dd>
+								Unique identifier.
+							</dd>
+							<dt id="db-questionnaire-playerid"><var>playerid</var></dt>
+							<dd>
+								The associated <a href="#db-player"><code>player</code></a>.
+							</dd>
+							<dt id="db-questionnaire-rank"><var>rank</var></dt>
+							<dd>
+								The question number starting at zero.
+							</dd>
+							<dt id="db-questionnaire-tries"><var>tries</var></dt>
+							<dd>
+								The number of tries, correct or not.
+								This is zero only in the race after initially creating the row and
+								noting an attempt.
+							</dd>
+						</dl>
+					</dd>
+					<dt id="db-smtp"><code>smtp</code></dt>
+					<dd>
+						<p>
+							This consists of the SMTP server information used in sending e-mails.
+							There is always only one row set, which defaults to empty values (see <a
+								href="#db-smtp-isset"><var>isset</var></a>).
+						</p>
+						<dl>
+							<dt id="db-smtp-user"><var>user</var></dt>
+							<dd>The SMTP server username (used for logging in).</dd>
+							<dt id="db-smtp-email"><var>email</var></dt>
+							<dd>The e-mail address used as the <q>From</q> address in all communication from
+								the server to players and the experimenter.
+								It is usually the same as the experimenter <a
+									href="#db-admin-email"><var>email</var></a> set in the <a
+									href="#db-admin"><code>admin</code></a> table, but may be set as
+								a standard <q>No-Reply</q>. (This is discouraged, as your players should
+								be able to reply to you if things go wrong.)
+							<dt id="db-smtp-pass"><var>pass</var></dt>
+							<dd>The SMTP username's password (used for logging in).  <strong>Note</strong>
+								that this is stored in cleartext, so make sure that your password isn't
+								used elsewhere.</dd>
+							<dt id="db-smtp-server"><var>server</var></dt>
+							<dd>The SMTP server in <code>smtp://server:port</code> format.</dd>
+							<dt id="db-smtp-isset"><var>isset</var></dt>
+							<dd>Whether these entries have been set.</dd>
+							<dt id="db-smtp-id"><var>id</var></dt>
+							<dd>Unique identifier.</dd>
+						</dl>
+					</dd>
+				</dl>
 			</section>
 			<section id="api">
 				<h2>Programmable API</h2>

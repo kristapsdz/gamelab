@@ -521,6 +521,7 @@ db_expr_advance(void)
 		 */
 		stmt = db_stmt("SELECT count(*) FROM "
 			"player WHERE role=? AND "
+			"joined >= 0 AND "
 			"joined <= ? AND "
 			"? < joined + ?");
 		db_bind_int(stmt, 1, 0);
@@ -590,7 +591,7 @@ db_expr_advance(void)
 		sqlite3_finalize(stmt);
 
 		playerf[0] = roleplayers[0] / (double)allplayers[0];
-		playerf[1] = roleplayers[1] /= (double)allplayers[1];
+		playerf[1] = roleplayers[1] / (double)allplayers[1];
 
 		if (playerf[0] >= expr->roundpct &&
 			 playerf[1] >= expr->roundpct) {

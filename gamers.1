@@ -9,7 +9,7 @@
 .\" Not used in OpenBSD.
 .Sh SYNOPSIS
 .Nm gamers
-.Op Fl erv
+.Op Fl cerv
 .Op Fl n Ar players
 .Op Fl w Ar time|min:max
 .Op Fl W Ar max
@@ -27,6 +27,8 @@ By default, it simulates two players who unrelentingly pound the server
 with connections, always playing the first strategy of experiment games.
 The options are as follows:
 .Bl -tag -width Ds
+.It Fl c
+Request HTP compression between bots and server.
 .It Fl e
 Play equal weight for each strategy in each game.
 .It Fl r

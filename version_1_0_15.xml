@@ -11,6 +11,11 @@
 			Also lift the restriction that administrator e-mail information must be set.
 			If it's not, players simply are not e-mailed.
 			This is reflected in the administrator instructions.
+			A significant bug has been ferreted out and fixed related to counting players for round advancement.
+		</p>
+		<p>
+			Add a new view for administrators: the projected number of participants over the rounds.
+			Also fix up some language in the administrator view and add more information on players.
 		</p>
 	</aside>
 </article>

@@ -30,7 +30,7 @@ STATIC		 =
 
 # You really don't want to change anything below this line.
 
-VERSION	 = 1.0.14
+VERSION	 = 1.0.15
 VMONTH	 = August
 VYEAR	 = 2015
 CFLAGS 	+= -g -W -Wall -Wstrict-prototypes -Wno-unused-parameter -Wwrite-strings -I/usr/local/include
@@ -109,7 +109,8 @@ VERSIONS = version_1_0_1.xml \
 	   version_1_0_11.xml \
 	   version_1_0_12.xml \
 	   version_1_0_13.xml \
-	   version_1_0_14.xml
+	   version_1_0_14.xml \
+	   version_1_0_15.xml
 
 all: admin lab gamers $(BUILT) $(BUILTPS)
 
@@ -144,6 +145,7 @@ update: all
 	install -m 0755 lab $(CGIBIN)
 
 install: update gamelab.db
+	rm -f $(DATADIR)/gamelab.db
 	install -m 0666 gamelab.db $(DATADIR)
 
 gamelab.tgz:

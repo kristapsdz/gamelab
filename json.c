@@ -178,6 +178,7 @@ json_putplayer(struct kjsonreq *r, const struct player *p)
 	kjson_putintp(r, "enabled", p->enabled);
 	kjson_putintp(r, "finalrank", p->finalrank);
 	kjson_putintp(r, "finalscore", p->finalscore);
+	kjson_putintp(r, "answer", p->answer);
 	kjson_obj_close(r);
 }
 

@@ -885,6 +885,8 @@ senddoloadplayers(struct kreq *r)
 	kjson_obj_open(&req);
 	kjson_putintp(&req, "autoadd", expr->autoadd);
 	kjson_putintp(&req, "mturk", expr->mturk);
+	kjson_putintp(&req, "prounds", expr->prounds);
+	kjson_putintp(&req, "round", expr->round);
 	kjson_putintp(&req, "autoaddpreserve", expr->autoaddpreserve);
 	kjson_arrayp_open(&req, "players");
 	db_player_load_all(senddoloadplayer, &req);

@@ -25,6 +25,8 @@
 		</header>
 		<article>
 			<section class="intro">
+				<div class="statusgraph" id="statusExprGraph"></div>
+				<div class="statusgraph" id="playerExprGraph"></div>
 				<div id="statusExprProg">
 					<p>
 						Welcome to <a href="http://www.kcons.eu/gamelab">gamelab</a> (version @VERSION@), the on-line game theory laboratory.
@@ -35,7 +37,6 @@
 							will advance (with <span id="statusExprRoundmin"></span> minutes of grace time).
 						</span>
 					</p>
-					<div class="statusgraph" id="statusExprGraph"></div>
 					<div class="statuslistbox" id="statusHighestBox">
 						<div class="statuslistcaption">Last Round Highest Earners (<a href="@ADMINURI@/dogethighest.csv">CSV</a>)</div>
 						<ul class="statuslist" id="statusHighest"></ul>
@@ -88,7 +89,7 @@
 						Welcome to <a href="http://www.kcons.eu/gamelab">gamelab</a> (version @VERSION@), the on-line game theory laboratory.
 						Your experiment has finished.
 					</p>
-					<div class="statusgraph" id="statusExprGraph2"></div>
+					<!-- div class="statusgraph" id="statusExprGraph2"></div -->
 					<div class="statuslistbox">
 						<div class="statuslistcaption">Last Round Highest Earners (<a href="@ADMINURI@/dogethighest.csv">CSV</a>)</div>
 						<ul class="statuslist" id="statusHighest2"></ul>
@@ -228,6 +229,7 @@
 							<span id="playerInfoEmail"></span>: 
 							<span id="playerInfoStatus"></span>, 
 							<span id="playerInfoEnabled"></span>
+							(joined round <span id="playerInfoJoined"></span>, answered <span id="playerInfoAnswer"></span> questions)
 						</p>
 						<form action="@ADMINURI@/doresetpasswords.json" method="post" onsubmit="return(resetPass(this));">
 							<input type="hidden" id="playerInfoId" name="pid" />
