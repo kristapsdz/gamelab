@@ -52,141 +52,6 @@ function shuffle(o, seed)
         return o;
 }
 
-/*
- * Append a payoff matrix as a "div.history" to "e", setting its maximum
- * width to be 10em per payoff column.
- * This is a complicated function because it must not only show the
- * payoffs, but also the expected utility (payoff) for the row player if
- * playing her pure strategy (per row).
- * Moroever, all rows and columns are randomised per player, so we must
- * de-scramble them.
- * Variables:
- *  - matrix: the row-ordered payoff matrix with each cell consisting of
- *    a pair of payoffs, row player being 0, column player being 1
- *    (see matrixCreate() and matrixCreateTranspose())
- *  - rorder: the displayed row order index for each given row index
- *  - corder: the displayed column order index for each given column
- *  - ravg: the averages for the given row strategies
- *  - cavg: the averages for the given column strategies
- *  - payoffs: the multiplication of ravg*cavg per cell
- *  - colour: our (row player's) colour
- */
-function appendMatrix(e, matrix, rorder, corder, ravg, cavg, payoffs, colour)
-{
-	var table, row, cell, i, j, poff, rowinner, sum, span;
-
-	table = document.createElement('div');
-	e.appendChild(table);
-	table.setAttribute('class', 'history');
-	/* Let us be 10em per column. */
-	table.setAttribute('style', 'max-width: ' + 
-		(matrix[0].length * 10) + 'em;');
-
-	row = document.createElement('div');
-	table.appendChild(row);
-
-	cell = document.createElement('div');
-	cell.setAttribute('class', 'labelaside');
-	cell.setAttribute('width', '1%;');
-	row.appendChild(cell);
-
-	for (i = 0; i < matrix[0].length; i++) {
-		cell = document.createElement('div');
-		cell.setAttribute('class', 'labelatop');
-		cell.setAttribute('style', 'width: ' + 
-			((100.0 / (matrix[0].length + 1)) - 1) + '%;');
-		cell.appendChild(document.createTextNode
-			(String.fromCharCode(65 + i)));
-		row.appendChild(cell);
-	}
-
-	/*
-	 * Create the top-most row.
-	 * This will have our table headers.
-	 */
-	cell = document.createElement('div');
-	cell.setAttribute('class', 'sumaside');
-	cell.setAttribute('style', 'width: ' + 
-		((100.0 / (matrix[0].length + 1)) - 1) + '%;');
-	cell.appendChild(document.createTextNode('\u2211'));
-	cell.appendChild(document.createTextNode(' ['));
-	span = document.createElement('span');
-	span.setAttribute('style', 'color: ' + colours[colour]);
-	span.appendChild(document.createTextNode('U'));
-	cell.appendChild(span);
-	cell.appendChild(document.createTextNode(']'));
-	row.appendChild(cell);
-
-	/*
-	 * Now create the rows themselves.
-	 * These end in a column with row averages and the expected
-	 * utility if the player plays that row as a pure strategy.
-	 */
-	for (i = 0; i < matrix.length; i++) {
-		row = document.createElement('div');
-		table.appendChild(row);
-
-		cell = document.createElement('div');
-		cell.setAttribute('class', 'labelaside');
-		cell.appendChild(document.createTextNode
-			(String.fromCharCode(97 + i)));
-		row.appendChild(cell);
-
-		sum = 0.0;
-		for (j = 0; j < matrix[rorder[i]].length; j++) {
-			cell = document.createElement('div');
-			cell.setAttribute('class', 'mix');
-			row.appendChild(cell);
-			cell.appendChild
-				(document.createTextNode
-				 (matrix[rorder[i]][corder[j]].toFixed(2)));
-			sum += cavg[corder[j]] * 
-				payoffs[rorder[i]][corder[j]][0];
-		}
-
-		cell = document.createElement('div');
-		cell.setAttribute('class', 'sumaside sum');
-
-		span = document.createElement('span');
-		span.appendChild(document.createTextNode
-			(ravg[rorder[i]].toFixed(2)));
-		cell.appendChild(span);
-		if (null != payoffs) {
-			cell.appendChild(document.createTextNode(' ['));
-			span = document.createElement('span');
-			span.setAttribute('style', 'color: ' + colours[colour]);
-			span.appendChild(document.createTextNode(sum.toFixed(2)));
-			cell.appendChild(span);
-			cell.appendChild(document.createTextNode(']'));
-		}
-		row.appendChild(cell);
-	}
-
-	/*
-	 * The trailing row has the column averages.
-	 */
-	row = document.createElement('div');
-	table.appendChild(row);
-
-	cell = document.createElement('div');
-	cell.setAttribute('class', 'labelaside');
-	cell.appendChild(document.createTextNode('\u2211'));
-	row.appendChild(cell);
-
-	for (i = 0; i < cavg.length; i++) {
-		cell = document.createElement('div');
-		cell.setAttribute('class', 'sumbelow sum');
-		row.appendChild(cell);
-		cell.appendChild(document.createTextNode
-			(cavg[corder[i]].toFixed(2)));
-	}
-
-	cell = document.createElement('div');
-	cell.setAttribute('class', 'sumaside');
-	row.appendChild(cell);
-	return(table);
-}
-
 function prowOut(source, id)
 {
 	var e;
@@ -317,25 +182,9 @@ function appendBimatrix(e, active, matrix, colour, ocolour, rorder, corder)
 	e.appendChild(table);
 }
 
-function matrixCreate(vector)
-{
-	var matrix, i, j;
-
-	matrix = new Array(vector.length);
-	for (i = 0; i < vector.length; i++) {
-		matrix[i] = new Array(vector[0].length);
-		matrix[i].index = i;
-		for (j = 0; j < vector[0].length; j++)
-			matrix[i][j] = vector[i][j];
-	}
-
-	return(matrix);
-}
-
 /*
  * Convert a game, which is in top-left to bottom-right order with row
- * player payoff first, into a matrix we'll use in appendMatrix() and
- * other places.
+ * player payoff first, into a matrix.
  * We add some extra bookkeeping to the matrix--beyond that, it's more
  * or less what we have in the game matrix.
  */
@@ -352,21 +201,6 @@ function bimatrixCreate(vector)
 			matrix[i][j][0] = vector[i][j][0];
 			matrix[i][j][1] = vector[i][j][1];
 		}
-	}
-
-	return(matrix);
-}
-
-function matrixCreateTranspose(vector)
-{
-	var matrix, i, j;
-
-	matrix = new Array(vector[0].length);
-	for (i = 0; i < vector[0].length; i++) {
-		matrix[i] = new Array(vector.length);
-		matrix[i].index = i;
-		for (j = 0; j < vector.length; j++)
-			matrix[i][j] = vector[j][i];
 	}
 
 	return(matrix);
@@ -418,8 +252,8 @@ function disableEnter(e) {
  */
 function loadGame()
 {
-	var game, matrix, hmatrix, e, div, ii, i, 
-	    j, input, c, oc, ravg, cavg, lot, par, list, listitem;
+	var game, matrix, e, div, ii, i, j, input, c, 
+	    oc, lot, par, list, listitem;
 
 	if (resindex == res.games.length) {
 		doUnhide('exprDone');
@@ -453,18 +287,6 @@ function loadGame()
 	matrix = 0 == res.player.role ? 
 		bimatrixCreate(game.payoffs) : 
 		bimatrixCreateTranspose(game.payoffs);
-	hmatrix = null;
-
-	if (null != game.roundup) {
-		/* Transpose vectors and matrix. */
-		ravg = 0 == res.player.role ? 
-			game.roundup.navgp1 : game.roundup.navgp2;
-		cavg = 0 == res.player.role ? 
-			game.roundup.navgp2 : game.roundup.navgp1;
-		hmatrix = 0 == res.player.role ? 
-			matrixCreate(game.roundup.navgs) : 
-			matrixCreateTranspose(game.roundup.navgs);
-	} 
 
 	c = res.player.rseed % colours.length;
 	oc = (0 == c % 2) ? c + 1 : c - 1;
@@ -473,17 +295,13 @@ function loadGame()
 		res.roworders[res.gameorders[resindex]],
 		res.colorders[res.gameorders[resindex]]);
 
-	if (null != hmatrix) {
+	if (null != game.roundup) {
 		doUnhide('exprHistory');
 		if (0 != game.roundup.skip && res.player.joined > res.expr.round) 
 			doUnhide('skipExplain');
 		else
 			doHide('skipExplain');
 		lot = res.lotteries[res.expr.round - 1].plays[res.gameorders[resindex]];
-		appendMatrix(doClear('exprHistoryMatrix'), hmatrix, 
-			res.roworders[res.gameorders[resindex]], 
-			res.colorders[res.gameorders[resindex]], 
-			ravg, cavg, matrix, c);
 		par = doClear('exprHistoryPlays');
 		if (null != lot) {
 			doClearReplace('exprHistoryLottery', lot.poff.toFixed(2));

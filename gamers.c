@@ -1746,7 +1746,7 @@ main(int argc, char *argv[])
 		"samples", "plays", "firstplay", 
 		"lastplay");
 	for (i = 0; i < game.roundsz; i++) {
-		printf("%7zd ", i - 1);
+		printf("%7zd ", i);
 		fputs(fmt_bytes(game.rounds[i].rx.mean), stdout);
 		putchar(' ');
 		fputs(fmt_bytes(stddev(&game.rounds[i].rx)), stdout);
