@@ -1,0 +1,18 @@
+<article data-sblg-article="1" data-sblg-tags="version">
+	<header>
+		<h1>1.0.16</h1>
+		<address>Kristaps Dzonsons</address>
+		<time datetime="2015-08-25">2015-08-25</time>
+	</header>
+	<aside>
+		<p>
+			Squash a bug that caused games to abort after 64 rounds.
+			This was due to some legacy weighted-average calculations that have long since been deprecated, but are still computed.
+			These facilities have now been removed.
+		</p>
+		<p>
+			Have the administrator page check if it should re-load when viewing round-percent experiments.
+			This keeps the administrator page a bit more up-to-date with running games.
+		</p>
+	</aside>
+</article>

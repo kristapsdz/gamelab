@@ -55,6 +55,7 @@ enum	page {
 	PAGE_DOCHANGEMAIL,
 	PAGE_DOCHANGEPASS,
 	PAGE_DOCHANGESMTP,
+	PAGE_DOCHECKROUND,
 	PAGE_DOCHECKSMTP,
 	PAGE_DODELETEGAME,
 	PAGE_DODELETEPLAYER,
@@ -149,6 +150,7 @@ static	unsigned int perms[PAGE__MAX] = {
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOCHANGEMAIL */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOCHANGEPASS */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOCHANGESMTP */
+	PERM_JSON | PERM_LOGIN, /* PAGE_DOCHECKROUND */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOCHECKSMTP */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DODELETEGAME */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DODELETEPLAYER */
@@ -182,6 +184,7 @@ static const char *const pages[PAGE__MAX] = {
 	"dochangemail", /* PAGE_DOCHANGEMAIL */
 	"dochangepass", /* PAGE_DOCHANGEPASS */
 	"dochangesmtp", /* PAGE_DOCHANGESMTP */
+	"docheckround", /* PAGE_DOCHECKROUND */
 	"dochecksmtp", /* PAGE_DOCHECKSMTP */
 	"dodeletegame", /* PAGE_DODELETEGAME */
 	"dodeleteplayer", /* PAGE_DODELETEPLAYER */
@@ -618,6 +621,28 @@ senddotestsmtp(struct kreq *r)
 		_exit(EXIT_SUCCESS);
 	} else 
 		waitpid(pid, NULL, 0);
+}
+
+static void
+senddocheckround(struct kreq *r)
+{
+	struct expr	*expr;
+	struct kjsonreq	 req;
+
+	if (NULL == (expr = db_expr_get(1))) {
+		http_open(r, KHTTP_400);
+		khttp_body(r);
+		return;
+	} 
+
+	http_open(r, KHTTP_200);
+	khttp_body(r);
+	kjson_open(&req, r);
+	kjson_obj_open(&req);
+	kjson_putintp(&req, "round", expr->round);
+	kjson_obj_close(&req);
+	kjson_close(&req);
+	db_expr_free(expr);
 }
 
 static void
@@ -1412,6 +1437,9 @@ main(void)
 		break;
 	case (PAGE_DOCHANGESMTP):
 		senddochangesmtp(&r);
+		break;
+	case (PAGE_DOCHECKROUND):
+		senddocheckround(&r);
 		break;
 	case (PAGE_DOCHECKSMTP):
 		senddochecksmtp(&r);

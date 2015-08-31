@@ -320,6 +320,7 @@ rstats_round(struct game *game, int64_t round)
 	size_t		 r;
 	struct timeval	 sub;
 	double		 sec;
+	struct rstats	*rs;
 
 	assert(round >= -1);
 	if (round + 2 <= (int64_t)game->roundsz)
@@ -337,21 +338,21 @@ rstats_round(struct game *game, int64_t round)
 		game->rounds = p;
 		memset(&game->rounds[r], 0, sizeof(struct rstats));
 		if (r > 0) {
-			gettimeofday(&game->rounds[r - 1].end, NULL);
-			timersub(&game->rounds[r - 1].end,
-				 &game->rounds[r - 1].start, 
-				 &sub);
+			rs = &game->rounds[r - 1];
+			gettimeofday(&rs->end, NULL);
+			timersub(&rs->end, &rs->start, &sub);
 			sec = sub.tv_sec + (sub.tv_usec / 1000000.0);
 			printf("Round advance: %zd ", 
 				(ssize_t)game->roundsz - 2);
 			fputs(fmt_sec(sec), stdout);
+			putchar(' ');
+			fputs(fmt_bytes(rs->rx.mean), stdout);
 			putchar('\n');
 		} else 
 			printf("Round advance: %zd\n", 
 				(ssize_t)game->roundsz - 2);
 
 		gettimeofday(&game->rounds[r].start, NULL);
-
 	}
 	return(1);
 }

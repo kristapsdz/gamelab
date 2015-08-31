@@ -1,5 +1,7 @@
 "use strict";
 
+var currentRound; /* see checkRound() */
+
 function doClassOk(name)
 {
 	var e;
@@ -766,6 +768,70 @@ function loadNewExprSuccess(resp)
 }
 
 /*
+ * Poll the server to see our current round.
+ * This only happens if we have a round percentage, and is used to
+ * auto-progress the round if it has expired.
+ */
+function checkRoundSuccess(resp)
+{
+	var res;
+
+	/* This shouldn't happen. */
+	if (null == currentRound) {
+		console.log('null == currentRound');
+		return;
+	}
+
+	/* Parse our JSON response. */
+	try {
+		res = JSON.parse(resp);
+	} catch (error) {
+		console.log('JSON error: ' + resp);
+		return;
+	}
+
+	/* 
+	 * If we're before the current (from the server) round, then
+	 * reload our data structures.
+	 * If we're not, then continue polling.
+	 */
+	if (currentRound < res.round)
+		loadExpr();
+	else
+		setTimeout(checkRound, 10000);
+}
+
+/*
+ * Send a query that will check the current round.
+ */
+function checkRound()
+{
+
+	sendQuery('@ADMINURI@/docheckround.json', 
+		null, checkRoundSuccess, null);
+}
+
+function timerSloppyCountdown(donefunc, e, value, round)
+{
+	var now;
+
+	console.log('sloppy countdown: ' + value);
+	if (null != currentRound && round != currentRound) {
+		console.log('Timeout expired (bad round');
+		return;
+	}
+
+	now = Math.floor(new Date().getTime() / 1000);
+	if (now >= value) {
+		donefunc();
+		return;
+	}
+	doClearNode(e);
+	formatCountdown(value - now, e);
+	setTimeout(timerSloppyCountdown, 1000, donefunc, e, value, round);
+}
+
+/*
  * This callback is invoked for an alread-started experiment coming from
  * adminhome-started.html after dogetexpr.json has returned success.
  */
@@ -780,6 +846,7 @@ function loadExprSuccess(resp)
 	}
 
 	expr = res.expr;
+	currentRound = expr.round;
 
 	doClearReplace('instr', expr.instr);
 	doStatGraph(doClear('statusExprGraph'), res);
@@ -846,16 +913,21 @@ function loadExprSuccess(resp)
 		doHide('statusExprLoading');
 		e = doClear('exprCountdown');
 		formatCountdown(next, e);
-		setTimeout(timerCountdown, 1000, loadExpr, e, expr.start);
+		setTimeout(timerSloppyCountdown, 1000, 
+			 loadExpr, e, expr.start, expr.round);
 	} else {
 		next = (expr.roundbegan + (expr.minutes * 60)) -
 			Math.floor(new Date().getTime() / 1000);
 		e = doClear('exprCountdown');
 		doHide('statusExprLoading');
 		formatCountdown(next, e);
-		setTimeout(timerCountdown, 1000, loadExpr, e, 
-			expr.roundbegan + (expr.minutes * 60));
-
+		setTimeout(timerSloppyCountdown, 1000, loadExpr, e, 
+			expr.roundbegan + (expr.minutes * 60), expr.round);
+		/*
+		 * Send out a poll to check our round advancement.
+		 */
+		if (expr.roundpct > 0.0)
+			setTimeout(checkRound, 10000);
 		doUnhide('statusExprProg');
 		doClearReplace('statusExprPBar', 
 			Math.round(expr.progress * 100.0) + '%');

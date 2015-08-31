@@ -146,6 +146,7 @@ json_puthistory(struct kjsonreq *r, int admin,
 		p.intv = db_interval_get(expr->round - 1);
 	else
 		p.intv = intv;
+
 	p.req = r;
 	p.admin = admin;
 
