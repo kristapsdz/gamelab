@@ -2079,60 +2079,30 @@ db_smtp_set(const char *user, const char *server,
  * Given the strategy mixes played for a given roundup, compute the
  * per-strategy-pair matrices.
  * In other words, here we create, for a given game and round, the
- * matrices that show (1) the weighted average over all prior rounds for
- * each strategy combination, and (2) the average of the previous round
- * for each strategy combination.
+ * matrices that show the average of the previous round for each
+ * strategy combination.
  */
 static struct roundup *
 db_roundup_round(struct roundup *r)
 {
 	size_t	 i, j, k;
-	mpq_t	 tmp, sum;
 
 	r->navg = kcalloc(r->p1sz * r->p2sz, sizeof(double));
 	r->navgp1 = kcalloc(r->p1sz, sizeof(double));
 	r->navgp2 = kcalloc(r->p2sz, sizeof(double));
-	r->avg = kcalloc(r->p1sz * r->p2sz, sizeof(double));
-	r->avgp1 = kcalloc(r->p1sz, sizeof(double));
-	r->avgp2 = kcalloc(r->p2sz, sizeof(double));
 
 	if (0 == r->roundcount)
 		return(r);
 
-	mpq_init(tmp);
-	mpq_init(sum);
-#if 0
-	for (j = 1, i = 0; i < r->roundcount; i++, j *= 2) {
-		mpq_set_ui(tmp, 1, j);
-		mpq_canonicalize(tmp);
-		mpq_summation(sum, tmp);
-	}
-#endif
-	for (i = 0; i < r->p1sz; i++) {
-#if 0
-		mpq_div(tmp, r->aggrp1[i], sum);
-#endif
-		r->avgp1[i] = mpq_get_d(tmp);
+	for (i = 0; i < r->p1sz; i++)
 		r->navgp1[i] = mpq_get_d(r->curp1[i]);
-	}
-	for (i = 0; i < r->p2sz; i++)  {
-#if 0
-		mpq_div(tmp, r->aggrp2[i], sum);
-#endif
-		r->avgp2[i] = mpq_get_d(tmp);
+	for (i = 0; i < r->p2sz; i++) 
 		r->navgp2[i] = mpq_get_d(r->curp2[i]);
-	}
-
-	for (i = k = 0; i < r->p1sz; i++) 
-		for (j = 0; j < r->p2sz; j++, k++)
-			r->avg[k] = r->avgp1[i] * r->avgp2[j];
 
 	for (i = k = 0; i < r->p1sz; i++) 
 		for (j = 0; j < r->p2sz; j++, k++)
 			r->navg[k] = r->navgp1[i] * r->navgp2[j];
 
-	mpq_clear(tmp);
-	mpq_clear(sum);
 	return(r);
 }
 
@@ -2284,7 +2254,7 @@ db_roundup_players(int64_t round, const struct roundup *r,
 	mpq_t		*qs, *opponent;
 	sqlite3_stmt	*stmt, *stmt2;
 	size_t		 i, j, sz;
-	mpq_t		 tmp, sum, div, mul;
+	mpq_t		 tmp, sum, mul;
 	char		*buf;
 	int64_t	 	 playerid;
 
@@ -2292,7 +2262,6 @@ db_roundup_players(int64_t round, const struct roundup *r,
 
 	mpq_init(tmp);
 	mpq_init(sum);
-	mpq_init(div);
 	mpq_init(mul);
 
 	/* We need a buffer for both strategy vectors. */
@@ -2301,14 +2270,6 @@ db_roundup_players(int64_t round, const struct roundup *r,
 	opponent = kcalloc(sz, sizeof(mpq_t));
 	for (i = 0; i < sz; i++)
 		mpq_init(opponent[i]);
-
-	/* Establish the common divisor for roundup aggregates. */
-
-	for (i = 0; i < r->roundcount; i++) {
-		mpq_set_ui(div, i + 1, r->roundcount);
-		mpq_canonicalize(div);
-		mpq_summation(sum, div);
-	}
 
 	stmt = db_stmt("SELECT choice.strats,choice.playerid FROM choice "
 		"INNER JOIN player ON player.id=choice.playerid "
@@ -2333,8 +2294,7 @@ db_roundup_players(int64_t round, const struct roundup *r,
 		mpq_canonicalize(opponent[i]);
 		for (j = 0; j < r->p2sz; j++) {
 			/* Normalise aggregate. */
-			mpq_set(tmp, r->curp2[j]);
-			mpq_mul(mul, div, tmp);
+			mpq_set(mul, r->curp2[j]);
 			/* Multiply norm by payoff. */
 			mpq_mul(sum, mul, 
 				game->payoffs[j * 2 + 
@@ -2389,8 +2349,7 @@ db_roundup_players(int64_t round, const struct roundup *r,
 		mpq_canonicalize(opponent[i]);
 		for (j = 0; j < r->p1sz; j++) {
 			/* Normalise aggregate. */
-			mpq_set(tmp, r->curp1[j]);
-			mpq_mul(mul, div, tmp);
+			mpq_set(mul, r->curp1[j]);
 			/* Multiply norm by payoff. */
 			mpq_mul(sum, mul, 
 				game->payoffs[(i * 2) + 1 + 
@@ -2436,7 +2395,6 @@ db_roundup_players(int64_t round, const struct roundup *r,
 
 	mpq_clear(tmp);
 	mpq_clear(sum);
-	mpq_clear(div);
 	mpq_clear(mul);
 
 	for (i = 0; i < sz; i++)
@@ -2452,15 +2410,9 @@ db_roundup_free(struct roundup *p)
 	if (NULL == p)
 		return;
 
-	if (NULL != p->aggrp1)
-		for (i = 0; i < p->p1sz; i++)
-			mpq_clear(p->aggrp1[i]);
 	if (NULL != p->curp1)
 		for (i = 0; i < p->p1sz; i++)
 			mpq_clear(p->curp1[i]);
-	if (NULL != p->aggrp2)
-		for (i = 0; i < p->p2sz; i++)
-			mpq_clear(p->aggrp2[i]);
 	if (NULL != p->curp2)
 		for (i = 0; i < p->p2sz; i++)
 			mpq_clear(p->curp2[i]);
@@ -2468,11 +2420,6 @@ db_roundup_free(struct roundup *p)
 	free(p->navg);
 	free(p->navgp1);
 	free(p->navgp2);
-	free(p->avg);
-	free(p->avgp1);
-	free(p->avgp2);
-	free(p->aggrp1);
-	free(p->aggrp2);
 	free(p->curp1);
 	free(p->curp2);
 	free(p);
@@ -2498,29 +2445,23 @@ db_roundup_get(int64_t round, const struct game *game)
 	r->p2sz = game->p2;
 	r->gameid = game->id;
 
-	stmt = db_stmt("SELECT averagesp1,averagesp2,skip,"
-		"roundcount,currentsp1,currentsp2,plays FROM past "
+	stmt = db_stmt("SELECT skip,roundcount,"
+		"currentsp1,currentsp2,plays FROM past "
 		"WHERE round=? AND gameid=?");
 
 	db_bind_int(stmt, 1, r->round);
 	db_bind_int(stmt, 2, r->gameid);
 
 	if (SQLITE_ROW == db_step(stmt, 0)) {
-		r->aggrp1 = mpq_str2mpqsinit
-			(sqlite3_column_text
-			 (stmt, 0), r->p1sz);
-		r->aggrp2 = mpq_str2mpqsinit
-			(sqlite3_column_text
-			 (stmt, 1), r->p2sz);
-		r->skip = sqlite3_column_int(stmt, 2);
-		r->roundcount = sqlite3_column_int(stmt, 3);
+		r->skip = sqlite3_column_int(stmt, 0);
+		r->roundcount = sqlite3_column_int(stmt, 1);
 		r->curp1 = mpq_str2mpqsinit
 			(sqlite3_column_text
-			 (stmt, 4), r->p1sz);
+			 (stmt, 2), r->p1sz);
 		r->curp2 = mpq_str2mpqsinit
 			(sqlite3_column_text
-			 (stmt, 5), r->p2sz);
-		r->plays = sqlite3_column_int(stmt, 6);
+			 (stmt, 3), r->p2sz);
+		r->plays = sqlite3_column_int(stmt, 4);
 		sqlite3_finalize(stmt);
 		return(db_roundup_round(r));
 	} 
@@ -2546,8 +2487,7 @@ db_roundup_game(const struct game *game,
 	size_t		 i, count, fullcount;
 	sqlite3_stmt	*stmt;
 	mpq_t		 tmp, sum;
-	mpq_t		*aggrp1, *aggrp2;
-	char		*aggrsp1, *aggrsp2, *cursp1, *cursp2;
+	char		*cursp1, *cursp2;
 	int		 rc;
 
 	if (round < 0)
@@ -2567,21 +2507,14 @@ again:
 	r->p1sz = game->p1;
 	r->p2sz = game->p2;
 	r->gameid = game->id;
-	r->aggrp1 = kcalloc(r->p1sz, sizeof(mpq_t));
-	r->aggrp2 = kcalloc(r->p2sz, sizeof(mpq_t));
 	r->curp1 = kcalloc(r->p1sz, sizeof(mpq_t));
 	r->curp2 = kcalloc(r->p2sz, sizeof(mpq_t));
 	r->skip = 1;
 
-	for (i = 0; i < r->p1sz; i++) {
-		mpq_init(r->aggrp1[i]);
+	for (i = 0; i < r->p1sz; i++)
 		mpq_init(r->curp1[i]);
-	}
-
-	for (i = 0; i < r->p2sz; i++) {
-		mpq_init(r->aggrp2[i]);
+	for (i = 0; i < r->p2sz; i++)
 		mpq_init(r->curp2[i]);
-	}
 
 	mpq_init(sum);
 	mpq_init(tmp);
@@ -2661,79 +2594,27 @@ aggregate:
 	/*
 	 * Ok, now we want to make our adjustments for history.
 	 * First, we see if we should NOT skip the last round.
-	 * If we should NOT skip it, then divide it by half.
 	 */
 	r->roundcount = 0;
-	aggrp1 = aggrp2 = NULL;
-
-	if (round > 0 && NULL != period->roundups[round - 1]) {
-		r->roundcount = period->roundups[round - 1]->roundcount;
-		aggrp1 = kcalloc(r->p1sz, sizeof(mpq_t));
-		aggrp2 = kcalloc(r->p2sz, sizeof(mpq_t));
-		for (i = 0; i < r->p1sz; i++) 
-			mpq_set(aggrp1[i], period->roundups
-				[round - 1]->aggrp1[i]);
-		for (i = 0; i < r->p2sz; i++) 
-			mpq_set(aggrp2[i], period->roundups
-				[round - 1]->aggrp2[i]);
-	}
-
+	if (round > 0 && NULL != period->roundups[round - 1])
+		r->roundcount = 
+			period->roundups[round - 1]->roundcount;
 	r->roundcount += r->skip ? 0 : 1;
 
-	for (i = 0; i < r->p1sz; i++) 
-		mpq_set(r->aggrp1[i], r->curp1[i]);
-	for (i = 0; i < r->p2sz; i++) 
-		mpq_set(r->aggrp2[i], r->curp2[i]);
-
-	if (NULL != aggrp1 && 0 == r->skip) {
-		assert(NULL != aggrp2);
-		mpq_set_ui(tmp, 1, 2);
-		mpq_canonicalize(tmp);
-		for (i = 0; i < r->p1sz; i++) {
-			mpq_set(sum, aggrp1[i]);
-			mpq_mul(aggrp1[i], tmp, sum);
-		}
-		for (i = 0; i < r->p2sz; i++) {
-			mpq_set(sum, aggrp2[i]);
-			mpq_mul(aggrp2[i], tmp, sum);
-		}
-	}
-
-	/*
-	 * Next, accumulate the last round into our own.
-	 * If we're marked to skip it, we still incorporate it into our
-	 * own.
-	 */
-	if (NULL != aggrp1) {
-		assert(NULL != aggrp2);
-		for (i = 0; i < r->p1sz; i++) {
-			mpq_summation(r->aggrp1[i], aggrp1[i]);
-			mpq_clear(aggrp1[i]);
-		}
-		for (i = 0; i < r->p2sz; i++) {
-			mpq_summation(r->aggrp2[i], aggrp2[i]);
-			mpq_clear(aggrp2[i]);
-		}
-	}
-
-	aggrsp1 = mpq_mpq2str(r->aggrp1, r->p1sz);
-	aggrsp2 = mpq_mpq2str(r->aggrp2, r->p2sz);
 	cursp1 = mpq_mpq2str(r->curp1, r->p1sz);
 	cursp2 = mpq_mpq2str(r->curp2, r->p2sz);
 
-	stmt = db_stmt("INSERT INTO past (round,averagesp1,"
-		"averagesp2,gameid,skip,roundcount,currentsp1,"
-		"currentsp2,plays) VALUES (?,?,?,?,?,?,?,?,?)");
+	stmt = db_stmt("INSERT INTO past (round,"
+		"gameid,skip,roundcount,currentsp1,"
+		"currentsp2,plays) VALUES (?,?,?,?,?,?,?)");
 
 	db_bind_int(stmt, 1, r->round);
-	db_bind_text(stmt, 2, aggrsp1);
-	db_bind_text(stmt, 3, aggrsp2);
-	db_bind_int(stmt, 4, game->id);
-	db_bind_int(stmt, 5, r->skip);
-	db_bind_int(stmt, 6, r->roundcount);
-	db_bind_text(stmt, 7, cursp1);
-	db_bind_text(stmt, 8, cursp2);
-	db_bind_int(stmt, 9, fullcount);
+	db_bind_int(stmt, 2, game->id);
+	db_bind_int(stmt, 3, r->skip);
+	db_bind_int(stmt, 4, r->roundcount);
+	db_bind_text(stmt, 5, cursp1);
+	db_bind_text(stmt, 6, cursp2);
+	db_bind_int(stmt, 7, fullcount);
 	rc = db_step(stmt, DB_STEP_CONSTRAINT);
 	sqlite3_finalize(stmt);
 
@@ -2750,10 +2631,6 @@ aggregate:
 			PRId64 "\n", round, game->id);
 	}
 
-	free(aggrp1);
-	free(aggrp2);
-	free(aggrsp1);
-	free(aggrsp2);
 	free(cursp1);
 	free(cursp2);
 	mpq_clear(sum);
