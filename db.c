@@ -2101,20 +2101,24 @@ db_roundup_round(struct roundup *r)
 
 	mpq_init(tmp);
 	mpq_init(sum);
-
+#if 0
 	for (j = 1, i = 0; i < r->roundcount; i++, j *= 2) {
 		mpq_set_ui(tmp, 1, j);
 		mpq_canonicalize(tmp);
 		mpq_summation(sum, tmp);
 	}
-
+#endif
 	for (i = 0; i < r->p1sz; i++) {
+#if 0
 		mpq_div(tmp, r->aggrp1[i], sum);
+#endif
 		r->avgp1[i] = mpq_get_d(tmp);
 		r->navgp1[i] = mpq_get_d(r->curp1[i]);
 	}
 	for (i = 0; i < r->p2sz; i++)  {
+#if 0
 		mpq_div(tmp, r->aggrp2[i], sum);
+#endif
 		r->avgp2[i] = mpq_get_d(tmp);
 		r->navgp2[i] = mpq_get_d(r->curp2[i]);
 	}
@@ -2519,7 +2523,7 @@ db_roundup_get(int64_t round, const struct game *game)
 		r->plays = sqlite3_column_int(stmt, 6);
 		sqlite3_finalize(stmt);
 		return(db_roundup_round(r));
-	}
+	} 
 
 	sqlite3_finalize(stmt);
 	free(r);
@@ -2555,7 +2559,6 @@ again:
 	period->roundups[round] = db_roundup_get(round, game);
 	if (NULL != period->roundups[round])
 		return;
-
 	fprintf(stderr, "Roundup: game %" PRId64 
 		", round %" PRId64 "\n", game->id, round);
 
@@ -2809,7 +2812,7 @@ db_interval_get(int64_t round)
 	intv->periodsz = db_game_count_all();
 	intv->periods = kcalloc
 		(intv->periodsz, sizeof(struct period));
-	
+
 	stmt = db_stmt("SELECT id from game");
 	for (i = 0; SQLITE_ROW == db_step(stmt, 0); i++) {
 		assert(i < intv->periodsz);
