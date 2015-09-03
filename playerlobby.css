@@ -57,6 +57,12 @@ div.payoffs > div.active .pair	{ background-color: #fff;
 section section .error >*	{ padding: 1em 1em 0 1em; }
 em				{ font-style: normal;
 				  font-weight: bold; }
+#graphFig			{ padding: 1ex; }
+#graphFig > div > div > div	{ width: 80%; 
+				  margin-left: auto; 
+			  	  margin-right: auto;
+			  	  height: 200px; 
+				  z-index: 0; }
 @media only screen and (max-width: 1028px), only screen and (max-device-width: 1028px) {
 article				{ padding: 3em 20% 1em 20%; }
 }

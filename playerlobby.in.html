@@ -9,6 +9,7 @@
 		<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" rel="stylesheet" />
 		<script src="@HTURI@/script.js"></script>
 		<script src="@HTURI@/playerlobby.js"></script>
+		<script src="@HTURI@/flotr2.min.js"></script>
 	</head>
 	<body onload="sendQuery('@LABURI@/doloadquestions.json', doInitSetup, doInitSuccess, doInitFailure);">
 		<article>
@@ -37,14 +38,14 @@
 									Before playing, you must answer some questions.
 								</p>
 								<p>
-									In this HIT you will use this web page to play a number of games. Before being
+									In this task you will use this web page to play a number of games. Before being
 									able to play you have to read through some short instructions and will be asked
 									to answer a few questions to make sure you understand. You can read these
 									instructions again once you have answered all questions.
 								</p>
 								<p>
 									Since you can earn a substantial amount as a bonus payment in addition to the
-									HIT completion fee it is important that you read the instructions carefully.
+									task completion fee it is important that you read the instructions carefully.
 								</p>
 								<div class="standalone">
 									<div class="input input-submit">
@@ -59,12 +60,17 @@
 									Please try again.
 								</p>
 								<p>
-									You will participate in ten rounds. Each round consists of choices for
-									the the same five games.
-									In addition to the HIT completion fee you will earn a bonus payment that
-									depends on your own and others’ choices in the games.
-									Each round will last for at least two minutes. It will take
-									approximately one hundred minutes to finish this HIT.
+									You will participate in 10 rounds. 
+									In each round you and others will make decisions in five games. 
+									These games are identical in all rounds.
+								</p>
+								<p>
+									In addition to the completion fee you will earn a bonus payment that
+									depends on both your own and others' decisions  in the games.
+								</p>
+								<p>
+									Each round will last for at least 3 minutes and will end either when 75%
+									of all participants have played or after 6 minutes have passed.
 								</p>
 								<p>
 									How many games will you play in each round?
@@ -122,13 +128,18 @@
 									Please try again.
 								</p>
 								<p>
-									Each game is represented in a table where you always choose row(s). You
-									will be playing with other players, some also choose row(s) and others
-									choose column(s).  Your payoff (which contributes to your bonus payment)
-									for a given row and column combination is the first number in each cell,
-									shown in: <i class="fa fa-square" style="color: red;"></i>. The column
-									player’s payoff is the second number in each cell, shown in: <i
-										class="fa fa-square" style="color: blue;"></i>.
+									Each game is given in a table and you will have to choose one or more
+									rows to play in each. You will then be matched against one of the other
+									participants who will choose one or more columns.
+								</p>
+								<p>
+									Your payoff for a given row and column combination is the first number
+									in each cell, shown in: 
+									<i style="color: #333;" class="fa fa-square"></i>.
+									The column player's payoff is the second number in each cell, shown in:
+									<i style="color: #aaa;" class="fa fa-square"></i>.
+									Your payoff contributes to your bonus payment, with higher payoffs
+									resulting in a higher bonus payment.
 								</p>
 								<div class="poffs">
 									<div>
@@ -138,18 +149,18 @@
 									</div>
 									<div>
 										<div>a</div>
-										<div><span style="color: red;">4</span>, <span style="color: blue;">8</span></div>
-										<div><span style="color: red;">3</span>, <span style="color: blue;">4</span></div>
+										<div><span style="color: #333;">1</span>, <span style="color: #aaa;">2</span></div>
+										<div><span style="color: #333;">3</span>, <span style="color: #aaa;">4</span></div>
 									</div>
 									<div>
 										<div>b</div>
-										<div><span style="color: red;">8</span>, <span style="color: blue;">2</span></div>
-										<div><span style="color: red;">2</span>, <span style="color: blue;">9</span></div>
+										<div><span style="color: #333;">5</span>, <span style="color: #aaa;">6</span></div>
+										<div><span style="color: #333;">7</span>, <span style="color: #aaa;">8</span></div>
 									</div>
 								</div>
 								<p>
-									What is your payoff from the combinations of row a and column B in the game
-									table below?
+									What is your payoff from the combinations of row <strong>a</strong> and
+									column <strong>B</strong> in the game table?
 								</p>
 								<form action="@LABURI@/doanswer.json" method="post"
 									onsubmit="return(sendForm(this, doSetup, doError, doSuccess));">
@@ -204,10 +215,9 @@
 									Please try again.
 								</p>
 								<p>
-									Being a row player you will have to choose which row(s) to play. You can only
-									get payoffs from the row(s) you play. However, column players will be choosing
-									which column(s) to play so you don’t have full control over which payoff you
-									get.
+									You will only get payoffs from the rows you choose to play. However,
+									column players will be choosing which of the columns to play, so you
+									won’t have full control over the payoff you get.
 								</p>
 								<div class="poffs">
 									<div>
@@ -217,18 +227,17 @@
 									</div>
 									<div>
 										<div>a</div>
-										<div><span style="color: red;">4</span>, <span style="color: blue;">8</span></div>
-										<div><span style="color: red;">3</span>, <span style="color: blue;">4</span></div>
+										<div><span style="color: #333;">1</span>, <span style="color: #aaa;">2</span></div>
+										<div><span style="color: #333;">3</span>, <span style="color: #aaa;">4</span></div>
 									</div>
 									<div>
 										<div>b</div>
-										<div><span style="color: red;">8</span>, <span style="color: blue;">2</span></div>
-										<div><span style="color: red;">2</span>, <span style="color: blue;">9</span></div>
+										<div><span style="color: #333;">5</span>, <span style="color: #aaa;">6</span></div>
+										<div><span style="color: #333;">7</span>, <span style="color: #aaa;">8</span></div>
 									</div>
 								</div>
 								<p>
-									What is your payoff from the combinations of row a and column B in the game
-									table below?
+									What would your payoff be if you played row <strong>b</strong> in the game below?
 								</p>
 								<form action="@LABURI@/doanswer.json" method="post"
 									onsubmit="return(sendForm(this, doSetup, doError, doSuccess));">
@@ -284,13 +293,15 @@
 									Please try again.
 								</p>
 								<p>
-									When choosing row(s) you must give each played row a weight. A weight of
-									1 means that payoffs (for you and the column player) will always be
-									calculated based on that row. A weight of, for example 1/3 means that
-									1/3 of the payoffs will be calculated from that row. Any combination of
-									weights is possible as long as the sum of all weights is 1. Remember
-									that the column(s) from which your payoffs are calculated are chosen by
-									the column players.
+									After you have chosen which rows to play you must assign a weight to
+									each of these. 
+									The weights must add up to one. 
+									A weight of <strong>1</strong> means that payoffs (for you and the
+									column player) will be calculated solely based on that row. 
+									A smaller weight, for example 1/3, means that 1/3 of your payoffs will
+									be calculated from that row. 
+									The columns from which your payoffs are calculated are chosen by the
+									column player in the same fashion.
 								</p>
 								<div class="poffs">
 									<div>
@@ -300,18 +311,19 @@
 									</div>
 									<div>
 										<div>a</div>
-										<div><span style="color: red;">4</span>, <span style="color: blue;">8</span></div>
-										<div><span style="color: red;">3</span>, <span style="color: blue;">4</span></div>
+										<div><span style="color: #333;">1</span>, <span style="color: #aaa;">2</span></div>
+										<div><span style="color: #333;">3</span>, <span style="color: #aaa;">4</span></div>
 									</div>
 									<div>
 										<div>b</div>
-										<div><span style="color: red;">8</span>, <span style="color: blue;">2</span></div>
-										<div><span style="color: red;">2</span>, <span style="color: blue;">9</span></div>
+										<div><span style="color: #333;">5</span>, <span style="color: #aaa;">6</span></div>
+										<div><span style="color: #333;">7</span>, <span style="color: #aaa;">8</span></div>
 									</div>
 								</div>
 								<p>
-									If the column players play column A with weight 1, and you play row a
-									with weight 1/3 and column b with weight 1/3, what would your payoff be?
+									If the column players play column <strong>A</strong> with weight 1, and
+									you play row <strong>a</strong> with weight 1/3 and column b with weight
+									1/3, what would your payoff be?
 								</p>
 								<form action="@LABURI@/doanswer.json" method="post"
 									onsubmit="return(sendForm(this, doSetup, doError, doSuccess));">
@@ -326,19 +338,19 @@
 												</div>
 												<div>
 													<input id="choice3b" name="choice3" type="radio" value="1" />
-													<label for="choice3b">4</label>
+													<label for="choice3b">3 1/3</label>
 												</div>
 												<div>
 													<input id="choice3c" name="choice3" type="radio" value="2" />
-													<label for="choice3c">6</label>
+													<label for="choice3c">3 2/3</label>
 												</div>
 												<div>
 													<input id="choice3d" name="choice3" type="radio" value="3" />
-													<label for="choice3d">8</label>
+													<label for="choice3d">4</label>
 												</div>
 												<div>
 													<input id="choice3e" name="choice3" type="radio" value="4" />
-													<label for="choice3e">9</label>
+													<label for="choice3e">5</label>
 												</div>
 											</div>
 										</div>
@@ -351,8 +363,10 @@
 							</section>
 							<section id="question3-correct" class="noshow">
 								<p>
-									That’s right! 1/2 of the payoffs from row <em>a</em> and column A is 0.5, and 1/2 of
-									the payoffs from row <em>b</em> and column A is 2.5. Together that's 3.
+									That’s right! 1/3 of the payoffs from row <strong>a</strong> and column
+									<strong>A</strong> is 1/3, and 2/3 of the payoffs from row
+									<strong>b</strong> and column <strong>A</strong> is 3 1/3. Together that's
+									3 2/3.
 								</p>
 								<div class="standalone">
 									<div class="input input-submit">
@@ -367,11 +381,17 @@
 									Please try again.
 								</p>
 								<p>
-									To choose row(s), click all rows you want to play and then input the
-									weight you want to assign the rows you have selected in their
-									corresponding fields. When you have selected rows and weights, click the
-									<q>Submit</q> button and then the <q>Go to next game</q> button to
-									proceed to the next game.
+									To make a decision in a game, first click all rows you want to play and
+									then input the weights you want to assign to them. Once you have chosen
+									rows and weights, click the <q>Submit</q> button and then the <q>Go to next
+										game</q> button to proceed to the next game.
+								</p>
+								<p>
+									You must make decisions for all five games in a round in order to receive
+									payoffs from that round. 
+								</p>
+								<p>
+									Try playing any rows with any weight you want.
 								</p>
 								<div class="payoffs" style="max-width: 20em;">
 									<div class="labelaside">
@@ -382,23 +402,19 @@
 									<div id="payoffRow0" onclick="prowClick(this, 0);" onmouseover="prowOver(this, 0);" onmouseout="prowOut(this, 0);">
 										<div class="labelaside">a</div>
 										<div class="pair">
-											<div style="color: red;">4</div>
-											<div style="color: blue;">8</div>
+											<div style="color: #333;">1</div><div style="color: #aaa;">2</div>
 										</div>
 										<div class="pair">
-											<div style="color: red;">3</div>
-											<div style="color: blue;">4</div>
+											<div style="color: #333;">3</div><div style="color: #aaa;">4</div>
 										</div>
 									</div>
 									<div id="payoffRow1" onclick="prowClick(this, 1);" onmouseover="prowOver(this, 1);" onmouseout="prowOut(this, 1);">
 										<div class="labelaside">b</div>
 										<div class="pair">
-											<div style="color: red;">8</div>
-											<div style="color: blue;">2</div>
+											<div style="color: #333;">5</div><div style="color: #aaa;">6</div>
 										</div>
 										<div class="pair">
-											<div style="color: red;">2</div>
-											<div style="color: blue;">9</div>
+											<div style="color: #333;">7</div><div style="color: #aaa;">8</div>
 										</div>
 									</div>
 								</div>
@@ -435,14 +451,17 @@
 									Please try again.
 								</p>
 								<p>
-									To choose row(s), click all rows you want to play and then input the
-									weight you want to assign the rows you have selected in their
-									corresponding fields. When you have selected rows and weights, click the
-									<q>Submit</q> button and then the <q>Go to next game</q> button to
-									proceed to the next game.
+									To make a decision in a game, first click all rows you want to play and
+									then input the weights you want to assign to them. Once you have chosen
+									rows and weights, click the <q>Submit</q> button and then the <q>Go to next
+										game</q> button to proceed to the next game.
 								</p>
 								<p>
-									Try playing both row <em>a</em> &amp; <em>b</em> in the game below, you can assign them
+									You must make decisions for all five games in a round in order to receive
+									payoffs from that round. 
+								</p>
+								<p>
+									Try playing rows <strong>a</strong> &amp; <strong>b</strong> in the game below, you can assign them
 									any weight you want.
 								</p>
 								<div class="payoffs" style="max-width: 20em;">
@@ -454,23 +473,19 @@
 									<div id="payoffRow2" onclick="prowClick(this, 2);" onmouseover="prowOver(this, 2);" onmouseout="prowOut(this, 2);">
 										<div class="labelaside">a</div>
 										<div class="pair">
-											<div style="color: red;">4</div>
-											<div style="color: blue;">8</div>
+											<div style="color: #333;">1</div><div style="color: #aaa;">2</div>
 										</div>
 										<div class="pair">
-											<div style="color: red;">3</div>
-											<div style="color: blue;">4</div>
+											<div style="color: #333;">3</div><div style="color: #aaa;">4</div>
 										</div>
 									</div>
 									<div id="payoffRow3" onclick="prowClick(this, 3);" onmouseover="prowOver(this, 3);" onmouseout="prowOut(this, 3);">
 										<div class="labelaside">b</div>
 										<div class="pair">
-											<div style="color: red;">8</div>
-											<div style="color: blue;">2</div>
+											<div style="color: #333;">5</div><div style="color: #aaa;">6</div>
 										</div>
 										<div class="pair">
-											<div style="color: red;">2</div>
-											<div style="color: blue;">9</div>
+											<div style="color: #333;">7</div><div style="color: #aaa;">8</div>
 										</div>
 									</div>
 								</div>
@@ -507,14 +522,15 @@
 									Please try again.
 								</p>
 								<p>
-									Your payoff from a game depends on how you play (which row(s) you choose
-									and the weight you assign to the row(s)) and on how the column players
-									play on average (which column(s) they choose and the weight they assign
-									to the column(s)).  At the end of the HIT your bonus payment will be
-									calculated by summing your payoffs from all games in all rounds and
-									converting the points to US dollars at a 1 point = $1 rate. You must
-									make choices for all games in a round in order to receive bonus payments
-									from that round.
+									Your payoffs from a game depend on the rows and weights you choose, as
+									well as  how the column players choose on average. 
+									Other players' payoffs are calculated in the same fashion.
+								</p>
+								<p>
+									At the end of the task your bonus payment will be calculated by summing
+									your payoffs from all games in all rounds in which you have
+									participated. 
+									Your payoff will be converted to US dollars at a 1 payoff point = 0.01 rate.
 								</p>
 								<p>
 									If you earn 30 points in total from the 10 rounds, how large will your
@@ -529,23 +545,23 @@
 											<div class="inputgroup">
 												<div>
 													<input id="choice6a" name="choice6" type="radio" value="0" />
-													<label for="choice6a">$10</label>
+													<label for="choice6a">$0.1</label>
 												</div>
 												<div>
 													<input id="choice6b" name="choice6" type="radio" value="1" />
-													<label for="choice6b">$20</label>
+													<label for="choice6b">$0.2</label>
 												</div>
 												<div>
 													<input id="choice6c" name="choice6" type="radio" value="2" />
-													<label for="choice6c">$30</label>
+													<label for="choice6c">$0.3</label>
 												</div>
 												<div>
 													<input id="choice6d" name="choice6" type="radio" value="3" />
-													<label for="choice6d">$40</label>
+													<label for="choice6d">$0.4</label>
 												</div>
 												<div>
 													<input id="choice6e" name="choice6" type="radio" value="4" />
-													<label for="choice6e">$50</label>
+													<label for="choice6e">$0.5</label>
 												</div>
 											</div>
 										</div>
@@ -558,7 +574,7 @@
 							</section>
 							<section id="question6-correct" class="noshow">
 								<p>
-									That’s right. 30 points times $1/point is $30.
+									That’s right. 30 points times $0.01/point is $0.3.
 								</p>
 								<div class="standalone">
 									<div class="input input-submit">
@@ -573,18 +589,24 @@
 									Please try again.
 								</p>
 								<p>
-									To get information about a game in previous rounds you can look at the
-									graphs on the play page and on the <q>History</q> tab. The graphs gives
-									you information about things such as your previous payoffs, how much
-									payoff you would have gotten by choosing each row with full weight (1)
-									in previous rounds, and the average choices of the row and column
-									players in previous rounds.
+									The graphs on the play page and on the <q>History</q> tab provide
+									information about the games and how they have been played in previous
+									rounds. 
+									This information includes
+									your previous payoffs,
+									how much payoff you would have gotten by choosing each row with full weight (1) in previous
+									rounds,
+									and the average choices of the row and column players in previous rounds.
 								</p>
 								<p>
-									Example graph form a game with three rows:
+									Select graphs from a game with two rows:
 								</p>
+								<figure id="graphFig">
+									<div id="historyLineGraphs"></div>
+									<div id="historyBarGraphs"></div>
+								</figure>
 								<p>
-									Based on the graph above: In the last round, choosing what row with full
+									Based on the graphs above: in the last round, choosing what row with full
 									weight would have given you the highest payoff?
 								</p>
 								<form action="@LABURI@/doanswer.json" method="post"
@@ -601,10 +623,6 @@
 												<div>
 													<input id="choice7b" name="choice7" type="radio" value="1" />
 													<label for="choice7b">b</label>
-												</div>
-												<div>
-													<input id="choice7c" name="choice7" type="radio" value="2" />
-													<label for="choice7c">c</label>
 												</div>
 											</div>
 										</div>

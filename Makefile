@@ -184,7 +184,7 @@ adminhome.js playerautoadd.js playerlobby.js playerhome.js: jsmin
 	rm -f $@
 	sed -e "s!@ADMINURI@!$(ADMINURI)!g" \
 		-e "s!@LABURI@!$(LABURI)!g" \
-		-e "s!@HTURI@!$(HTURI)!g" $< | ./jsmin >$@
+		-e "s!@HTURI@!$(HTURI)!g" $< >$@
 	chmod 444 $@
 
 .in.html.html:
