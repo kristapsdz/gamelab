@@ -98,6 +98,8 @@ enum	cntt {
 enum	key {
 	KEY_AUTOADD,
 	KEY_AUTOADDPRESERVE,
+	KEY_CONVERSION,
+	KEY_CURRENCY,
 	KEY_DATE,
 	KEY_TIME,
 	KEY_ROUNDMIN,
@@ -222,6 +224,8 @@ static int kvalid_time(struct kpair *);
 static const struct kvalid keys[KEY__MAX] = {
 	{ kvalid_int, "autoadd" }, /* KEY_AUTOADD */
 	{ kvalid_int, "autoaddpreserve" }, /* KEY_AUTOADDPRESERVE*/
+	{ kvalid_udouble, "conversion" }, /* KEY_CONVERSION */
+	{ kvalid_stringne, "currency" }, /* KEY_CURRENCY */
 	{ kvalid_date, "date" }, /* KEY_DATE */
 	{ kvalid_time, "time" }, /* KEY_TIME */
 	{ kvalid_uint, "roundmin" }, /* KEY_ROUNDMIN */
@@ -1087,6 +1091,8 @@ senddostartexpr(struct kreq *r)
 	size_t		 sz;
 
 	if (kpairbad(r, KEY_DATE) ||
+	    kpairbad(r, KEY_CURRENCY) ||
+	    kpairbad(r, KEY_CONVERSION) ||
 	    kpairbad(r, KEY_NOLOTTERY) ||
 	    kpairbad(r, KEY_QUESTIONNAIRE) ||
 	    kpairbad(r, KEY_TIME) ||
@@ -1165,7 +1171,9 @@ senddostartexpr(struct kreq *r)
 		 NULL == r->fieldmap[KEY_HISTORYFILE] ?
 		 NULL : r->fieldmap[KEY_HISTORYFILE]->parsed.s,
 		 r->fieldmap[KEY_NOLOTTERY]->parsed.i,
-		 r->fieldmap[KEY_QUESTIONNAIRE]->parsed.i)) {
+		 r->fieldmap[KEY_QUESTIONNAIRE]->parsed.i,
+		 r->fieldmap[KEY_CONVERSION]->parsed.d,
+		 r->fieldmap[KEY_CURRENCY]->parsed.s)) {
 		http_open(r, KHTTP_409);
 		khttp_body(r);
 		if (INSTR_LOTTERY == inst || 

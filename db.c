@@ -1792,7 +1792,8 @@ int
 db_expr_start(int64_t date, int64_t roundpct, int64_t roundmin, 
 	int64_t rounds, int64_t prounds, int64_t minutes, 
 	int64_t playermax, const char *instr, const char *uri,
-	const char *historyfile, int64_t nolottery, int64_t ques)
+	const char *historyfile, int64_t nolottery, int64_t ques,
+	double conversion, const char *currency)
 {
 	sqlite3_stmt	*stmt, *stmt2;
 	int64_t		 id;
@@ -1820,6 +1821,7 @@ db_expr_start(int64_t date, int64_t roundpct, int64_t roundmin,
 		"loginuri=?,instr=?,state=?,"
 		"roundpct=?,prounds=?,playermax=?,"
 		"prounds=?,history=?,nolottery=?,questionnaire=?,"
+		"conversion=?,currency=?,"
 		"autoadd=CASE WHEN autoaddpreserve=1 "
 			"THEN autoadd ELSE 0 END,"
 		"mturk=CASE WHEN autoaddpreserve=1 "
@@ -1837,6 +1839,8 @@ db_expr_start(int64_t date, int64_t roundpct, int64_t roundmin,
 	db_bind_text(stmt, 11, NULL == historyfile ? "" : historyfile);
 	db_bind_int(stmt, 12, nolottery);
 	db_bind_int(stmt, 13, ques);
+	db_bind_double(stmt, 14, conversion);
+	db_bind_text(stmt, 15, currency);
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);
 
@@ -2731,8 +2735,8 @@ db_expr_get(int only_started)
 		"loginuri,state,instr,state,total,"
 		"autoadd,round,roundbegan,roundpct,"
 		"roundmin,prounds,playermax,autoaddpreserve,"
-		"history,nolottery,questionnaire,mturk " 
-		"FROM experiment");
+		"history,nolottery,questionnaire,mturk,"
+		"conversion,currency FROM experiment");
 	rc = db_step(stmt, 0);
 	assert(SQLITE_ROW == rc);
 	if (only_started && ESTATE_NEW == sqlite3_column_int(stmt, 4)) {
@@ -2761,6 +2765,8 @@ db_expr_get(int only_started)
 	expr->nolottery = sqlite3_column_int(stmt, 17);
 	expr->questionnaire = sqlite3_column_int(stmt, 18);
 	expr->mturk = sqlite3_column_int(stmt, 19);
+	expr->conversion = sqlite3_column_double(stmt, 20);
+	expr->currency = kstrdup((char *)sqlite3_column_text(stmt, 21));
 	sqlite3_finalize(stmt);
 	return(expr);
 }
@@ -2772,6 +2778,7 @@ db_expr_free(struct expr *expr)
 		return;
 
 	free(expr->loginuri);
+	free(expr->currency);
 	free(expr->instr);
 	free(expr->history);
 	free(expr);
@@ -2825,6 +2832,7 @@ db_expr_wipe(void)
 		"enabled=1,finalrank=0,finalscore=0,hash='',"
 		"joined=-1,answer=0");
 	db_exec("UPDATE experiment SET "
+		"currency='',conversion=1,"
 		"autoadd=0,mturk=0,autoaddpreserve=0,"
 		"state=0,total='0/1',round=-1,rounds=0,"
 		"prounds=0,roundbegan=0,roundpct=0.0,minutes=0,"

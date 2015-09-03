@@ -28,33 +28,52 @@
 
 #include "extern.h"
 
+/*
+ * Key identifiers used when templating the instructions.
+ * See khttp_template(3) and family.
+ */
 enum	tkey {
 	TKEY_ADMIN_EMAIL,
+	TKEY_CONVERSION,
+	TKEY_CURRENCY,
 	TKEY_GAMES,
+	TKEY_ROUND_MINTIME_HOURS,
+	TKEY_ROUND_MINTIME_MINUTES,
+	TKEY_ROUND_PERCENT,
+	TKEY_ROUND_TIME_HOURS,
+	TKEY_ROUND_TIME_MINUTES,
 	TKEY_ROUNDS,
-	TKEY_ROUND_TIME,
+	TKEY_TIME_TOTAL_HOURS,
+	TKEY_TIME_TOTAL_MINUTES,
 	TKEY__MAX
 };
 
 static	const char *const tkeys[TKEY__MAX] = {
-	"gamelab-admin-email",
-	"gamelab-games",
-	"gamelab-rounds",
-	"gamelab-round-time",
+	"gamelab-admin-email", /* TKEY_ADMIN_EMAIL */
+	"gamelab-conversion", /* TKEY_CONVERSION */
+	"gamelab-currency", /* TKEY_CURRENCY */
+	"gamelab-games", /* TKEY_GAMES */
+	"gamelab-round-mintime-hours", /* TKEY_ROUND_MINTIME_HOURS */
+	"gamelab-round-mintime-minutes", /* TKEY_ROUND_MINTIME_MINUTES */
+	"gamelab-round-percent", /* TKEY_ROUND_PERCENT */
+	"gamelab-round-time-hours", /* TKEY_ROUND_TIME_HOURS */
+	"gamelab-round-time-minutes", /* TKEY_ROUND_TIME_MINUTES */
+	"gamelab-rounds", /* TKEY_ADMIN_EMAIL */
+	"gamelab-time-total-hours", /* TKEY_TIME_TOTAL_HOURS */
+	"gamelab-time-total-minutes", /* TKEY_TIME_TOTAL_MINUTES */
 };
 
 struct	jsoncache {
-	char	 	*mail;
-	struct kjsonreq	*r;
-	int64_t		 rounds;
-	int64_t		 games;
-	int64_t		 roundtime;
+	char	 	  *mail; /* administrator email */
+	struct kjsonreq	  *r; /* JSON object */
+	int64_t		   games; /* number of games */
+	const struct expr *expr; /* experiment data */
 };
 
 struct	intvcache {
-	struct interval	*intv;
-	struct kjsonreq	*req;
-	int		 admin;
+	struct interval	*intv; /* game roundups */
+	struct kjsonreq	*req; /* JSON object */
+	int		 admin; /* whether privileged */
 };
 
 static int
@@ -66,14 +85,50 @@ json_instructions(size_t key, void *arg)
 	case (TKEY_ADMIN_EMAIL):
 		kjson_string_puts(c->r, c->mail);
 		break;
+	case (TKEY_CURRENCY):
+		kjson_string_write(c->expr->currency, 
+			strlen(c->expr->currency), c->r);
+		break;
+	case (TKEY_CONVERSION):
+		kjson_string_putdouble(c->r, 
+			c->expr->conversion);
+		break;
 	case (TKEY_GAMES):
 		kjson_string_putint(c->r, c->games);
 		break;
-	case (TKEY_ROUNDS):
-		kjson_string_putint(c->r, c->rounds);
+	case (TKEY_ROUND_MINTIME_HOURS):
+		kjson_string_putdouble(c->r, 
+			c->expr->roundmin / 60.0);
 		break;
-	case (TKEY_ROUND_TIME):
-		kjson_string_putdouble(c->r, c->roundtime / 60.0);
+	case (TKEY_ROUND_MINTIME_MINUTES):
+		kjson_string_putint(c->r, 
+			c->expr->roundmin);
+		break;
+	case (TKEY_ROUND_PERCENT):
+		kjson_string_putdouble(c->r, 
+			c->expr->roundpct * 100.0);
+		break;
+	case (TKEY_ROUND_TIME_HOURS):
+		kjson_string_putdouble(c->r, 
+			c->expr->minutes / 60.0);
+		break;
+	case (TKEY_ROUND_TIME_MINUTES):
+		kjson_string_putint(c->r, 
+			c->expr->minutes);
+		break;
+	case (TKEY_ROUNDS):
+		kjson_string_putint(c->r, 
+			c->expr->rounds);
+		break;
+	case (TKEY_TIME_TOTAL_HOURS):
+		kjson_string_putdouble(c->r, 
+			(c->expr->minutes / 60.0) * 
+			c->expr->rounds);
+		break;
+	case (TKEY_TIME_TOTAL_MINUTES):
+		kjson_string_putdouble(c->r, 
+			c->expr->minutes * 
+			c->expr->rounds);
 		break;
 	default:
 		abort();
@@ -203,7 +258,8 @@ json_putexpr(struct kjsonreq *r, const struct expr *expr)
 	if (expr->round >= 0 && expr->round < expr->rounds)
 		frac = (expr->round / (double)expr->rounds) +
 			(1.0 / (double)expr->rounds) * 
-			((tt - expr->roundbegan) / (double)(expr->minutes * 60));
+			((tt - expr->roundbegan) / 
+			 (double)(expr->minutes * 60));
 	else if (expr->round >= 0)
 		frac = 1.0;
 
@@ -213,8 +269,7 @@ json_putexpr(struct kjsonreq *r, const struct expr *expr)
 	memset(&c, 0, sizeof(struct jsoncache));
 	c.r = r;
 	c.mail = db_admin_get_mail();
-	c.rounds = expr->rounds;
-	c.roundtime = expr->minutes;
+	c.expr = expr;
 	c.games = db_game_count_all(); /* FIXME */
 	t.key = tkeys;
 	t.keysz = TKEY__MAX;

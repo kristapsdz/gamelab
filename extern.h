@@ -44,6 +44,8 @@ struct	expr {
 	double		 roundpct; /* percent-based round advance */
 	int64_t		 roundmin; /* if percent-based, min minutes */
 	int64_t		 minutes; /* minutes per game play */
+	double		 conversion; /* points -> currency */
+	char		*currency; /* payoff currency */
 	char		*loginuri; /* player login (email click) */
 	char		*instr; /* instruction markup */
 	char		*history; /* "fake" JSON history */
@@ -215,7 +217,7 @@ void		 db_expr_setinstr(const char *);
 int		 db_expr_start(int64_t, int64_t, int64_t, 
 			int64_t, int64_t, int64_t, int64_t, 
 			const char *, const char *, const char *,
-			int64_t, int64_t);
+			int64_t, int64_t, double, const char *);
 void		 db_expr_wipe(void);
 
 struct game	*db_game_alloc(const char *,
