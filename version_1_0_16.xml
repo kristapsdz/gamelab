@@ -15,5 +15,8 @@
 			Have the administrator page check if it should re-load when viewing round-percent experiments.
 			This keeps the administrator page a bit more up-to-date with running games.
 		</p>
+		<p>
+			Finalise the Mechanical Turk instructions, which required adding a conversion rate for points to currency.
+		</p>
 	</aside>
 </article>

@@ -139,6 +139,16 @@ enum	key {
 	KEY__MAX
 };
 
+/*
+ * Used for managing the high scores, which require both the score
+ * itself as well as the conversion rate for a currency calculation.
+ */
+struct	hghstor {
+	struct kjsonreq	*req; /* may be NULL */
+	struct kreq	*r;
+	struct expr	*expr;
+};
+
 #define	PERM_LOGIN	0x01
 #define	PERM_HTML	0x08
 #define	PERM_JSON	0x10
@@ -358,31 +368,39 @@ sendcontent(struct kreq *r, enum cntt cntt)
 }
 
 static void
-sendhighestcsv(const struct player *p, double poff, int64_t score, void *arg)
+sendhighestcsv(const struct player *p, 
+	double poff, int64_t score, void *arg)
 {
-	struct kreq	*req = arg;
+	struct hghstor	*stor = arg;
 	char		 buf[64];
 
 	snprintf(buf, sizeof(buf), "%" PRId64, score);
-	khttp_puts(req, buf);
-	khttp_putc(req, ',');
+	khttp_puts(stor->r, buf);
+	khttp_putc(stor->r, ',');
 	snprintf(buf, sizeof(buf), "%g", poff);
-	khttp_puts(req, buf);
-	khttp_putc(req, ',');
-	khttp_puts(req, p->mail);
-	khttp_putc(req, '\n');
+	khttp_puts(stor->r, buf);
+	khttp_putc(stor->r, ',');
+	khttp_puts(stor->r, p->mail);
+	khttp_putc(stor->r, ',');
+	snprintf(buf, sizeof(buf), "%g", 
+		score * stor->expr->conversion);
+	khttp_puts(stor->r, buf);
+	khttp_putc(stor->r, '\n');
 }
 
 static void
-sendhighest(const struct player *p, double poff, int64_t score, void *arg)
+sendhighest(const struct player *p, 
+	double poff, int64_t score, void *arg)
 {
-	struct kjsonreq	*req = arg;
+	struct hghstor	*stor = arg;
 
-	kjson_obj_open(req);
-	kjson_putintp(req, "score", score);
-	kjson_putdoublep(req, "payoff", poff);
-	json_putplayer(req, p);
-	kjson_obj_close(req);
+	kjson_obj_open(stor->req);
+	kjson_putintp(stor->req, "score", score);
+	kjson_putdoublep(stor->req, "payoff", poff);
+	kjson_putdoublep(stor->req, "payout", 
+		score * stor->expr->conversion);
+	json_putplayer(stor->req, p);
+	kjson_obj_close(stor->req);
 }
 
 static void
@@ -443,11 +461,15 @@ senddogethistory(struct kreq *r)
 static void
 senddogethighest(struct kreq *r)
 {
+	struct hghstor	 stor;
 
+	memset(&stor, 0, sizeof(struct hghstor));
 	http_open(r, KHTTP_200);
 	khttp_body(r);
-
-	db_player_load_highest(sendhighestcsv, r, 0);
+	stor.r = r;
+	stor.expr = db_expr_get(0);
+	db_player_load_highest(sendhighestcsv, &stor, 0);
+	db_expr_free(stor.expr);
 }
 
 static void
@@ -455,7 +477,10 @@ senddogetexpr(struct kreq *r)
 {
 	struct expr	*expr;
 	struct kjsonreq	 req;
+	struct hghstor	 hgh;
 	size_t		 gamesz, round;
+
+	memset(&hgh, 0, sizeof(struct hghstor));
 
 	if (NULL == (expr = db_expr_get(1))) {
 		http_open(r, KHTTP_409);
@@ -489,8 +514,12 @@ senddogetexpr(struct kreq *r)
 	kjson_putintp(&req, "lobbysize", db_expr_lobbysize());
 
 	kjson_arrayp_open(&req, "highest");
-	if (expr->round > 0)
-		db_player_load_highest(sendhighest, &req, 5);
+	if (expr->round > 0) {
+		hgh.req = &req;
+		hgh.r = r;
+		hgh.expr = expr;
+		db_player_load_highest(sendhighest, &hgh, 5);
+	}
 	kjson_array_close(&req);
 
 	if (ESTATE_POSTWIN == expr->state) {

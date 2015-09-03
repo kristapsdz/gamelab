@@ -534,6 +534,9 @@ function doStatHighest(e, res)
 	subsub.appendChild(document.createTextNode('tickets'));
 	sub.appendChild(subsub);
 	subsub = document.createElement('span');
+	subsub.appendChild(document.createTextNode('payout'));
+	sub.appendChild(subsub);
+	subsub = document.createElement('span');
 	subsub.appendChild(document.createTextNode('payoff'));
 	sub.appendChild(subsub);
 	subsub = document.createElement('span');
@@ -544,13 +547,20 @@ function doStatHighest(e, res)
 	for (i = 0; i < res.highest.length; i++) {
 		sub = document.createElement('li');
 		subsub = document.createElement('span');
-		subsub.appendChild(document.createTextNode(res.highest[i].score));
+		subsub.appendChild(document.createTextNode
+			(res.highest[i].score));
 		sub.appendChild(subsub);
 		subsub = document.createElement('span');
-		subsub.appendChild(document.createTextNode(res.highest[i].payoff));
+		subsub.appendChild(document.createTextNode
+			(res.highest[i].score * res.expr.conversion));
 		sub.appendChild(subsub);
 		subsub = document.createElement('span');
-		subsub.appendChild(document.createTextNode(res.highest[i].player.mail));
+		subsub.appendChild(document.createTextNode
+			(res.highest[i].payoff));
+		sub.appendChild(subsub);
+		subsub = document.createElement('span');
+		subsub.appendChild(document.createTextNode
+			(res.highest[i].player.mail));
 		sub.appendChild(subsub);
 		e.appendChild(sub);
 	}
