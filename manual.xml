@@ -946,10 +946,19 @@
 								This is useful for rolling experiments so as not to have a break between
 								starting the experiment and reenabling captive mode.
 							</dd>
+							<dt id="db-experiment-conversion"><var>conversion</var></dt>
+							<dd>
+								A positive real number used in computing a conversion rate between points and currency.
+							</dd>
+							<dt id="db-experiment-currency"><var>currency</var></dt>
+							<dd>
+								The string currency (e.g., <q>US dollars</q>, <q>Euro</q>) used when displaying currency information.
+							</dd>
 							<dt id="db-experiment-end"><var>end</var></dt>
 							<dd>An epoch-encoded (seconds) time and date when the experiment when the last
 								round of the experiment concludes.  This also corresponds to the
-								starting time plus the number of rounds times round duration.</dd>
+								starting time plus the number of rounds times round duration.
+							</dd>
 							<dt id="db-experiment-id"><var>id</var></dt>
 							<dd>Unique identifier.</dd>
 							<dt id="db-experiment-instr"><var>instr</var></dt>
