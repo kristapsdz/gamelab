@@ -91,14 +91,23 @@ again:
 		db_sleep(attempt++);
 		goto again;
 	} else if (SQLITE_LOCKED == rc) {
+		fprintf(stderr, "sqlite3_step: warning: %s\n", 
+			sqlite3_errmsg(db));
+		db_sleep(attempt++);
+		goto again;
+	} else if (SQLITE_PROTOCOL == rc) {
+		fprintf(stderr, "sqlite3_step: warning: %s\n", 
+			sqlite3_errmsg(db));
 		db_sleep(attempt++);
 		goto again;
 	} else if (SQLITE_OK == rc) {
 		sqlite3_busy_timeout(db, 500);
+#if 0
 		if (0 == attempt)
 			return;
 		fprintf(stderr, "sqlite3_open: success "
 			"after %zu retries\n", attempt);
+#endif
 		return;
 	} 
 
@@ -120,15 +129,24 @@ again:
 		db_sleep(attempt++);
 		goto again;
 	} else if (SQLITE_LOCKED == rc) {
+		fprintf(stderr, "sqlite3_step: warning: %s\n", 
+			sqlite3_errmsg(db));
+		db_sleep(attempt++);
+		goto again;
+	} else if (SQLITE_PROTOCOL == rc) {
+		fprintf(stderr, "sqlite3_step: warning: %s\n", 
+			sqlite3_errmsg(db));
 		db_sleep(attempt++);
 		goto again;
 	}
 
+#if 0
 	if (attempt > 0 &&
 	   (SQLITE_DONE == rc || SQLITE_ROW == rc ||
 	    (SQLITE_CONSTRAINT == rc && DB_STEP_CONSTRAINT & flags)))
 		fprintf(stderr, "sqlite3_step: success "
 			"after %zu retries\n", attempt);
+#endif
 
 	if (SQLITE_DONE == rc || SQLITE_ROW == rc)
 		return(rc);
@@ -155,17 +173,26 @@ again:
 		db_sleep(attempt++);
 		goto again;
 	} else if (SQLITE_LOCKED == rc) {
+		fprintf(stderr, "sqlite3_prepare_v2: warning: %s\n", 
+			sqlite3_errmsg(db));
+		db_sleep(attempt++);
+		goto again;
+	} else if (SQLITE_PROTOCOL == rc) {
+		fprintf(stderr, "sqlite3_prepare_v2: warning: %s\n", 
+			sqlite3_errmsg(db));
 		db_sleep(attempt++);
 		goto again;
 	} else if (SQLITE_OK == rc) {
+#if 0
 		if (0 == attempt)
 			return(stmt);
 		fprintf(stderr, "sqlite3_prepare_v2: "
 			"success after %zu retries\n", attempt);
+#endif
 		return(stmt);
 	}
 
-	fprintf(stderr, "sqlite3_stmt: %s (%s)\n", 
+	fprintf(stderr, "sqlite3_prepare_v2: %s (%s)\n", 
 		sqlite3_errmsg(db), sql);
 	sqlite3_finalize(stmt);
 	exit(EXIT_FAILURE);
@@ -225,13 +252,22 @@ again:
 		db_sleep(attempt++);
 		goto again;
 	} else if (SQLITE_LOCKED == rc) {
+		fprintf(stderr, "sqlite3_exec: warning: %s\n", 
+			sqlite3_errmsg(db));
+		db_sleep(attempt++);
+		goto again;
+	} else if (SQLITE_PROTOCOL == rc) {
+		fprintf(stderr, "sqlite3_exec: warning: %s\n", 
+			sqlite3_errmsg(db));
 		db_sleep(attempt++);
 		goto again;
 	} else if (SQLITE_OK == rc) {
+#if 0
 		if (0 == attempt)
 			return;
 		fprintf(stderr, "sqlite3_exec: success "
 			"after %zu retries\n", attempt);
+#endif
 		return;
 	}
 
@@ -658,8 +694,10 @@ advance:
 	} else {
 		db_step(stmt, 0);
 		db_trans_commit();
+#if 0
 		fprintf(stderr, "Round-advance ok: %" PRId64 " "
 			"to %" PRId64 "\n", expr->round, round);
+#endif
 		if (0 == round)
 			fprintf(stderr, "Round-advance is at "
 				"start of experiment\n");
@@ -1335,9 +1373,11 @@ db_player_play(const struct player *p, int64_t sessid,
 			p->id, gameid, round);
 		return(0);
 	}
+#if 0
 	fprintf(stderr, "Player %" PRId64 " has played "
 		"game %" PRId64 " (round %" PRId64 ")\n",
 		p->id, gameid, round);
+#endif
 
 	/*
 	 * First create (this is a no-op if it has already been created)
@@ -2503,8 +2543,10 @@ again:
 	period->roundups[round] = db_roundup_get(round, game);
 	if (NULL != period->roundups[round])
 		return;
+#if 0
 	fprintf(stderr, "Roundup: game %" PRId64 
 		", round %" PRId64 "\n", game->id, round);
+#endif
 
 	r = kcalloc(1, sizeof(struct roundup));
 	r->round = round;
@@ -2624,15 +2666,19 @@ aggregate:
 
 	if (SQLITE_CONSTRAINT == rc) { 
 		db_trans_rollback();
+#if 0
 		fprintf(stderr, "Roundup concurrent: "
 			"round %" PRId64 ", game %" 
 			PRId64 "\n", round, game->id);
+#endif
 	} else {
 		db_roundup_players(round, r, gamesz, game);
 		db_trans_commit();
+#if 0
 		fprintf(stderr, "Roundup complete: "
 			"round %" PRId64 ", game %" 
 			PRId64 "\n", round, game->id);
+#endif
 	}
 
 	free(cursp1);

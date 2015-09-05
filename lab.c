@@ -1170,14 +1170,13 @@ main(void)
 	struct kfcgi	*fcgi;
 
 	if (khttp_fcgi_test()) {
-		fprintf(stderr, "FastCGI!\n");
 		er = khttp_fcgi_init(&fcgi, keys, KEY__MAX, 
 			pages, PAGE__MAX, PAGE_INDEX);
-		fprintf(stderr, "Ok!\n");
 		if (KCGI_OK != er) 
 			return(EXIT_FAILURE);
+		fprintf(stderr, "FastCGI started "
+			"(pid %lld)!\n", (long long)getpid());
 		while (KCGI_OK == khttp_fcgi_parse(fcgi, &r)) {
-			fprintf(stderr, "Connection!\n");
 			doreq(&r);
 			khttp_free(&r);
 		}
