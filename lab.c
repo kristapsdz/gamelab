@@ -32,7 +32,7 @@
 
 #include "extern.h"
 
-#define	QUESTIONS 7
+#define	QUESTIONS 8
 
 struct	intvstor {
 	struct interval	*intv;
