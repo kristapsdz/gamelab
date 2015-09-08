@@ -34,11 +34,23 @@
 
 #define	QUESTIONS 8
 
+/*
+ * This structure is used to bundle several things into a single pointer
+ * as used by the JSON outputter.
+ * Specifically, it's used to bundle both an interval structure (all
+ * rounds' histories) and the JSON request object.
+ */
 struct	intvstor {
 	struct interval	*intv;
 	struct kjsonreq	*req;
 };
 
+/*
+ * This structure is used to bundle several things into a single pointer
+ * as used by the JSON outputter.
+ * Specifically, it holds the current player and current round along
+ * with the JSON request object.
+ */
 struct	poffstor {
 	int64_t		 playerid;
 	int64_t		 round;
@@ -91,9 +103,13 @@ enum	key {
 	KEY__MAX
 };
 
-#define	PERM_LOGIN	0x01
-#define	PERM_HTML	0x08
-#define	PERM_JSON	0x10
+/*
+ * Bit permissions on each page.
+ * This will always consist of PERM_HTML and/or PERM_JSON.
+ */
+#define	PERM_LOGIN	0x01 /* need login */
+#define	PERM_HTML	0x08 /* HTML page */
+#define	PERM_JSON	0x10 /* JSON page */
 
 static	unsigned int perms[PAGE__MAX] = {
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOANSWER */
@@ -121,6 +137,11 @@ static const char *const pages[PAGE__MAX] = {
 	"mturk", /* PAGE_MTURK */
 };
 
+/*
+ * The answers to each of our questions.
+ * Note that 4 and 5 don't have specific answers: these are handled in
+ * the answer code itself.
+ */
 static int kvalid_choice0(struct kpair *);
 static int kvalid_choice1(struct kpair *);
 static int kvalid_choice2(struct kpair *);
@@ -255,12 +276,14 @@ sendmturk(struct kreq *r)
 		send303(r, HTURI "/playerautoadd.html", PAGE__MAX, 0);
 		return;
 	} else if (NULL == r->fieldmap[KEY_WORKERID] ||
-			NULL == r->fieldmap[KEY_HITID]) {
+		   NULL == r->fieldmap[KEY_HITID]) {
 		http_open(r, KHTTP_303);
 		send303(r, HTURI "/playerautoadd.html", PAGE__MAX, 0);
 		db_expr_free(expr);
 		return;
 	} else if (0 == expr->mturk) {
+		fprintf(stderr, "Mechanical Turk player trying "
+			"to play non-turk experiment\n");
 		http_open(r, KHTTP_303);
 		send303(r, HTURI "/playerautoadd.html", PAGE__MAX, 0);
 		db_expr_free(expr);
@@ -271,12 +294,16 @@ sendmturk(struct kreq *r)
 	id = r->fieldmap[KEY_WORKERID]->parsed.s;
 	hitid = r->fieldmap[KEY_HITID]->parsed.s;
 
-	if (0 == (rc = db_player_create(id, &hash, hitid))) {
-		/* The user already exists! */
+	/* 
+	 * If the player does not exist, then ok.
+	 * If the player does exist, make sure that they entered with
+	 * the same hitId else we route them to the login page.
+	 */
+	if (0 == (rc = db_player_create(id, &hash, hitid)) &&
+	    ! db_player_mturkvrfy(id, &hash, hitid)) {
 		http_open(r, KHTTP_303);
-		send303(r, HTURI "/playerautoadd.html", PAGE__MAX, 0);
+		send303(r, HTURI "/playerlogin.html", PAGE__MAX, 0);
 		db_expr_free(expr);
-		free(hash);
 		return;
 	}
 

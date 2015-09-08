@@ -247,6 +247,11 @@ function loadPlayersSuccess(resp)
 	checkToggle('autoaddToggle', 'autoadd', results.autoadd);
 	checkToggle('mturkToggle', 'mturk', results.mturk);
 
+	if (results.autoadd || results.mturk)
+		doUnhide('captiveGame');
+	else
+		doHide('captiveGame');
+
 	doPlayerGraph(doClear('playerExprGraph'), results);
 
 	players = results.players;

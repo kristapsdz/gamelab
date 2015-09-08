@@ -1634,6 +1634,33 @@ err:
 }
 
 /*
+ * Mturk player logging back in (db_player_create() returned 0).
+ * Verify that their hitId is the same as when they initially tried to
+ * log in so that they can continue playing.
+ */
+int
+db_player_mturkvrfy(const char *email, char **pass, const char *hitid)
+{
+	sqlite3_stmt	*stmt;
+	int		 rc;
+	int64_t		 id;
+
+	stmt = db_stmt("SELECT hash,id "
+		"FROM player WHERE email=? AND hitid=?");
+	db_bind_text(stmt, 1, email);
+	db_bind_text(stmt, 2, hitid);
+	if (SQLITE_ROW == (rc = db_step(stmt, 0))) {
+		*pass = kstrdup((char *)
+			sqlite3_column_text(stmt, 0));
+		id = sqlite3_column_int64(stmt, 1);
+		fprintf(stderr, "Player %" PRId64 " re-entering "
+			"with same hitID: %s\n", id, email);
+	}
+	sqlite3_finalize(stmt);
+	return(SQLITE_ROW == rc);
+}
+
+/*
  * Create a player, automatically setting a password for them.
  * Returns zero if the player already exists (nothing changed), and
  * nonzero on new player creation.
@@ -1863,9 +1890,7 @@ db_expr_start(int64_t date, int64_t roundpct, int64_t roundmin,
 		"prounds=?,history=?,nolottery=?,questionnaire=?,"
 		"conversion=?,currency=?,"
 		"autoadd=CASE WHEN autoaddpreserve=1 "
-			"THEN autoadd ELSE 0 END,"
-		"mturk=CASE WHEN autoaddpreserve=1 "
-			"THEN mturk ELSE 0 END");
+			"THEN autoadd ELSE 0 END");
 	db_bind_int(stmt, 1, date);
 	db_bind_int(stmt, 2, rounds);
 	db_bind_int(stmt, 3, minutes);

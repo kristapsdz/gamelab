@@ -86,8 +86,7 @@ json_instructions(size_t key, void *arg)
 		kjson_string_puts(c->r, c->mail);
 		break;
 	case (TKEY_CURRENCY):
-		kjson_string_write(c->expr->currency, 
-			strlen(c->expr->currency), c->r);
+		kjson_string_puts(c->r, c->expr->currency);
 		break;
 	case (TKEY_CONVERSION):
 		kjson_string_putdouble(c->r, 
