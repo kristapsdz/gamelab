@@ -1158,6 +1158,11 @@ senddostartexpr(struct kreq *r)
 		return;
 	} 
 
+	/* Silence compiler warnings. */
+	sz = 0;
+	map = NULL;
+	fd = -1;
+
 	if (INSTR_LOTTERY == inst || 
 	    INSTR_NOLOTTERY == inst ||
 	    INSTR_MTURK == inst) {
