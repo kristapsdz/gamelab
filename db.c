@@ -1890,7 +1890,8 @@ db_expr_start(int64_t date, int64_t roundpct, int64_t roundmin,
 		"prounds=?,history=?,nolottery=?,questionnaire=?,"
 		"conversion=?,currency=?,"
 		"autoadd=CASE WHEN autoaddpreserve=1 "
-			"THEN autoadd ELSE 0 END");
+			"THEN autoadd ELSE 0 END,"
+		"roundmin=?");
 	db_bind_int(stmt, 1, date);
 	db_bind_int(stmt, 2, rounds);
 	db_bind_int(stmt, 3, minutes);
@@ -1906,6 +1907,7 @@ db_expr_start(int64_t date, int64_t roundpct, int64_t roundmin,
 	db_bind_int(stmt, 13, ques);
 	db_bind_double(stmt, 14, conversion);
 	db_bind_text(stmt, 15, currency);
+	db_bind_int(stmt, 16, roundmin);
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);
 

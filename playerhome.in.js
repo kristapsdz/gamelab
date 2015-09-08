@@ -818,6 +818,8 @@ function loadExprSuccess(resp)
 		res.gameorders = null;
 	}
 
+	doClearReplace('nextRound', 'Next round');
+
 	if (expr.round < res.player.joined) {
 		/*
 		 * If we haven't yet started, then simply set our timer
@@ -845,12 +847,22 @@ function loadExprSuccess(resp)
 		 * Start by setting the countdown til the next
 		 * game-play.
 		 */
-		next = (expr.roundbegan + (expr.minutes * 60)) -
-			Math.floor(new Date().getTime() / 1000);
-		e = doClear('exprCountdown');
-		formatCountdown(next, e);
-		setTimeout(timerCountdown, 1000, loadExpr, e, 
-			expr.roundbegan + (expr.minutes * 60));
+		if (expr.roundmin > 0 && Math.floor(new Date().getTime() / 1000) - expr.roundbegan <= expr.roundmin * 60) {
+			doClearReplace('nextRound', 'Grace time');
+			next = (expr.roundbegan + (expr.roundmin * 60)) -
+				Math.floor(new Date().getTime() / 1000);
+			e = doClear('exprCountdown');
+			formatCountdown(next, e);
+			setTimeout(timerCountdown, 1000, checkRound, e, 
+				expr.roundbegan + (expr.roundmin * 60));
+		} else {
+			next = (expr.roundbegan + (expr.minutes * 60)) -
+				Math.floor(new Date().getTime() / 1000);
+			e = doClear('exprCountdown');
+			formatCountdown(next, e);
+			setTimeout(timerCountdown, 1000, loadExpr, e, 
+				expr.roundbegan + (expr.minutes * 60));
+		}
 		doValue('exprPlayRound', expr.round);
 		if (expr.round > 0) {
 			doUnhide('historyPlay');
@@ -984,6 +996,37 @@ function loadExprFailure(err)
 		location.href = '@HTURI@/playerlogin.html#loggedout';
 		break;
 	}
+}
+
+function checkRoundSuccess(resp)
+{
+	var r, e, next;
+
+	try  { 
+		r = JSON.parse(resp);
+	} catch (error) {
+		return;
+	}
+
+	if (r.round > res.round) {
+		window.location.reload();
+		return;
+	}
+
+	doClearReplace('nextRound', 'Next round');
+	next = (res.expr.roundbegan + (res.expr.minutes * 60)) -
+		Math.floor(new Date().getTime() / 1000);
+	e = doClear('exprCountdown');
+	formatCountdown(next, e);
+	setTimeout(timerCountdown, 1000, loadExpr, e, 
+		res.expr.roundbegan + (res.expr.minutes * 60));
+}
+
+function checkRound()
+{
+
+	sendQuery('@LABURI@/docheckround.json', 
+		null, checkRoundSuccess, null);
 }
 
 function loadExpr() 

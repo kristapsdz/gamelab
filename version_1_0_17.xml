@@ -15,5 +15,10 @@
 			Put graphs of current game into <q>Play</q> tab for easier reference.
 			These are formatted to display all at once, but be smaller and stacked.
 		</p>
+		<p>
+			If an experiment has a grace time, show that grace time instead of the total round time for players.
+			When it expires, use the usual <q>Next round</q> text.
+			This involved actually enabling the minimum-round value, which was being ignored by the server!
+		</p>
 	</aside>
 </article>
