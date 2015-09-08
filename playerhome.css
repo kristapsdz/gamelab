@@ -172,14 +172,17 @@ div.input input[readonly]	{ background-color: #ddd; }
 				  padding: 0.5ex;
 				  border-radius: 1ex; }
 #bimatrixRoundups		{ margin-bottom: 1em; }
-.graphssmall, .graphs		{ padding: 1ex; }
+figure				{ margin: 0; }
+.graphs				{ padding: 1ex; }
+.graphssmall			{ padding: 0.5ex; }
 .graphssmall > div > div > div,
 .graphs > div > div > div	{ width: 80%; 
 				  margin-left: auto; 
 			  	  margin-right: auto;
 			  	  height: 200px; 
 				  z-index: 0; }
-.graphssmall > div > div > div	{ width: 30%; 
+.graphssmall > div > div > div	{ width: 32%; 
+			  	  height: 150px; 
 				  display: inline-block; }
 .graphssmall .legend,
 .graphs .legend			{ text-align: center; }
@@ -270,10 +273,14 @@ div.input input[type=time]	{ width: 20ex; }
 	h3			{ font-size: 14pt; }
 	h1, h2, h3		{ margin-top: 0.5em; 
 				  margin-bottom: 0.5em; }
+	h2, h3			{ text-align: center; }
   	.graphs			{ margin: 0; 
 				  margin-top: 1ex; }
 	.graphs > div > div > div
 				{ height: 180px; }
+	.graphssmall > div > div > div	
+				{ font-size: 9pt;
+			  	  height: 130px; }
 	.bigview		{ display: none; }
 	.smallview		{ display: block; }
 	.historyGameHead	{ display: table; 

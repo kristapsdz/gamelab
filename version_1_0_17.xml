@@ -2,7 +2,7 @@
 	<header>
 		<h1>1.0.17</h1>
 		<address>Kristaps Dzonsons</address>
-		<time datetime="2015-08-25">2015-08-25</time>
+		<time datetime="2015-09-08">2015-09-08</time>
 	</header>
 	<aside>
 		<p>
@@ -13,6 +13,7 @@
 		</p>
 		<p>
 			Put graphs of current game into <q>Play</q> tab for easier reference.
+			These are formatted to display all at once, but be smaller and stacked.
 		</p>
 	</aside>
 </article>
