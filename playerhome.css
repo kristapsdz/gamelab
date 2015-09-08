@@ -181,7 +181,7 @@ figure				{ margin: 0; }
 			  	  margin-right: auto;
 			  	  height: 200px; 
 				  z-index: 0; }
-.graphssmall > div > div > div	{ width: 32%; 
+.graphssmall > div > div > div	{ width: 31%; 
 			  	  height: 150px; 
 				  display: inline-block; }
 .graphssmall .legend,
