@@ -172,13 +172,13 @@ div.input input[readonly]	{ background-color: #ddd; }
 				  padding: 0.5ex;
 				  border-radius: 1ex; }
 #bimatrixRoundups		{ margin-bottom: 1em; }
-#graphFig			{ padding: 1ex; }
-#graphFig > div > div > div	{ width: 80%; 
+.graphs			{ padding: 1ex; }
+.graphs > div > div > div	{ width: 80%; 
 				  margin-left: auto; 
 			  	  margin-right: auto;
 			  	  height: 200px; 
 				  z-index: 0; }
-#graphFig .legend		{ text-align: center; }
+.graphs .legend		{ text-align: center; }
 #graphButtons			{ text-align: center; }
 #graphButtons > *		{ display: inline-block; }
 #graphButtons button		{ font-size: 12pt; 
@@ -248,7 +248,7 @@ div.input input[type=time]	{ width: 20ex; }
 @media only screen and (max-width: 800px), only screen and (max-device-width: 800px) {
 	article			{ padding-left: 10%; 
 			  	  padding-right: 10%; }
-	#graphFig > div > div > div
+	.graphs > div > div > div
 				{ width: 100%; }
 }
 @media only screen and (max-width: 480px), only screen and (max-device-width: 480px) {
@@ -266,9 +266,9 @@ div.input input[type=time]	{ width: 20ex; }
 	h3			{ font-size: 14pt; }
 	h1, h2, h3		{ margin-top: 0.5em; 
 				  margin-bottom: 0.5em; }
-  	#graphFig		{ margin: 0; 
+  	.graphs			 margin: 0; 
 				  margin-top: 1ex; }
-	#graphFig > div > div > div
+	.graphs > div > div > div
 				{ height: 180px; }
 	.bigview		{ display: none; }
 	.smallview		{ display: block; }

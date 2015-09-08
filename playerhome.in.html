@@ -69,7 +69,7 @@
 									</button>
 								</div>
 							</div>
-							<figure id="graphFig">
+							<figure class="graphs">
 								<div id="historyLineGraphs"></div>
 								<div id="historyBarGraphs"></div>
 								<div class="legend">Rounds</div>
@@ -162,6 +162,11 @@
 								Your payoff from this game in the previous round:
 								<span id="exprHistoryLottery"></span><span id="exprHistoryPlays"></span>
 							</div>
+							<figure class="graphs">
+								<div id="historyLineGraphsSmall"></div>
+								<div id="historyBarGraphsSmall"></div>
+								<div class="legend">Rounds</div>
+							</figure>
 							<div id="skipExplain">
 								<div class="warning">
 									<div>
@@ -173,21 +178,6 @@
 									</div>
 								</div>
 							</div>
-							<!--
-							<div class="caption">
-								Your strategy mix was:
-								<a href="#" onclick="doUnhide('historyHelp2'); return false;"><i class="fa fa-question-circle"></i></a>
-							</div>
-							<div id="historyHelp2" class="noshow canclose">
-								<a href="#" class="close" onclick="doHideNode(this.parentNode); return false;"><i class="fa fa-times"></i></a>
-								The number in the white cells in the matrix shows the share of plays that ended in that
-								cell in the last round. The first number in the gray cells shows in what share of plays
-								that row or column strategy was used. The number in brackets in the gray cells to the
-								right show your payoff, represented by U, should you have played the pure strategy
-								associated with each row in the previous round.
-							</div>
-							<div id="exprHistoryMatrix"></div>
-							//-->
 						</div>
 						<div class="caption">
 							Payoff bimatrix:
