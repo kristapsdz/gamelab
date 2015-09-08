@@ -1,0 +1,18 @@
+<article data-sblg-article="1" data-sblg-tags="version">
+	<header>
+		<h1>1.0.17</h1>
+		<address>Kristaps Dzonsons</address>
+		<time datetime="2015-08-25">2015-08-25</time>
+	</header>
+	<aside>
+		<p>
+			Allow Mechanical Turk players to log back in with the same HTI identifier.
+			Moreover, don't unset mturk status (on the experimenter side) when experiments begin: mturk players can only log in
+			after the experiment commences anyway, so this is useless.
+			Show experimenters a message when mturk or captive players are enabled consisting of the necessary links.
+		</p>
+		<p>
+			Put graphs of current game into <q>Play</q> tab for easier reference.
+		</p>
+	</aside>
+</article>

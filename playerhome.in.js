@@ -288,6 +288,7 @@ function loadGame()
 		bimatrixCreate(game.payoffs) : 
 		bimatrixCreateTranspose(game.payoffs);
 
+
 	c = res.player.rseed % colours.length;
 	oc = (0 == c % 2) ? c + 1 : c - 1;
 
@@ -297,6 +298,12 @@ function loadGame()
 
 	if (null != game.roundup) {
 		doUnhide('exprHistory');
+		doClear('historyLineGraphsSmall');
+		doClear('historyBarGraphsSmall');
+		loadGameGraphs(res.gameorders[resindex], 
+			'historyLineGraphsSmall', 'historyBarGraphsSmall');
+		doUnhide('historyLineGraphsSmall' + res.gameorders[resindex]);
+		doUnhide('historyBarGraphsSmall' + res.gameorders[resindex]);
 		if (0 != game.roundup.skip && res.player.joined > res.expr.round) 
 			doUnhide('skipExplain');
 		else
@@ -422,282 +429,276 @@ function showHistory()
 	shownBarGraph = doUnhide('historyBarGraphs' + game);
 }
 
-/*
- * This re-creates the graphs showing (1) payoffs as they are
- * accumulated over all rounds and (2) "instantaneous" payoffs in the
- * given round.
- * It uses the flotr2 library for drawing.
- */
-function loadGraphs()
+function loadGameGraphs(gameidx, lineName, barName)
 {
 	var	e, c, i, j, k, l, m, data, datas, lot, 
-		avg, len, matrix, hmatrix, sum, sub, gameidx, stratidx;
+		avg, len, matrix, hmatrix, sum, sub, gameidx, 
+		stratidx;
+
+	e = document.getElementById(lineName);
+	sub = document.createElement('div');
+	sub.setAttribute('id', lineName + gameidx);
+	e.appendChild(sub);
+	doHideNode(sub);
+
+	matrix = 0 == res.player.role ?
+		bimatrixCreate(res.history[gameidx].payoffs) :
+		bimatrixCreateTranspose(res.history[gameidx].payoffs);
+	hmatrix = null;
+	if (null != res.expr.history)
+		hmatrix = 0 == res.player.role ?
+			bimatrixCreate(res.expr.history[gameidx].payoffs) :
+			bimatrixCreateTranspose(res.expr.history[gameidx].payoffs);
+
+	/* 
+	 * Hypothetical payoff. 
+	 * Begin this (if appropriate) with the historical play.
+	 */
+	c = document.createElement('div');
+	sub.appendChild(c);
+	len = 0 == res.player.role ? 
+		res.history[gameidx].roundups[0].navgp1.length : 
+		res.history[gameidx].roundups[0].navgp2.length;
+	datas = [];
+	for (j = 0; j < len; j++) {
+		data = [];
+		/* Start with zero! */
+		data.push([0, 0.0]);
+		sum = 0.0;
+		k = 0;
+		if (null != hmatrix)
+			for ( ; k < res.expr.history[gameidx].roundups.length; k++) {
+				avg = 0 == res.player.role ?
+					res.expr.history[gameidx].roundups[k].navgp2 :
+					res.expr.history[gameidx].roundups[k].navgp1;
+				for (sum = 0.0, m = 0; m < hmatrix[0].length; m++)
+					sum += avg[res.colorders[gameidx][m]] *
+						hmatrix[res.roworders[gameidx][j]]
+						       [res.colorders[gameidx][m]][0];
+				data.push([k + 1, sum]);
+			}
+		l = k;
+		for (k = 0; k < res.history[gameidx].roundups.length; k++) {
+			avg = 0 == res.player.role ?
+				res.history[gameidx].roundups[k].navgp2 :
+				res.history[gameidx].roundups[k].navgp1;
+			for (sum = 0.0, m = 0; m < matrix[0].length; m++)
+				sum += avg[res.colorders[gameidx][m]] *
+					matrix[res.roworders[gameidx][j]]
+					      [res.colorders[gameidx][m]][0];
+			data.push([(k + l) + 1, sum]);
+		}
+		datas[j] = {
+			data: data,
+			label: 'Strategy ' + String.fromCharCode(97 + j)
+		};
+	}
+	Flotr.draw(c, datas, 
+		{ grid: { horizontalLines: 1 },
+		  xaxis: { ticks: [[ 0, 'oldest' ], [(l + k), 'newest']] },
+		  shadowSize: 0,
+		  subtitle: 'Hypothetical payoff',
+		  yaxis: { min: 0.0 },
+		  lines: { show: true },
+		  points: { show: true }});
+
+	/* Real payoff. */
+	c = document.createElement('div');
+	sub.appendChild(c);
+	data = [];
+	/* Start with zero! */
+	data.push([0, 0.0]);
+	j = 0;
+	if (null != hmatrix)
+		for ( ; j < res.expr.history[gameidx].roundups.length; j++) 
+			data.push([j + 1, 0.0]);
+	k = j;
+	for (j = 0; j < res.history[gameidx].roundups.length; j++) {
+		lot = res.lotteries[j].plays[gameidx];
+		data.push([(j + k) + 1, null == lot ? 0.0 : lot.poff]);
+	}
+	Flotr.draw(c, 
+		[{ data: data }],
+		{ xaxis: { ticks: [[ 0, 'oldest' ], [(j + k), 'newest']] },
+		  subtitle: 'Real payoff',
+		  shadowSize: 0,
+		  lines: { show: true },
+		  points: { show: true },
+		  yaxis: { min: 0.0 }});
+
+	/* Accumulated payoff. */
+	c = document.createElement('div');
+	sub.appendChild(c);
+	data = [];
+	/* Start with zero! */
+	data.push([0, 0.0]);
+	j = 0;
+	if (null != hmatrix)
+		for (j = 0; j < res.expr.history[gameidx].roundups.length; j++)
+			data.push([j + 1, 0]);
+	k = j;
+	for (l = 0.0, j = 0; j < res.history[gameidx].roundups.length; j++) {
+		lot = res.lotteries[j].plays[gameidx];
+		if (null != lot)
+			l += lot.poff;
+		data.push([(j + k) + 1, l]);
+	}
+	Flotr.draw(c, 
+		[{ data: data }],
+		{ xaxis: { ticks: [[ 0, 'oldest' ], [(j + k), 'newest']] },
+		  subtitle: 'Accumulated payoff',
+		  shadowSize: 0,
+		  lines: { show: true },
+		  points: { show: true },
+		  yaxis: { min: 0.0 }});
+
+	e = document.getElementById(barName);
+	sub = document.createElement('div');
+	sub.setAttribute('id', barName + gameidx);
+	e.appendChild(sub);
+	doHideNode(sub);
+
+	/* 
+	 * Player's strategy. 
+	 * We begin with the historical data; however, since
+	 * this player didn't play those, we simply set the
+	 * strategies all to zero.
+	 */
+	c = document.createElement('div');
+	sub.appendChild(c);
+	datas = [];
+	len = 0 == res.player.role ? 
+		res.history[gameidx].roundups[0].navgp1.length : 
+		res.history[gameidx].roundups[0].navgp2.length;
+	for (k = l = j = 0; j < len; j++) {
+		stratidx = res.roworders[gameidx][j];
+		data = [];
+		k = 0;
+		if (null != res.expr.history) {
+			for ( ; k < res.expr.history[gameidx].roundups.length; k++)
+				data.push([k, 0]);
+		}
+		l = k;
+		for (k = 0; k < res.history[gameidx].roundups.length; k++) {
+			lot = res.lotteries[k].plays[gameidx];
+			if (null == lot) {
+				data.push([(l + k), 0]);
+				continue;
+			}
+			data.push([(l + k), lot.stratsd[stratidx]]);
+		}
+		datas[j] = {
+			data: data, 
+			label: 'Strategy ' + String.fromCharCode(97 + j)
+		};
+	}
+	Flotr.draw(c, datas, { 
+		bars: { show: true , shadowSize: 0, stacked: true, barWidth: 1.0, lineWidth: 1 }, 
+		grid: { horizontalLines: 1 },
+		xaxis: { ticks: [[ 0, 'oldest' ], [(l + k) - 1, 'newest']] },
+		subtitle: 'Your strategy',
+		yaxis: { max: 1.0, min: 0.0 }
+	});
+
+	/* 
+	 * Player population's average strategy. 
+	 * Account for both current and historical (first) data.
+	 */
+	c = document.createElement('div');
+	sub.appendChild(c);
+	datas = [];
+	len = 0 == res.player.role ? 
+		res.history[gameidx].roundups[0].navgp1.length : 
+		res.history[gameidx].roundups[0].navgp2.length;
+	for (l = k = j = 0; j < len; j++) {
+		stratidx = res.roworders[gameidx][j];
+		data = [];
+		k = 0;
+		if (null != res.expr.history) {
+			for ( ; k < res.expr.history[gameidx].roundups.length; k++) {
+				avg = 0 == res.player.role ? 
+					res.expr.history[gameidx].roundups[k].navgp1 : 
+					res.expr.history[gameidx].roundups[k].navgp2;
+				data.push([k, avg[stratidx]]);
+			}
+		}
+		l = k;
+		for (k = 0; k < res.history[gameidx].roundups.length; k++) {
+			avg = 0 == res.player.role ? 
+				res.history[gameidx].roundups[k].navgp1 : 
+				res.history[gameidx].roundups[k].navgp2;
+			data.push([(l + k), avg[stratidx]]);
+		}
+		datas[j] = {
+			data: data, 
+			label: 'Strategy ' + String.fromCharCode(97 + j)
+		};
+	}
+	Flotr.draw(c, datas, { 
+		bars: { show: true , shadowSize: 0, stacked: true, barWidth: 1.0, lineWidth: 1 }, 
+		grid: { horizontalLines: 1 },
+		subtitle: 'Row player average strategy',
+		xaxis: { ticks: [[ 0, 'oldest' ], [(l + k) - 1, 'newest']] },
+		yaxis: { max: 1.0, min: 0.0 }
+	});
+
+	/* 
+	 * Lastly, opponent population's average strategy. 
+	 * Here we also account for previous information.
+	 */
+	c = document.createElement('div');
+	sub.appendChild(c);
+	datas = [];
+	len = 0 == res.player.role ? 
+		res.history[gameidx].roundups[0].navgp2.length : 
+		res.history[gameidx].roundups[0].navgp1.length;
+	for (k = l = j = 0; j < len; j++) {
+		stratidx = res.colorders[gameidx][j];
+		data = [];
+		k = 0;
+		if (null != res.expr.history) {
+			for ( ; k < res.expr.history[gameidx].roundups.length; k++) {
+				avg = 0 == res.player.role ? 
+					res.expr.history[gameidx].roundups[k].navgp2 : 
+					res.expr.history[gameidx].roundups[k].navgp1;
+				data.push([k, avg[stratidx]]);
+			}
+		}
+		l = k;
+		for (k = 0; k < res.history[gameidx].roundups.length; k++) {
+			avg = 0 == res.player.role ? 
+				res.history[gameidx].roundups[k].navgp2 : 
+				res.history[gameidx].roundups[k].navgp1;
+			data.push([(l + k), avg[stratidx]]);
+		}
+		datas[j] = {
+			data: data, 
+			label: 'Strategy ' + String.fromCharCode(65 + j)
+		};
+	}
+	Flotr.draw(c, datas, { 
+		bars: { show: true , shadowSize: 0, stacked: true, barWidth: 1.0, lineWidth: 1 }, 
+		grid: { horizontalLines: 1 },
+		xaxis: { ticks: [[ 0, 'oldest' ], [(l + k) - 1, 'newest']] },
+		subtitle: 'Column player average strategy',
+		yaxis: { max: 1.0, min: 0.0 }
+	});
+}
+
+function loadGraphs()
+{
+	var i;
 
 	if (null == res)
 		return;
 	else if (res.expr.round <= 0)
 		return;
 
-	e = doClear('historyLineGraphs');
+	doClear('historyLineGraphs');
+	doHideNode(doClear('historyBarGraphs'));
 
-	/*
-	 * Begin with line "payoff" graphs.
-	 */
-	for (i = 0; i < res.history.length; i++) {
-		gameidx = res.gameorders[i];
-		sub = document.createElement('div');
-		sub.setAttribute('id', 'historyLineGraphs' + gameidx);
-		e.appendChild(sub);
-		doHideNode(sub);
-
-		matrix = 0 == res.player.role ?
-			bimatrixCreate(res.history[gameidx].payoffs) :
-			bimatrixCreateTranspose(res.history[gameidx].payoffs);
-		hmatrix = null;
-		if (null != res.expr.history)
-			hmatrix = 0 == res.player.role ?
-				bimatrixCreate(res.expr.history[gameidx].payoffs) :
-				bimatrixCreateTranspose(res.expr.history[gameidx].payoffs);
-
-		/* 
-		 * Hypothetical payoff. 
-		 * Begin this (if appropriate) with the historical play.
-		 */
-		c = document.createElement('div');
-		sub.appendChild(c);
-		len = 0 == res.player.role ? 
-			res.history[gameidx].roundups[0].navgp1.length : 
-			res.history[gameidx].roundups[0].navgp2.length;
-		datas = [];
-		for (j = 0; j < len; j++) {
-			data = [];
-			/* Start with zero! */
-			data.push([0, 0.0]);
-			sum = 0.0;
-			k = 0;
-			if (null != hmatrix)
-				for ( ; k < res.expr.history[gameidx].roundups.length; k++) {
-					avg = 0 == res.player.role ?
-						res.expr.history[gameidx].roundups[k].navgp2 :
-						res.expr.history[gameidx].roundups[k].navgp1;
-					for (sum = 0.0, m = 0; m < hmatrix[0].length; m++)
-						sum += avg[res.colorders[gameidx][m]] *
-							hmatrix[res.roworders[gameidx][j]]
-							       [res.colorders[gameidx][m]][0];
-					data.push([k + 1, sum]);
-				}
-			l = k;
-			for (k = 0; k < res.history[gameidx].roundups.length; k++) {
-				avg = 0 == res.player.role ?
-					res.history[gameidx].roundups[k].navgp2 :
-					res.history[gameidx].roundups[k].navgp1;
-				for (sum = 0.0, m = 0; m < matrix[0].length; m++)
-					sum += avg[res.colorders[gameidx][m]] *
-						matrix[res.roworders[gameidx][j]]
-						      [res.colorders[gameidx][m]][0];
-				data.push([(k + l) + 1, sum]);
-			}
-			datas[j] = {
-				data: data,
-				label: 'Strategy ' + String.fromCharCode(97 + j)
-			};
-		}
-		Flotr.draw(c, datas, 
-			{ grid: { horizontalLines: 1 },
-			  xaxis: { ticks: [[ 0, 'oldest' ], [(l + k), 'newest']] },
-		          shadowSize: 0,
-			  subtitle: 'Hypothetical payoff',
-		          yaxis: { min: 0.0 },
-			  lines: { show: true },
-		          points: { show: true }});
-
-		/* Real payoff. */
-		c = document.createElement('div');
-		sub.appendChild(c);
-		data = [];
-		/* Start with zero! */
-		data.push([0, 0.0]);
-		j = 0;
-		if (null != hmatrix)
-			for ( ; j < res.expr.history[gameidx].roundups.length; j++) 
-				data.push([j + 1, 0.0]);
-		k = j;
-		for (j = 0; j < res.history[gameidx].roundups.length; j++) {
-			lot = res.lotteries[j].plays[gameidx];
-			data.push([(j + k) + 1, null == lot ? 0.0 : lot.poff]);
-		}
-		Flotr.draw(c, 
-			[{ data: data }],
-			{ xaxis: { ticks: [[ 0, 'oldest' ], [(j + k), 'newest']] },
-			  subtitle: 'Real payoff',
-		          shadowSize: 0,
-			  lines: { show: true },
-		          points: { show: true },
-			  yaxis: { min: 0.0 }});
-
-		/* Accumulated payoff. */
-		c = document.createElement('div');
-		sub.appendChild(c);
-		data = [];
-		/* Start with zero! */
-		data.push([0, 0.0]);
-		j = 0;
-		if (null != hmatrix)
-			for (j = 0; j < res.expr.history[gameidx].roundups.length; j++)
-				data.push([j + 1, 0]);
-		k = j;
-		for (l = 0.0, j = 0; j < res.history[gameidx].roundups.length; j++) {
-			lot = res.lotteries[j].plays[gameidx];
-			if (null != lot)
-				l += lot.poff;
-			data.push([(j + k) + 1, l]);
-		}
-		Flotr.draw(c, 
-			[{ data: data }],
-			{ xaxis: { ticks: [[ 0, 'oldest' ], [(j + k), 'newest']] },
-			  subtitle: 'Accumulated payoff',
-		          shadowSize: 0,
-			  lines: { show: true },
-		          points: { show: true },
-			  yaxis: { min: 0.0 }});
-	}
-
-	e = doClear('historyBarGraphs');
-	doHideNode(e);
-
-	for (i = 0; i < res.history.length; i++) {
-		gameidx = res.gameorders[i];
-		sub = document.createElement('div');
-		sub.setAttribute('id', 'historyBarGraphs' + gameidx);
-		e.appendChild(sub);
-		doHideNode(sub);
-
-		/* 
-		 * Player's strategy. 
-		 * We begin with the historical data; however, since
-		 * this player didn't play those, we simply set the
-		 * strategies all to zero.
-		 */
-		c = document.createElement('div');
-		sub.appendChild(c);
-		datas = [];
-		len = 0 == res.player.role ? 
-			res.history[gameidx].roundups[0].navgp1.length : 
-			res.history[gameidx].roundups[0].navgp2.length;
-		for (k = l = j = 0; j < len; j++) {
-			stratidx = res.roworders[gameidx][j];
-			data = [];
-			k = 0;
-			if (null != res.expr.history) {
-				for ( ; k < res.expr.history[gameidx].roundups.length; k++)
-					data.push([k, 0]);
-			}
-			l = k;
-			for (k = 0; k < res.history[gameidx].roundups.length; k++) {
-				lot = res.lotteries[k].plays[gameidx];
-				if (null == lot) {
-					data.push([(l + k), 0]);
-					continue;
-				}
-				data.push([(l + k), lot.stratsd[stratidx]]);
-			}
-			datas[j] = {
-				data: data, 
-				label: 'Strategy ' + String.fromCharCode(97 + j)
-			};
-		}
-		Flotr.draw(c, datas, { 
-			bars: { show: true , shadowSize: 0, stacked: true, barWidth: 1.0, lineWidth: 1 }, 
-			grid: { horizontalLines: 1 },
-			xaxis: { ticks: [[ 0, 'oldest' ], [(l + k) - 1, 'newest']] },
-		        subtitle: 'Your strategy',
-			yaxis: { max: 1.0, min: 0.0 }
-		});
-
-		/* 
-		 * Player population's average strategy. 
-		 * Account for both current and historical (first) data.
-		 */
-		c = document.createElement('div');
-		sub.appendChild(c);
-		datas = [];
-		len = 0 == res.player.role ? 
-			res.history[gameidx].roundups[0].navgp1.length : 
-			res.history[gameidx].roundups[0].navgp2.length;
-		for (l = k = j = 0; j < len; j++) {
-			stratidx = res.roworders[gameidx][j];
-			data = [];
-			k = 0;
-			if (null != res.expr.history) {
-				for ( ; k < res.expr.history[gameidx].roundups.length; k++) {
-					avg = 0 == res.player.role ? 
-						res.expr.history[gameidx].roundups[k].navgp1 : 
-						res.expr.history[gameidx].roundups[k].navgp2;
-					data.push([k, avg[stratidx]]);
-				}
-			}
-			l = k;
-			for (k = 0; k < res.history[gameidx].roundups.length; k++) {
-				avg = 0 == res.player.role ? 
-					res.history[gameidx].roundups[k].navgp1 : 
-					res.history[gameidx].roundups[k].navgp2;
-				data.push([(l + k), avg[stratidx]]);
-			}
-			datas[j] = {
-				data: data, 
-				label: 'Strategy ' + String.fromCharCode(97 + j)
-			};
-		}
-		Flotr.draw(c, datas, { 
-			bars: { show: true , shadowSize: 0, stacked: true, barWidth: 1.0, lineWidth: 1 }, 
-			grid: { horizontalLines: 1 },
-		        subtitle: 'Row player average strategy',
-			xaxis: { ticks: [[ 0, 'oldest' ], [(l + k) - 1, 'newest']] },
-			yaxis: { max: 1.0, min: 0.0 }
-		});
-
-		/* 
-		 * Lastly, opponent population's average strategy. 
-		 * Here we also account for previous information.
-		 */
-		c = document.createElement('div');
-		sub.appendChild(c);
-		datas = [];
-		len = 0 == res.player.role ? 
-			res.history[gameidx].roundups[0].navgp2.length : 
-			res.history[gameidx].roundups[0].navgp1.length;
-		for (k = l = j = 0; j < len; j++) {
-			stratidx = res.colorders[gameidx][j];
-			data = [];
-			k = 0;
-			if (null != res.expr.history) {
-				for ( ; k < res.expr.history[gameidx].roundups.length; k++) {
-					avg = 0 == res.player.role ? 
-						res.expr.history[gameidx].roundups[k].navgp2 : 
-						res.expr.history[gameidx].roundups[k].navgp1;
-					data.push([k, avg[stratidx]]);
-				}
-			}
-			l = k;
-			for (k = 0; k < res.history[gameidx].roundups.length; k++) {
-				avg = 0 == res.player.role ? 
-					res.history[gameidx].roundups[k].navgp2 : 
-					res.history[gameidx].roundups[k].navgp1;
-				data.push([(l + k), avg[stratidx]]);
-			}
-			datas[j] = {
-				data: data, 
-				label: 'Strategy ' + String.fromCharCode(65 + j)
-			};
-		}
-		Flotr.draw(c, datas, { 
-			bars: { show: true , shadowSize: 0, stacked: true, barWidth: 1.0, lineWidth: 1 }, 
-			grid: { horizontalLines: 1 },
-			xaxis: { ticks: [[ 0, 'oldest' ], [(l + k) - 1, 'newest']] },
-		        subtitle: 'Column player average strategy',
-			yaxis: { max: 1.0, min: 0.0 }
-		});
-	}
+	for (i = 0; i < res.history.length; i++)
+		loadGameGraphs(res.gameorders[i], 'historyLineGraphs', 'historyBarGraphs');
 }
 
 function loadHistory(res)
