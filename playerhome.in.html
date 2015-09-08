@@ -83,7 +83,7 @@
 					</div>
 					<div id="historyNotStarted" class="noshow">
 						<p>
-							Waiting for game to start.
+							Waiting for next round.
 						</p>
 					</div>
 				</div>
@@ -94,7 +94,7 @@
 				<div id="exprLoaded" class="noshow">
 					<section id="exprNotStarted" class="noshow">
 						<p>
-							Waiting for game to start.
+							Waiting for next round.
 						</p>
 					</section>
 					<section id="exprDone" class="noshow">
@@ -196,9 +196,9 @@
 						<div id="bimatrixHelp" class="noshow canclose">
 							<a href="#" class="close" onclick="doHideNode(this.parentNode); return false;"><i class="fa fa-times"></i></a>
 							You are the row player. Click on each row that is included in the strategy you want to play and
-							assign the corresponding probability in the input field. 
-							Probabilities must be given as positive fractions or decimal numbers with no greater accuracy
-							than four digits following the decimal.  Any row you don't select will be assigned probability
+							assign the corresponding weight in the input field. 
+							Weights must be given as positive fractions or decimal numbers with no greater accuracy
+							than four digits following the decimal.  Weights must sum to 1.  Any row you don't select will be assigned weight
 							zero.
 						</div>
 						<div id="exprMatrix"></div>
@@ -219,9 +219,9 @@
 									<div>
 										<i class="fa fa-exclamation-circle"></i>
 										<span>
-											Probabilities must be positive fractions or decimal numbers with
+											Weights must be positive fractions or decimal numbers with
 											no greater accuracy than four digits following the decimal. 
-											They must sum to one.
+											They must sum to 1.
 										</span>
 									</div>
 								</div>

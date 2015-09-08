@@ -1,22 +1,3 @@
-- allow admin to see passwords (captive players only)
-- make sure that strategy order is consistent across matrix, chart
-  legend, and chart "stack" position
-- record screen dimensions when logging in!
 
-- have a choice of round-advancement methods:
-  (1) the traditional max-time based system
-  (2) "roundpct" time with a "grace period"
-      a. if all players play within the grace period, bump round
-      b. otherwise, wait til end of grace period
-  (3) none, administrator does all
-
-
-
-
-- When player has reached end of round (but not end of experiment) show
-  the accumulated TICKETS as well as PAYOFF.
-
-- Allow for history to be "faked": allow a prior experiment's data (or
-  multiple experiments' data) to be considered as "history".  The fake
-  data won't be considered part of the new experiment's results: it's
-  read-only in terms of history.
+- URGENT: allow HIT people to log back in through mturk.html.
+- Add all six graphs in mini form to top of play page.

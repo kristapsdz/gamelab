@@ -67,7 +67,11 @@ em				{ font-style: normal;
 article				{ padding: 3em 20% 1em 20%; }
 }
 @media only screen and (max-width: 480px), only screen and (max-device-width: 480px) {
-article				{ padding: 1em 4% 1em 4%; }
+article				{ padding: 1em 2% 1em 2%; }
 #top				{ text-align: center; 
 				  padding: 1ex; }
+.standalone			{ margin: 1ex; }
+section section fieldset,
+section section form,
+section section p		{ padding: 1ex; }
 }

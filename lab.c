@@ -270,7 +270,9 @@ sendmturk(struct kreq *r)
 	/* Add the worker to the system. */
 	id = r->fieldmap[KEY_WORKERID]->parsed.s;
 	hitid = r->fieldmap[KEY_HITID]->parsed.s;
+
 	if (0 == (rc = db_player_create(id, &hash, hitid))) {
+		/* The user already exists! */
 		http_open(r, KHTTP_303);
 		send303(r, HTURI "/playerautoadd.html", PAGE__MAX, 0);
 		db_expr_free(expr);
