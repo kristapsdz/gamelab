@@ -19,6 +19,7 @@
 			If an experiment has a grace time, show that grace time instead of the total round time for players.
 			When it expires, use the usual <q>Next round</q> text.
 			This involved actually enabling the minimum-round value, which was being ignored by the server!
+			Next, have the browser check the server, once all games have been played, for round rolling.
 		</p>
 	</aside>
 </article>

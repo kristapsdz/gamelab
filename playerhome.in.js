@@ -259,6 +259,9 @@ function loadGame()
 		doHide('exprPlay');
 		doHide('exprFinished');
 		doHide('exprNotStarted');
+		setTimeout(checkRoundEnd, 
+			res.expr.minutes < 10 || res.expr.roundpct > 0 ? 5000 :
+			60000);
 		return;
 	} 
 
@@ -836,10 +839,10 @@ function loadExprSuccess(resp)
 		 */
 		if (expr.round < 0)
 			setTimeout(timerCountdown, 1000, 
-				loadExpr, e, expr.start);
+				null, e, expr.start);
 		else
 			setTimeout(timerCountdown, 1000, 
-				loadExpr, e, expr.roundbegan + 
+				null, e, expr.roundbegan + 
 				(expr.minutes * 60));
 		doUnhide('exprNotStarted');
 	} else if (expr.round < res.player.joined + expr.prounds) {
@@ -860,7 +863,7 @@ function loadExprSuccess(resp)
 				Math.floor(new Date().getTime() / 1000);
 			e = doClear('exprCountdown');
 			formatCountdown(next, e);
-			setTimeout(timerCountdown, 1000, loadExpr, e, 
+			setTimeout(timerCountdown, 1000, null, e, 
 				expr.roundbegan + (expr.minutes * 60));
 		}
 		doValue('exprPlayRound', expr.round);
@@ -998,6 +1001,22 @@ function loadExprFailure(err)
 	}
 }
 
+function checkRoundEndSuccess(resp)
+{
+	var r, e, next;
+
+	try  { 
+		r = JSON.parse(resp);
+	} catch (error) {
+		return;
+	}
+
+	if (r.round > res.expr.round) 
+		window.location.reload();
+	else
+		setTimeout(checkRoundEnd, 10000);
+}
+
 function checkRoundSuccess(resp)
 {
 	var r, e, next;
@@ -1008,7 +1027,7 @@ function checkRoundSuccess(resp)
 		return;
 	}
 
-	if (r.round > res.round) {
+	if (r.round > res.expr.round) {
 		window.location.reload();
 		return;
 	}
@@ -1018,7 +1037,7 @@ function checkRoundSuccess(resp)
 		Math.floor(new Date().getTime() / 1000);
 	e = doClear('exprCountdown');
 	formatCountdown(next, e);
-	setTimeout(timerCountdown, 1000, loadExpr, e, 
+	setTimeout(timerCountdown, 1000, null, e, 
 		res.expr.roundbegan + (res.expr.minutes * 60));
 }
 
@@ -1027,6 +1046,13 @@ function checkRound()
 
 	sendQuery('@LABURI@/docheckround.json', 
 		null, checkRoundSuccess, null);
+}
+
+function checkRoundEnd()
+{
+
+	sendQuery('@LABURI@/docheckround.json', 
+		null, checkRoundEndSuccess, null);
 }
 
 function loadExpr() 
