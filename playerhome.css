@@ -174,7 +174,8 @@ div.input input[readonly]	{ background-color: #ddd; }
 #bimatrixRoundups		{ margin-bottom: 1em; }
 figure				{ margin: 0; }
 .graphs				{ padding: 1ex; }
-.graphssmall			{ padding: 0.5ex; }
+.graphssmall			{ padding: 0.5ex; 
+				  text-align: center; }
 .graphssmall > div > div > div,
 .graphs > div > div > div	{ width: 80%; 
 				  margin-left: auto; 
