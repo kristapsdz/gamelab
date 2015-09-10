@@ -207,6 +207,7 @@ div.input input			{ -webkit-appearance: none;
 				  font-size: 13pt;
 				  font-family: inherit;
 				  box-sizing: border-box; }
+div.input input[type=radio]	{ -webkit-appearance: radio; }
 div.input > div input		{ width: auto; }
 div.input > div			{ display: table; 
 				  border-spacing: 0;

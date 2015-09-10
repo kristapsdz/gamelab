@@ -195,6 +195,25 @@ function loadGraphs()
 	}
 }
 
+function disableEnter(e) 
+{
+	e = e || window.event;
+	var keycode = e.which || e.keyCode;
+	if (keycode == 13) {
+		if (e.preventDefault) { 
+			e.preventDefault();
+		} else { 
+			e.returnValue = false;
+		}
+		if (e.stopPropagation) {
+			e.stopPropagation();
+		} else { 
+			e.cancelBubble = true;
+		}
+		return (false);
+	}
+}
+
 function doError(err) 
 {
 

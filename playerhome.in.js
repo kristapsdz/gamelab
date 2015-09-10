@@ -232,7 +232,8 @@ function bimatrixCreateTranspose(vector)
 	return(matrix);
 }
 
-function disableEnter(e) {
+function disableEnter(e) 
+{
 	e = e || window.event;
 	var keycode = e.which || e.keyCode;
 	if (keycode == 13) {
@@ -263,9 +264,8 @@ function loadGame()
 		doHide('exprPlay');
 		doHide('exprFinished');
 		doHide('exprNotStarted');
-		setTimeout(checkRoundEnd, 
-			res.expr.minutes < 10 || res.expr.roundpct > 0 ? 5000 :
-			60000);
+		setTimeout(checkRoundEnd, res.expr.minutes < 10 || 
+			res.expr.roundpct > 0 ? 5000 : 60000);
 		return;
 	} 
 
@@ -827,34 +827,46 @@ function loadExprSuccess(resp)
 
 	doClearReplace('nextRound', 'Next round');
 
-	if (expr.round < res.player.joined) {
+	if (expr.round < 0) {
 		/*
 		 * If we haven't yet started, then simply set our timer
 		 * and exit: we have nothing to show.
 		 */
-		next = expr.start - Math.floor(new Date().getTime() / 1000);
 		doUnhide('historyNotStarted');
+		doUnhide('exprNotStarted');
+		next = expr.start - Math.floor(new Date().getTime() / 1000);
 		e = doClear('exprCountdown');
 		formatCountdown(next, e);
-		/*
-		 * If the game hasn't started, then set this to be the
-		 * time that the game begins.
-		 * Otherwise, set it to the next round.
-		 */
-		if (expr.round < 0)
-			setTimeout(timerCountdown, 1000, 
-				null, e, expr.start);
-		else
-			setTimeout(timerCountdown, 1000, 
-				null, e, expr.roundbegan + 
-				(expr.minutes * 60));
+		setTimeout(timerCountdown, 1000, loadExpr, e, expr.start);
+	} else if (expr.round < res.player.joined) {
+		doUnhide('historyNotStarted');
 		doUnhide('exprNotStarted');
+		if (expr.roundmin > 0 && Math.floor(new Date().getTime() / 1000) - 
+				expr.roundbegan <= expr.roundmin * 60) {
+			doClearReplace('nextRound', 'Grace time');
+			next = (expr.roundbegan + (expr.roundmin * 60)) -
+				Math.floor(new Date().getTime() / 1000);
+			e = doClear('exprCountdown');
+			formatCountdown(next, e);
+			setTimeout(timerCountdown, 1000, checkRound, e, 
+				expr.roundbegan + (expr.roundmin * 60));
+		} else {
+			next = (expr.roundbegan + (expr.minutes * 60)) -
+				Math.floor(new Date().getTime() / 1000);
+			e = doClear('exprCountdown');
+			formatCountdown(next, e);
+			setTimeout(timerCountdown, 1000, null, e, 
+				expr.roundbegan + (expr.minutes * 60));
+			setTimeout(checkRoundEnd, res.expr.minutes < 10 || 
+				res.expr.roundpct > 0 ? 5000 : 60000);
+		}
 	} else if (expr.round < res.player.joined + expr.prounds) {
 		/*
 		 * Start by setting the countdown til the next
 		 * game-play.
 		 */
-		if (expr.roundmin > 0 && Math.floor(new Date().getTime() / 1000) - expr.roundbegan <= expr.roundmin * 60) {
+		if (expr.roundmin > 0 && Math.floor(new Date().getTime() / 1000) - 
+				expr.roundbegan <= expr.roundmin * 60) {
 			doClearReplace('nextRound', 'Grace time');
 			next = (expr.roundbegan + (expr.roundmin * 60)) -
 				Math.floor(new Date().getTime() / 1000);
@@ -1015,10 +1027,12 @@ function checkRoundEndSuccess(resp)
 		return;
 	}
 
-	if (r.round > res.expr.round) 
+	if (r.round > res.expr.round) {
 		window.location.reload();
-	else
-		setTimeout(checkRoundEnd, 10000);
+		return;
+	}
+	setTimeout(checkRoundEnd, res.expr.minutes < 10 || 
+		res.expr.roundpct > 0 ? 5000 : 60000);
 }
 
 function checkRoundSuccess(resp)

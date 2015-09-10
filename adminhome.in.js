@@ -797,10 +797,8 @@ function checkRoundSuccess(resp)
 	var res;
 
 	/* This shouldn't happen. */
-	if (null == currentRound) {
-		console.log('null == currentRound');
+	if (null == currentRound)
 		return;
-	}
 
 	/* Parse our JSON response. */
 	try {
@@ -835,11 +833,8 @@ function timerSloppyCountdown(donefunc, e, value, round)
 {
 	var now;
 
-	console.log('sloppy countdown: ' + value);
-	if (null != currentRound && round != currentRound) {
-		console.log('Timeout expired (bad round');
+	if (null != currentRound && round != currentRound)
 		return;
-	}
 
 	now = Math.floor(new Date().getTime() / 1000);
 	if (now >= value) {
