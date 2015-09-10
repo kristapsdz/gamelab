@@ -151,10 +151,11 @@ function loadNewPlayersSuccess(resp)
 		span = document.createElement('li');
 		span.setAttribute('id', 'player' + player.id);
 		icon = document.createElement('a');
+		icon.setAttribute('data-playerid', player.id);
 		icon.setAttribute('class', 'fa fa-remove');
 		icon.setAttribute('href', '#;');
 		icon.setAttribute('id', 'playerDelete' + player.id);
-		icon.setAttribute('onclick', 'doDeletePlayer(' + player.id + '); return false;');
+		icon.onclick = function(){doDeletePlayer(this); return(false);};
 		span.appendChild(icon);
 		icon = document.createElement('span');
 		icon.appendChild(document.createTextNode(player.mail));
@@ -175,9 +176,11 @@ function loadNewPlayersSuccess(resp)
 	}
 }
 
-function doShowPlayer(name)
+function doShowPlayer(source)
 {
-	var e, status;
+	var e, status, name;
+
+	name = source.getAttribute('data-playername');
 
 	if (null == (e = document.getElementById(name)))
 		return;
@@ -289,14 +292,13 @@ function loadPlayersSuccess(resp)
 		icon = document.createElement('a');
 		icon.setAttribute('href', '#');
 		icon.setAttribute('id', 'playerLoad' + player.id);
+		icon.setAttribute('data-playerid', player.id);
 		if (0 == player.enabled) {
 			icon.className = 'fa fa-fw fa-toggle-off';
-			icon.setAttribute('onclick', 'doEnablePlayer(' + 
-				player.id + '); return false;');
+			icon.onclick = function(){doEnablePlayer(this); return(false);};
 		} else {
 			icon.className = 'fa fa-fw fa-toggle-on';
-			icon.setAttribute('onclick', 'doDisablePlayer(' + 
-				player.id + '); return false;');
+			icon.onclick = function(){doDisablePlayer(this); return(false);};
 		}
 		span.appendChild(icon);
 		span.appendChild(document.createTextNode(' '));
@@ -315,8 +317,8 @@ function loadPlayersSuccess(resp)
 		/* Append the link to show more information. */
 		link = document.createElement('a');
 		link.setAttribute('href', '#');
-		link.setAttribute('onclick', 'doShowPlayer("player' + 
-			player.id + '"); return false;');
+		link.setAttribute('data-playername', 'player' + player.id);
+		link.onclick = function(){doShowPlayer(this); return(false);};
 		link.appendChild(document.createTextNode(player.mail));
 		span.appendChild(link);
 		if (player.autoadd) {
@@ -369,11 +371,10 @@ function loadGamesSuccessInner(resp, code)
 		if (0 == code) {
 			icon = document.createElement('a');
 			icon.setAttribute('href', '#');
+			icon.setAttribute('data-gameid', results[i].id);
 			icon.setAttribute('class', 'fa fa-remove');
-			icon.setAttribute('id', 'gameDelete' + 
-				results[i].id);
-			icon.setAttribute('onclick', 'doDeleteGame(' +
-				results[i].id + '); return false;');
+			icon.setAttribute('id', 'gameDelete' + results[i].id);
+			icon.onclick = function(){doDeleteGame(this); return(false);};
 			li.appendChild(icon);
 			li.appendChild(document.createTextNode(' '));
 		}
@@ -438,10 +439,11 @@ function doDisableEnablePlayer(id, url)
 	xrh.send(null);
 }
 
-function doDeleteGame(id)
+function doDeleteGame(source)
 {
-	var xrh, e;
+	var xrh, e, id;
 
+	id = source.getAttribute('data-gameid');
 	if (null != (e = document.getElementById('game' + id)))
 		e.className = 'waiting';
 
@@ -463,10 +465,11 @@ function doDeleteGame(id)
  * This is called in the administratiev "new" phase to remove a player
  * from the list of potential players.
  */
-function doDeletePlayer(id)
+function doDeletePlayer(source)
 {
-	var xrh, e;
+	var xrh, e, id;
 
+	id = source.getAttribute('data-playerid');
 	if (null != (e = document.getElementById('player' + id)))
 		e.className = 'waiting';
 
@@ -484,20 +487,22 @@ function doDeletePlayer(id)
 	xrh.send(null);
 }
 
-function doEnablePlayer(id) 
+function doEnablePlayer(source) 
 {
-	var e;
+	var e, id;
 
+	id = source.getAttribute('data-playerid');
 	doDisableEnablePlayer(id, 'doenableplayer');
 	if (null != (e = document.getElementById('player' + id)))
 		e.setAttribute('data-gamelab-enabled', '1');
 
 }
 
-function doDisablePlayer(id) 
+function doDisablePlayer(source) 
 {
-	var e;
+	var e, id;
 
+	id = source.getAttribute('data-playerid');
 	doDisableEnablePlayer(id, 'dodisableplayer');
 	if (null != (e = document.getElementById('player' + id)))
 		e.setAttribute('data-gamelab-enabled', '0');

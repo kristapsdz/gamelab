@@ -52,9 +52,11 @@ function shuffle(o, seed)
         return o;
 }
 
-function prowOut(source, id)
+function prowOut(source)
 {
-	var e;
+	var e, id;
+
+	id = source.getAttribute('data-row');
 
 	if (null != (e = document.getElementById('index' + id))) {
 		if (e.hasAttribute('disabled'))
@@ -64,9 +66,11 @@ function prowOut(source, id)
 	}
 }
 
-function prowOver(source, id)
+function prowOver(source)
 {
-	var e;
+	var e, id;
+
+	id = source.getAttribute('data-row');
 
 	if (null != (e = document.getElementById('index' + id))) {
 		if (e.hasAttribute('disabled'))
@@ -76,9 +80,11 @@ function prowOver(source, id)
 	}
 }
 
-function prowClick(source, id)
+function prowClick(source)
 {
-	var e;
+	var e, id;
+
+	id = source.getAttribute('data-row');
 
 	if (null == (e = document.getElementById('index' + id)))
 		return;
@@ -145,12 +151,10 @@ function appendBimatrix(e, active, matrix, colour, ocolour, rorder, corder)
 		row = document.createElement('div');
 		if (active) {
 			row.setAttribute('id', 'payoffRow' + i);
-			row.setAttribute('onclick', 
-				'prowClick(this, ' + rorder[i] + ')');
-			row.setAttribute('onmouseover', 
-				'prowOver(this, ' + rorder[i] + ')');
-			row.setAttribute('onmouseout', 
-				'prowOut(this, ' + rorder[i] + ')');
+			row.setAttribute('data-row', rorder[i]);
+			row.onclick = function(){prowClick(this);};
+			row.onmouseover = function(){prowOver(this);};
+			row.onmouseout = function(){prowOut(this);};
 			row.style.cursor = 'pointer';
 		}
 		table.appendChild(row);
@@ -1119,7 +1123,7 @@ function doPlayGameSuccess(resp)
 	ii.setAttribute('class', 'fa fa-fw fa-refresh');
 	input = document.createElement('button');
 	input.setAttribute('type', 'button');
-	input.setAttribute('onclick', 'loadGame();');
+	input.onclick = loadGame;
 	input.setAttribute('id', 'playGameRefresh');
 
 	input.appendChild(document.createTextNode
