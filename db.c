@@ -1679,12 +1679,14 @@ db_player_create(const char *email, char **pass, const char *hitid)
 
 	hash = db_crypt_mkpass();
 	stmt = db_stmt("INSERT INTO player "
-		"(email,rseed,hash,autoadd,hitid) VALUES (?,?,?,?,?)");
+		"(email,rseed,hash,autoadd,hitid,assignmentid) "
+		"VALUES (?,?,?,?,?,?)");
 	db_bind_text(stmt, 1, email);
 	db_bind_int(stmt, 2, arc4random_uniform(INT32_MAX) + 1);
 	db_bind_text(stmt, 3, hash);
 	db_bind_int(stmt, 4, NULL != pass);
 	db_bind_text(stmt, 5, NULL == hitid ? "" : hitid);
+	db_bind_text(stmt, 6, "");
 	rc = db_step(stmt, DB_STEP_CONSTRAINT);
 	sqlite3_finalize(stmt);
 	if (SQLITE_DONE == rc) {

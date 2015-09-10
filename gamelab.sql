@@ -31,6 +31,7 @@ CREATE TABLE winner (
 CREATE TABLE player (
 	email TEXT NOT NULL,
 	hitid TEXT NOT NULL,
+	assignmentid TEXT NOT NULL,
 	state INTEGER NOT NULL DEFAULT(0),
 	enabled INTEGER NOT NULL DEFAULT(1),
 	rseed INTEGER NOT NULL,
