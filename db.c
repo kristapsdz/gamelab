@@ -1639,23 +1639,29 @@ err:
  * log in so that they can continue playing.
  */
 int
-db_player_mturkvrfy(const char *email, char **pass, const char *hitid)
+db_player_mturkvrfy(const char *email, char **pass, 
+	const char *hitid, const char *assid)
 {
 	sqlite3_stmt	*stmt;
 	int		 rc;
 	int64_t		 id;
 
-	stmt = db_stmt("SELECT hash,id "
-		"FROM player WHERE email=? AND hitid=?");
+	stmt = db_stmt("SELECT hash,id FROM player "
+		"WHERE email=? AND hitid=? AND assid=?");
 	db_bind_text(stmt, 1, email);
 	db_bind_text(stmt, 2, hitid);
+	db_bind_text(stmt, 3, assid);
 	if (SQLITE_ROW == (rc = db_step(stmt, 0))) {
 		*pass = kstrdup((char *)
 			sqlite3_column_text(stmt, 0));
 		id = sqlite3_column_int64(stmt, 1);
 		fprintf(stderr, "Player %" PRId64 " re-entering "
-			"with same hitID: %s\n", id, email);
-	}
+			"with same HIT and assignment ID: %s\n", 
+			id, email);
+	} else
+		fprintf(stderr, "Player tried re-entering "
+			"with different IDs: %s\n", email);
+
 	sqlite3_finalize(stmt);
 	return(SQLITE_ROW == rc);
 }
@@ -1668,7 +1674,8 @@ db_player_mturkvrfy(const char *email, char **pass, const char *hitid)
  * NULL if errors have occurred.
  */
 int
-db_player_create(const char *email, char **pass, const char *hitid)
+db_player_create(const char *email, char **pass, 
+	const char *hitid, const char *assid)
 {
 	sqlite3_stmt	*stmt;
 	int		 rc;
@@ -1686,7 +1693,7 @@ db_player_create(const char *email, char **pass, const char *hitid)
 	db_bind_text(stmt, 3, hash);
 	db_bind_int(stmt, 4, NULL != pass);
 	db_bind_text(stmt, 5, NULL == hitid ? "" : hitid);
-	db_bind_text(stmt, 6, "");
+	db_bind_text(stmt, 6, NULL == assid ? "" : assid);
 	rc = db_step(stmt, DB_STEP_CONSTRAINT);
 	sqlite3_finalize(stmt);
 	if (SQLITE_DONE == rc) {

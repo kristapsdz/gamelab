@@ -240,7 +240,8 @@ int		 db_payoff_get(int64_t, int64_t, int64_t, mpq_t);
 
 size_t		 db_player_count_all(void);
 size_t		 db_player_count_plays(int64_t, int64_t);
-int		 db_player_create(const char *, char **, const char *);
+int		 db_player_create(const char *, char **, 
+			const char *, const char *);
 int		 db_player_delete(int64_t);
 void		 db_player_disable(int64_t);
 void		 db_player_enable(int64_t);
@@ -250,7 +251,8 @@ void		 db_player_load_all(playerf, void *);
 void		 db_player_load_highest(playerscorefp, void *, size_t);
 int		 db_player_lottery(int64_t, int64_t, 
 		 	mpq_t, mpq_t, int64_t *, size_t);
-int		 db_player_mturkvrfy(const char *, char **, const char *);
+int		 db_player_mturkvrfy(const char *, char **, 
+			const char *, const char *);
 int		 db_player_join(const struct player *, int64_t);
 char		*db_player_next_new(int64_t *, char **);
 void		 db_player_questionnaire(int64_t, int64_t);

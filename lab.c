@@ -263,7 +263,7 @@ sendmturk(struct kreq *r)
 	struct player	*player;
 	int		 rc, needjoin;
 	char		*hash;
-	const char	*id, *hitid;
+	const char	*id, *hitid, *assid;
 
 	if (NULL != r->fieldmap[KEY_ASSIGNMENTID] && 
 	    0 == strcmp("ASSIGNMENT_ID_NOT_AVAILABLE", 
@@ -279,6 +279,7 @@ sendmturk(struct kreq *r)
 		send303(r, HTURI "/playerautoadd.html", PAGE__MAX, 0);
 		return;
 	} else if (NULL == r->fieldmap[KEY_WORKERID] ||
+		   NULL == r->fieldmap[KEY_ASSIGNMENTID] ||
 		   NULL == r->fieldmap[KEY_HITID]) {
 		http_open(r, KHTTP_303);
 		send303(r, HTURI "/playerautoadd.html", PAGE__MAX, 0);
@@ -296,14 +297,15 @@ sendmturk(struct kreq *r)
 	/* Add the worker to the system. */
 	id = r->fieldmap[KEY_WORKERID]->parsed.s;
 	hitid = r->fieldmap[KEY_HITID]->parsed.s;
+	assid = r->fieldmap[KEY_ASSIGNMENTID]->parsed.s;
 
 	/* 
 	 * If the player does not exist, then ok.
 	 * If the player does exist, make sure that they entered with
 	 * the same hitId else we route them to the login page.
 	 */
-	if (0 == (rc = db_player_create(id, &hash, hitid)) &&
-	    ! db_player_mturkvrfy(id, &hash, hitid)) {
+	if (0 == (rc = db_player_create(id, &hash, hitid, assid)) &&
+	    ! db_player_mturkvrfy(id, &hash, hitid, assid)) {
 		http_open(r, KHTTP_303);
 		send303(r, HTURI "/playerlogin.html", PAGE__MAX, 0);
 		db_expr_free(expr);
@@ -729,7 +731,8 @@ senddoautoadd(struct kreq *r)
 	} 
 
 	rc = db_player_create
-		(r->fieldmap[KEY_IDENTIFIER]->parsed.s, &hash, NULL);
+		(r->fieldmap[KEY_IDENTIFIER]->parsed.s, 
+		 &hash, NULL, NULL);
 
 	if (0 == rc) {
 		http_open(r, KHTTP_403);
