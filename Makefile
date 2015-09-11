@@ -1,34 +1,36 @@
 .SUFFIXES: .in.js .js .in.html .html
 
+# Mechanical Turk testing.
+MTURKURI	 = https://workersandbox.mturk.com/mturk/externalSubmit
+#MTURKURI	 = https://www.mturk.com/mturk/externalSubmit
+
 # Mac OSX testing.
 # This is useful when running in a userdir.
-PREFIX		 = /Users/kristaps/Sites
-HTDOCS		 = $(PREFIX)
-HTURI		 = /~kristaps
-LABURI		 = /~kristaps/lab.cgi
-ADMINURI	 = /~kristaps/admin.cgi
-CGIBIN		 = $(PREFIX)
-DATADIR		 = $(PREFIX)
-RDATADIR	 = $(PREFIX)
-LIBS		 = 
-STATIC		 = 
-MTURKURI	 = https://workersandbox.mturk.com/mturk/externalSubmit
+#PREFIX		 = /Users/kristaps/Sites
+#HTDOCS		 = $(PREFIX)
+#HTURI		 = /~kristaps
+#LABURI		 = /~kristaps/lab.cgi
+#ADMINURI	 = /~kristaps/admin.cgi
+#CGIBIN		 = $(PREFIX)
+#DATADIR		 = $(PREFIX)
+#RDATADIR	 = $(PREFIX)
+#LIBS		 = 
+#STATIC		 = 
 
 # Linux testing.
 # LIBS		 = -lbsd -lm
 
 # OpenBSD production.
-#PREFIX		 = /var/www
-#HTDOCS		 = $(PREFIX)/htdocs/gamelab
-#HTURI		 = /gamelab
-#CGIBIN		 = $(PREFIX)/cgi-bin/gamelab
-#LABURI		 = /cgi-bin/gamelab/lab
-#ADMINURI	 = /cgi-bin/gamelab/admin
-#DATADIR	 	 = $(PREFIX)/data/gamelab
-#RDATADIR	 = /data/gamelab
-#LIBS		 = -lintl -liconv -lm
-#STATIC		 = -static
-#MTURKURI	 = https://www.mturk.com/mturk/externalSubmit
+PREFIX		 = /var/www
+HTDOCS		 = $(PREFIX)/htdocs/gamelab
+HTURI		 = /gamelab
+CGIBIN		 = $(PREFIX)/cgi-bin/gamelab
+LABURI		 = /cgi-bin/gamelab/lab
+ADMINURI	 = /cgi-bin/gamelab/admin
+DATADIR	 	 = $(PREFIX)/data/gamelab
+RDATADIR	 = /data/gamelab
+LIBS		 = -lintl -liconv -lm
+STATIC		 = -static
 
 # You really don't want to change anything below this line.
 
