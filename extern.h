@@ -141,6 +141,8 @@ enum	pstate {
 struct	player {
 	char		*mail; /* e-mail address */
 	char		*hitid; /* mturk id (or empty) */
+	char		*assignmentid; /* assignment id (or empty) */
+	int		 mturkdone; /* entire mturk process done */
 	enum pstate	 state; /* state of participant */
 	int		 enabled; /* whether can login */
 	int		 autoadd; /* whether auto-added */
@@ -253,6 +255,7 @@ int		 db_player_lottery(int64_t, int64_t,
 		 	mpq_t, mpq_t, int64_t *, size_t);
 int		 db_player_mturkvrfy(const char *, char **, 
 			const char *, const char *);
+void		 db_player_mturkdone(int64_t);
 int		 db_player_join(const struct player *, int64_t);
 char		*db_player_next_new(int64_t *, char **);
 void		 db_player_questionnaire(int64_t, int64_t);

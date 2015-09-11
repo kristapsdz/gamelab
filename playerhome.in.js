@@ -860,7 +860,8 @@ function loadExprSuccess(resp)
 			setTimeout(checkRoundEnd, res.expr.minutes < 10 || 
 				res.expr.roundpct > 0 ? 5000 : 60000);
 		}
-	} else if (expr.round < res.player.joined + expr.prounds) {
+	} else if (expr.round < expr.rounds && 
+		   expr.round < res.player.joined + expr.prounds) {
 		/*
 		 * Start by setting the countdown til the next
 		 * game-play.
@@ -899,6 +900,10 @@ function loadExprSuccess(resp)
 		doHide('exprPlay');
 		doHide('exprDone');
 		doUnhide('exprFinished');
+		if (null != res.player.assignmentid && ! res.player.mturkdone) {
+			doValue('assignmentId', res.player.assignmentid);
+			doUnhide('exprFinishedMturk');
+		}
 		if (expr.round > 0) {
 			doUnhide('historyPlay');
 			doHide('historyNotYet');
@@ -929,6 +934,10 @@ function loadExprSuccess(resp)
 		}
 		doHide('exprNotAllFinished');
 		doUnhide('exprAllFinished');
+		if (null != res.player.assignmentid && ! res.player.mturkdone) {
+			doValue('assignmentId', res.player.assignmentid);
+			doUnhide('exprFinishedMturk');
+		}
 		doClearReplace('exprFinishedScore', res.aggrlottery.toFixed(2));
 		doClearReplace('exprFinishedTicketsMax', expr.maxtickets);
 		doClearReplace('exprFinishedFinalRank', res.player.finalrank);
@@ -1109,6 +1118,13 @@ function doPlayGameError(err)
 	}
 }
 
+function submitMturkSuccess(resp)
+{
+
+	sendQuery('@LABURI@/dofinishmturk.json', 
+		null, function(){ doHide('exprFinishedMturk');}, null);
+}
+
 function doPlayGameSuccess(resp)
 {
 	var i, e, div, ii, input, elems;
@@ -1156,6 +1172,12 @@ function playGame(form)
 		doPlayGameSetup,
 		doPlayGameError, 
 		doPlayGameSuccess));
+}
+
+function submitMturk(form)
+{
+
+	return(sendForm(form, null, null, submitMturkSuccess));
 }
 
 function updateInstr(form)

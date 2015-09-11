@@ -12,6 +12,7 @@ DATADIR		 = $(PREFIX)
 RDATADIR	 = $(PREFIX)
 LIBS		 = 
 STATIC		 = 
+MTURKURI	 = https://workersandbox.mturk.com/mturk/externalSubmit
 
 # Linux testing.
 # LIBS		 = -lbsd -lm
@@ -27,10 +28,11 @@ STATIC		 =
 #RDATADIR	 = /data/gamelab
 #LIBS		 = -lintl -liconv -lm
 #STATIC		 = -static
+#MTURKURI	 = https://www.mturk.com/mturk/externalSubmit
 
 # You really don't want to change anything below this line.
 
-VERSION	 = 1.0.17
+VERSION	 = 1.0.18
 VMONTH	 = September
 VYEAR	 = 2015
 CFLAGS 	+= -g -W -Wall -Wstrict-prototypes -Wno-unused-parameter -Wwrite-strings -I/usr/local/include
@@ -188,6 +190,7 @@ adminhome.js playerautoadd.js playerlobby.js playerhome.js: jsmin
 	rm -f $@
 	sed -e "s!@ADMINURI@!$(ADMINURI)!g" \
 		-e "s!@LABURI@!$(LABURI)!g" \
+		-e "s!@MTURKURI@!$(MTURKURI)!g" \
 		-e "s!@HTURI@!$(HTURI)!g" $< | ./jsmin > $@
 	chmod 444 $@
 
@@ -196,6 +199,7 @@ adminhome.js playerautoadd.js playerlobby.js playerhome.js: jsmin
 	sed -e "s!@ADMINURI@!$(ADMINURI)!g" \
 		-e "s!@LABURI@!$(LABURI)!g" \
 		-e "s!@VERSION@!$(VERSION)!g" \
+		-e "s!@MTURKURI@!$(MTURKURI)!g" \
 		-e "s!@HTURI@!$(HTURI)!g" $< >$@
 	chmod 444 $@
 

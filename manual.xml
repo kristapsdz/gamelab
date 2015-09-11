@@ -1219,6 +1219,11 @@
 									href="#db-experiment-questionnaire"><var>questionnaire</var></a>),
 								this is non-zero if the questionnaire has been answered.
 							</dd>
+							<dt id="db-player-assignmentid"><var>assignmentid</var></dt>
+							<dd>
+								If the player joined from Mechanical Turk, the assignment identifier.
+								Otherwise set to the empty string.
+							</dd>
 							<dt id="db-player-autoadd"><var>autoadd</var></dt>
 							<dd>
 								Player was auto-added (i.e., auto-added herself).
@@ -1269,6 +1274,13 @@
 							<dd>
 								Whether the player should be shown instructions when she logs in (versus
 								being taken directly to the game-play tab).
+							</dd>
+							<dt id="db-player-mturkdone"><var>mturkdone</var></dt>
+							<dd>
+								Whether the Mechanical Turk player, if applicable, has indicated that they've
+								finished the experiment.
+								Note that this is unprotected and can be set at any time: it is only used to
+								display a message to report to the Mechanical Turk server.
 							</dd>
 							<dt id="db-player-questionnaire"><var>questionnaire</var></dt>
 							<dd>

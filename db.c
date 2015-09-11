@@ -1127,6 +1127,7 @@ db_player_free(struct player *player)
 		return;
 	free(player->mail);
 	free(player->hitid);
+	free(player->assignmentid);
 	free(player);
 }
 
@@ -1178,7 +1179,8 @@ db_player_load(int64_t id)
 
 	stmt = db_stmt("SELECT email,state,id,enabled,"
 		"role,rseed,instr,finalrank,finalscore,autoadd,"
-	        "version,joined,answer,hitid FROM player WHERE id=?");
+	        "version,joined,answer,hitid,assignmentid,mturkdone "
+		"FROM player WHERE id=?");
 	db_bind_int(stmt, 1, id);
 	if (SQLITE_ROW != db_step(stmt, 0)) {
 		sqlite3_finalize(stmt);
@@ -1199,7 +1201,11 @@ db_player_load(int64_t id)
 	player->version = sqlite3_column_int(stmt, 10);
 	player->joined = sqlite3_column_int(stmt, 11);
 	player->answer = sqlite3_column_int(stmt, 12);
-	player->hitid = kstrdup((char *)sqlite3_column_text(stmt, 13));
+	player->hitid = 
+		kstrdup((char *)sqlite3_column_text(stmt, 13));
+	player->assignmentid = 
+		kstrdup((char *)sqlite3_column_text(stmt, 14));
+	player->mturkdone = sqlite3_column_int(stmt, 15);
 	sqlite3_finalize(stmt);
 	return(player);
 }
@@ -1249,8 +1255,8 @@ db_player_load_all(playerf fp, void *arg)
 
 	stmt = db_stmt("SELECT email,state,id,enabled,"
 		"role,rseed,instr,finalrank,finalscore,autoadd, "
-		"version,joined,answer,hitid FROM player "
-		"ORDER BY email ASC");
+		"version,joined,answer,hitid,assignmentid,mturkdone "
+		"FROM player ORDER BY email ASC");
 	while (SQLITE_ROW == db_step(stmt, 0)) {
 		memset(&player, 0, sizeof(struct player));
 		player.mail = kstrdup
@@ -1269,6 +1275,9 @@ db_player_load_all(playerf fp, void *arg)
 		player.answer = sqlite3_column_int(stmt, 12);
 		player.hitid = kstrdup
 			((char *)sqlite3_column_text(stmt, 13));
+		player.assignmentid = kstrdup
+			((char *)sqlite3_column_text(stmt, 14));
+		player.mturkdone = sqlite3_column_int(stmt, 13);
 		(*fp)(&player, arg);
 		free(player.mail);
 		free(player.hitid);
@@ -1631,6 +1640,18 @@ err:
 		mpq_clear(rops[i]);
 	free(rops);
 	return(NULL);
+}
+
+void
+db_player_mturkdone(int64_t playerid)
+{
+	sqlite3_stmt	*stmt;
+
+	stmt = db_stmt("UPDATE player SET mturkdone=1 WHERE id=?");
+	db_bind_int(stmt, 1, playerid);
+	db_step(stmt, 0);
+	sqlite3_finalize(stmt);
+	fprintf(stderr, "Player %" PRId64 " finished mturk\n", playerid);
 }
 
 /*
@@ -2912,7 +2933,8 @@ db_expr_wipe(void)
 	db_exec("DELETE FROM player WHERE autoadd=1");
 	db_exec("UPDATE player SET version=0,instr=1,state=0,"
 		"enabled=1,finalrank=0,finalscore=0,hash='',"
-		"joined=-1,answer=0");
+		"joined=-1,answer=0,assignmentid='',hitid='',"
+		"mturkdone=0");
 	db_exec("UPDATE experiment SET "
 		"currency='',conversion=1,"
 		"autoadd=0,mturk=0,autoaddpreserve=0,"

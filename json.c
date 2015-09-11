@@ -222,11 +222,16 @@ json_putplayer(struct kjsonreq *r, const struct player *p)
 		kjson_putnullp(r, "hitid");
 	else
 		kjson_putstringp(r, "hitid", p->hitid);
+	if ('\0' == *p->assignmentid)
+		kjson_putnullp(r, "assignmentid");
+	else
+		kjson_putstringp(r, "assignmentid", p->assignmentid);
 	kjson_putstringp(r, "mail", p->mail);
 	kjson_putintp(r, "rseed", p->rseed);
 	kjson_putintp(r, "role", p->role);
 	kjson_putintp(r, "instr", p->instr);
 	kjson_putintp(r, "id", p->id);
+	kjson_putintp(r, "mturkdone", p->mturkdone);
 	kjson_putintp(r, "autoadd", p->autoadd);
 	kjson_putintp(r, "joined", p->joined);
 	kjson_putintp(r, "status", p->state);

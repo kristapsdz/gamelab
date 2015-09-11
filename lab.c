@@ -64,6 +64,7 @@ enum	page {
 	PAGE_DOANSWER,
 	PAGE_DOAUTOADD,
 	PAGE_DOCHECKROUND,
+	PAGE_DOFINISHMTURK,
 	PAGE_DOINSTR,
 	PAGE_DOLOADEXPR,
 	PAGE_DOLOADQUESTIONS,
@@ -116,6 +117,7 @@ static	unsigned int perms[PAGE__MAX] = {
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOANSWER */
 	PERM_JSON, /* PAGE_DOAUTOADD */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOCHECKROUND */
+	PERM_JSON | PERM_LOGIN, /* PAGE_DOFINISHMTURK */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOINSTR */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOLOADEXPR */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOLOADQUESTIONS */
@@ -130,6 +132,7 @@ static const char *const pages[PAGE__MAX] = {
 	"doanswer", /* PAGE_DOANSWER */
 	"doautoadd", /* PAGE_DOAUTOADD */
 	"docheckround", /* PAGE_DOCHECKROUND */
+	"dofinishmturk", /* PAGE_DOFINISHMTURK */
 	"doinstr", /* PAGE_DOINSTR */
 	"doloadexpr", /* PAGE_DOLOADEXPR */
 	"doloadquestions", /* PAGE_DOLOADQUESTIONS */
@@ -589,6 +592,15 @@ kvalid_choice0(struct kpair *kp)
 	if ( ! kvalid_uint(kp))
 		return(0);
 	return(3 == kp->parsed.i);
+}
+
+static void
+senddofinishmturk(struct kreq *r, int64_t playerid)
+{
+
+	db_player_mturkdone(playerid);
+	http_open(r, KHTTP_200);
+	khttp_body(r);
 }
 
 static void
@@ -1190,6 +1202,9 @@ doreq(struct kreq *r)
 		break;
 	case (PAGE_DOCHECKROUND):
 		senddocheckround(r);
+		break;
+	case (PAGE_DOFINISHMTURK):
+		senddofinishmturk(r, id);
 		break;
 	case (PAGE_DOINSTR):
 		senddoinstr(r, id);
