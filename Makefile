@@ -6,31 +6,31 @@ MTURKURI	 = https://workersandbox.mturk.com/mturk/externalSubmit
 
 # Mac OSX testing.
 # This is useful when running in a userdir.
-#PREFIX		 = /Users/kristaps/Sites
-#HTDOCS		 = $(PREFIX)
-#HTURI		 = /~kristaps
-#LABURI		 = /~kristaps/lab.cgi
-#ADMINURI	 = /~kristaps/admin.cgi
-#CGIBIN		 = $(PREFIX)
-#DATADIR		 = $(PREFIX)
-#RDATADIR	 = $(PREFIX)
-#LIBS		 = 
-#STATIC		 = 
+PREFIX		 = /Users/kristaps/Sites
+HTDOCS		 = $(PREFIX)
+HTURI		 = /~kristaps
+LABURI		 = /~kristaps/lab.cgi
+ADMINURI	 = /~kristaps/admin.cgi
+CGIBIN		 = $(PREFIX)
+DATADIR		 = $(PREFIX)
+RDATADIR	 = $(PREFIX)
+LIBS		 = 
+STATIC		 = 
 
 # Linux testing.
 # LIBS		 = -lbsd -lm
 
 # OpenBSD production.
-PREFIX		 = /var/www
-HTDOCS		 = $(PREFIX)/htdocs/gamelab
-HTURI		 = /gamelab
-CGIBIN		 = $(PREFIX)/cgi-bin/gamelab
-LABURI		 = /cgi-bin/gamelab/lab
-ADMINURI	 = /cgi-bin/gamelab/admin
-DATADIR	 	 = $(PREFIX)/data/gamelab
-RDATADIR	 = /data/gamelab
-LIBS		 = -lintl -liconv -lm
-STATIC		 = -static
+#PREFIX		 = /var/www
+#HTDOCS		 = $(PREFIX)/htdocs/gamelab
+#HTURI		 = /gamelab
+#CGIBIN		 = $(PREFIX)/cgi-bin/gamelab
+#LABURI		 = /cgi-bin/gamelab/lab
+#ADMINURI	 = /cgi-bin/gamelab/admin
+#DATADIR	 	 = $(PREFIX)/data/gamelab
+#RDATADIR	 = /data/gamelab
+#LIBS		 = -lintl -liconv -lm
+#STATIC		 = -static
 
 # You really don't want to change anything below this line.
 
@@ -88,6 +88,8 @@ SRCS	 = Makefile \
 	   playerhome.in.js \
 	   playerlobby.in.html \
 	   playerlobby.in.js \
+	   playermturk.in.html \
+	   playermturk.in.js \
 	   playerlogin.in.html \
 	   privacy.in.html
 BUILT	 = adminhome.js \
@@ -97,6 +99,8 @@ BUILT	 = adminhome.js \
 	   playerautoadd.js \
 	   playerlobby.html \
 	   playerlobby.js \
+	   playermturk.html \
+	   playermturk.js \
 	   playerhome.html \
 	   playerhome.js \
 	   playerlogin.html \
