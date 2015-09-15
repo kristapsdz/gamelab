@@ -6,7 +6,14 @@
 	</header>
 	<aside>
 		<p>
-			Allow for Mechanical Turk players to log in using a survey link instead of the traditional <q>external process</q>.
+			Allow for Mechanical Turk players to log in using a survey link instead of the traditional <q>external question</q>.
+			This is because <span class="nm">gamelab</span> requires cookies, and when logged in through Mechanical Turk, these
+			cookies are <q>third-party</q> since they are fetched from the Mechanical Turk interface.
+			Some browsers will ignore these by default, such as Safari, putting an extra burden on players to allow cookies.
+			In the future, we forsee allowing cookie values to be specified in the query string for Mechanical Turk players.
+		</p>
+		<p>
+			Also clean up some typos in the questions.
 		</p>
 	</aside>
 </article>

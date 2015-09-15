@@ -400,6 +400,9 @@ function showHistory()
 	var e, game;
 
 	e = document.getElementById('historySelectGame');
+	if (null == e)
+		return;
+
 	game = e.options[e.selectedIndex].value;
 	doClearReplace('historyGame', (e.selectedIndex + 1));
 
@@ -880,7 +883,7 @@ function loadExprSuccess(resp)
 				Math.floor(new Date().getTime() / 1000);
 			e = doClear('exprCountdown');
 			formatCountdown(next, e);
-			setTimeout(timerCountdown, 1000, null, e, 
+			setTimeout(timerCountdown, 1000, loadExpr, e, 
 				expr.roundbegan + (expr.minutes * 60));
 		}
 		doValue('exprPlayRound', expr.round);

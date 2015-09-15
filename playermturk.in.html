@@ -10,7 +10,7 @@
 		<script src="@HTURI@/script.js"></script>
 		<script src="@HTURI@/playermturk.js"></script>
 	</head>
-	<body>
+	<body id="login">
 		<article>
 			<section>
 				<div id="top">
@@ -21,6 +21,10 @@
 					id="registerSection" onsubmit="return(sendForm(this, doRegSetup, doRegErr, doRegOk));">
 					<section>
 						<h3>Mechanical Turk Worker Portal</h3>
+						<p>
+							Please note that you can only perform this task once.
+							If you have already performed this task, you will not get additional payment for completing it again.
+						</p>
 						<div class="error">
 							<div class="noshow" id="registerError">
 								Invalid worker identifier.
@@ -38,7 +42,7 @@
 						<fieldset>
 							<div class="input">
 								<i class="fa fa-fw fa-envelope"></i>
-								<input autofocus="autofocus" type="text" placeholder="Worker Identifier" required="required" name="workerId" />
+								<input autofocus="autofocus" type="text" placeholder="Worker ID (see 'Your Account > Dashboard' on the worker portal)" required="required" name="workerId" />
 							</div>
 							<div class="input input-submit">
 								<i class="fa fa-fw fa-check"></i>
