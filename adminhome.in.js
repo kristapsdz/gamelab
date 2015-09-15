@@ -1,6 +1,6 @@
 "use strict";
 
-var currentRound; /* see checkRound() */
+var currentRound = null; /* see checkRound() */
 
 function doClassOk(name)
 {
@@ -155,7 +155,9 @@ function loadNewPlayersSuccess(resp)
 		icon.setAttribute('class', 'fa fa-remove');
 		icon.setAttribute('href', '#;');
 		icon.setAttribute('id', 'playerDelete' + player.id);
-		icon.onclick = function(){doDeletePlayer(this); return(false);};
+		icon.onclick = function() {
+			return function(){doDeletePlayer(this); return(false);};
+		}();
 		span.appendChild(icon);
 		icon = document.createElement('span');
 		icon.appendChild(document.createTextNode(player.mail));
@@ -237,7 +239,7 @@ function doShowPlayer(source)
  */
 function loadPlayersSuccess(resp) 
 {
-	var e, li, i, results, players, icon, link, span, link, sup, player;
+	var e, li, i, results, players, icon, span, link, sup, player;
 
 	e = doClearNode(document.getElementById('loadPlayers'));
 
@@ -295,10 +297,14 @@ function loadPlayersSuccess(resp)
 		icon.setAttribute('data-playerid', player.id);
 		if (0 == player.enabled) {
 			icon.className = 'fa fa-fw fa-toggle-off';
-			icon.onclick = function(){doEnablePlayer(this); return(false);};
+			icon.onclick = function() {
+				return function(){doEnablePlayer(this); return(false);};
+			}();
 		} else {
 			icon.className = 'fa fa-fw fa-toggle-on';
-			icon.onclick = function(){doDisablePlayer(this); return(false);};
+			icon.onclick = function() {
+				return function(){doDisablePlayer(this); return(false);};
+			}();
 		}
 		span.appendChild(icon);
 		span.appendChild(document.createTextNode(' '));
@@ -318,7 +324,9 @@ function loadPlayersSuccess(resp)
 		link = document.createElement('a');
 		link.setAttribute('href', '#');
 		link.setAttribute('data-playername', 'player' + player.id);
-		link.onclick = function(){doShowPlayer(this); return(false);};
+		link.onclick = function() {
+			return function(){doShowPlayer(this); return(false);};
+		}();
 		link.appendChild(document.createTextNode(player.mail));
 		span.appendChild(link);
 		if (player.autoadd) {
@@ -374,7 +382,9 @@ function loadGamesSuccessInner(resp, code)
 			icon.setAttribute('data-gameid', results[i].id);
 			icon.setAttribute('class', 'fa fa-remove');
 			icon.setAttribute('id', 'gameDelete' + results[i].id);
-			icon.onclick = function(){doDeleteGame(this); return(false);};
+			icon.onclick = function() {
+				return function(){doDeleteGame(this); return(false);};
+			}();
 			li.appendChild(icon);
 			li.appendChild(document.createTextNode(' '));
 		}
@@ -433,8 +443,8 @@ function doDisableEnablePlayer(id, url)
 	xrh = new XMLHttpRequest();
 	xrh.onreadystatechange=function() {
 		if (xrh.readyState==4 && xrh.status==200)
-			loadPlayers()
-	} 
+			loadPlayers();
+	} ;
 	xrh.open('GET', '@ADMINURI@/' + url + '.json?pid=' + id, true);
 	xrh.send(null);
 }
@@ -456,7 +466,7 @@ function doDeleteGame(source)
 				e.parentNode.removeChild(e);
 			loadNewGames();
 		}
-	} 
+	};
 	xrh.open('GET', '@ADMINURI@/dodeletegame.json?gid=' + id, true);
 	xrh.send(null);
 }
@@ -482,7 +492,7 @@ function doDeletePlayer(source)
 				e.parentNode.removeChild(e);
 			loadNewPlayers();
 		}
-	} 
+	};
 	xrh.open('GET', '@ADMINURI@/dodeleteplayer.json?pid=' + id, true);
 	xrh.send(null);
 }

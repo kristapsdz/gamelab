@@ -38,7 +38,7 @@ function timerCountdown(donefunc, e, value)
 
 	now = Math.floor(new Date().getTime() / 1000);
 	if (now >= value) {
-		if (null != donefunc)
+		if (null !== donefunc)
 			donefunc();
 		return;
 	}
@@ -50,7 +50,7 @@ function timerCountdown(donefunc, e, value)
 function doHideNode(e)
 {
 
-	if (null != e && ! e.classList.contains('noshow'))
+	if (null !== e && ! e.classList.contains('noshow'))
 		e.classList.add('noshow');
 
 	return(e);
@@ -65,7 +65,7 @@ function doHide(name)
 function doUnhideNode(e)
 {
 
-	if (null != e)
+	if (null !== e)
 		e.classList.remove('noshow');
 
 	return(e);
@@ -79,7 +79,7 @@ function doUnhide(name)
 
 function doClearNode(e) 
 {
-	if (null == e)
+	if (null === e)
 		return(null);
 
 	while (e.firstChild)
@@ -92,7 +92,7 @@ function doValue(name, value)
 {
 	var e;
 
-	if (null != (e = document.getElementById(name)))
+	if (null !== (e = document.getElementById(name)))
 		e.value = value;
 }
 
@@ -106,7 +106,7 @@ function doClearReplaceMarkup(name, str)
 {
 	var e;
 
-	if (null != (e = doClearNode(document.getElementById(name))))
+	if (null !== (e = doClearNode(document.getElementById(name))))
 		e.innerHTML = str;
 
 	return(e);
@@ -116,7 +116,7 @@ function doClearReplace(name, str)
 {
 	var e;
 
-	if (null != (e = doClearNode(document.getElementById(name))))
+	if (null !== (e = doClearNode(document.getElementById(name))))
 		e.appendChild(document.createTextNode(str));
 
 	return(e);
@@ -178,13 +178,13 @@ function sendQuery(url, setup, success, error)
 {
 	var xmlhttp = new XMLHttpRequest();
 
-	if (null != setup)
+	if (null !== setup)
 		setup();
 
 	xmlhttp.onreadystatechange=function() {
-		if (xmlhttp.readyState == 4 && xmlhttp.status == 200 && null != success)
+		if (xmlhttp.readyState == 4 && xmlhttp.status == 200 && null !== success)
 			success(xmlhttp.responseText);
-		else if (xmlhttp.readyState == 4 && null != error)
+		else if (xmlhttp.readyState == 4 && null !== error)
 			error(xmlhttp.status);
 	};
 
@@ -197,13 +197,13 @@ function sendFormTo(oFormElement, action, setup, error, success)
 	var xmlhttp = new XMLHttpRequest();
 	var formdata = new FormData(oFormElement);
 
-	if (null != setup)
+	if (null !== setup)
 		setup();
 
 	xmlhttp.onreadystatechange=function() {
-		if (xmlhttp.readyState==4 && xmlhttp.status==200 && null != success)
+		if (xmlhttp.readyState==4 && xmlhttp.status==200 && null !== success)
 			success(xmlhttp.responseText);
-		else if (xmlhttp.readyState == 4 && null != error)
+		else if (xmlhttp.readyState == 4 && null !== error)
 			error(xmlhttp.status);
 	};
 

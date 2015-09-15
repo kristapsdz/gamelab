@@ -6,15 +6,15 @@
  * null.
  * It's loaded with the games that we haven't played yet.
  */
-var res;
+var res = null;
 
 /* 
  * FIXME: store these as names, then if we reload the game, show the
  * given bimatrix and graph.
  */
-var shownBimatrix;
-var shownLineGraph;
-var shownBarGraph;
+var shownBimatrix = null;
+var shownLineGraph = null;
+var shownBarGraph = null;
 
 /*
  * When we play games, we go through the [shuffled] array in "res".
@@ -58,7 +58,7 @@ function prowOut(source)
 
 	id = source.getAttribute('data-row');
 
-	if (null != (e = document.getElementById('index' + id))) {
+	if (null !== (e = document.getElementById('index' + id))) {
 		if (e.hasAttribute('disabled'))
 			return;
 		source.classList.remove('hover');
@@ -72,7 +72,7 @@ function prowOver(source)
 
 	id = source.getAttribute('data-row');
 
-	if (null != (e = document.getElementById('index' + id))) {
+	if (null !== (e = document.getElementById('index' + id))) {
 		if (e.hasAttribute('disabled'))
 			return;
 		source.classList.add('hover');
@@ -86,7 +86,7 @@ function prowClick(source)
 
 	id = source.getAttribute('data-row');
 
-	if (null == (e = document.getElementById('index' + id)))
+	if (null === (e = document.getElementById('index' + id)))
 		return;
 
 	if (e.hasAttribute('disabled'))
@@ -152,9 +152,15 @@ function appendBimatrix(e, active, matrix, colour, ocolour, rorder, corder)
 		if (active) {
 			row.setAttribute('id', 'payoffRow' + i);
 			row.setAttribute('data-row', rorder[i]);
-			row.onclick = function(){prowClick(this);};
-			row.onmouseover = function(){prowOver(this);};
-			row.onmouseout = function(){prowOut(this);};
+			row.onclick = function() {
+				return function() { prowClick(this); };
+			}();
+			row.onmouseover = function() {
+				return function() { prowOver(this); };
+			}();
+			row.onmouseout = function() {
+				return function() { prowOut(this); };
+			}();
 			row.style.cursor = 'pointer';
 		}
 		table.appendChild(row);
@@ -283,26 +289,26 @@ function loadGame()
 	doClearReplace('playRoundMax2', res.expr.prounds);
 
 	game = res.games[res.gameorders[resindex]];
-	if (null == game) {
+	if (null === game) {
 		resindex++;
 		loadGame();
 		return;
 	}
 
 	/* Transpose the matrix, if necessary. */
-	matrix = 0 == res.player.role ? 
+	matrix = 0 === res.player.role ? 
 		bimatrixCreate(game.payoffs) : 
 		bimatrixCreateTranspose(game.payoffs);
 
 
 	c = res.player.rseed % colours.length;
-	oc = (0 == c % 2) ? c + 1 : c - 1;
+	oc = (0 === c % 2) ? c + 1 : c - 1;
 
 	appendBimatrix(doClear('exprMatrix'), 1, matrix, c, oc, 
 		res.roworders[res.gameorders[resindex]],
 		res.colorders[res.gameorders[resindex]]);
 
-	if (null != game.roundup) {
+	if (null !== game.roundup) {
 		doUnhide('exprHistory');
 		doClear('historyLineGraphsSmall');
 		doClear('historyBarGraphsSmall');
@@ -363,9 +369,9 @@ function showHistoryGamePrev()
 	var e;
 
 	e = document.getElementById('historySelectGame');
-	if (null == e)
+	if (null === e)
 		return;
-	if (0 == e.selectedIndex)
+	if (0 === e.selectedIndex)
 		return;
 	e.selectedIndex--;
 	showHistory();
@@ -376,7 +382,7 @@ function showHistoryGameNext()
 	var e;
 
 	e = document.getElementById('historySelectGame');
-	if (null == e)
+	if (null === e)
 		return;
 	if (e.selectedIndex == e.options.length - 1)
 		return;
@@ -400,21 +406,23 @@ function showHistory()
 	var e, game;
 
 	e = document.getElementById('historySelectGame');
-	if (null == e)
+	if (null === e)
+		return;
+	else if (e.selectedIndex < 0)
 		return;
 
 	game = e.options[e.selectedIndex].value;
 	doClearReplace('historyGame', (e.selectedIndex + 1));
 
-	if (null != shownBimatrix)
+	if (null !== shownBimatrix)
 		doHideNode(shownBimatrix);
 	shownBimatrix = doUnhide('bimatrix' + game);
 
-	if (null != shownLineGraph)
+	if (null !== shownLineGraph)
 		doHideNode(shownLineGraph);
 	shownLineGraph = doUnhide('historyLineGraphs' + game);
 
-	if (null != shownBarGraph)
+	if (null !== shownBarGraph)
 		doHideNode(shownBarGraph);
 	shownBarGraph = doUnhide('historyBarGraphs' + game);
 }
@@ -434,13 +442,13 @@ function loadGameGraphs(gameidx, lineName, barName, small)
 	e.appendChild(sub);
 	doHideNode(sub);
 
-	matrix = 0 == res.player.role ?
+	matrix = 0 === res.player.role ?
 		bimatrixCreate(res.history[gameidx].payoffs) :
 		bimatrixCreateTranspose(res.history[gameidx].payoffs);
 
 	hmatrix = null;
-	if (null != res.expr.history)
-		hmatrix = 0 == res.player.role ?
+	if (null !== res.expr.history)
+		hmatrix = 0 === res.player.role ?
 			bimatrixCreate(res.expr.history[gameidx].payoffs) :
 			bimatrixCreateTranspose(res.expr.history[gameidx].payoffs);
 
@@ -449,7 +457,7 @@ function loadGameGraphs(gameidx, lineName, barName, small)
 	 */
 	c = document.createElement('div');
 	sub.appendChild(c);
-	len = 0 == res.player.role ? 
+	len = 0 === res.player.role ? 
 		res.history[gameidx].roundups[0].navgp1.length : 
 		res.history[gameidx].roundups[0].navgp2.length;
 	datas = [];
@@ -459,9 +467,9 @@ function loadGameGraphs(gameidx, lineName, barName, small)
 		data.push([0, 0.0]);
 		sum = 0.0;
 		k = 0;
-		if (null != hmatrix)
+		if (null !== hmatrix)
 			for ( ; k < res.expr.history[gameidx].roundups.length; k++) {
-				avg = 0 == res.player.role ?
+				avg = 0 === res.player.role ?
 					res.expr.history[gameidx].roundups[k].navgp2 :
 					res.expr.history[gameidx].roundups[k].navgp1;
 				for (sum = 0.0, m = 0; m < hmatrix[0].length; m++)
@@ -472,7 +480,7 @@ function loadGameGraphs(gameidx, lineName, barName, small)
 			}
 		l = k;
 		for (k = 0; k < res.history[gameidx].roundups.length; k++) {
-			avg = 0 == res.player.role ?
+			avg = 0 === res.player.role ?
 				res.history[gameidx].roundups[k].navgp2 :
 				res.history[gameidx].roundups[k].navgp1;
 			for (sum = 0.0, m = 0; m < matrix[0].length; m++)
@@ -504,13 +512,13 @@ function loadGameGraphs(gameidx, lineName, barName, small)
 	/* Start with zero! */
 	data.push([0, 0.0]);
 	j = 0;
-	if (null != hmatrix)
+	if (null !== hmatrix)
 		for ( ; j < res.expr.history[gameidx].roundups.length; j++) 
 			data.push([j + 1, 0.0]);
 	k = j;
 	for (j = 0; j < res.history[gameidx].roundups.length; j++) {
 		lot = res.lotteries[j].plays[gameidx];
-		data.push([(j + k) + 1, null == lot ? 0.0 : lot.poff]);
+		data.push([(j + k) + 1, null === lot ? 0.0 : lot.poff]);
 	}
 	Flotr.draw(c, 
 		[{ data: data }],
@@ -530,13 +538,13 @@ function loadGameGraphs(gameidx, lineName, barName, small)
 	/* Start with zero! */
 	data.push([0, 0.0]);
 	j = 0;
-	if (null != hmatrix)
+	if (null !== hmatrix)
 		for (j = 0; j < res.expr.history[gameidx].roundups.length; j++)
 			data.push([j + 1, 0]);
 	k = j;
 	for (l = 0.0, j = 0; j < res.history[gameidx].roundups.length; j++) {
 		lot = res.lotteries[j].plays[gameidx];
-		if (null != lot)
+		if (null !== lot)
 			l += lot.poff;
 		data.push([(j + k) + 1, l]);
 	}
@@ -561,21 +569,21 @@ function loadGameGraphs(gameidx, lineName, barName, small)
 	c = document.createElement('div');
 	sub.appendChild(c);
 	datas = [];
-	len = 0 == res.player.role ? 
+	len = 0 === res.player.role ? 
 		res.history[gameidx].roundups[0].navgp1.length : 
 		res.history[gameidx].roundups[0].navgp2.length;
 	for (k = l = j = 0; j < len; j++) {
 		stratidx = res.roworders[gameidx][j];
 		data = [];
 		k = 0;
-		if (null != res.expr.history) {
+		if (null !== res.expr.history) {
 			for ( ; k < res.expr.history[gameidx].roundups.length; k++)
 				data.push([k, 0]);
 		}
 		l = k;
 		for (k = 0; k < res.history[gameidx].roundups.length; k++) {
 			lot = res.lotteries[k].plays[gameidx];
-			if (null == lot) {
+			if (null === lot) {
 				data.push([(l + k), 0]);
 				continue;
 			}
@@ -589,8 +597,8 @@ function loadGameGraphs(gameidx, lineName, barName, small)
 	Flotr.draw(c, datas, { 
 		bars: { show: true , shadowSize: 0, stacked: true, barWidth: 1.0, lineWidth: 1 }, 
 		grid: { horizontalLines: 1 },
-		xaxis: { ticks: [[ 0, (0 == (l + k) - 1 ? '' : oldest) ], 
-			         [(l + k) - 1, (0 == (l + k) - 1 ? (newest + ' ' + oldest) : newest)]] },
+		xaxis: { ticks: [[ 0, (0 === (l + k) - 1 ? '' : oldest) ], 
+			         [(l + k) - 1, (0 === (l + k) - 1 ? (newest + ' ' + oldest) : newest)]] },
 		subtitle: (small ? 'You' : 'Your strategy'),
 		yaxis: { max: 1.0, min: 0.0, tickDecimals: 1 }
 	});
@@ -601,16 +609,16 @@ function loadGameGraphs(gameidx, lineName, barName, small)
 	c = document.createElement('div');
 	sub.appendChild(c);
 	datas = [];
-	len = 0 == res.player.role ? 
+	len = 0 === res.player.role ? 
 		res.history[gameidx].roundups[0].navgp1.length : 
 		res.history[gameidx].roundups[0].navgp2.length;
 	for (l = k = j = 0; j < len; j++) {
 		stratidx = res.roworders[gameidx][j];
 		data = [];
 		k = 0;
-		if (null != res.expr.history) {
+		if (null !== res.expr.history) {
 			for ( ; k < res.expr.history[gameidx].roundups.length; k++) {
-				avg = 0 == res.player.role ? 
+				avg = 0 === res.player.role ? 
 					res.expr.history[gameidx].roundups[k].navgp1 : 
 					res.expr.history[gameidx].roundups[k].navgp2;
 				data.push([k, avg[stratidx]]);
@@ -618,7 +626,7 @@ function loadGameGraphs(gameidx, lineName, barName, small)
 		}
 		l = k;
 		for (k = 0; k < res.history[gameidx].roundups.length; k++) {
-			avg = 0 == res.player.role ? 
+			avg = 0 === res.player.role ? 
 				res.history[gameidx].roundups[k].navgp1 : 
 				res.history[gameidx].roundups[k].navgp2;
 			data.push([(l + k), avg[stratidx]]);
@@ -632,8 +640,8 @@ function loadGameGraphs(gameidx, lineName, barName, small)
 		bars: { show: true , shadowSize: 0, stacked: true, barWidth: 1.0, lineWidth: 1 }, 
 		grid: { horizontalLines: 1 },
 		subtitle: (small ? 'Row' : 'Row player average strategy'),
-		xaxis: { ticks: [[ 0, (0 == (l + k) - 1 ? '' : oldest) ], 
-			         [(l + k) - 1, (0 == (l + k) - 1 ? (newest + ' ' + oldest) : newest)]] },
+		xaxis: { ticks: [[ 0, (0 === (l + k) - 1 ? '' : oldest) ], 
+			         [(l + k) - 1, (0 === (l + k) - 1 ? (newest + ' ' + oldest) : newest)]] },
 		yaxis: { max: 1.0, min: 0.0, tickDecimals: 1 }
 	});
 
@@ -643,16 +651,16 @@ function loadGameGraphs(gameidx, lineName, barName, small)
 	c = document.createElement('div');
 	sub.appendChild(c);
 	datas = [];
-	len = 0 == res.player.role ? 
+	len = 0 === res.player.role ? 
 		res.history[gameidx].roundups[0].navgp2.length : 
 		res.history[gameidx].roundups[0].navgp1.length;
 	for (k = l = j = 0; j < len; j++) {
 		stratidx = res.colorders[gameidx][j];
 		data = [];
 		k = 0;
-		if (null != res.expr.history) {
+		if (null !== res.expr.history) {
 			for ( ; k < res.expr.history[gameidx].roundups.length; k++) {
-				avg = 0 == res.player.role ? 
+				avg = 0 === res.player.role ? 
 					res.expr.history[gameidx].roundups[k].navgp2 : 
 					res.expr.history[gameidx].roundups[k].navgp1;
 				data.push([k, avg[stratidx]]);
@@ -660,7 +668,7 @@ function loadGameGraphs(gameidx, lineName, barName, small)
 		}
 		l = k;
 		for (k = 0; k < res.history[gameidx].roundups.length; k++) {
-			avg = 0 == res.player.role ? 
+			avg = 0 === res.player.role ? 
 				res.history[gameidx].roundups[k].navgp2 : 
 				res.history[gameidx].roundups[k].navgp1;
 			data.push([(l + k), avg[stratidx]]);
@@ -673,8 +681,8 @@ function loadGameGraphs(gameidx, lineName, barName, small)
 	Flotr.draw(c, datas, { 
 		bars: { show: true , shadowSize: 0, stacked: true, barWidth: 1.0, lineWidth: 1 }, 
 		grid: { horizontalLines: 1 },
-		xaxis: { ticks: [[ 0, (0 == (l + k) - 1 ? '' : oldest) ], 
-			         [(l + k) - 1, (0 == (l + k) - 1 ? (newest + ' ' + oldest) : newest)]] },
+		xaxis: { ticks: [[ 0, (0 === (l + k) - 1 ? '' : oldest) ], 
+			         [(l + k) - 1, (0 === (l + k) - 1 ? (newest + ' ' + oldest) : newest)]] },
 		subtitle: (small ? 'Column' : 'Column player average strategy'),
 		yaxis: { max: 1.0, min: 0.0, tickDecimals: 1 }
 	});
@@ -684,7 +692,7 @@ function loadGraphs()
 {
 	var i;
 
-	if (null == res)
+	if (null === res)
 		return;
 	else if (res.expr.round <= 0)
 		return;
@@ -704,14 +712,14 @@ function loadHistory(res)
 	loadGraphs();
 
 	c = res.player.rseed % colours.length;
-	oc = (0 == c % 2) ? c + 1 : c - 1;
+	oc = (0 === c % 2) ? c + 1 : c - 1;
 
 	doClearReplace('historyLottery', res.aggrlottery.toFixed(2));
 
 	k = 0;
-	if (null != (e = document.getElementById('historySelectGame')))
+	if (null !== (e = document.getElementById('historySelectGame')))
 		k = e.selectedIndex;
-	if (null != (e = doClear('historySelectGame'))) {
+	if (null !== (e = doClear('historySelectGame'))) {
 		for (i = 0; i < res.gamesz; i++) {
 			child = document.createElement('option');
 			child.appendChild
@@ -731,7 +739,7 @@ function loadHistory(res)
 		tbl = document.createElement('div');
 		gamee.appendChild(tbl);
 		tbl.setAttribute('id', 'bimatrix' + res.gameorders[i]);
-		bmatrix = 0 == res.player.role ? 
+		bmatrix = 0 === res.player.role ? 
 			bimatrixCreate(game.payoffs) : 
 			bimatrixCreateTranspose(game.payoffs);
 		appendBimatrix(tbl, 0,
@@ -769,7 +777,7 @@ function loadExprSuccess(resp)
 
 	document.getElementById('instructionsPromptYes').checked = 
 		res.player.instr ? 'checked' : '';
-	if (0 == res.player.instr && '' == window.location.hash)
+	if (0 === res.player.instr && '' == window.location.hash)
 		window.location.hash = '#play';
 
 	doHide('exprLoading');
@@ -789,7 +797,7 @@ function loadExprSuccess(resp)
 	}
 
 	c = res.player.rseed % colours.length;
-	oc = (0 == c % 2) ? c + 1 : c - 1;
+	oc = (0 === c % 2) ? c + 1 : c - 1;
 
 	elems = document.getElementsByClassName('gamelab-colour');
 	for (i = 0; i < elems.length; i++)
@@ -799,7 +807,7 @@ function loadExprSuccess(resp)
 		elems[i].style.color = colours[oc];
 
 	/* Shuffle our game list and row orders. */
-	if (null != res.history) {
+	if (null !== res.history) {
 		res.gameorders = new Array(res.history.length);
 		for (j = 0; j < res.gameorders.length; j++)
 			res.gameorders[j] = j;
@@ -808,11 +816,11 @@ function loadExprSuccess(resp)
 		res.colorders = new Array(res.history.length);
 		for (i = 0; i < res.roworders.length; i++) {
 			res.roworders[i] = new Array
-				(0 == res.player.role ?  
+				(0 === res.player.role ?  
 				 res.history[i].p1 : 
 				 res.history[i].p2);
 			res.colorders[i] = new Array
-				(0 == res.player.role ?  
+				(0 === res.player.role ?  
 				 res.history[i].p2 : 
 				 res.history[i].p1);
 			for (j = 0; j < res.roworders[i].length; j++)
@@ -904,14 +912,14 @@ function loadExprSuccess(resp)
 		doHide('exprPlay');
 		doHide('exprDone');
 		doUnhide('exprFinished');
-		if (null != res.player.assignmentid && ! res.player.mturkdone) {
+		if (null !== res.player.assignmentid && ! res.player.mturkdone) {
 			doValue('assignmentId', res.player.assignmentid);
 			doUnhide('exprFinishedMturk');
 			doUnhide('exprFinishedMturkProfit');
 			doClearReplace('exprFinishedMturkBonus', 
 				(res.aggrtickets * expr.conversion));
 			doClearReplace('currency', expr.currency);
-		} else if (null != res.player.hitid) {
+		} else if (null !== res.player.hitid) {
 			doClearReplace('hitid', res.player.hitid);
 			doUnhide('exprFinishedMturkSurvey');
 			doUnhide('exprFinishedMturkProfit');
@@ -950,14 +958,14 @@ function loadExprSuccess(resp)
 		}
 		doHide('exprNotAllFinished');
 		doUnhide('exprAllFinished');
-		if (null != res.player.assignmentid && ! res.player.mturkdone) {
+		if (null !== res.player.assignmentid && ! res.player.mturkdone) {
 			doValue('assignmentId', res.player.assignmentid);
 			doUnhide('exprFinishedMturk');
 			doUnhide('exprFinishedMturkProfit');
 			doClearReplace('exprFinishedMturkBonus', 
 				(res.player.finalscore * expr.conversion));
 			doClearReplace('currency', expr.currency);
-		} else if (null != res.player.hitid) {
+		} else if (null !== res.player.hitid) {
 			doClearReplace('hitid', res.player.hitid);
 			doUnhide('exprFinishedMturkSurvey');
 			doUnhide('exprFinishedMturkProfit');
@@ -978,7 +986,7 @@ function loadExprSuccess(resp)
 			doUnhide('exprLottery');
 		}
 
-		if (null == res.winner) {
+		if (null === res.winner) {
 			doHide('exprFinishedResults');
 			doUnhide('exprFinishedWinWait');
 			doHide('exprFinishedWin');
@@ -1091,7 +1099,8 @@ function checkRoundSuccess(resp)
 		Math.floor(new Date().getTime() / 1000);
 	e = doClear('exprCountdown');
 	formatCountdown(next, e);
-	setTimeout(timerCountdown, 1000, null, e, 
+	setTimeout(timerCountdown, 1000, 
+		function(){window.location.reload();}, e, 
 		res.expr.roundbegan + (res.expr.minutes * 60));
 }
 
@@ -1162,11 +1171,11 @@ function doPlayGameSuccess(resp)
 
 	for (i = 0; ; i++) {
 		e = document.getElementById('index' + i);
-		if (null == e)
+		if (null === e)
 			break;
 		e.setAttribute('disabled', 'disabled');
 		e = document.getElementById('payoffRow' + i);
-		if (null != e)
+		if (null !== e)
 			e.style.cursor = 'auto';
 	}
 

@@ -977,6 +977,7 @@ again:
 	if (expr->round < 0) {
 		json_putexpr(&req, expr);
 		kjson_putnullp(&req, "winner");
+		kjson_putnullp(&req, "history");
 		json_putplayer(&req, player);
 		goto out;
 	}
