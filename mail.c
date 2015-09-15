@@ -525,7 +525,6 @@ mail_backup(void)
 		fprintf(stderr, "%s/backup-%s.db: Database "
 			"backed up but not emailed\n",
 			DATADIR, date);
-		remove(fname);
 		return;
 	}
 

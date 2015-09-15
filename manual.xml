@@ -631,9 +631,9 @@
 						<strong>Note</strong>: you'll need to configure your browser to accept cookies and run
 						JavaScript for the domain upon which <span class="nm">gamelab</span> is running.
 					</p>
-					<figure>
+					<!-- figure>
 						<a href="screen-admin1.png"><img src="screen-admin1.png" alt="Administrator Login" /></a>
-					</figure>
+					</figure -->
 					<p>
 						The default e-mail address is <samp>foo@example.com</samp> and the default password is
 						<samp>foobar</samp>.
@@ -648,9 +648,9 @@
 						You'll be logged out&mdash;and must log back in&mdash;after each step.
 						Make sure that no participants will be able to guess (or know) your credentials!
 					</p>
-					<figure>
+					<!-- figure>
 						<a href="screen-admin2.png"><img src="screen-admin2.png" alt="Administrator Homepage" /></a>
-					</figure>
+					</figure -->
 					<p>
 						The next step is e-mail configuration.
 						<span class="nm">Gamelab</span> uses e-mail to notify participants of events.
@@ -662,9 +662,9 @@
 						and the user and password for accessing that server.
 						<span class="nm">Gamelab</span> won't work for non-secure (i.e., non-TLS) e-mail access.
 					</p>
-					<figure>
+					<!-- figure>
 						<a href="screen-admin3.png"><img src="screen-admin3.png" alt="Administrator Homepage" /></a>
-					</figure>
+					</figure -->
 					<p>
 						When you're finished entering this information, test the configuration.
 						You should receive an e-mail in a few minutes from the <span class="nm">gamelab</span> server.
@@ -680,9 +680,9 @@
 						itself.
 						Start with the following.
 					</p>
-					<figure>
+					<!-- figure>
 						<a href="screen-admin4.png"><img src="screen-admin4.png" alt="Administrator Homepage" /></a>
-					</figure>
+					</figure -->
 					<ul>
 						<li>
 							A set of players identified by e-mail address.
@@ -760,9 +760,9 @@
 							page to load!
 						</li>
 					</ul>
-					<figure>
+					<!-- figure>
 						<a href="screen-admin5.png"><img src="screen-admin5.png" alt="Administrator Homepage" /></a>
-					</figure>
+					</figure -->
 					<p>
 						Once you've added your games and your players, you're ready to actually deploy the experiment
 						itself.
@@ -801,9 +801,9 @@
 						You can enable and disable players, reset player passwords, and reconfigure your administrator
 						credentials.
 					</p>
-					<figure>
+					<!-- figure>
 						<a href="screen-admin7.png"><img src="screen-admin7.png" alt="Administrator Homepage" /></a>
-					</figure>
+					</figure -->
 					<p>
 						If a player forgets her password, you can reset it by clicking on the player's email address and
 						selecting the <q>Reset Password</q> option.
@@ -824,9 +824,9 @@
 						generator and a number of lottery winners.
 						<strong>Note</strong>: for the time being, only choose one!
 					</p>
-					<figure>
+					<!-- figure>
 						<a href="screen-admin6.png"><img src="screen-admin6.png" alt="Administrator Homepage" /></a>
-					</figure>
+					</figure -->
 					<p>
 						Once the winner has been chosen and notified, and the game wound down, you can wipe and start
 						afresh by selecting the <q>Wipe Experiment</q> option.

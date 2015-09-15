@@ -6,31 +6,31 @@ MTURKURI	 = https://workersandbox.mturk.com/mturk/externalSubmit
 
 # Mac OSX testing.
 # This is useful when running in a userdir.
-PREFIX		 = /Users/kristaps/Sites
-HTDOCS		 = $(PREFIX)
-HTURI		 = /~kristaps
-LABURI		 = /~kristaps/lab.cgi
-ADMINURI	 = /~kristaps/admin.cgi
-CGIBIN		 = $(PREFIX)
-DATADIR		 = $(PREFIX)
-RDATADIR	 = $(PREFIX)
-LIBS		 = 
-STATIC		 = 
+#PREFIX		 = /Users/kristaps/Sites
+#HTDOCS		 = $(PREFIX)
+#HTURI		 = /~kristaps
+#LABURI		 = /~kristaps/lab.cgi
+#ADMINURI	 = /~kristaps/admin.cgi
+#CGIBIN		 = $(PREFIX)
+#DATADIR		 = $(PREFIX)
+#RDATADIR	 = $(PREFIX)
+#LIBS		 = 
+#STATIC		 = 
 
 # Linux testing.
 # LIBS		 = -lbsd -lm
 
 # OpenBSD production.
-#PREFIX		 = /var/www
-#HTDOCS		 = $(PREFIX)/htdocs/gamelab
-#HTURI		 = /gamelab
-#CGIBIN		 = $(PREFIX)/cgi-bin/gamelab
-#LABURI		 = /cgi-bin/gamelab/lab
-#ADMINURI	 = /cgi-bin/gamelab/admin
-#DATADIR	 	 = $(PREFIX)/data/gamelab
-#RDATADIR	 = /data/gamelab
-#LIBS		 = -lintl -liconv -lm
-#STATIC		 = -static
+PREFIX		 = /var/www
+HTDOCS		 = $(PREFIX)/htdocs/gamelab
+HTURI		 = /gamelab
+CGIBIN		 = $(PREFIX)/cgi-bin/gamelab
+LABURI		 = /cgi-bin/gamelab/lab
+ADMINURI	 = /cgi-bin/gamelab/admin
+DATADIR	 	 = $(PREFIX)/data/gamelab
+RDATADIR	 = /data/gamelab
+LIBS		 = -lintl -liconv -lm
+STATIC		 = -static
 
 # You really don't want to change anything below this line.
 
@@ -48,13 +48,7 @@ PAGES 	 = addplayer.eml \
 	   test.eml
 BUILTPS	 = adminhome-new.html \
 	   adminhome-started.html
-SCREENS	 = screen-admin1.png \
-	   screen-admin2.png \
-	   screen-admin3.png \
-	   screen-admin4.png \
-	   screen-admin5.png \
-	   screen-admin6.png \
-	   screen-admin7.png
+SCREENS	 = 
 STATICS	 = adminhome.css \
 	   adminlogin.css \
 	   mturkpreview1.png \

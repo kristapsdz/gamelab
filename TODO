@@ -1,3 +1,11 @@
+Short-term:
 
-- URGENT: allow HIT people to log back in through mturk.html.
-- Add all six graphs in mini form to top of play page.
+- Have a "question mark" entry of "History" on the play page that explains
+  what the labels (e.g., "Hyp.") mean.
+
+Long-term:
+
+- Have SurveyLink random value (for HIT confirmation) be a random number
+  per user and be part of the CSV that's downloaded.
+- Have the shown graphs on the history use the radio-button trick, not 
+  Javascript.
