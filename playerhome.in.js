@@ -903,7 +903,11 @@ function loadExprSuccess(resp)
 		if (null != res.player.assignmentid && ! res.player.mturkdone) {
 			doValue('assignmentId', res.player.assignmentid);
 			doUnhide('exprFinishedMturk');
+		} else if (null != res.player.hitid) {
+			doClearReplace('hitid', res.player.hitid);
+			doUnhide('exprFinishedMturkSurvey');
 		}
+
 		if (expr.round > 0) {
 			doUnhide('historyPlay');
 			doHide('historyNotYet');
@@ -937,6 +941,9 @@ function loadExprSuccess(resp)
 		if (null != res.player.assignmentid && ! res.player.mturkdone) {
 			doValue('assignmentId', res.player.assignmentid);
 			doUnhide('exprFinishedMturk');
+		} else if (null != res.player.hitid) {
+			doClearReplace('hitid', res.player.hitid);
+			doUnhide('exprFinishedMturkSurvey');
 		}
 		doClearReplace('exprFinishedScore', res.aggrlottery.toFixed(2));
 		doClearReplace('exprFinishedTicketsMax', expr.maxtickets);
