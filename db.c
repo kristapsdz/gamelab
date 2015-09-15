@@ -1668,7 +1668,7 @@ db_player_mturkvrfy(const char *email, char **pass,
 	int64_t		 id;
 
 	stmt = db_stmt("SELECT hash,id FROM player "
-		"WHERE email=? AND hitid=? AND assid=?");
+		"WHERE email=? AND hitid=? AND assignmentid=?");
 	db_bind_text(stmt, 1, email);
 	db_bind_text(stmt, 2, hitid);
 	db_bind_text(stmt, 3, assid);
