@@ -883,7 +883,8 @@ function loadExprSuccess(resp)
 				Math.floor(new Date().getTime() / 1000);
 			e = doClear('exprCountdown');
 			formatCountdown(next, e);
-			setTimeout(timerCountdown, 1000, loadExpr, e, 
+			setTimeout(timerCountdown, 1000, 
+				function(){window.location.reload();}, e, 
 				expr.roundbegan + (expr.minutes * 60));
 		}
 		doValue('exprPlayRound', expr.round);
