@@ -56,7 +56,6 @@ function doHideNode(e)
 	return(e);
 }
 
-
 function doHide(name)
 {
 
@@ -149,8 +148,6 @@ function formatCountdown(v, e)
 	span = document.createElement('span');
 	if (v >= 60 * 60) {
 		p = Math.floor(v / (60 * 60));
-		/*if (p < 10)
-			span.appendChild(document.createTextNode('0'));*/
 		span.appendChild(document.createTextNode(p));
 		span.appendChild(document.createTextNode('h'));
 		v -= p * (60 * 60);
@@ -160,8 +157,6 @@ function formatCountdown(v, e)
 	span = document.createElement('span');
 	if (v >= 60) {
 		p = Math.floor(v / 60);
-		/*if (p < 10)
-			span.appendChild(document.createTextNode('0'));*/
 		span.appendChild(document.createTextNode(p));
 		span.appendChild(document.createTextNode('m'));
 		v -= p * (60);
@@ -173,8 +168,6 @@ function formatCountdown(v, e)
 		span = document.createElement('span');
 		span.setAttribute('class', 'seconds');
 		p = Math.floor(v);
-		/*if (p < 10)
-			span.appendChild(document.createTextNode('0'));*/
 		span.appendChild(document.createTextNode(p));
 		span.appendChild(document.createTextNode('s'));
 		e.appendChild(span);
@@ -193,7 +186,7 @@ function sendQuery(url, setup, success, error)
 			success(xmlhttp.responseText);
 		else if (xmlhttp.readyState == 4 && null != error)
 			error(xmlhttp.status);
-	} 
+	};
 
 	xmlhttp.open('GET', url, true);
 	xmlhttp.send(null);
@@ -212,7 +205,7 @@ function sendFormTo(oFormElement, action, setup, error, success)
 			success(xmlhttp.responseText);
 		else if (xmlhttp.readyState == 4 && null != error)
 			error(xmlhttp.status);
-	} 
+	};
 
 	xmlhttp.open(oFormElement.method, action, true);
 	xmlhttp.send(formdata);

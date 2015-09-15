@@ -56,8 +56,7 @@ STATICS	 = adminhome.css \
 	   playerhome.css \
 	   playerlobby.css \
 	   playerlogin.css \
-	   style.css \
-	   script.js
+	   style.css
 OBJS	 = db.o \
 	   json.o \
 	   mail.o \
@@ -85,7 +84,8 @@ SRCS	 = Makefile \
 	   playermturk.in.html \
 	   playermturk.in.js \
 	   playerlogin.in.html \
-	   privacy.in.html
+	   privacy.in.html \
+	   script.in.js
 BUILT	 = adminhome.js \
 	   adminlogin.html \
 	   mturkpreview.html \
@@ -98,7 +98,8 @@ BUILT	 = adminhome.js \
 	   playerhome.html \
 	   playerhome.js \
 	   playerlogin.html \
-	   privacy.html
+	   privacy.html \
+	   script.js
 VERSIONS = version_1_0_1.xml \
 	   version_1_0_2.xml \
 	   version_1_0_3.xml \

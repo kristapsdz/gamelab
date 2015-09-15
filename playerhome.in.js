@@ -422,7 +422,7 @@ function showHistory()
 function loadGameGraphs(gameidx, lineName, barName, small)
 {
 	var	e, c, i, j, k, l, m, data, datas, lot, 
-		avg, len, matrix, hmatrix, sum, sub, gameidx, 
+		avg, len, matrix, hmatrix, sum, sub, 
 		stratidx, oldest, newest;
 
 	oldest = small ? 'old' : 'oldest';
