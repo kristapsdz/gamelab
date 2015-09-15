@@ -907,9 +907,17 @@ function loadExprSuccess(resp)
 		if (null != res.player.assignmentid && ! res.player.mturkdone) {
 			doValue('assignmentId', res.player.assignmentid);
 			doUnhide('exprFinishedMturk');
+			doUnhide('exprFinishedMturkProfit');
+			doClearReplace('exprFinishedMturkBonus', 
+				(res.aggrtickets * expr.conversion));
+			doClearReplace('currency', expr.currency);
 		} else if (null != res.player.hitid) {
 			doClearReplace('hitid', res.player.hitid);
 			doUnhide('exprFinishedMturkSurvey');
+			doUnhide('exprFinishedMturkProfit');
+			doClearReplace('exprFinishedMturkBonus', 
+				(res.aggrtickets * expr.conversion));
+			doClearReplace('currency', expr.currency);
 		}
 
 		if (expr.round > 0) {
@@ -945,9 +953,17 @@ function loadExprSuccess(resp)
 		if (null != res.player.assignmentid && ! res.player.mturkdone) {
 			doValue('assignmentId', res.player.assignmentid);
 			doUnhide('exprFinishedMturk');
+			doUnhide('exprFinishedMturkProfit');
+			doClearReplace('exprFinishedMturkBonus', 
+				(res.player.finalscore * expr.conversion));
+			doClearReplace('currency', expr.currency);
 		} else if (null != res.player.hitid) {
 			doClearReplace('hitid', res.player.hitid);
 			doUnhide('exprFinishedMturkSurvey');
+			doUnhide('exprFinishedMturkProfit');
+			doClearReplace('exprFinishedMturkBonus', 
+				(res.player.finalscore * expr.conversion));
+			doClearReplace('currency', expr.currency);
 		}
 		doClearReplace('exprFinishedScore', res.aggrlottery.toFixed(2));
 		doClearReplace('exprFinishedTicketsMax', expr.maxtickets);

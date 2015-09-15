@@ -105,6 +105,11 @@
 							You've played all the games for this round.
 							Please wait to play again.
 						</p>
+						<p>
+							While you wait, you can view how the game has been played previously by
+							going to the <q>History</q> tab. 
+							The menu is in the top left corner of the screen.
+						</p>
 					</section>
 					<section id="exprFinished" class="noshow">
 						<h3>
@@ -125,7 +130,7 @@
 									tickets. 
 								</p>
 								<p id="exprFinishedWinWait">
-									Waiting for lottery draw...
+									<i class="fa fa-spinner"></i> Waiting for lottery draw...
 								</p>
 							</div>
 							<h4 id="exprFinishedWinHead">
@@ -150,16 +155,20 @@
 									id="exprNotAllFinishedTickets"></span> tickets.
 							</p>
 						</div>
+						<div id="exprFinishedMturkProfit" class="noshow">
+							<p>
+								You have now finished your Mechanical Turk HIT.
+								Your bonus is <span id="exprFinishedMturkBonus"></span> <span id="currency"></span>.
+							</p>
+						</div>
 						<div id="exprFinishedMturkSurvey" class="noshow">
 							<p>
-								You have now finished the HIT.
-								To indicate completion, please input the following return code on the HTI page:
+								To indicate completion, please input the following return code on the HIT page:
 								<code id="hitid"></code>.
 							</p>
 						</div>
 						<div id="exprFinishedMturk" class="noshow">
 							<p>
-								You have now finished your Mechanical Turk HIT.
 								To indicate completion, you must click the button to report back to the Amazon Mechanical Turk site.
 							</p>
 							<form action="@MTURKURI@" method="post" onsubmit="return(submitMturk(this));">

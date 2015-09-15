@@ -280,4 +280,9 @@ div.input input[type=time]	{ width: 20ex; }
 				  margin-left: auto;
 				  margin-right: auto;
 				  width: 85%; }
+	.statuslist		{ padding: 0;
+				  border-spacing: 8pt 4pt; }
+	.statuslistbox		{ margin: 0.1em 0; }
+	.statuslistcaption	{ padding-left: 0; 
+				  text-align: center; }
 }
