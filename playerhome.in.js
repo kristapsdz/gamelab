@@ -270,8 +270,6 @@ function loadGame()
 		doHide('exprPlay');
 		doHide('exprFinished');
 		doHide('exprNotStarted');
-		setTimeout(checkRoundEnd, res.expr.minutes < 10 || 
-			res.expr.roundpct > 0 ? 5000 : 60000);
 		return;
 	} 
 
@@ -294,6 +292,13 @@ function loadGame()
 		loadGame();
 		return;
 	}
+
+	e = document.getElementById('nextround');
+	if (null !== e && 0 === resindex) {
+		doClearReplace('nextroundround', (res.expr.round - res.player.joined) + 1);
+		doUnhideNode(e);
+	}
+
 
 	/* Transpose the matrix, if necessary. */
 	matrix = 0 === res.player.role ? 
@@ -859,7 +864,6 @@ function loadExprSuccess(resp)
 				Math.floor(new Date().getTime() / 1000);
 			e = doClear('exprCountdown');
 			formatCountdown(next, e);
-			console.log('counter for not-joined grace time');
 			setTimeout(timerCountdown, 1000, checkRound, e, 
 				expr.roundbegan + (expr.roundmin * 60));
 		} else {
@@ -867,11 +871,11 @@ function loadExprSuccess(resp)
 				Math.floor(new Date().getTime() / 1000);
 			e = doClear('exprCountdown');
 			formatCountdown(next, e);
-			console.log('counters for not-joined real play');
 			setTimeout(timerCountdown, 1000, null, e, 
 				expr.roundbegan + (expr.minutes * 60));
-			setTimeout(checkRoundEnd, res.expr.minutes < 10 || 
-				res.expr.roundpct > 0 ? 5000 : 60000);
+			setTimeout(checkRoundEnd, 
+				(res.expr.minutes < 10 || res.expr.roundpct > 0) ? 
+				5000 : 60000);
 		}
 	} else if (expr.round < expr.rounds && 
 		   expr.round < res.player.joined + expr.prounds) {
@@ -893,9 +897,11 @@ function loadExprSuccess(resp)
 				Math.floor(new Date().getTime() / 1000);
 			e = doClear('exprCountdown');
 			formatCountdown(next, e);
-			setTimeout(timerCountdown, 1000, 
-				function(){console.log('in-round round expire'); window.location.reload();}, e, 
+			setTimeout(timerCountdown, 1000, null, e, 
 				expr.roundbegan + (expr.minutes * 60));
+			setTimeout(checkRoundEnd, 
+				(res.expr.minutes < 10 || res.expr.roundpct > 0) ? 
+				5000 : 60000);
 		}
 		doValue('exprPlayRound', expr.round);
 		if (expr.round > 0) {
@@ -1074,12 +1080,12 @@ function checkRoundEndSuccess(resp)
 	}
 
 	if (r.round > res.expr.round) {
-		console.log('checkroundendsuccess');
 		window.location.reload();
 		return;
 	}
-	setTimeout(checkRoundEnd, res.expr.minutes < 10 || 
-		res.expr.roundpct > 0 ? 5000 : 60000);
+	setTimeout(checkRoundEnd, 
+		(res.expr.minutes < 10 || res.expr.roundpct > 0) ? 
+		5000 : 60000);
 }
 
 function checkRoundSuccess(resp)
@@ -1093,20 +1099,21 @@ function checkRoundSuccess(resp)
 	}
 
 	if (r.round > res.expr.round) {
-		console.log('checkroundusccess');
 		window.location.reload();
 		return;
 	}
 
-	console.log('counter for round-check real play after grace time');
 	doClearReplace('nextRound', 'Next round');
 	next = (res.expr.roundbegan + (res.expr.minutes * 60)) -
 		Math.floor(new Date().getTime() / 1000);
 	e = doClear('exprCountdown');
 	formatCountdown(next, e);
 	setTimeout(timerCountdown, 1000, 
-		function(){console.log('checkroundsuccess'); window.location.reload();}, e, 
+		function(){window.location.reload();}, e, 
 		res.expr.roundbegan + (res.expr.minutes * 60));
+	setTimeout(checkRoundEnd, 
+		(res.expr.minutes < 10 || res.expr.roundpct > 0) ? 
+		5000 : 60000);
 }
 
 function checkRound()

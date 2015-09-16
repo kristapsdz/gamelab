@@ -11,6 +11,18 @@
 		<script src="@HTURI@/flotr2.min.js"></script>
 	</head>
 	<body onclick="onNavUp();" onresize="loadGraphs(); showHistory();" onload="loadExprFirst();">
+		<section onclick="doHideNode(this);" id="nextround" class="noshow">
+			<div>
+				<div>
+					<div>
+						Round is now at <span id="nextroundround"></span>!
+					</div>
+					<div>
+						Press anywhere to start playing...
+					</div>
+				</div>
+			</div>
+		</section>
 		<section id="loading">
 			<i class="fa fa-spinner"></i> Gamelab is loading...
 		</section>

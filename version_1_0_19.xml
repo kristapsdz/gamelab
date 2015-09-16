@@ -13,7 +13,14 @@
 			In the future, we forsee allowing cookie values to be specified in the query string for Mechanical Turk players.
 		</p>
 		<p>
-			Also clean up some typos in the questions.
+			Clean up some typos in the questions.
+		</p>
+		<p>
+			Significantly clean up the JavaScript front-end bits after running over them with <a
+				href="http://jshint.com/">jshint</a>.
+			Also fix some timer issues (timeouts not firing) raised during Mechanical Turk tests.
+			Lastly, allow <q>malformed</q> decimal values like .5 instead of 0.5.
+			After some user feedback, add a loud notification that the round has rolled.
 		</p>
 	</aside>
 </article>
