@@ -212,6 +212,10 @@ mpq_str2mpq(const char *v, mpq_t q)
 	/* Copy in the left of the decimal. */
 	memcpy(buf, v, cp - v);
 	buf[cp - v] = '\0';
+	if ('\0' == buf[0]) {
+		buf[0] = '0';
+		buf[1] = '\0';
+	}
 	(void)strtonum(buf, LONG_MIN, LONG_MAX, &er);
 	if (NULL != er)
 		return(0);

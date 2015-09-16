@@ -859,6 +859,7 @@ function loadExprSuccess(resp)
 				Math.floor(new Date().getTime() / 1000);
 			e = doClear('exprCountdown');
 			formatCountdown(next, e);
+			console.log('counter for not-joined grace time');
 			setTimeout(timerCountdown, 1000, checkRound, e, 
 				expr.roundbegan + (expr.roundmin * 60));
 		} else {
@@ -866,6 +867,7 @@ function loadExprSuccess(resp)
 				Math.floor(new Date().getTime() / 1000);
 			e = doClear('exprCountdown');
 			formatCountdown(next, e);
+			console.log('counters for not-joined real play');
 			setTimeout(timerCountdown, 1000, null, e, 
 				expr.roundbegan + (expr.minutes * 60));
 			setTimeout(checkRoundEnd, res.expr.minutes < 10 || 
@@ -892,7 +894,7 @@ function loadExprSuccess(resp)
 			e = doClear('exprCountdown');
 			formatCountdown(next, e);
 			setTimeout(timerCountdown, 1000, 
-				function(){window.location.reload();}, e, 
+				function(){console.log('in-round round expire'); window.location.reload();}, e, 
 				expr.roundbegan + (expr.minutes * 60));
 		}
 		doValue('exprPlayRound', expr.round);
@@ -1072,6 +1074,7 @@ function checkRoundEndSuccess(resp)
 	}
 
 	if (r.round > res.expr.round) {
+		console.log('checkroundendsuccess');
 		window.location.reload();
 		return;
 	}
@@ -1090,17 +1093,19 @@ function checkRoundSuccess(resp)
 	}
 
 	if (r.round > res.expr.round) {
+		console.log('checkroundusccess');
 		window.location.reload();
 		return;
 	}
 
+	console.log('counter for round-check real play after grace time');
 	doClearReplace('nextRound', 'Next round');
 	next = (res.expr.roundbegan + (res.expr.minutes * 60)) -
 		Math.floor(new Date().getTime() / 1000);
 	e = doClear('exprCountdown');
 	formatCountdown(next, e);
 	setTimeout(timerCountdown, 1000, 
-		function(){window.location.reload();}, e, 
+		function(){console.log('checkroundsuccess'); window.location.reload();}, e, 
 		res.expr.roundbegan + (res.expr.minutes * 60));
 }
 

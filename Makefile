@@ -143,7 +143,7 @@ gamelab.bib: gamelab.in.bib
 	    -e "s!@VMONTH@!$(VMONTH)!g" \
 	    -e "s!@VYEAR@!$(VYEAR)!g" gamelab.in.bib >$@
 
-update: all
+updatecgi: all
 	install -m 0444 $(STATICS) $(BUILT) flotr2.min.js logo.png logo-dark.png $(HTDOCS)
 	install -m 0444 $(PAGES) $(BUILTPS) $(DATADIR)
 	install -m 0755 admin $(CGIBIN)/admin.cgi
@@ -152,7 +152,7 @@ update: all
 	install -m 0755 lab $(CGIBIN)/lab.fcgi
 	install -m 0755 lab $(CGIBIN)
 
-install: update gamelab.db
+installcgi: update gamelab.db
 	rm -f $(DATADIR)/gamelab.db
 	install -m 0666 gamelab.db $(DATADIR)
 

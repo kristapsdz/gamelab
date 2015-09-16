@@ -23,20 +23,28 @@
 				</nav>
 			</div>
 		</header>
-		<article>
-			<section class="intro">
-				<div class="statusgraph" id="statusExprGraph"></div>
-				<div class="statusgraph" id="playerExprGraph"></div>
+		<article class="top" id="statusExprLoading">
+			<i class="fa fa-spinner fa-spin"></i>
+			Loading interface...
+		</article>
+		<article class="top">
+			<div class="statusgraph" id="statusExprGraph"></div>
+			<div class="statusgraph" id="playerExprGraph"></div>
+		</article>
+		<article class="noshow" id="statusExprLoaded">
+			<section>
+				<p>
+					Your experiment has <span id="statusExprPPmax"></span> rounds per player, with each round taking
+					<span id="statusExprMins"></span> minutes.
+					<span id="statusExprRoundpcting">
+						If each player role has at least <span id="statusExprRoundpct"></span>% plays, the round
+						will advance (with <span id="statusExprRoundmin"></span> minutes of grace time).
+					</span>
+				</p>
+				<p id="statusExprHasLobby">
+					Players waiting in the lobby: <span id="statusExprLobbysize"></span>.
+				</p>
 				<div id="statusExprProg">
-					<p>
-						Welcome to <a href="http://www.kcons.eu/gamelab">gamelab</a> (version @VERSION@), the on-line game theory laboratory.
-						Your experiment has <span id="statusExprPPmax"></span> rounds per player, with each round taking
-						<span id="statusExprMins"></span> minutes.
-						<span id="statusExprRoundpcting">
-							If each player role has at least <span id="statusExprRoundpct"></span>% plays, the round
-							will advance (with <span id="statusExprRoundmin"></span> minutes of grace time).
-						</span>
-					</p>
 					<div class="statuslistbox" id="statusHighestBox">
 						<div class="statuslistcaption">Last Round Highest Earners (<a href="@ADMINURI@/dogethighest.csv">CSV</a>)</div>
 						<ul class="statuslist" id="statusHighest"></ul>
@@ -74,22 +82,26 @@
 							</div>
 						</div>
 					</div>
-					<div id="statusExprHasLobby">
-						Players waiting in the lobby: <span id="statusExprLobbysize"></span>.
-					</div>
 				</div>
 				<div id="statusExprWaiting">
-					<p>
-						Welcome to <a href="http://www.kcons.eu/gamelab">gamelab</a> (version @VERSION@), the on-line game theory laboratory.
-						Waiting for experiment to begin...
-					</p>
+					<div class="table">
+						<div>
+							<div class="table-left-head">
+								Round <i>pre-game</i>
+							</div>
+							<div><progress></progress></div>
+						</div>
+					</div>
 				</div>
 				<div id="statusExprFinished">
-					<p>
-						Welcome to <a href="http://www.kcons.eu/gamelab">gamelab</a> (version @VERSION@), the on-line game theory laboratory.
-						Your experiment has finished.
-					</p>
-					<!-- div class="statusgraph" id="statusExprGraph2"></div -->
+					<div class="table">
+						<div>
+							<div class="table-left-head">
+								Round <i>finished</i>
+							</div>
+							<div><progress></progress></div>
+						</div>
+					</div>
 					<div class="statuslistbox">
 						<div class="statuslistcaption">Last Round Highest Earners (<a href="@ADMINURI@/dogethighest.csv">CSV</a>)</div>
 						<ul class="statuslist" id="statusHighest2"></ul>
@@ -126,11 +138,6 @@
 							</fieldset>
 						</form>
 					</div>
-				</div>
-				<div id="statusExprLoading">
-					<p>
-						<i class="fa fa-spinner"></i>
-					</p>
 				</div>
 			</section>
 			<section>
@@ -500,8 +507,8 @@
 			</section>
 		</article>
 		<footer>
-			&copy; 2014, 2015
-			<a href="http://www.kcons.eu"><i>k</i>-Consulting</a>
+			<span>&copy; 2014, 2015 <a href="http://www.kcons.eu"><i>k</i>-Consulting</a></span>
+			<a href="http://www.kcons.eu">gamelab @VERSION@</a>
 			<a href="@HTURI@/privacy.html">Privacy</a>
 		</footer>
 	</body>

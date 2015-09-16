@@ -20,29 +20,25 @@
 				<form autocomplete="off" action="@LABURI@/mturksurvey.json" method="post" 
 					id="registerSection" onsubmit="return(sendForm(this, doRegSetup, doRegErr, doRegOk));">
 					<section>
-						<h3>Mechanical Turk Worker Portal</h3>
-						<p>
-							Please note that you can only perform this task once.
-							If you have already performed this task, you will not get additional payment for completing it again.
+						<h3>Mechanical Turk Login</h3>
+						<p class="error noshow" id="registerError">
+							Invalid worker identifier.
 						</p>
-						<div class="error">
-							<div class="noshow" id="registerError">
-								Invalid worker identifier.
-							</div>
-							<div class="noshow" id="registerAgainError">
-								A participant by that worker identifier and a different experiment already exists.
-							</div>
-							<div class="noshow" id="registerStartedError">
-								Experiment does not allow Mechanical Turk registration.
-							</div>
-							<div class="noshow" id="registerSysError">
-								A technical error has occured.
-							</div>
-						</div>
+						<p class="error noshow" id="registerAgainError">
+							A participant by that worker identifier and a different experiment already exists.
+						</p>
+						<p class="error noshow" id="registerStartedError">
+							Experiment does not allow Mechanical Turk registration.
+						</p>
+						<p class="error noshow" id="registerSysError">
+							A technical error has occured.
+						</p>
 						<fieldset>
 							<div class="input">
 								<i class="fa fa-fw fa-envelope"></i>
-								<input autofocus="autofocus" type="text" placeholder="Worker ID (see 'Your Account > Dashboard' on the worker portal)" required="required" name="workerId" />
+								<input autofocus="autofocus" type="text" 
+									placeholder="Worker ID (see 'Your Account > Dashboard' on the worker portal)" 
+									required="required" name="workerId" />
 							</div>
 							<div class="input input-submit">
 								<i class="fa fa-fw fa-check"></i>
@@ -50,12 +46,18 @@
 							</div>
 							<input type="hidden" name="mturksurvey" value="1" />
 						</fieldset>
+						<p>
+							Please note that you can only perform this task once.
+							If you have already performed this task, you will not get additional payment for completing it again.
+						</p>
 					</section>
 					<section>
-						To use gamelab, you must be using an up-to-date <a href="http://www.getfirefox.org">Firefox</a>,
-						<a href="http://www.google.com/chrome">Chrome</a>, or <a
-							href="https://www.apple.com/safari/">Safari</a> (IE, Edge, and Opera are
-						<strong>not</strong> yet supported) with cookies and JavaScript enabled.
+						<p>
+							To use gamelab, you must be using an up-to-date <a href="http://www.getfirefox.org">Firefox</a>,
+							<a href="http://www.google.com/chrome">Chrome</a>, or <a
+								href="https://www.apple.com/safari/">Safari</a> (IE, Edge, and Opera are
+							<strong>not</strong> yet supported) with cookies and JavaScript enabled.
+						</p>
 					</section>
 				</form>
 			</section>

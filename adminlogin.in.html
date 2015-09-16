@@ -5,6 +5,7 @@
 		<meta charset="utf-8" /> 
 		<title>Gamelab | Login Admin</title>
 		<link rel="stylesheet" href="@HTURI@/style.css" type="text/css" />
+		<link rel="stylesheet" href="@HTURI@/playerlogin.css" type="text/css" />
 		<link rel="stylesheet" href="@HTURI@/adminlogin.css" type="text/css" />
 		<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" rel="stylesheet" />
 		<script src="@HTURI@/script.js"></script>
@@ -46,11 +47,15 @@
 				<form autocomplete="on" action="@ADMINURI@/dologin.json" method="post" onsubmit="return(sendForm(this, doSetup, doError, doSuccess));">
 					<section>
 						<h3>Administrator Login</h3>
-						<div class="error">
-							<div id="loggedout">You have been logged out.</div>
-							<div class="noshow" id="loginError">Incorrect e-mail or password.</div>
-							<div class="noshow" id="ajaxError">A technical error has occured.</div>
-						</div>
+						<p class="error" id="loggedout">
+							You have been logged out.
+						</p>
+						<p class="error noshow" id="loginError">
+							Incorrect e-mail or password.
+						</p>
+						<p class="error noshow" id="ajaxError">
+							A technical error has occured.
+						</p>
 						<fieldset>
 							<div class="input input-email">
 								<i class="fa fa-fw fa-envelope"></i>
@@ -67,10 +72,12 @@
 						</fieldset>
 					</section>
 					<section>
-						This page intentionally left ugly: you should only be here if you're a <i>gamelab</i> administrator.
-						To use gamelab, you must have an up-to-date browser such as <a
-							href="http://www.getfirefox.org">Firefox</a> or <a
-							href="http://www.google.com/chrome">Chrome</a> with cookies and JavaScript enabled.
+						<p>
+							This page intentionally left ugly: you should only be here if you're a <i>gamelab</i> administrator.
+							To use gamelab, you must have an up-to-date browser such as <a
+								href="http://www.getfirefox.org">Firefox</a> or <a
+								href="http://www.google.com/chrome">Chrome</a> with cookies and JavaScript enabled.
+						</p>
 					</section>
 				</form>
 			</section>

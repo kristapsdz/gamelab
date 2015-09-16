@@ -39,11 +39,15 @@
 				<form autocomplete="on" action="@LABURI@/dologin.json" method="post" onsubmit="return(sendForm(this, doSetup, doError, doSuccess));">
 					<section>
 						<h3>Participant Login</h3>
-						<div class="error">
-							<div id="loggedout">You have been logged out.</div>
-							<div class="noshow" id="loginError">Incorrect e-mail or password.</div>
-							<div class="noshow" id="ajaxError">A technical error has occured.</div>
-						</div>
+						<p class="error" id="loggedout">
+							You have been logged out.
+						</p>
+						<p class="error noshow" id="loginError">
+							Incorrect e-mail or password.
+						</p>
+						<p class="error noshow" id="ajaxError">
+							A technical error has occured.
+						</p>
 						<fieldset>
 							<div class="input">
 								<i class="fa fa-fw fa-envelope"></i>
@@ -60,10 +64,12 @@
 						</fieldset>
 					</section>
 					<section>
-						To use gamelab, you must be using an up-to-date <a href="http://www.getfirefox.org">Firefox</a>,
-						<a href="http://www.google.com/chrome">Chrome</a>, or <a
-							href="https://www.apple.com/safari/">Safari</a> (IE, Edge, and Opera are
-						<strong>not</strong> yet supported) with cookies and JavaScript enabled.
+						<p>
+							To use gamelab, you must be using an up-to-date <a href="http://www.getfirefox.org">Firefox</a>,
+							<a href="http://www.google.com/chrome">Chrome</a>, or <a
+								href="https://www.apple.com/safari/">Safari</a> (IE, Edge, and Opera are
+							<strong>not</strong> yet supported) with cookies and JavaScript enabled.
+						</p>
 					</section>
 				</form>
 			</section>

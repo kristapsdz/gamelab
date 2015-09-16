@@ -653,7 +653,7 @@ function doStatGraph(e, res)
 		{ grid: { horizontalLines: 1 },
 		  shadowSize: 0,
 		  subtitle: 'Plays',
-		  xaxis: { tickDecimals: 0 },
+		  xaxis: { min: 0, tickDecimals: 0 },
 		  yaxis: { min: 0.0, tickDecimals: 0, autoscaleMargin: 1, autoscale: true },
 		  lines: { show: true },
 		  points: { show: true }});
@@ -870,15 +870,30 @@ function loadExprSuccess(resp)
 		return;
 	}
 
+	doHide('statusExprLoading');
+	doUnhide('statusExprLoaded');
+
 	expr = res.expr;
 	currentRound = expr.round;
 
 	doClearReplace('instr', expr.instr);
 	doStatGraph(doClear('statusExprGraph'), res);
+	doClearReplace('statusExprPRound', (expr.round + 1));
+	doClearReplace('statusExprPMax', expr.rounds);
+	doClearReplace('statusExprPPmax', expr.prounds);
+	doClearReplace('statusExprMins', expr.minutes);
+	if (expr.roundpct > 0.0) {
+		doClearReplace('statusExprRoundpct', expr.roundpct);
+		doClearReplace('statusExprRoundmin', expr.roundmin);
+	}
+	if (res.lobbysize > 0) {
+		doUnhide('statusExprHasLobby');
+		doClearReplace('statusExprLobbysize', res.lobbysize);
+	} else
+		doHide('statusExprHasLobby');
 
 	if (expr.round >= expr.rounds) {
 		doHide('statusExprProg');
-		doHide('statusExprLoading');
 		doUnhide('statusExprFinished');
 		if (expr.postwin) {
 			doUnhide('statusExprFinishedWinnersBox');
@@ -935,7 +950,6 @@ function loadExprSuccess(resp)
 	}  else if (expr.round < 0) {
 		next = expr.start - Math.floor(new Date().getTime() / 1000);
 		doUnhide('statusExprWaiting');
-		doHide('statusExprLoading');
 		e = doClear('exprCountdown');
 		formatCountdown(next, e);
 		setTimeout(timerSloppyCountdown, 1000, 
@@ -944,7 +958,6 @@ function loadExprSuccess(resp)
 		next = (expr.roundbegan + (expr.minutes * 60)) -
 			Math.floor(new Date().getTime() / 1000);
 		e = doClear('exprCountdown');
-		doHide('statusExprLoading');
 		formatCountdown(next, e);
 		setTimeout(timerSloppyCountdown, 1000, loadExpr, e, 
 			expr.roundbegan + (expr.minutes * 60), expr.round);
@@ -956,14 +969,6 @@ function loadExprSuccess(resp)
 		doUnhide('statusExprProg');
 		doClearReplace('statusExprPBar', 
 			Math.round(expr.progress * 100.0) + '%');
-		doClearReplace('statusExprPRound', (expr.round + 1));
-		doClearReplace('statusExprPMax', expr.rounds);
-		doClearReplace('statusExprPPmax', expr.prounds);
-		doClearReplace('statusExprMins', expr.minutes);
-		if (expr.roundpct > 0.0) {
-			doClearReplace('statusExprRoundpct', expr.roundpct);
-			doClearReplace('statusExprRoundmin', expr.roundmin);
-		}
 		doValue('statusExprPBar', expr.progress);
 		doClearReplace('statusExprFrow', res.frow);
 		doClearReplace('statusExprFrowMax', res.frowmax);
@@ -979,12 +984,6 @@ function loadExprSuccess(resp)
 		else
 			doHide('noplayers');
 
-		if (res.lobbysize > 0) {
-			doUnhide('statusExprHasLobby');
-			doClearReplace('statusExprLobbysize', res.lobbysize);
-		} else
-			doHide('statusExprHasLobby');
-
 		/*doStatGraph(doClear('statusExprGraph'), res);*/
 		doHide('statusHighestBox');
 		if (expr.round > 0) {
@@ -998,6 +997,7 @@ function loadExprSetup()
 {
 
 	doUnhide('statusExprLoading');
+	doHide('statusExprLoaded');
 	doHide('statusExprWaiting');
 	doHide('statusExprFinished');
 	doHide('statusExprProg');

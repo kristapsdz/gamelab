@@ -40,7 +40,7 @@ h1				{ margin: 0; }
 h3 				{ cursor: pointer; 
 				  margin: 0;
 				  position: relative;
-				  padding: 8pt;
+				  padding: 6pt;
 				  color: #ccc;
 				  background-color: #555;
 				  font-weight: normal;
@@ -72,11 +72,13 @@ h3 i:last-child			{ position: absolute;
 #checkGameLoad2[class~="fa-check-square-o"]	
 				{ color: green; }
 article				{ background-color: #fff;
-				  padding: 3em 20% 1em 20%; }
+				  padding: 0 20% 0 20%; }
+article + article		{ padding-top: 1em;
+			 	  padding-bottom: 1em; }
+article.top			{ padding-top: 4em; 
+				  padding-bottom: 0;
+				  text-align: center; }
 ul				{ list-style-type: none; }
-section.intro			{ margin-bottom: 8pt; }
-section.intro p,
-p.intro				{ font-size: 12pt; }
 section.rolled,
 section.unrolled		{ border: thin solid #222; 
 				  box-shadow: 0 0 2px #666; 
@@ -94,6 +96,7 @@ section.unrolled >*:not(h3) 	{ max-height: 1000em;
 				  margin-right: 1ex; }
 .table				{ display: table; 
 				  width: 100%;
+				  margin: 1em 0;
 				  border-spacing: 1ex 0.5ex; }
 .table >*			{ display: table-row; }
 .table >* >*			{ display: table-cell; }
@@ -108,10 +111,8 @@ footer				{ text-align: center;
 				  color: #888;
 				  font-size: smaller; }
 footer a			{ color: #666; 
-				  padding-right: 0.5ex;
-				  border-right: thin solid #888; }
-footer a:last-child		{ border-right: none; 
-				  padding-right: 0; }
+				  padding-left: 0.5ex;
+				  border-left: thin solid #888; }
 footer a:hover			{ color: #222; }
 .seconds, .error		{ color: darkred;
 				  font-weight: bolder; }
@@ -137,8 +138,6 @@ footer a:hover			{ color: #222; }
 .statuslisthead			{ font-size: 12pt; 
 				  color: #666; }
 .statusgraph			{ height: 200px; 
-				  margin: 0;
-				  margin-top: 1em;
 				  padding: 0;
 				  width: 100%; }
 *[class~="fa-toggle-on"]	{ color: #333; }
@@ -271,18 +270,21 @@ div.input input[type=time]	{ width: 20ex; }
 			  	  padding-right: 10%; }
 }
 @media only screen and (max-width: 480px), only screen and (max-device-width: 480px) {
-	article			{ padding-bottom: 1em;
-				  padding-left: 0.5ex;
-				  padding-right: 0.5ex;
-			 	  padding-top: 2em; }
-	h1			{ font-size: 18pt; }
+	article			{ padding-left: 0.5ex;
+				  padding-right: 0.5ex; }
+	h1			{ font-size: 18pt; } 
+	article.top		{ padding-top: 3em; }
 	.statusgraph		{ height: 150px; 
 				  margin-left: auto;
 				  margin-right: auto;
 				  width: 85%; }
 	.statuslist		{ padding: 0;
+				  width: 100%;
 				  border-spacing: 8pt 4pt; }
 	.statuslistbox		{ margin: 0.1em 0; }
 	.statuslistcaption	{ padding-left: 0; 
 				  text-align: center; }
+	footer > *		{ display: block; 
+				  border-left: none; }
+	h3			{ padding: 4pt; }
 }

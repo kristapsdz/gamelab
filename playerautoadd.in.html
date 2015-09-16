@@ -3,7 +3,7 @@
 	<head>
 		<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
 		<meta charset="utf-8" /> 
-		<title>Gamelab | Participant Login</title>
+		<title>Gamelab | Participant Captive Login</title>
 		<link rel="stylesheet" href="@HTURI@/style.css" type="text/css" />
 		<link rel="stylesheet" href="@HTURI@/playerlogin.css" type="text/css" />
 		<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" rel="stylesheet" />
@@ -20,26 +20,24 @@
 				<form autocomplete="off" action="@LABURI@/doautoadd.json" method="post" 
 					id="registerSection" onsubmit="return(sendForm(this, doRegSetup, doRegErr, doRegOk));">
 					<section>
-						<h3>Participant Captive Portal</h3>
-						<div class="error">
-							<div class="noshow" id="registerError">
-								Invalid identifier.
-							</div>
-							<div class="noshow" id="registerAgainError">
-								A participant by that identifier already exists.
-								Please talk to the proctor if you accidentally closed the gamelab window!
-							</div>
-							<div class="noshow" id="registerNoAutoError">
-								Experiment does not allow auto-registration.
-								Please talk to the proctor to register!
-							</div>
-							<div class="noshow" id="registerStartedError">
-								Experiment has already started!
-							</div>
-							<div class="noshow" id="registerSysError">
-								A technical error has occured.
-							</div>
-						</div>
+						<h3>Participant Captive Login</h3>
+						<p class="error noshow" id="registerError">
+							Invalid identifier.
+						</p>
+						<p class="error noshow" id="registerAgainError">
+							A participant by that identifier already exists.
+							Please talk to the proctor if you accidentally closed the gamelab window!
+						</p>
+						<p class="error noshow" id="registerNoAutoError">
+							Experiment does not allow auto-registration.
+							Please talk to the proctor to register!
+						</p>
+						<p class="error noshow" id="registerStartedError">
+							Experiment has already started!
+						</p>
+						<p class="error noshow" id="registerSysError">
+							A technical error has occured.
+						</p>
 						<fieldset>
 							<div class="input">
 								<i class="fa fa-fw fa-envelope"></i>
@@ -52,19 +50,24 @@
 						</fieldset>
 					</section>
 					<section>
-						To use gamelab, you must have an up-to-date browser such as <a
-							href="http://www.getfirefox.org">Firefox</a> or <a
-							href="http://www.google.com/chrome">Chrome</a> with cookies and JavaScript enabled.
+						<p>
+							To use gamelab, you must be using an up-to-date <a href="http://www.getfirefox.org">Firefox</a>,
+							<a href="http://www.google.com/chrome">Chrome</a>, or <a
+								href="https://www.apple.com/safari/">Safari</a> (IE, Edge, and Opera are
+							<strong>not</strong> yet supported) with cookies and JavaScript enabled.
+						</p>
 					</section>
 				</form>
 				<form class="noshow" action="@LABURI@/dologin.json" method="post" 
 					id="loginSection" onsubmit="return(sendForm(this, doLogSetup, doLogErr, doLogOk));">
 					<section>
-						<h3>Participant Captive Portal</h3>
-						<div class="error">
-							<div class="noshow" id="loginError">Experiment hasn't started yet!</div>
-							<div class="noshow" id="loginSysError">A technical error has occured.</div>
-						</div>
+						<h3>Participant Captive Login</h3>
+						<p class="error noshow" id="loginError">
+							Experiment hasn't started yet!
+						</p>
+						<p class="error noshow" id="loginSysError">
+							A technical error has occured.
+						</p>
 						<fieldset>
 							<input type="hidden" id="ident" name="ident" />
 							<input type="hidden" id="password" name="password" />
@@ -75,12 +78,14 @@
 						</fieldset>
 					</section>
 					<section>
-						You have been registered.
-						Please click the <q>Login</q> button when the proctor begins the game.
-						To use gamelab, you must be using an up-to-date <a href="http://www.getfirefox.org">Firefox</a>,
-						<a href="http://www.google.com/chrome">Chrome</a>, or <a
-							href="https://www.apple.com/safari/">Safari</a> (IE, Edge, and Opera are
-						<strong>not</strong> yet supported) with cookies and JavaScript enabled.
+						<p>
+							You have been registered.
+							Please click the <q>Login</q> button when the proctor begins the game.
+							To use gamelab, you must be using an up-to-date <a href="http://www.getfirefox.org">Firefox</a>,
+							<a href="http://www.google.com/chrome">Chrome</a>, or <a
+								href="https://www.apple.com/safari/">Safari</a> (IE, Edge, and Opera are
+							<strong>not</strong> yet supported) with cookies and JavaScript enabled.
+						</p>
 					</section>
 				</form>
 			</section>
