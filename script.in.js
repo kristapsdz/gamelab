@@ -38,8 +38,9 @@ function timerCountdown(donefunc, e, value)
 
 	now = Math.floor(new Date().getTime() / 1000);
 	if (now >= value) {
-		if (null !== donefunc)
+		if (null !== donefunc) {
 			donefunc();
+		}
 		return;
 	}
 	doClearNode(e);

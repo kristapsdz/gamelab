@@ -950,16 +950,18 @@ again:
 		"%s", khttps[KHTTP_200]);
 	khttp_head(r, kresps[KRESP_CONTENT_TYPE], 
 		"%s", kmimetypes[r->mime]);
+	khttp_head(r, kresps[KRESP_CACHE_CONTROL], 
+		"%s", "no-cache, no-store");
+	khttp_head(r, kresps[KRESP_PRAGMA], 
+		"%s", "no-cache");
+	khttp_head(r, kresps[KRESP_EXPIRES], 
+		"%s", "-1");
 
 	/*
 	 * If the game has completed, then disallow the cache: the
 	 * amdinistrator can grant winnings whenever.
 	 */
 	if (expr->round >= expr->rounds) {
-		khttp_head(r, kresps[KRESP_CACHE_CONTROL], 
-			"%s", "no-cache, no-store");
-		khttp_head(r, kresps[KRESP_PRAGMA], 
-			"%s", "no-cache");
 	} else
 		khttp_head(r, kresps[KRESP_ETAG], 
 			"\"%" PRIu64 "-%" PRId64 "-%" PRId64 "-%zu\"", 

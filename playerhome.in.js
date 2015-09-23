@@ -865,17 +865,17 @@ function loadExprSuccess(resp)
 			e = doClear('exprCountdown');
 			formatCountdown(next, e);
 			setTimeout(timerCountdown, 1000, checkRound, e, 
-				expr.roundbegan + (expr.roundmin * 60));
+				(expr.roundbegan + (expr.roundmin * 60)));
 		} else {
 			next = (expr.roundbegan + (expr.minutes * 60)) -
 				Math.floor(new Date().getTime() / 1000);
 			e = doClear('exprCountdown');
 			formatCountdown(next, e);
 			setTimeout(timerCountdown, 1000, null, e, 
-				expr.roundbegan + (expr.minutes * 60));
+				(expr.roundbegan + (expr.minutes * 60)));
 			setTimeout(checkRoundEnd, 
-				(res.expr.minutes < 10 || res.expr.roundpct > 0) ? 
-				5000 : 60000);
+				((res.expr.minutes < 10 || res.expr.roundpct > 0) ? 
+				5000 : 60000));
 		}
 	} else if (expr.round < expr.rounds && 
 		   expr.round < res.player.joined + expr.prounds) {
@@ -898,10 +898,10 @@ function loadExprSuccess(resp)
 			e = doClear('exprCountdown');
 			formatCountdown(next, e);
 			setTimeout(timerCountdown, 1000, null, e, 
-				expr.roundbegan + (expr.minutes * 60));
+				(expr.roundbegan + (expr.minutes * 60)));
 			setTimeout(checkRoundEnd, 
-				(res.expr.minutes < 10 || res.expr.roundpct > 0) ? 
-				5000 : 60000);
+				((res.expr.minutes < 10 || res.expr.roundpct > 0) ? 
+				5000 : 60000));
 		}
 		doValue('exprPlayRound', expr.round);
 		if (expr.round > 0) {
