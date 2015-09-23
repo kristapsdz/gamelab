@@ -6,31 +6,31 @@ MTURKURI	 = https://workersandbox.mturk.com/mturk/externalSubmit
 
 # Mac OSX testing.
 # This is useful when running in a userdir.
-PREFIX		 = /Users/kristaps/Sites
-HTDOCS		 = $(PREFIX)
-HTURI		 = /~kristaps
-LABURI		 = /~kristaps/lab.cgi
-ADMINURI	 = /~kristaps/admin.cgi
-CGIBIN		 = $(PREFIX)
-DATADIR		 = $(PREFIX)
-RDATADIR	 = $(PREFIX)
-LIBS		 = 
-STATIC		 = 
-
+#PREFIX		 = /Users/kristaps/Sites
+#HTDOCS		 = $(PREFIX)
+#HTURI		 = /~kristaps
+#LABURI		 = /~kristaps/lab.cgi
+#ADMINURI	 = /~kristaps/admin.cgi
+#CGIBIN		 = $(PREFIX)
+#DATADIR		 = $(PREFIX)
+#RDATADIR	 = $(PREFIX)
+#LIBS		 = 
+#STATIC		 = 
+#
 # Linux testing.
 # LIBS		 = -lbsd -lm
 
 # OpenBSD production.
-#PREFIX		 = /var/www
-#HTDOCS		 = $(PREFIX)/htdocs/gamelab
-#HTURI		 = /gamelab
-#CGIBIN		 = $(PREFIX)/cgi-bin/gamelab
-#LABURI		 = /cgi-bin/gamelab/lab
-#ADMINURI	 = /cgi-bin/gamelab/admin
-#DATADIR	 	 = $(PREFIX)/data/gamelab
-#RDATADIR	 = /data/gamelab
-#LIBS		 = -lintl -liconv -lm
-#STATIC		 = -static
+PREFIX		 = /var/www
+HTDOCS		 = $(PREFIX)/htdocs/gamelab
+HTURI		 = /gamelab
+CGIBIN		 = $(PREFIX)/cgi-bin/gamelab
+LABURI		 = /cgi-bin/gamelab/lab
+ADMINURI	 = /cgi-bin/gamelab/admin
+DATADIR	 	 = $(PREFIX)/data/gamelab
+RDATADIR	 = /data/gamelab
+LIBS		 = -lintl -liconv -lm
+STATIC		 = -static
 
 # You really don't want to change anything below this line.
 
@@ -193,7 +193,7 @@ adminhome.js playerautoadd.js playerlobby.js playerhome.js playermturk.js script
 	sed -e "s!@ADMINURI@!$(ADMINURI)!g" \
 		-e "s!@LABURI@!$(LABURI)!g" \
 		-e "s!@MTURKURI@!$(MTURKURI)!g" \
-		-e "s!@HTURI@!$(HTURI)!g" $< > $@
+		-e "s!@HTURI@!$(HTURI)!g" $< | ./jsmin > $@
 	chmod 444 $@
 
 .in.html.html:
