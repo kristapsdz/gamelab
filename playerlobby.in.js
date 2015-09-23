@@ -34,7 +34,6 @@ function loadGraphs()
 		sub = document.createElement('div');
 		sub.setAttribute('id', 'historyLineGraphs' + gameidx);
 		e.appendChild(sub);
-		/*doHideNode(sub);*/
 
 		matrix = bimatrixCreate(hist[gameidx].payoffs);
 
@@ -57,89 +56,26 @@ function loadGraphs()
 			}
 			datas[j] = {
 				data: data,
-				label: 'Strategy ' + String.fromCharCode(97 + j)
+				label: 'Row ' + String.fromCharCode(97 + j)
 			};
 		}
 		Flotr.draw(c, datas, 
 			{ grid: { horizontalLines: 1 },
 			  xaxis: { ticks: [[ 0, 'oldest' ], [(l + k), 'newest']] },
 		          shadowSize: 0,
-			  subtitle: 'Hypothetical payoff',
+			  subtitle: 'Previous row payoffs',
 		          yaxis: { min: 0.0 },
 			  lines: { show: true },
 		          points: { show: true }});
-
-		/*c = document.createElement('div');
-		sub.appendChild(c);
-		data = [];
-		data.push([0, 0.0]);
-		j = 0;
-		k = j;
-		for (j = 0; j < hist[gameidx].roundups.length; j++) {
-			data.push([(j + k) + 1, 0.0]);
-		}
-		Flotr.draw(c, 
-			[{ data: data }],
-			{ xaxis: { ticks: [[ 0, 'oldest' ], [(j + k), 'newest']] },
-			  subtitle: 'Real payoff',
-		          shadowSize: 0,
-			  lines: { show: true },
-		          points: { show: true },
-			  yaxis: { min: 0.0 }});
-
-		c = document.createElement('div');
-		sub.appendChild(c);
-		data = [];
-		data.push([0, 0.0]);
-		j = 0;
-		k = j;
-		for (l = 0.0, j = 0; j < hist[gameidx].roundups.length; j++) {
-			data.push([(j + k) + 1, l]);
-		}
-		Flotr.draw(c, 
-			[{ data: data }],
-			{ xaxis: { ticks: [[ 0, 'oldest' ], [(j + k), 'newest']] },
-			  subtitle: 'Accumulated payoff',
-		          shadowSize: 0,
-			  lines: { show: true },
-		          points: { show: true },
-			  yaxis: { min: 0.0 }});*/
 	}
 
 	e = doClear('historyBarGraphs');
-	/*doHideNode(e);*/
 
 	for (i = 0; i < hist.length; i++) {
 		gameidx = i;
 		sub = document.createElement('div');
 		sub.setAttribute('id', 'historyBarGraphs' + gameidx);
 		e.appendChild(sub);
-		/*doHideNode(sub);*/
-
-		/*c = document.createElement('div');
-		sub.appendChild(c);
-		datas = [];
-		len = hist[gameidx].roundups[0].navgp1.length;
-		for (k = l = j = 0; j < len; j++) {
-			stratidx = j;
-			data = [];
-			k = 0;
-			l = k;
-			for (k = 0; k < hist[gameidx].roundups.length; k++) {
-				data.push([(l + k), 0]);
-			}
-			datas[j] = {
-				data: data, 
-				label: 'Strategy ' + String.fromCharCode(97 + j)
-			};
-		}
-		Flotr.draw(c, datas, { 
-			bars: { show: true , shadowSize: 0, stacked: true, barWidth: 1.0, lineWidth: 1 }, 
-			grid: { horizontalLines: 1 },
-			xaxis: { ticks: [[ 0, 'oldest' ], [(l + k) - 1, 'newest']] },
-		        subtitle: 'Your strategy',
-			yaxis: { max: 1.0, min: 0.0 }
-		});*/
 
 		c = document.createElement('div');
 		sub.appendChild(c);
@@ -156,13 +92,13 @@ function loadGraphs()
 			}
 			datas[j] = {
 				data: data, 
-				label: 'Strategy ' + String.fromCharCode(97 + j)
+				label: 'Row ' + String.fromCharCode(97 + j)
 			};
 		}
 		Flotr.draw(c, datas, { 
 			bars: { show: true , shadowSize: 0, stacked: true, barWidth: 1.0, lineWidth: 1 }, 
 			grid: { horizontalLines: 1 },
-		        subtitle: 'Row player average strategy',
+		        subtitle: 'Previous row',
 			xaxis: { ticks: [[ 0, 'oldest' ], [(l + k) - 1, 'newest']] },
 			yaxis: { max: 1.0, min: 0.0 }
 		});
@@ -182,14 +118,14 @@ function loadGraphs()
 			}
 			datas[j] = {
 				data: data, 
-				label: 'Strategy ' + String.fromCharCode(65 + j)
+				label: 'Column ' + String.fromCharCode(65 + j)
 			};
 		}
 		Flotr.draw(c, datas, { 
 			bars: { show: true , shadowSize: 0, stacked: true, barWidth: 1.0, lineWidth: 1 }, 
 			grid: { horizontalLines: 1 },
 			xaxis: { ticks: [[ 0, 'oldest' ], [(l + k) - 1, 'newest']] },
-		        subtitle: 'Column player average strategy',
+		        subtitle: 'Previous column',
 			yaxis: { max: 1.0, min: 0.0 }
 		});
 	}

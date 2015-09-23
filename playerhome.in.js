@@ -496,14 +496,14 @@ function loadGameGraphs(gameidx, lineName, barName, small)
 		}
 		datas[j] = {
 			data: data,
-			label: (small ? '' : 'Strategy ') + String.fromCharCode(97 + j)
+			label: (small ? '' : 'Row ') + String.fromCharCode(97 + j)
 		};
 	}
 	Flotr.draw(c, datas, 
 		{ grid: { horizontalLines: 1 },
 		  xaxis: { ticks: [[ 0, oldest ], [(l + k), newest]] },
 		  shadowSize: 0,
-		  subtitle: (small ? 'Hyp.' : 'Hypothetical payoff'),
+		  subtitle: (small ? 'Row PO' : 'Previous row payoffs'),
 		  yaxis: { min: 0.0, tickDecimals: 1 },
 		  lines: { show: true },
 		  points: { show: true }});
@@ -528,7 +528,7 @@ function loadGameGraphs(gameidx, lineName, barName, small)
 	Flotr.draw(c, 
 		[{ data: data }],
 		{ xaxis: { ticks: [[ 0, oldest ], [(j + k), newest]] },
-		  subtitle: (small ? 'Real' : 'Real payoff'),
+		  subtitle: (small ? 'Your PO' : 'Your payoff'),
 		  shadowSize: 0,
 		  lines: { show: true },
 		  points: { show: true },
@@ -556,7 +556,7 @@ function loadGameGraphs(gameidx, lineName, barName, small)
 	Flotr.draw(c, 
 		[{ data: data }],
 		{ xaxis: { ticks: [[ 0, oldest ], [(j + k), newest]] },
-		  subtitle: (small ? 'Accum.' : 'Accumulated payoff'),
+		  subtitle: (small ? 'Tot. PO' : 'Your total payoff'),
 		  shadowSize: 0,
 		  lines: { show: true },
 		  points: { show: true },
@@ -596,7 +596,7 @@ function loadGameGraphs(gameidx, lineName, barName, small)
 		}
 		datas[j] = {
 			data: data, 
-			label: (small ? '' : 'Strategy ') + String.fromCharCode(97 + j)
+			label: (small ? '' : 'Row ') + String.fromCharCode(97 + j)
 		};
 	}
 	Flotr.draw(c, datas, { 
@@ -604,7 +604,7 @@ function loadGameGraphs(gameidx, lineName, barName, small)
 		grid: { horizontalLines: 1 },
 		xaxis: { ticks: [[ 0, (0 === (l + k) - 1 ? '' : oldest) ], 
 			         [(l + k) - 1, (0 === (l + k) - 1 ? (newest + ' ' + oldest) : newest)]] },
-		subtitle: (small ? 'You' : 'Your strategy'),
+		subtitle: (small ? 'You' : 'Your frequencies'),
 		yaxis: { max: 1.0, min: 0.0, tickDecimals: 1 }
 	});
 
@@ -638,13 +638,13 @@ function loadGameGraphs(gameidx, lineName, barName, small)
 		}
 		datas[j] = {
 			data: data, 
-			label: (small ? '' : 'Strategy ') + String.fromCharCode(97 + j)
+			label: (small ? '' : 'Row ') + String.fromCharCode(97 + j)
 		};
 	}
 	Flotr.draw(c, datas, { 
 		bars: { show: true , shadowSize: 0, stacked: true, barWidth: 1.0, lineWidth: 1 }, 
 		grid: { horizontalLines: 1 },
-		subtitle: (small ? 'Row' : 'Row player average strategy'),
+		subtitle: (small ? 'Row' : 'Previous row'),
 		xaxis: { ticks: [[ 0, (0 === (l + k) - 1 ? '' : oldest) ], 
 			         [(l + k) - 1, (0 === (l + k) - 1 ? (newest + ' ' + oldest) : newest)]] },
 		yaxis: { max: 1.0, min: 0.0, tickDecimals: 1 }
@@ -680,7 +680,7 @@ function loadGameGraphs(gameidx, lineName, barName, small)
 		}
 		datas[j] = {
 			data: data, 
-			label: (small ? '' : 'Strategy ') + String.fromCharCode(65 + j)
+			label: (small ? '' : 'Column ') + String.fromCharCode(65 + j)
 		};
 	}
 	Flotr.draw(c, datas, { 
@@ -688,7 +688,7 @@ function loadGameGraphs(gameidx, lineName, barName, small)
 		grid: { horizontalLines: 1 },
 		xaxis: { ticks: [[ 0, (0 === (l + k) - 1 ? '' : oldest) ], 
 			         [(l + k) - 1, (0 === (l + k) - 1 ? (newest + ' ' + oldest) : newest)]] },
-		subtitle: (small ? 'Column' : 'Column player average strategy'),
+		subtitle: (small ? 'Column' : 'Previous column'),
 		yaxis: { max: 1.0, min: 0.0, tickDecimals: 1 }
 	});
 }
