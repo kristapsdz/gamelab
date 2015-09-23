@@ -321,13 +321,12 @@ function loadGame()
 			'historyLineGraphsSmall', 'historyBarGraphsSmall', 1);
 		doUnhide('historyLineGraphsSmall' + res.gameorders[resindex]);
 		doUnhide('historyBarGraphsSmall' + res.gameorders[resindex]);
-		if (0 != game.roundup.skip && res.player.joined > res.expr.round) 
+		if (0 !== game.roundup.skip && res.expr.round > res.player.joined)
 			doUnhide('skipExplain');
 		else
 			doHide('skipExplain');
-	} else {
+	} else
 		doHide('exprHistory');
-	}
 
 	/*
 	 * Assign an input field per strategy.
