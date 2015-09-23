@@ -1216,6 +1216,7 @@ doreq(struct kreq *r)
 {
 	int64_t		 id;
 	unsigned int	 bit;
+	pid_t		 pid;
 	
 	switch (r->method) {
 	case (KMETHOD_GET):
@@ -1261,7 +1262,21 @@ doreq(struct kreq *r)
 		return;
 	}
 
-	db_expr_advance();
+	if (db_expr_advance()) {
+		db_close();
+		if (0 == (pid = fork())) {
+			khttp_child_free(r);
+			if ((pid = fork()) < 0) {
+				perror(NULL);
+				_exit(EXIT_FAILURE);
+			} else if (0 == pid)
+				mail_roundadvance();
+			_exit(EXIT_SUCCESS);
+		} else if (pid > 0) {
+			waitpid(pid, NULL, 0);
+		} else if (pid < 0)
+			perror(NULL);
+	}
 
 	switch (r->page) {
 	case (PAGE_DOAUTOADD):

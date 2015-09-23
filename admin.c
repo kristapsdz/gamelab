@@ -115,6 +115,7 @@ enum	key {
 	KEY_HISTORYFILE,
 	KEY_INSTR,
 	KEY_INSTRFILE,
+	KEY_MAILROUND,
 	KEY_MTURK,
 	KEY_NAME,
 	KEY_NOLOTTERY,
@@ -251,6 +252,7 @@ static const struct kvalid keys[KEY__MAX] = {
 	{ kvalid_stringne, "historyfile" }, /* KEY_HISTORYFILE */
 	{ kvalid_stringne, "instr" }, /* KEY_INSTR */
 	{ kvalid_stringne, "instrFile" }, /* KEY_INSTRFILE */
+	{ kvalid_int, "mailround" }, /* KEY_MAILROUND */
 	{ kvalid_int, "mturk" }, /* KEY_MTURK */
 	{ kvalid_stringne, "name" }, /* KEY_NAME */
 	{ kvalid_int, "nolottery" }, /* KEY_NOLOTTERY */
@@ -887,6 +889,9 @@ senddoaddplayers(struct kreq *r)
 		 r->fieldmap[KEY_MTURK]->parsed.i : 0,
 		 NULL != r->fieldmap[KEY_AUTOADDPRESERVE] ?
 		 r->fieldmap[KEY_AUTOADDPRESERVE]->parsed.i : 0);
+	db_expr_setmailround
+		(NULL != r->fieldmap[KEY_MAILROUND] ?
+		 r->fieldmap[KEY_MAILROUND]->parsed.i : 0);
 
 	if (NULL == r->fieldmap[KEY_PLAYERS])
 		return;

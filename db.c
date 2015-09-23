@@ -514,13 +514,14 @@ db_expr_advancenext(void)
  * and players to advance the round.
  * Rounds either advance according to time or the percentage of players
  * per role who have played all games.
+ * Returns 1 if we advanced the round, 0 otherwise.
  */
-void
+int
 db_expr_advance(void)
 {
 	struct expr	*expr;
 	time_t		 t;
-	int		 rc;
+	int		 rc, advanced;
 	size_t		 games, allplayers[2], roleplayers[2];
 	double		 playerf[2];
 	int64_t		 round, played, tmp;
@@ -530,17 +531,17 @@ db_expr_advance(void)
 	 * Do nothing if we've not started. 
 	 */
 	if (NULL == (expr = db_expr_get(1)))
-		return;
+		return(0);
 
 	/* 
 	 * Do nothing if we're not running or have finished. 
 	 */
 	if (expr->round >= expr->rounds) {
 		db_expr_free(expr);
-		return;
+		return(0);
 	} else if ((t = time(NULL)) < expr->start) {
 		db_expr_free(expr);
-		return;
+		return(0);
 	} 
 
 	/*
@@ -571,13 +572,6 @@ db_expr_advance(void)
 		assert(tmp >= 0 && (uint64_t)tmp < SIZE_MAX);
 		if (0 == (allplayers[0] = tmp)) {
 			sqlite3_finalize(stmt);
-#if 0
-			fprintf(stderr, "Advancing round (at %" 
-				PRId64 "): no players in role 0\n",
-				expr->round);
-			round = expr->round + 1;
-			goto advance;
-#endif
 			goto fallthrough;
 		}
 
@@ -595,16 +589,8 @@ db_expr_advance(void)
 		 * Would we rather wait for people to join?
 		 * Or should we have a "wait" timer as well?
 		 */
-		if (0 == (allplayers[1] = tmp)) {
-#if 0
-			fprintf(stderr, "Advancing round (at %" 
-				PRId64 "): no players in role 1\n",
-				expr->round);
-			round = expr->round + 1;
-			goto advance;
-#endif
+		if (0 == (allplayers[1] = tmp))
 			goto fallthrough;
-		}
 
 		/*
 		 * Compute the per-player-role number of players we have
@@ -660,11 +646,11 @@ fallthrough:
 
 	if (round == expr->round) {
 		db_expr_free(expr);
-		return;
+		return(0);
 	} else if (t < expr->roundbegan) {
 		fprintf(stderr, "Round-advance time warp!\n");
 		db_expr_free(expr);
-		return;
+		return(0);
 	} 
 
 
@@ -679,6 +665,7 @@ advance:
 	db_bind_int(stmt, 1, round);
 	db_bind_int(stmt, 2, time(NULL));
 
+	advanced = 0;
 	db_trans_begin(1);
 	expr = db_expr_get(1);
 	assert(NULL != expr);
@@ -694,10 +681,7 @@ advance:
 	} else {
 		db_step(stmt, 0);
 		db_trans_commit();
-#if 0
-		fprintf(stderr, "Round-advance ok: %" PRId64 " "
-			"to %" PRId64 "\n", expr->round, round);
-#endif
+		advanced = 1;
 		if (0 == round)
 			fprintf(stderr, "Round-advance is at "
 				"start of experiment\n");
@@ -707,6 +691,7 @@ advance:
 	}
 	sqlite3_finalize(stmt);
 	db_expr_free(expr);
+	return(advanced);
 }
 
 struct winner *
@@ -848,7 +833,7 @@ db_winners(struct expr **expr, size_t winnersz, int64_t seed, size_t count)
 
 	stmt = db_stmt("SELECT state FROM experiment");
 	db_step(stmt, 0);
-	state = sqlite3_column_int(stmt, 0);
+	state = sqlite3_column_int64(stmt, 0);
 	sqlite3_finalize(stmt);
 	if (ESTATE_POSTWIN == state) {
 		fprintf(stderr, "Experiment already winnered.\n");
@@ -876,7 +861,7 @@ db_winners(struct expr **expr, size_t winnersz, int64_t seed, size_t count)
 	stmt = db_stmt("SELECT id FROM player");
 	for (i = 0; SQLITE_ROW == db_step(stmt, 0); i++) {
 		assert(i < players);
-		pids[i] = sqlite3_column_int(stmt, 0);
+		pids[i] = sqlite3_column_int64(stmt, 0);
 	}
 	sqlite3_finalize(stmt);
 
@@ -888,9 +873,9 @@ db_winners(struct expr **expr, size_t winnersz, int64_t seed, size_t count)
 		fprintf(stderr, "Winning ticket: %" PRId64 "\n", top);
 		id = 0;
 		while (SQLITE_ROW == db_step(stmt, 0)) {
-			id = sqlite3_column_int(stmt, 0);
-			sum = sqlite3_column_int(stmt, 1);
-			score = sqlite3_column_int(stmt, 2);
+			id = sqlite3_column_int64(stmt, 0);
+			sum = sqlite3_column_int64(stmt, 1);
+			score = sqlite3_column_int64(stmt, 2);
 			fprintf(stderr, "Checking: %" PRId64 
 				" < %" PRId64 "\n", top, sum + score);
 			if (top >= sum && top < sum + score)
@@ -1038,7 +1023,7 @@ db_player_valid(const char *mail, const char *pass)
 		sqlite3_finalize(stmt);
 		return(NULL);
 	}
-	id = sqlite3_column_int(stmt, 1);
+	id = sqlite3_column_int64(stmt, 1);
 	sqlite3_finalize(stmt);
 	return(db_player_load(id));
 }
@@ -1113,7 +1098,7 @@ db_player_count_plays(int64_t round, int64_t playerid)
 	if (SQLITE_DONE == rc) 
 		val = 0;
 	else
-		val = sqlite3_column_int(stmt, 0);
+		val = sqlite3_column_int64(stmt, 0);
 	sqlite3_finalize(stmt);
 	assert(val >= 0);
 	return(val);
@@ -1167,6 +1152,29 @@ db_player_set_instr(int64_t player, int64_t instr)
 		PRId64 "\n", player, instr);
 }
 
+static void
+db_player_fill(struct player *p, sqlite3_stmt *s)
+{
+
+	memset(p, 0, sizeof(struct player));
+	p->mail = kstrdup((char *)sqlite3_column_text(s, 0));
+	p->state = sqlite3_column_int64(s, 1);
+	p->id = sqlite3_column_int64(s, 2);
+	p->enabled = sqlite3_column_int64(s, 3);
+	p->role = sqlite3_column_int64(s, 4);
+	p->rseed = sqlite3_column_int64(s, 5);
+	p->instr = sqlite3_column_int64(s, 6);
+	p->finalrank = sqlite3_column_int64(s, 7);
+	p->finalscore = sqlite3_column_int64(s, 8);
+	p->autoadd = sqlite3_column_int64(s, 9);
+	p->version = sqlite3_column_int64(s, 10);
+	p->joined = sqlite3_column_int64(s, 11);
+	p->answer = sqlite3_column_int64(s, 12);
+	p->hitid = kstrdup((char *)sqlite3_column_text(s, 13));
+	p->assignmentid = kstrdup((char *)sqlite3_column_text(s, 14));
+	p->mturkdone = sqlite3_column_int64(s, 15);
+}
+
 /*
  * Load a single player by their rowid.
  * Return NULL if the player was not found.
@@ -1187,25 +1195,8 @@ db_player_load(int64_t id)
 		return(NULL);
 	}
 
-	player = kcalloc(1, sizeof(struct player));
-	player->mail = kstrdup((char *)sqlite3_column_text(stmt, 0));
-	player->state = sqlite3_column_int(stmt, 1);
-	player->id = sqlite3_column_int(stmt, 2);
-	player->enabled = sqlite3_column_int(stmt, 3);
-	player->role = sqlite3_column_int(stmt, 4);
-	player->rseed = sqlite3_column_int(stmt, 5);
-	player->instr = sqlite3_column_int(stmt, 6);
-	player->finalrank = sqlite3_column_int(stmt, 7);
-	player->finalscore = sqlite3_column_int(stmt, 8);
-	player->autoadd = sqlite3_column_int(stmt, 9);
-	player->version = sqlite3_column_int(stmt, 10);
-	player->joined = sqlite3_column_int(stmt, 11);
-	player->answer = sqlite3_column_int(stmt, 12);
-	player->hitid = 
-		kstrdup((char *)sqlite3_column_text(stmt, 13));
-	player->assignmentid = 
-		kstrdup((char *)sqlite3_column_text(stmt, 14));
-	player->mturkdone = sqlite3_column_int(stmt, 15);
+	player = kmalloc(sizeof(struct player));
+	db_player_fill(player, stmt);
 	sqlite3_finalize(stmt);
 	return(player);
 }
@@ -1231,11 +1222,11 @@ db_player_load_highest(playerscorefp fp, void *arg, size_t limit)
 
 	while (SQLITE_ROW == db_step(stmt, 0)) {
 		player = db_player_load
-			(sqlite3_column_int(stmt, 0));
+			(sqlite3_column_int64(stmt, 0));
 		assert(NULL != player);
 		mpq_str2mpqinit(sqlite3_column_text(stmt, 2), aggr);
 		fp(player, mpq_get_d(aggr),
-			sqlite3_column_int(stmt, 1), arg);
+			sqlite3_column_int64(stmt, 1), arg);
 		db_player_free(player);
 		mpq_clear(aggr);
 	}
@@ -1243,10 +1234,30 @@ db_player_load_highest(playerscorefp fp, void *arg, size_t limit)
 	sqlite3_finalize(stmt);
 }
 
-/*
- * Load all players in database.
- * Pass through each one to "fp" with argument "arg".
- */
+void
+db_player_load_playing(const struct expr *expr, playerf fp, void *arg)
+{
+	sqlite3_stmt	*stmt;
+	struct player	 player;
+
+	stmt = db_stmt("SELECT email,state,id,enabled,"
+		"role,rseed,instr,finalrank,finalscore,autoadd, "
+		"version,joined,answer,hitid,assignmentid,mturkdone "
+		"FROM player "
+		"WHERE joined >= 0 AND joined <= ? AND ? < joined + ?");
+	db_bind_int(stmt, 1, expr->round);
+	db_bind_int(stmt, 2, expr->round);
+	db_bind_int(stmt, 3, expr->prounds);
+	while (SQLITE_ROW == db_step(stmt, 0)) {
+		db_player_fill(&player, stmt);
+		(*fp)(&player, arg);
+		free(player.mail);
+		free(player.hitid);
+		free(player.assignmentid);
+	}
+	sqlite3_finalize(stmt);
+}
+
 void
 db_player_load_all(playerf fp, void *arg)
 {
@@ -1258,31 +1269,12 @@ db_player_load_all(playerf fp, void *arg)
 		"version,joined,answer,hitid,assignmentid,mturkdone "
 		"FROM player ORDER BY email ASC");
 	while (SQLITE_ROW == db_step(stmt, 0)) {
-		memset(&player, 0, sizeof(struct player));
-		player.mail = kstrdup
-			((char *)sqlite3_column_text(stmt, 0));
-		player.state = sqlite3_column_int(stmt, 1);
-		player.id = sqlite3_column_int(stmt, 2);
-		player.enabled = sqlite3_column_int(stmt, 3);
-		player.role = sqlite3_column_int(stmt, 4);
-		player.rseed = sqlite3_column_int(stmt, 5);
-		player.instr = sqlite3_column_int(stmt, 6);
-		player.finalrank = sqlite3_column_int(stmt, 7);
-		player.finalscore = sqlite3_column_int(stmt, 8);
-		player.autoadd = sqlite3_column_int(stmt, 9);
-		player.version = sqlite3_column_int(stmt, 10);
-		player.joined = sqlite3_column_int(stmt, 11);
-		player.answer = sqlite3_column_int(stmt, 12);
-		player.hitid = kstrdup
-			((char *)sqlite3_column_text(stmt, 13));
-		player.assignmentid = kstrdup
-			((char *)sqlite3_column_text(stmt, 14));
-		player.mturkdone = sqlite3_column_int(stmt, 13);
+		db_player_fill(&player, stmt);
 		(*fp)(&player, arg);
 		free(player.mail);
 		free(player.hitid);
+		free(player.assignmentid);
 	}
-
 	sqlite3_finalize(stmt);
 }
 
@@ -1437,20 +1429,20 @@ db_game_load_player(int64_t playerid,
 
 	stmt = db_stmt("SELECT payoffs,p1,p2,name,id FROM game");
 	while (SQLITE_ROW == db_step(stmt, 0)) {
-		id = sqlite3_column_int(stmt, 4);
+		id = sqlite3_column_int64(stmt, 4);
 		if (db_game_check_player(playerid, round, id)) {
 			(*fp)(NULL, round, arg);
 			continue;
 		}
 		memset(&game, 0, sizeof(struct game));
-		game.p1 = sqlite3_column_int(stmt, 1);
-		game.p2 = sqlite3_column_int(stmt, 2);
+		game.p1 = sqlite3_column_int64(stmt, 1);
+		game.p2 = sqlite3_column_int64(stmt, 2);
 		maxcount = game.p1 * game.p2 * 2;
 		game.payoffs = mpq_str2mpqsinit
 			(sqlite3_column_text(stmt, 0), maxcount);
 		game.name = strdup((char *)sqlite3_column_text(stmt, 3));
 		assert(NULL != game.name);
-		game.id = sqlite3_column_int(stmt, 4);
+		game.id = sqlite3_column_int64(stmt, 4);
 		(*fp)(&game, round, arg);
 		for (i = 0; i < maxcount; i++)
 			mpq_clear(game.payoffs[i]);
@@ -1476,7 +1468,7 @@ db_game_round_count_done(int64_t round, int64_t role, size_t gamesz)
 	db_bind_int(stmt, 3, role);
 	rc = db_step(stmt, 0);
 	assert(SQLITE_ROW == rc);
-	result = (size_t)sqlite3_column_int(stmt, 0);
+	result = (size_t)sqlite3_column_int64(stmt, 0);
 	sqlite3_finalize(stmt);
 	return(result);
 }
@@ -1521,14 +1513,14 @@ db_game_load(int64_t gameid)
 
 	if (SQLITE_ROW == db_step(stmt, 0)) {
 		game = kcalloc(1, sizeof(struct game));
-		game->p1 = sqlite3_column_int(stmt, 1);
-		game->p2 = sqlite3_column_int(stmt, 2);
+		game->p1 = sqlite3_column_int64(stmt, 1);
+		game->p2 = sqlite3_column_int64(stmt, 2);
 		game->payoffs = mpq_str2mpqsinit
 			(sqlite3_column_text(stmt, 0), 
 			 game->p1 * game->p2 * 2);
 		game->name = kstrdup((char *)
 			sqlite3_column_text(stmt, 3));
-		game->id = sqlite3_column_int(stmt, 4);
+		game->id = sqlite3_column_int64(stmt, 4);
 	}
 
 	sqlite3_finalize(stmt);
@@ -1546,14 +1538,14 @@ db_game_load_all(gamef fp, void *arg)
 		"name,id FROM game ORDER BY id");
 	while (SQLITE_ROW == db_step(stmt, 0)) {
 		memset(&game, 0, sizeof(struct game));
-		game.p1 = sqlite3_column_int(stmt, 1);
-		game.p2 = sqlite3_column_int(stmt, 2);
+		game.p1 = sqlite3_column_int64(stmt, 1);
+		game.p2 = sqlite3_column_int64(stmt, 2);
 		game.payoffs = mpq_str2mpqsinit
 			(sqlite3_column_text(stmt, 0), 
 			 game.p1 * game.p2 * 2);
 		game.name = kstrdup((char *)
 			sqlite3_column_text(stmt, 3));
-		game.id = sqlite3_column_int(stmt, 4);
+		game.id = sqlite3_column_int64(stmt, 4);
 		(*fp)(&game, arg);
 		for (i = 0; i < (size_t)(2 * game.p1 * game.p2); i++)
 			mpq_clear(game.payoffs[i]);
@@ -1759,6 +1751,19 @@ db_expr_lobbysize(void)
 	sqlite3_finalize(stmt);
 	assert(result >= 0 && (uint64_t)result < SIZE_MAX);
 	return(result);
+}
+
+void
+db_expr_setmailround(int64_t mailround)
+{
+	sqlite3_stmt	*stmt;
+
+	stmt = db_stmt("UPDATE experiment SET mailround=?");
+	db_bind_int(stmt, 1, mailround ? 1 : 0);
+	db_step(stmt, 0);
+	sqlite3_finalize(stmt);
+	fprintf(stderr, "Administrator %s mailround\n",
+		mailround ? "enabled" : "disabled");
 }
 
 /*
@@ -2554,15 +2559,15 @@ db_roundup_get(int64_t round, const struct game *game)
 	db_bind_int(stmt, 2, r->gameid);
 
 	if (SQLITE_ROW == db_step(stmt, 0)) {
-		r->skip = sqlite3_column_int(stmt, 0);
-		r->roundcount = sqlite3_column_int(stmt, 1);
+		r->skip = sqlite3_column_int64(stmt, 0);
+		r->roundcount = sqlite3_column_int64(stmt, 1);
 		r->curp1 = mpq_str2mpqsinit
 			(sqlite3_column_text
 			 (stmt, 2), r->p1sz);
 		r->curp2 = mpq_str2mpqsinit
 			(sqlite3_column_text
 			 (stmt, 3), r->p2sz);
-		r->plays = sqlite3_column_int(stmt, 4);
+		r->plays = sqlite3_column_int64(stmt, 4);
 		sqlite3_finalize(stmt);
 		return(db_roundup_round(r));
 	} 
@@ -2805,7 +2810,7 @@ db_interval_get(int64_t round)
 			(intv->periods[i].roundupsz, 
 			 sizeof(struct roundup *));
 		intv->periods[i].gameid = 
-			sqlite3_column_int(stmt, 0);
+			sqlite3_column_int64(stmt, 0);
 	}
 	sqlite3_finalize(stmt);
 	assert(i == intv->periodsz);
@@ -2839,37 +2844,38 @@ db_expr_get(int only_started)
 		"autoadd,round,roundbegan,roundpct,"
 		"roundmin,prounds,playermax,autoaddpreserve,"
 		"history,nolottery,questionnaire,mturk,"
-		"conversion,currency FROM experiment");
+		"conversion,currency,mailround FROM experiment");
 	rc = db_step(stmt, 0);
 	assert(SQLITE_ROW == rc);
-	if (only_started && ESTATE_NEW == sqlite3_column_int(stmt, 4)) {
+	if (only_started && ESTATE_NEW == sqlite3_column_int64(stmt, 4)) {
 		sqlite3_finalize(stmt);
 		return(NULL);
 	}
 
 	expr = kcalloc(1, sizeof(struct expr));
-	expr->start = (time_t)sqlite3_column_int(stmt, 0);
-	expr->rounds = sqlite3_column_int(stmt, 1);
-	expr->minutes = sqlite3_column_int(stmt, 2);
+	expr->start = (time_t)sqlite3_column_int64(stmt, 0);
+	expr->rounds = sqlite3_column_int64(stmt, 1);
+	expr->minutes = sqlite3_column_int64(stmt, 2);
 	expr->loginuri = kstrdup((char *)sqlite3_column_text(stmt, 3));
 	expr->instr = kstrdup((char *)sqlite3_column_text(stmt, 5));
-	expr->state = (time_t)sqlite3_column_int(stmt, 6);
+	expr->state = (time_t)sqlite3_column_int64(stmt, 6);
 	expr->end = expr->start + (expr->rounds * expr->minutes * 60);
-	expr->total = sqlite3_column_int(stmt, 7);
-	expr->autoadd = sqlite3_column_int(stmt, 8);
-	expr->round = sqlite3_column_int(stmt, 9);
-	expr->roundbegan = sqlite3_column_int(stmt, 10);
+	expr->total = sqlite3_column_int64(stmt, 7);
+	expr->autoadd = sqlite3_column_int64(stmt, 8);
+	expr->round = sqlite3_column_int64(stmt, 9);
+	expr->roundbegan = sqlite3_column_int64(stmt, 10);
 	expr->roundpct = sqlite3_column_double(stmt, 11);
-	expr->roundmin = sqlite3_column_int(stmt, 12);
-	expr->prounds = sqlite3_column_int(stmt, 13);
-	expr->playermax = sqlite3_column_int(stmt, 14);
-	expr->autoaddpreserve = sqlite3_column_int(stmt, 15);
+	expr->roundmin = sqlite3_column_int64(stmt, 12);
+	expr->prounds = sqlite3_column_int64(stmt, 13);
+	expr->playermax = sqlite3_column_int64(stmt, 14);
+	expr->autoaddpreserve = sqlite3_column_int64(stmt, 15);
 	expr->history = kstrdup((char *)sqlite3_column_text(stmt, 16));
-	expr->nolottery = sqlite3_column_int(stmt, 17);
-	expr->questionnaire = sqlite3_column_int(stmt, 18);
-	expr->mturk = sqlite3_column_int(stmt, 19);
+	expr->nolottery = sqlite3_column_int64(stmt, 17);
+	expr->questionnaire = sqlite3_column_int64(stmt, 18);
+	expr->mturk = sqlite3_column_int64(stmt, 19);
 	expr->conversion = sqlite3_column_double(stmt, 20);
 	expr->currency = kstrdup((char *)sqlite3_column_text(stmt, 21));
+	expr->mailround = sqlite3_column_int64(stmt, 22);
 	sqlite3_finalize(stmt);
 	return(expr);
 }
@@ -2950,7 +2956,7 @@ db_expr_wipe(void)
 	 */
 	while (SQLITE_ROW == db_step(stmt, 0)) {
 		db_bind_int(stmt2, 1, arc4random_uniform(INT32_MAX) + 1);
-		db_bind_int(stmt2, 2, sqlite3_column_int(stmt, 0));
+		db_bind_int(stmt2, 2, sqlite3_column_int64(stmt, 0));
 		db_step(stmt2, 0);
 		sqlite3_reset(stmt2);
 	}

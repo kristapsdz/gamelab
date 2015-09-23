@@ -557,7 +557,8 @@
 						<dt><span class="file">adminhome-started.html</span></dt>
 						<dt><span class="file">backupfail.eml</span></dt>
 						<dt><span class="file">backupsuccess.eml</span></dt>
-						<dt><span class="file">test.eml</span></dt>
+						<dt><span class="file">mail-roundadvance.eml</span></dt>
+						<dt><span class="file">mail-test.eml</span></dt>
 						<dd>
 							These read-only files are installed into <a href="#datadir"><code>DATADIR</code></a>.
 							They are used by the CGI processes to serve content to data requests.

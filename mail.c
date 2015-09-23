@@ -191,9 +191,14 @@ encodeblock(unsigned char *in, unsigned char *out, int len)
 {
 
 	out[0] = (unsigned char) cb64[ (int)(in[0] >> 2) ];
-	out[1] = (unsigned char) cb64[ (int)(((in[0] & 0x03) << 4) | ((in[1] & 0xf0) >> 4)) ];
-	out[2] = (unsigned char) (len > 1 ? cb64[ (int)(((in[1] & 0x0f) << 2) | ((in[2] & 0xc0) >> 6)) ] : '=');
-	out[3] = (unsigned char) (len > 2 ? cb64[ (int)(in[2] & 0x3f) ] : '=');
+	out[1] = (unsigned char) 
+		cb64[ (int)(((in[0] & 0x03) << 4) | 
+			((in[1] & 0xf0) >> 4)) ];
+	out[2] = (unsigned char) 
+		(len > 1 ? cb64[ (int)(((in[1] & 0x0f) << 2) | 
+		        ((in[2] & 0xc0) >> 6)) ] : '=');
+	out[3] = (unsigned char) 
+		(len > 2 ? cb64[ (int)(in[2] & 0x3f) ] : '=');
 }
 
 static int 
@@ -247,7 +252,6 @@ mail_putfile(const char *s, struct mail *m)
 	}
 
 	encode(f, 72, m);
-
 	fclose(f);
 }
 
@@ -342,13 +346,6 @@ mail_init(struct mail *mail, struct ktemplate *t)
 	return(curl);
 }
 
-/*
- * Mail new players a welcome message.
- * This will loop through all players with PSTATE_NEW and mail them
- * what's found in "addplayers.eml".
- * The state of these users is either PSTATE_MAILED or PSTATE_ERROR,
- * depending on the conditions.
- */
 void 
 mail_players(const char *uri, const char *loginuri)
 {
@@ -361,10 +358,8 @@ mail_players(const char *uri, const char *loginuri)
 	struct ktemplate   t;
 	int		   rc;
 
-	if (NULL == (curl = mail_init(&m, &t))) 
-		fprintf(stderr, "Attempt to mail players "
-			"without e-mail configuration\n");
-
+	curl = mail_init(&m, &t);
+	/* Can be NULL: we want to set the statuses. */
 	m.uri = uri;
 
 	while (NULL != (m.to = db_player_next_new(&id, &m.pass))) {
@@ -384,7 +379,7 @@ mail_players(const char *uri, const char *loginuri)
 		free(encpass);
 
 		rc = khttp_templatex(&t, DATADIR 
-			"/addplayer.eml", mail_write, &m);
+			"/mail-addplayer.eml", mail_write, &m);
 		if (0 == rc) {
 			perror("khttp_templatex");
 			break;
@@ -395,8 +390,8 @@ mail_players(const char *uri, const char *loginuri)
 		curl_easy_setopt(curl, CURLOPT_READDATA, &m.b);
 
 		if (CURLE_OK != (res = curl_easy_perform(curl))) {
-			fprintf(stderr, "%s: mail error: %s\n", 
-				m.to, curl_easy_strerror(res));
+			fprintf(stderr, "Mail error: %s\n", 
+				curl_easy_strerror(res));
 			db_player_set_state(id, PSTATE_ERROR);
 		} else
 			db_player_set_mailed(id, m.pass);
@@ -408,10 +403,6 @@ mail_players(const char *uri, const char *loginuri)
 		mail_free(&m, curl, recpts);
 }
 
-/*
- * Send a test e-mail to the administrative e-mail address.
- * This does not set any error conditions or anything.
- */
 void 
 mail_test(void)
 {
@@ -422,17 +413,14 @@ mail_test(void)
 	struct ktemplate   t;
 	int		   rc;
 
-	if (NULL == (curl = mail_init(&m, &t))) {
-		fprintf(stderr, "Email test requested "
-			"but email not configured\n");
+	if (NULL == (curl = mail_init(&m, &t)))
 		return;
-	}
 
 	m.to = db_admin_get_mail();
 	rc = khttp_templatex(&t, DATADIR 
-		"/test.eml", mail_write, &m);
+		"/mail-test.eml", mail_write, &m);
 
-	if ( ! rc) {
+	if (0 == rc) {
 		perror("khttp_templatex");
 		goto out;
 	}
@@ -442,11 +430,8 @@ mail_test(void)
 	curl_easy_setopt(curl, CURLOPT_READDATA, &m.b);
 
 	if (CURLE_OK == (res = curl_easy_perform(curl)))
-		fprintf(stderr, "%s: mail test\n", m.to);
-	else
-		fprintf(stderr, "%s: mail error: %s\n", 
-			m.to, curl_easy_strerror(res));
-
+		goto out;
+	fprintf(stderr, "Mail error: %s\n", curl_easy_strerror(res));
 out:
 	mail_free(&m, curl, recpts);
 }
@@ -461,17 +446,14 @@ mail_backupfail(const char *fname)
 	struct ktemplate   t;
 	int		   rc;
 
-	if (NULL == (curl = mail_init(&m, &t))) {
-		fprintf(stderr, "%s: Database backup failed "
-			"and not emailed\n", fname);
+	if (NULL == (curl = mail_init(&m, &t)))
 		return;
-	}
 
 	m.to = db_admin_get_mail();
 	rc = khttp_templatex(&t, DATADIR 
-		"/backupfail.eml", mail_write, &m);
+		"/mail-backupfail.eml", mail_write, &m);
 
-	if ( ! rc) {
+	if (0 == rc) {
 		perror("khttp_templatex");
 		goto out;
 	}
@@ -481,11 +463,8 @@ mail_backupfail(const char *fname)
 	curl_easy_setopt(curl, CURLOPT_READDATA, &m.b);
 
 	if (CURLE_OK == (res = curl_easy_perform(curl)))
-		fprintf(stderr, "%s: mail backpufail\n", m.to);
-	else
-		fprintf(stderr, "%s: mail backpufail: %s\n", 
-			m.to, curl_easy_strerror(res));
-
+		goto out;
+	fprintf(stderr, "Mail error: %s\n", curl_easy_strerror(res));
 out:
 	mail_free(&m, curl, recpts);
 }
@@ -519,23 +498,18 @@ mail_backup(void)
 	if ( ! db_backup(fname)) {
 		mail_backupfail(fname);
 		return;
-	} 
-
-	if (NULL == (curl = mail_init(&m, &t))) {
-		fprintf(stderr, "%s/backup-%s.db: Database "
-			"backed up but not emailed\n",
-			DATADIR, date);
+	} else if (NULL == (curl = mail_init(&m, &t))) {
+		chmod(fname, 0);
 		return;
 	}
 
 	m.fname = fname;
 	m.to = db_admin_get_mail();
 	rc = khttp_templatex(&t, DATADIR 
-		"/backupsuccess.eml", mail_write, &m);
+		"/mail-backupsuccess.eml", mail_write, &m);
 
-	if ( ! rc) {
+	if (0 == rc) {
 		perror("khttp_templatex");
-		remove(fname);
 		goto out;
 	}
 
@@ -544,13 +518,10 @@ mail_backup(void)
 	curl_easy_setopt(curl, CURLOPT_READDATA, &m.b);
 
 	if (CURLE_OK == (res = curl_easy_perform(curl)))
-		fprintf(stderr, "%s: mail backup\n", m.to);
-	else
-		fprintf(stderr, "%s: mail backup: %s\n", 
-			m.to, curl_easy_strerror(res));
-
-	chmod(fname, 0);
+		goto out;
+	fprintf(stderr, "Mail error: %s\n", curl_easy_strerror(res));
 out:
+	chmod(fname, 0);
 	mail_free(&m, curl, recpts);
 }
 
@@ -561,4 +532,50 @@ mail_wipe(int backup)
 	if (backup)
 		mail_backup();
 	db_expr_wipe();
+}
+
+static void
+mail_appendplayer(const struct player *p, void *arg)
+{
+	struct curl_slist **recpts = arg;
+
+	if (p->autoadd)
+		return;
+	*recpts = curl_slist_append(*recpts, p->mail);
+}
+
+void 
+mail_roundadvance(void)
+{
+	CURL		  *curl;
+	CURLcode 	   res;
+	struct curl_slist *recpts = NULL;
+	struct mail	   m;
+	struct ktemplate   t;
+	int		   rc;
+	struct expr	  *expr;
+
+	if (NULL == (curl = mail_init(&m, &t))) 
+		return;
+	if (NULL == (expr = db_expr_get(1)) || 0 == expr->mailround)
+		goto out;
+
+	db_player_load_playing(expr, mail_appendplayer, &recpts);
+	rc = khttp_templatex(&t, DATADIR 
+		"/mail-roundadvance.eml", mail_write, &m);
+
+	if (0 == rc) {
+		perror("khttp_templatex");
+		goto out;
+	}
+
+	curl_easy_setopt(curl, CURLOPT_MAIL_RCPT, recpts);
+	curl_easy_setopt(curl, CURLOPT_READDATA, &m.b);
+
+	if (CURLE_OK == (res = curl_easy_perform(curl)))
+		goto out;
+	fprintf(stderr, "Mail error: %s\n", curl_easy_strerror(res));
+out:
+	mail_free(&m, curl, recpts);
+	db_expr_free(expr);
 }

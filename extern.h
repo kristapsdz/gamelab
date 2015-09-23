@@ -55,6 +55,7 @@ struct	expr {
 	int64_t		 autoaddpreserve; /* keep autoadd on start */
 	int64_t		 round; /* round (<0 initial, then >=0) */
 	int64_t		 nolottery; /* don't show lottery info */
+	int64_t		 mailround; /* mailing round-advance? */
 	int64_t		 questionnaire; /* require questions */
 };
 
@@ -205,21 +206,22 @@ mpq_t		*db_choices_get(int64_t, int64_t, int64_t, size_t *);
 
 void		 db_close(void);
 
-void		 db_expr_advance(void);
+int		 db_expr_advance(void);
 void		 db_expr_advancenext(void);
 int		 db_expr_checkstate(enum estate);
 void		 db_expr_finish(struct expr **, size_t);
 void		 db_expr_free(struct expr *);
 struct expr	*db_expr_get(int);
 size_t		 db_expr_lobbysize(void);
-size_t		 db_expr_round_count
-			(const struct expr *, int64_t, int64_t);
+size_t		 db_expr_round_count(const struct expr *, 
+			int64_t, int64_t);
 void		 db_expr_setautoadd(int64_t, int64_t, int64_t);
 void		 db_expr_setinstr(const char *);
-int		 db_expr_start(int64_t, int64_t, int64_t, 
-			int64_t, int64_t, int64_t, int64_t, 
-			const char *, const char *, const char *,
-			int64_t, int64_t, double, const char *);
+void		 db_expr_setmailround(int64_t);
+int		 db_expr_start(int64_t, int64_t, int64_t, int64_t, 
+			int64_t, int64_t, int64_t, const char *, 
+			const char *, const char *, int64_t, 
+			int64_t, double, const char *);
 void		 db_expr_wipe(void);
 
 struct game	*db_game_alloc(const char *,
@@ -250,6 +252,7 @@ void		 db_player_enable(int64_t);
 void		 db_player_free(struct player *);
 struct player	*db_player_load(int64_t);
 void		 db_player_load_all(playerf, void *);
+void		 db_player_load_playing(const struct expr *, playerf, void *);
 void		 db_player_load_highest(playerscorefp, void *, size_t);
 int		 db_player_lottery(int64_t, int64_t, 
 		 	mpq_t, mpq_t, int64_t *, size_t);
@@ -285,6 +288,7 @@ struct winner	*db_winners_get(int64_t);
 void		 db_winners_free(struct winner *);
 
 void		 mail_players(const char *, const char *);
+void		 mail_roundadvance(void);
 void		 mail_backup(void);
 void		 mail_wipe(int);
 void		 mail_test(void);

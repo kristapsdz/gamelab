@@ -6,31 +6,31 @@ MTURKURI	 = https://workersandbox.mturk.com/mturk/externalSubmit
 
 # Mac OSX testing.
 # This is useful when running in a userdir.
-#PREFIX		 = /Users/kristaps/Sites
-#HTDOCS		 = $(PREFIX)
-#HTURI		 = /~kristaps
-#LABURI		 = /~kristaps/lab.cgi
-#ADMINURI	 = /~kristaps/admin.cgi
-#CGIBIN		 = $(PREFIX)
-#DATADIR		 = $(PREFIX)
-#RDATADIR	 = $(PREFIX)
-#LIBS		 = 
-#STATIC		 = 
-#
+PREFIX		 = /Users/kristaps/Sites
+HTDOCS		 = $(PREFIX)
+HTURI		 = /~kristaps
+LABURI		 = /~kristaps/lab.cgi
+ADMINURI	 = /~kristaps/admin.cgi
+CGIBIN		 = $(PREFIX)
+DATADIR		 = $(PREFIX)
+RDATADIR	 = $(PREFIX)
+LIBS		 = 
+STATIC		 = 
+
 # Linux testing.
 # LIBS		 = -lbsd -lm
 
 # OpenBSD production.
-PREFIX		 = /var/www
-HTDOCS		 = $(PREFIX)/htdocs/gamelab
-HTURI		 = /gamelab
-CGIBIN		 = $(PREFIX)/cgi-bin/gamelab
-LABURI		 = /cgi-bin/gamelab/lab
-ADMINURI	 = /cgi-bin/gamelab/admin
-DATADIR	 	 = $(PREFIX)/data/gamelab
-RDATADIR	 = /data/gamelab
-LIBS		 = -lintl -liconv -lm
-STATIC		 = -static
+#PREFIX		 = /var/www
+#HTDOCS		 = $(PREFIX)/htdocs/gamelab
+#HTURI		 = /gamelab
+#CGIBIN		 = $(PREFIX)/cgi-bin/gamelab
+#LABURI		 = /cgi-bin/gamelab/lab
+#ADMINURI	 = /cgi-bin/gamelab/admin
+#DATADIR	 	 = $(PREFIX)/data/gamelab
+#RDATADIR	 = /data/gamelab
+#LIBS		 = -lintl -liconv -lm
+#STATIC		 = -static
 
 # You really don't want to change anything below this line.
 
@@ -39,13 +39,14 @@ VMONTH	 = September
 VYEAR	 = 2015
 CFLAGS 	+= -g -W -Wall -Wstrict-prototypes -Wno-unused-parameter -Wwrite-strings -I/usr/local/include
 CFLAGS	+= -DDATADIR=\"$(RDATADIR)\" -DHTURI=\"$(HTURI)\"
-PAGES 	 = addplayer.eml \
-	   backupfail.eml \
-	   backupsuccess.eml \
-	   instructions-lottery.html \
+PAGES 	 = instructions-lottery.html \
 	   instructions-nolottery.html \
 	   instructions-mturk.html \
-	   test.eml
+	   mail-addplayer.eml \
+	   mail-backupfail.eml \
+	   mail-backupsuccess.eml \
+	   mail-roundadvance.eml \
+	   mail-test.eml
 BUILTPS	 = adminhome-new.html \
 	   adminhome-started.html
 SCREENS	 = 
@@ -152,7 +153,7 @@ updatecgi: all
 	install -m 0755 lab $(CGIBIN)/lab.fcgi
 	install -m 0755 lab $(CGIBIN)
 
-installcgi: update gamelab.db
+installcgi: updatecgi gamelab.db
 	rm -f $(DATADIR)/gamelab.db
 	install -m 0666 gamelab.db $(DATADIR)
 
