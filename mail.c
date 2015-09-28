@@ -316,7 +316,7 @@ mail_init(struct mail *mail, struct ktemplate *t)
 	time_t		 tt;
 
 	if (NULL == (smtp = db_smtp_get())) {
-		fprintf(stderr, "mail: no smtp configured\n");
+		INFO("Mail: no SMTP configured");
 		return(NULL);
 	} else if (NULL == (curl = curl_easy_init())) {
 		perror(NULL);
@@ -398,8 +398,7 @@ mail_players(const char *uri, const char *loginuri)
 		curl_easy_setopt(curl, CURLOPT_READDATA, &m.b);
 
 		if (CURLE_OK != (res = curl_easy_perform(curl))) {
-			fprintf(stderr, "Mail error: %s\n", 
-				curl_easy_strerror(res));
+			WARN("Mail error: %s", curl_easy_strerror(res));
 			db_player_set_state(id, PSTATE_ERROR);
 		} else
 			db_player_set_mailed(id, m.pass);
@@ -439,7 +438,7 @@ mail_test(void)
 
 	if (CURLE_OK == (res = curl_easy_perform(curl)))
 		goto out;
-	fprintf(stderr, "Mail error: %s\n", curl_easy_strerror(res));
+	WARN("Mail error: %s", curl_easy_strerror(res));
 out:
 	mail_free(&m, curl, recpts);
 }
@@ -472,7 +471,7 @@ mail_backupfail(const char *fname)
 
 	if (CURLE_OK == (res = curl_easy_perform(curl)))
 		goto out;
-	fprintf(stderr, "Mail error: %s\n", curl_easy_strerror(res));
+	WARN("Mail error: %s", curl_easy_strerror(res));
 out:
 	mail_free(&m, curl, recpts);
 }
@@ -527,7 +526,7 @@ mail_backup(void)
 
 	if (CURLE_OK == (res = curl_easy_perform(curl)))
 		goto out;
-	fprintf(stderr, "Mail error: %s\n", curl_easy_strerror(res));
+	WARN("Mail error: %s", curl_easy_strerror(res));
 out:
 	chmod(fname, 0);
 	mail_free(&m, curl, recpts);
@@ -586,7 +585,7 @@ mail_roundadvance(int64_t last, int64_t round)
 
 	if (CURLE_OK == (res = curl_easy_perform(curl)))
 		goto out;
-	fprintf(stderr, "Mail error: %s\n", curl_easy_strerror(res));
+	WARN("Mail error: %s", curl_easy_strerror(res));
 out:
 	mail_free(&m, curl, recpts);
 	db_expr_free(expr);

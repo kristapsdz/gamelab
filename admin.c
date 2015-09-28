@@ -51,6 +51,7 @@ enum	page {
 	PAGE_DOADDGAME,
 	PAGE_DOADDPLAYERS,
 	PAGE_DOADVANCE,
+	PAGE_DOADVANCEEND,
 	PAGE_DOBACKUP,
 	PAGE_DOCHANGEMAIL,
 	PAGE_DOCHANGEPASS,
@@ -159,6 +160,7 @@ static	unsigned int perms[PAGE__MAX] = {
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOADDGAME */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOADDPLAYERS */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOADVANCE */
+	PERM_JSON | PERM_LOGIN, /* PAGE_DOADVANCEEND */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOBACKUP */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOCHANGEMAIL */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOCHANGEPASS */
@@ -193,6 +195,7 @@ static const char *const pages[PAGE__MAX] = {
 	"doaddgame", /* PAGE_DOADDGAME */
 	"doaddplayers", /* PAGE_DOADDPLAYERS */
 	"doadvance", /* PAGE_DOADVANCE */
+	"doadvanceend", /* PAGE_DOADVANCEEND */
 	"dobackup", /* PAGE_DOBACKUP */
 	"dochangemail", /* PAGE_DOCHANGEMAIL */
 	"dochangepass", /* PAGE_DOCHANGEPASS */
@@ -300,34 +303,34 @@ mailround(void)
 		db_expr_free(expr);
 		sleep(30);
 		expr = db_expr_get(0);
+
 		if (pid != expr->roundpid) {
-			fprintf(stderr, "Round mailer error: "
+			WARN("Round mailer error: "
 				"invoked with different pid: "
-				"my %u != %" PRId64 " (exiting)\n", 
+				"my %u != %" PRId64 " (exiting)", 
 				pid, expr->roundpid);
 			break;
 		} 
+
 		if (expr->state > ESTATE_STARTED ||
 		    expr->round >= expr->rounds) {
-			fprintf(stderr, "Round mailer exiting: "
-				"experiment over: %u\n", pid);
+			INFO("Round mailer exiting: "
+				"experiment over: %u", pid);
 			break;
-		} else if (expr->round == round) {
-			fprintf(stderr, "Round mailer NOT firing "
-				"for same round %" PRId64 
-				": %u\n", round, pid);
+		} else if (expr->round == round)
 			continue;
-		}
-		fprintf(stderr, "Round mailer is firing "
-			"for round %" PRId64 " (last saw %" 
-			PRId64 "): %u\n", expr->round, round, pid);
+
+		INFO("Round mailer is firing for round %" 
+			PRId64 " (last saw %" PRId64 "): %u", 
+			expr->round, round, pid);
 		mail_roundadvance(round, expr->round);
 		round = expr->round;
-		fprintf(stderr, "Round mailer has fired: %u\n", pid);
+		INFO("Round mailer has fired: %u", pid);
 	}
 
 	db_expr_free(expr);
 	db_expr_setmailer(pid, 0);
+	INFO("Round mailer exiting: %u", pid);
 }
 
 static int
@@ -923,6 +926,15 @@ senddobackup(struct kreq *r)
 		mail_backup();
 
 	exit(EXIT_SUCCESS);
+}
+
+static void
+senddoadvanceend(struct kreq *r)
+{
+
+	db_expr_advanceend();
+	http_open(r, KHTTP_200);
+	khttp_body(r);
 }
 
 static void
@@ -1570,6 +1582,9 @@ main(void)
 		break;
 	case (PAGE_DOADVANCE):
 		senddoadvance(&r);
+		break;
+	case (PAGE_DOADVANCEEND):
+		senddoadvanceend(&r);
 		break;
 	case (PAGE_DOBACKUP):
 		senddobackup(&r);

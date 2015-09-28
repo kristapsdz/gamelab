@@ -207,6 +207,7 @@ mpq_t		*db_choices_get(int64_t, int64_t, int64_t, size_t *);
 void		 db_close(void);
 
 int		 db_expr_advance(void);
+void		 db_expr_advanceend(void);
 void		 db_expr_advancenext(void);
 int		 db_expr_checkstate(enum estate);
 void		 db_expr_finish(struct expr **, size_t);
@@ -312,6 +313,15 @@ void		 mpq_summation(mpq_t, const mpq_t);
 void		 mpq_summation_str(mpq_t, const unsigned char *);
 void		 mpq_summation_strvec(mpq_t *, const unsigned char *, size_t);
 char		*mpq_mpq2str(mpq_t *, size_t);
+
+#define		 INFO(_fmt, ...) \
+		 dbg_info(__FILE__, __LINE__, _fmt, ##__VA_ARGS__)
+#define		 WARN(_fmt, ...) \
+		 dbg_warn(__FILE__, __LINE__, _fmt, ##__VA_ARGS__)
+void		 dbg_info(const char *, size_t, const char *, ...)
+			__attribute__((format(printf, 3, 4)));
+void		 dbg_warn(const char *, size_t, const char *, ...)
+			__attribute__((format(printf, 3, 4)));
 
 __END_DECLS
 

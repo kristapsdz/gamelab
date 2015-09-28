@@ -356,8 +356,8 @@ sendmturk(struct kreq *r)
 		db_expr_free(expr);
 		return;
 	} else if (0 == expr->mturk) {
-		fprintf(stderr, "Mechanical Turk player trying "
-			"to play non-turk experiment\n");
+		INFO("Mechanical Turk player trying "
+			"to play non-turk experiment");
 		http_open(r, KHTTP_303);
 		send303(r, HTURI "/playerautoadd.html", PAGE__MAX, 0);
 		db_expr_free(expr);
@@ -1322,8 +1322,7 @@ main(void)
 			pages, PAGE__MAX, PAGE_INDEX);
 		if (KCGI_OK != er) 
 			return(EXIT_FAILURE);
-		fprintf(stderr, "FastCGI started "
-			"(pid %lld)!\n", (long long)getpid());
+		INFO("FastCGI started (pid %u)!", getpid());
 		while (KCGI_OK == khttp_fcgi_parse(fcgi, &r)) {
 			doreq(&r);
 			khttp_free(&r);

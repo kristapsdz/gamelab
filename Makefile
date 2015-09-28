@@ -24,6 +24,7 @@ STATIC		 =
 # OpenBSD production.
 #ADMINURI	 = /cgi-bin/gamelab/admin
 #CGIBIN		 = $(PREFIX)/cgi-bin/gamelab
+#CFLAGS		+= -DLOGTIME=1
 #DATADIR	 	 = $(PREFIX)/data/gamelab
 #HTDOCS		 = $(PREFIX)/htdocs/gamelab
 #HTURI		 = /gamelab
@@ -62,6 +63,7 @@ STATICS	 = adminhome.css \
 	   style.css
 OBJS	 = db.o \
 	   json.o \
+	   log.o \
 	   mail.o \
 	   mpq.o
 SRCS	 = Makefile \

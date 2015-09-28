@@ -1124,12 +1124,17 @@ function backup()
 		null);
 }
 
+function advanceEndRound() 
+{
+
+	sendQuery('@ADMINURI@/doadvanceend.json', null, null, 
+		function() { window.location.reload(true); });
+}
+
 function advanceRound() 
 {
 
-	sendQuery('@ADMINURI@/doadvance.json', 
-		null,
-		null,
+	sendQuery('@ADMINURI@/doadvance.json', null, null, 
 		function() { window.location.reload(true); });
 }
 
@@ -1247,11 +1252,13 @@ checkWipeButton(e)
 		document.getElementById('wipeCleanExprButton').disabled='';
 		document.getElementById('backupButton').disabled='';
 		document.getElementById('advanceButton').disabled='';
+		document.getElementById('advanceEndButton').disabled='';
 	} else {
 		document.getElementById('wipeExprButton').disabled='disabled';
 		document.getElementById('wipeCleanExprButton').disabled='disabled';
 		document.getElementById('backupButton').disabled='disabled';
 		document.getElementById('advanceButton').disabled='disabled';
+		document.getElementById('advanceEndButton').disabled='disabled';
 	}
 }
 

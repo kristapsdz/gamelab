@@ -91,27 +91,19 @@ again:
 		db_sleep(attempt++);
 		goto again;
 	} else if (SQLITE_LOCKED == rc) {
-		fprintf(stderr, "sqlite3_step: warning: %s\n", 
-			sqlite3_errmsg(db));
+		WARN("sqlite3_step: %s", sqlite3_errmsg(db));
 		db_sleep(attempt++);
 		goto again;
 	} else if (SQLITE_PROTOCOL == rc) {
-		fprintf(stderr, "sqlite3_step: warning: %s\n", 
-			sqlite3_errmsg(db));
+		WARN("sqlite3_step: %s", sqlite3_errmsg(db));
 		db_sleep(attempt++);
 		goto again;
 	} else if (SQLITE_OK == rc) {
 		sqlite3_busy_timeout(db, 500);
-#if 0
-		if (0 == attempt)
-			return;
-		fprintf(stderr, "sqlite3_open: success "
-			"after %zu retries\n", attempt);
-#endif
 		return;
 	} 
 
-	fprintf(stderr, "sqlite3_open: %s\n", sqlite3_errmsg(db));
+	WARN("sqlite3_open: %s", sqlite3_errmsg(db));
 	exit(EXIT_FAILURE);
 }
 
@@ -129,31 +121,21 @@ again:
 		db_sleep(attempt++);
 		goto again;
 	} else if (SQLITE_LOCKED == rc) {
-		fprintf(stderr, "sqlite3_step: warning: %s\n", 
-			sqlite3_errmsg(db));
+		WARN("sqlite3_step: %s", sqlite3_errmsg(db));
 		db_sleep(attempt++);
 		goto again;
 	} else if (SQLITE_PROTOCOL == rc) {
-		fprintf(stderr, "sqlite3_step: warning: %s\n", 
-			sqlite3_errmsg(db));
+		WARN("sqlite3_step: %s", sqlite3_errmsg(db));
 		db_sleep(attempt++);
 		goto again;
 	}
-
-#if 0
-	if (attempt > 0 &&
-	   (SQLITE_DONE == rc || SQLITE_ROW == rc ||
-	    (SQLITE_CONSTRAINT == rc && DB_STEP_CONSTRAINT & flags)))
-		fprintf(stderr, "sqlite3_step: success "
-			"after %zu retries\n", attempt);
-#endif
 
 	if (SQLITE_DONE == rc || SQLITE_ROW == rc)
 		return(rc);
 	if (SQLITE_CONSTRAINT == rc && DB_STEP_CONSTRAINT & flags)
 		return(rc);
 
-	fprintf(stderr, "sqlite3_step: %s\n", sqlite3_errmsg(db));
+	WARN("sqlite3_step: %s", sqlite3_errmsg(db));
 	sqlite3_finalize(stmt);
 	exit(EXIT_FAILURE);
 }
@@ -173,27 +155,17 @@ again:
 		db_sleep(attempt++);
 		goto again;
 	} else if (SQLITE_LOCKED == rc) {
-		fprintf(stderr, "sqlite3_prepare_v2: warning: %s\n", 
-			sqlite3_errmsg(db));
+		WARN("sqlite3_prepare_v2: %s", sqlite3_errmsg(db));
 		db_sleep(attempt++);
 		goto again;
 	} else if (SQLITE_PROTOCOL == rc) {
-		fprintf(stderr, "sqlite3_prepare_v2: warning: %s\n", 
-			sqlite3_errmsg(db));
+		WARN("sqlite3_prepare_v2: %s", sqlite3_errmsg(db));
 		db_sleep(attempt++);
 		goto again;
-	} else if (SQLITE_OK == rc) {
-#if 0
-		if (0 == attempt)
-			return(stmt);
-		fprintf(stderr, "sqlite3_prepare_v2: "
-			"success after %zu retries\n", attempt);
-#endif
+	} else if (SQLITE_OK == rc)
 		return(stmt);
-	}
 
-	fprintf(stderr, "sqlite3_prepare_v2: %s (%s)\n", 
-		sqlite3_errmsg(db), sql);
+	WARN("sqlite3_prepare_v2: %s (%s)", sqlite3_errmsg(db), sql);
 	sqlite3_finalize(stmt);
 	exit(EXIT_FAILURE);
 }
@@ -206,8 +178,7 @@ db_bind_text(sqlite3_stmt *stmt, size_t pos, const char *val)
 	if (SQLITE_OK == sqlite3_bind_text
 		(stmt, pos, val, -1, SQLITE_STATIC))
 		return;
-	fprintf(stderr, "sqlite3_bind_text: "
-		"%s\n", sqlite3_errmsg(db));
+	WARN("sqlite3_bind_text: %s", sqlite3_errmsg(db));
 	sqlite3_finalize(stmt);
 	exit(EXIT_FAILURE);
 }
@@ -219,8 +190,7 @@ db_bind_double(sqlite3_stmt *stmt, size_t pos, double val)
 	assert(pos > 0);
 	if (SQLITE_OK == sqlite3_bind_double(stmt, pos, val))
 		return;
-	fprintf(stderr, "sqlite3_bind_double: "
-		"%s\n", sqlite3_errmsg(db));
+	WARN("sqlite3_bind_double: %s", sqlite3_errmsg(db));
 	sqlite3_finalize(stmt);
 	exit(EXIT_FAILURE);
 }
@@ -232,8 +202,7 @@ db_bind_int(sqlite3_stmt *stmt, size_t pos, int64_t val)
 	assert(pos > 0);
 	if (SQLITE_OK == sqlite3_bind_int64(stmt, pos, val))
 		return;
-	fprintf(stderr, "sqlite3_bind_int64: "
-		"%s\n", sqlite3_errmsg(db));
+	WARN("sqlite3_bind_int64: %s", sqlite3_errmsg(db));
 	sqlite3_finalize(stmt);
 	exit(EXIT_FAILURE);
 }
@@ -252,27 +221,17 @@ again:
 		db_sleep(attempt++);
 		goto again;
 	} else if (SQLITE_LOCKED == rc) {
-		fprintf(stderr, "sqlite3_exec: warning: %s\n", 
-			sqlite3_errmsg(db));
+		WARN("sqlite3_exec: %s", sqlite3_errmsg(db));
 		db_sleep(attempt++);
 		goto again;
 	} else if (SQLITE_PROTOCOL == rc) {
-		fprintf(stderr, "sqlite3_exec: warning: %s\n", 
-			sqlite3_errmsg(db));
+		WARN("sqlite3_exec: %s", sqlite3_errmsg(db));
 		db_sleep(attempt++);
 		goto again;
-	} else if (SQLITE_OK == rc) {
-#if 0
-		if (0 == attempt)
-			return;
-		fprintf(stderr, "sqlite3_exec: success "
-			"after %zu retries\n", attempt);
-#endif
+	} else if (SQLITE_OK == rc)
 		return;
-	}
 
-	fprintf(stderr, "sqlite3_exec: %s (%s)\n", 
-		sqlite3_errmsg(db), sql);
+	WARN("sqlite3_exec: %s (%s)", sqlite3_errmsg(db), sql);
 	exit(EXIT_FAILURE);
 }
 
@@ -406,8 +365,8 @@ db_player_sess_alloc(int64_t playerid, const char *useragent)
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);
 	sess->id = sqlite3_last_insert_rowid(db);
-	fprintf(stderr, "Player %" PRId64 " logged in, "
-		"session %" PRId64 "\n", playerid, sess->id);
+	INFO("Player %" PRId64 " logged in, "
+		"session %" PRId64, playerid, sess->id);
 	return(sess);
 }
 
@@ -431,8 +390,8 @@ db_admin_sess_alloc(const char *useragent)
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);
 	sess->id = sqlite3_last_insert_rowid(db);
-	fprintf(stderr, "Administrator logged in, "
-		"session %" PRId64 "\n", sess->id);
+	INFO("Administrator logged in, "
+		"session %" PRId64, sess->id);
 	return(sess);
 }
 
@@ -478,7 +437,7 @@ db_admin_set_pass(const char *pass)
 	db_bind_text(stmt, 1, pass);
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);
-	fprintf(stderr, "Administrator set password\n");
+	INFO("Administrator set password");
 }
 
 void
@@ -488,6 +447,24 @@ db_winners_free(struct winner *win)
 	if (NULL == win)
 		return;
 	free(win);
+}
+
+/*
+ * Advance to the next round IFF the experiment has already started and
+ * we're in a valid round already.
+ */
+void
+db_expr_advanceend(void)
+{
+	sqlite3_stmt	*stmt;
+
+	stmt = db_stmt("UPDATE experiment SET "
+		"round=rounds,roundbegan=? WHERE "
+		"round < rounds AND round >= 0");
+	db_bind_int(stmt, 1, time(NULL));
+	db_step(stmt, 0);
+	sqlite3_finalize(stmt);
+	INFO("Round terminus (attempt) manually");
 }
 
 /*
@@ -505,7 +482,7 @@ db_expr_advancenext(void)
 	db_bind_int(stmt, 1, time(NULL));
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);
-	fprintf(stderr, "Round advanced (attempt) manually\n");
+	INFO("Round advanced (attempt) manually");
 }
 
 /*
@@ -617,9 +594,9 @@ db_expr_advance(void)
 
 		if (playerf[0] >= expr->roundpct &&
 			 playerf[1] >= expr->roundpct) {
-			fprintf(stderr, "Advancing round (at %" 
+			INFO("Round-advance: (at %" 
 				PRId64 "): fraction exceeded "
-				"(%g >= %g, %g >= %g)\n", expr->round, 
+				"(%g >= %g, %g >= %g)", expr->round, 
 				playerf[0], expr->roundpct,
 				playerf[1], expr->roundpct);
 			round = expr->round + 1;
@@ -648,7 +625,7 @@ fallthrough:
 		db_expr_free(expr);
 		return(0);
 	} else if (t < expr->roundbegan) {
-		fprintf(stderr, "Round-advance time warp!\n");
+		WARN("Round-advance: time warp!");
 		db_expr_free(expr);
 		return(0);
 	} 
@@ -671,23 +648,21 @@ advance:
 	assert(NULL != expr);
 	if (round < expr->round) {
 		db_trans_rollback();
-		fprintf(stderr, "Round-advance time warp "
-			"(commit): computed %" PRId64 " have %"
-			PRId64 "\n", expr->round, round);
+		WARN("Round-advance: time warp (commit): "
+			"computed %" PRId64 " have %"
+			PRId64, expr->round, round);
 	} else if (round == expr->round) {
 		db_trans_rollback();
-		fprintf(stderr, "Round-advance to %" 
-			PRId64 " during break\n", round);
+		INFO("Round-advance: to %" 
+			PRId64 " during break", round);
 	} else {
 		db_step(stmt, 0);
 		db_trans_commit();
 		advanced = 1;
 		if (0 == round)
-			fprintf(stderr, "Round-advance is at "
-				"start of experiment\n");
+			INFO("Round-advance: start of experiment");
 		else if (round == expr->rounds)
-			fprintf(stderr, "Round-advance is at "
-				"conclusion of experiment\n");
+			INFO("Round-advance: end of experiment");
 	}
 	sqlite3_finalize(stmt);
 	db_expr_free(expr);
@@ -802,7 +777,7 @@ again:
 	 * Store that we've created our total but haven't yet computed
 	 * the winners.
 	 */
-	fprintf(stderr, "Total lottery tickets: %" PRId64 "\n", total);
+	INFO("Total lottery tickets: %" PRId64, total);
 	stmt = db_stmt("UPDATE experiment SET state=?,total=?");
 	db_bind_int(stmt, 1, ESTATE_PREWIN);
 	db_bind_int(stmt, 2, total);
@@ -836,13 +811,13 @@ db_winners(struct expr **expr, size_t winnersz, int64_t seed, size_t count)
 	state = sqlite3_column_int64(stmt, 0);
 	sqlite3_finalize(stmt);
 	if (ESTATE_POSTWIN == state) {
-		fprintf(stderr, "Experiment already winnered.\n");
+		INFO("Win request when experiment already winnered");
 		db_trans_rollback();
 		return(1);
 	}
 
 	if (0 == (*expr)->total) {
-		fprintf(stderr, "Experiment has zero tickets.\n");
+		INFO("Win request when experiment has no tickets");
 		db_trans_rollback();
 		return(0);
 	}
@@ -870,14 +845,12 @@ db_winners(struct expr **expr, size_t winnersz, int64_t seed, size_t count)
 	srandom(seed);
 	for (i = 0; i < winnersz; i++) {
 		top = random() % (*expr)->total;
-		fprintf(stderr, "Winning ticket: %" PRId64 "\n", top);
+		INFO("Winning ticket: %" PRId64, top);
 		id = 0;
 		while (SQLITE_ROW == db_step(stmt, 0)) {
 			id = sqlite3_column_int64(stmt, 0);
 			sum = sqlite3_column_int64(stmt, 1);
 			score = sqlite3_column_int64(stmt, 2);
-			fprintf(stderr, "Checking: %" PRId64 
-				" < %" PRId64 "\n", top, sum + score);
 			if (top >= sum && top < sum + score)
 				break;
 		}
@@ -887,12 +860,11 @@ db_winners(struct expr **expr, size_t winnersz, int64_t seed, size_t count)
 			if (winners[j] == id)
 				break;
 		if (j < i) {
-			fprintf(stderr, "Winner already chosen: %" PRId64 "\n", id);
 			i--;
 		} else {
 			winners[i] = id;
 			rnums[i] = top;
-			fprintf(stderr, "Winner: %" PRId64 "\n", id);
+			INFO("Winner: player %" PRId64, id);
 		}
 	}
 	sqlite3_finalize(stmt);
@@ -971,7 +943,7 @@ db_admin_set_mail(const char *email)
 	db_bind_text(stmt, 1, email);
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);
-	fprintf(stderr, "Administrator set email: %s\n", email);
+	INFO("Administrator set email: %s", email);
 }
 
 int
@@ -985,7 +957,7 @@ db_admin_valid_pass(const char *pass)
 	assert(SQLITE_ROW == rc);
 
 	if ( ! db_crypt_check(sqlite3_column_text(stmt, 0), pass)) {
-		fprintf(stderr, "Administrator failed login\n");
+		INFO("Administrator failed login");
 		sqlite3_finalize(stmt);
 		return(0);
 	}
@@ -1037,15 +1009,13 @@ db_admin_valid(const char *email, const char *pass)
 	db_bind_text(stmt, 1, email);
 
 	if (SQLITE_ROW != db_step(stmt, 0)) {
-		fprintf(stderr, "Admin attempt without "
-			"correct email: %s\n", email);
+		INFO("Admin login with incorrect email: %s", email);
 		sqlite3_finalize(stmt);
 		return(0);
 	} 
 
 	if ( ! db_crypt_check(sqlite3_column_text(stmt, 0), pass)) {
-		fprintf(stderr, "Admin tried to "
-			"login with wrong password\n");
+		INFO("Admin login with incorrect password");
 		sqlite3_finalize(stmt);
 		return(0);
 	}
@@ -1128,9 +1098,6 @@ db_player_set_answered(int64_t player, int64_t answer)
 	db_bind_int(stmt, 2, player);
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);
-	fprintf(stderr, "Player %" PRId64 " has "
-		"answered question %" PRId64 "\n", 
-		player, answer);
 }
 
 /*
@@ -1148,8 +1115,6 @@ db_player_set_instr(int64_t player, int64_t instr)
 	db_bind_int(stmt, 2, player);
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);
-	fprintf(stderr, "Player %" PRId64 " set instr = %" 
-		PRId64 "\n", player, instr);
 }
 
 static void
@@ -1306,40 +1271,39 @@ db_player_play(const struct player *p, int64_t sessid,
 	 */
 	if (NULL == (expr = db_expr_get(1))) {
 		db_trans_rollback();
-		fprintf(stderr, "Player %" PRId64 " tried playing "
+		INFO("Player %" PRId64 " tried playing "
 			"game %" PRId64 " (round %" PRId64 "), but "
-			"experiment not started\n", 
-			p->id, gameid, round);
+			"not started", p->id, gameid, round);
 		return(0);
 	} else if (round != expr->round) {
 		db_trans_rollback();
-		fprintf(stderr, "Player %" PRId64 " tried playing "
+		INFO("Player %" PRId64 " tried playing "
 			"game %" PRId64 " (round %" PRId64 "), but "
-			"round invalid (at %" PRId64 ")\n", 
+			"round invalid (at %" PRId64 ")", 
 			p->id, gameid, round, expr->round);
 		db_expr_free(expr);
 		return(0);
 	} else if (round >= expr->rounds) {
 		db_trans_rollback();
-		fprintf(stderr, "Player %" PRId64 " tried playing "
+		INFO("Player %" PRId64 " tried playing "
 			"game %" PRId64 " (round %" PRId64 "), but "
-			"round invalid (max %" PRId64 ")\n", 
+			"round invalid (max %" PRId64 ")", 
 			p->id, gameid, round, expr->rounds);
 		db_expr_free(expr);
 		return(0);
 	} else if (round < p->joined) {
 		db_trans_rollback();
-		fprintf(stderr, "Player %" PRId64 " tried playing "
+		INFO("Player %" PRId64 " tried playing "
 			"game %" PRId64 " (round %" PRId64 "), but "
-			"hasn't been admitted (slated %" PRId64 ")\n",
+			"hasn't been admitted (slated %" PRId64 ")",
 			p->id, gameid, round, p->joined);
 		db_expr_free(expr);
 		return(0);
 	} else if (round >= p->joined + expr->prounds) {
 		db_trans_rollback();
-		fprintf(stderr, "Player %" PRId64 " tried playing "
+		INFO("Player %" PRId64 " tried playing "
 			"game %" PRId64 " (round %" PRId64 "), but "
-			"has exceeded player max (%" PRId64 ")\n",
+			"has exceeded player max (%" PRId64 ")",
 			p->id, gameid, round, 
 			p->joined + expr->prounds);
 		db_expr_free(expr);
@@ -1368,17 +1332,12 @@ db_player_play(const struct player *p, int64_t sessid,
 	free(buf);
 	if (SQLITE_CONSTRAINT == rc) {
 		db_trans_rollback();
-		fprintf(stderr, "Player %" PRId64 " tried "
+		INFO("Player %" PRId64 " tried "
 			"playing game %" PRId64 " (round %" 
-			PRId64 "), but has already played\n",
+			PRId64 "), but has already played",
 			p->id, gameid, round);
 		return(0);
 	}
-#if 0
-	fprintf(stderr, "Player %" PRId64 " has played "
-		"game %" PRId64 " (round %" PRId64 ")\n",
-		p->id, gameid, round);
-#endif
 
 	/*
 	 * First create (this is a no-op if it has already been created)
@@ -1566,12 +1525,8 @@ db_game_alloc(const char *poffs,
 	sqlite3_stmt	*stmt;
 	struct game	*game;
 
-	if (p2 && p1 > INT64_MAX / p2) {
-		fprintf(stderr, "Game allocated with "
-			"too many strategies: %" PRId64 
-			", %" PRId64 "\n", p1, p2);
+	if (p2 && p1 > INT64_MAX / p2)
 		return(NULL);
-	}
 
 	sv = buf = kstrdup(poffs);
 	maxcount = p1 * p2 * 2;
@@ -1581,16 +1536,10 @@ db_game_alloc(const char *poffs,
 	while (NULL != (tok = strsep(&buf, " \t\n\r"))) {
 		if ('\0' == *tok)
 			continue;
-		if (count >= maxcount) {
-			fprintf(stderr, "Game allocated with too "
-				"many strategies: %zu >= %zu\n",
-				count, maxcount);
+		if (count >= maxcount)
 			goto err;
-		} else if ( ! mpq_str2mpq(tok, rops[count++])) {
-			fprintf(stderr, "Game allocated with "
-				"bad rational %s\n", tok);
+		else if ( ! mpq_str2mpq(tok, rops[count++]))
 			goto err;
-		}
 	}
 
 	free(sv);
@@ -1602,7 +1551,6 @@ db_game_alloc(const char *poffs,
 	db_trans_begin(0);
 	if ( ! db_expr_checkstate(ESTATE_NEW)) {
 		db_trans_rollback();
-		fprintf(stderr, "Game allocated in bad state\n");
 		goto err;
 	}
 
@@ -1624,7 +1572,7 @@ db_game_alloc(const char *poffs,
 	db_trans_commit();
 
 	free(sv);
-	fprintf(stderr, "Game %" PRId64 " created\n", game->id);
+	INFO("Administrator created game %" PRId64, game->id);
 	return(game);
 err:
 	free(sv);
@@ -1643,7 +1591,7 @@ db_player_mturkdone(int64_t playerid)
 	db_bind_int(stmt, 1, playerid);
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);
-	fprintf(stderr, "Player %" PRId64 " finished mturk\n", playerid);
+	INFO("Player %" PRId64 " finished mturk", playerid);
 }
 
 /*
@@ -1668,12 +1616,12 @@ db_player_mturkvrfy(const char *email, char **pass,
 		*pass = kstrdup((char *)
 			sqlite3_column_text(stmt, 0));
 		id = sqlite3_column_int64(stmt, 1);
-		fprintf(stderr, "Player %" PRId64 " re-entering "
-			"with same HIT and assignment ID: %s\n", 
+		INFO("Player %" PRId64 " re-entering "
+			"with same HIT and assignment ID: %s", 
 			id, email);
 	} else
-		fprintf(stderr, "Player tried re-entering "
-			"with different IDs: %s\n", email);
+		INFO("Player tried re-entering "
+			"with different IDs: %s", email);
 
 	sqlite3_finalize(stmt);
 	return(SQLITE_ROW == rc);
@@ -1710,7 +1658,7 @@ db_player_create(const char *email, char **pass,
 	rc = db_step(stmt, DB_STEP_CONSTRAINT);
 	sqlite3_finalize(stmt);
 	if (SQLITE_DONE == rc) {
-		fprintf(stderr, "Player %" PRId64 " created: %s\n", 
+		INFO("Administrator created player %" PRId64 ": %s", 
 			sqlite3_last_insert_rowid(db), email);
 		if (NULL != pass)
 			*pass = kstrdup(hash);
@@ -1786,8 +1734,8 @@ db_expr_setautoadd(int64_t autoadd, int64_t mturk, int64_t preserve)
 	db_bind_int(stmt, 3, preserve ? 1 : 0);
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);
-	fprintf(stderr, "Administrator %s captive, "
-		"%s mturk: %s preserve\n",
+	INFO("Administrator %s captive, "
+		"%s mturk: %s preserve",
 		autoadd ? "enabled" : "disabled",
 		mturk ? "enabled" : "disabled",
 		preserve ? "do" : "do not");
@@ -1802,7 +1750,7 @@ db_expr_setinstr(const char *instr)
 	db_bind_text(stmt, 1, instr);
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);
-	fprintf(stderr, "Administrator changed instructions\n");
+	INFO("Administrator changed instructions");
 }
 
 /*
@@ -1829,17 +1777,17 @@ db_player_join(const struct player *player, int64_t answers)
 
 	if (expr->round + 1 >= expr->rounds) {
 		db_trans_rollback();
-		fprintf(stderr, "Player %" PRId64 " asked to join "
-			"after end of experiment\n", player->id);
+		INFO("Player %" PRId64 " asked to join "
+			"after end of experiment", player->id);
 		db_expr_free(expr);
 		return(0);
 	}
 
 	if (expr->questionnaire && answers != player->answer) {
 		db_trans_rollback();
-		fprintf(stderr, "Player %" PRId64 " asked to join "
+		INFO("Player %" PRId64 " asked to join "
 			"round %" PRId64 " without having "
-		        "submitted a questionnaire\n",
+		        "submitted a questionnaire",
 			 player->id, expr->round + 1);
 		db_expr_free(expr);
 		return(0);
@@ -1862,10 +1810,10 @@ db_player_join(const struct player *player, int64_t answers)
 		 * players in this role at this time.
 		 */
 		db_trans_rollback();
-		fprintf(stderr, "Player %" PRId64 " asked to join "
+		INFO("Player %" PRId64 " asked to join "
 			"round %" PRId64 " in role %" PRId64 " but it "
 			"already has maximum players: %" 
-			PRId64 "\n", player->id, expr->round + 1,
+			PRId64, player->id, expr->round + 1,
 			role, count);
 		return(0);
 	}
@@ -1877,12 +1825,11 @@ db_player_join(const struct player *player, int64_t answers)
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);
 	db_trans_commit();
-	fprintf(stderr, "Next round (%" PRId64 ") will have %" PRId64 " "
+	INFO("Next round (%" PRId64 ") will have %" PRId64 " "
 		"players (max %" PRId64 " per role, role %" PRId64 
 		", had %" PRId64 "): scheduling player %" PRId64 
-		" as well\n", expr->round + 1, count, 
-		expr->playermax, role, 
-		count, player->id);
+		" as well", expr->round + 1, count, 
+		expr->playermax, role, count, player->id);
 	db_expr_free(expr);
 	return(1);
 }
@@ -1907,8 +1854,6 @@ db_expr_start(int64_t date, int64_t roundpct, int64_t roundmin,
 	db_trans_begin(0);
 	if ( ! db_expr_checkstate(ESTATE_NEW)) {
 		db_trans_rollback();
-		fprintf(stderr, "Experiment could not "
-			"be started: already started\n");
 		return(0);
 	}
 
@@ -1981,7 +1926,7 @@ db_expr_start(int64_t date, int64_t roundpct, int64_t roundmin,
 	}
 
 	db_trans_commit();
-	fprintf(stderr, "Experiment started\n");
+	INFO("Experiment started");
 	return(1);
 }
 
@@ -1995,7 +1940,7 @@ db_player_enable(int64_t id)
 	db_bind_int(stmt, 1, id);
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);
-	fprintf(stderr, "Player %" PRId64 " enabled\n", id);
+	INFO("Administrator enabled player %" PRId64, id);
 }
 
 void
@@ -2006,7 +1951,7 @@ db_player_reset_all(void)
 	stmt = db_stmt("UPDATE player SET state=0");
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);
-	fprintf(stderr, "Player error states reset\n");
+	INFO("Administrator reset players\' error states");
 }
 
 void
@@ -2017,7 +1962,8 @@ db_player_reset_error(void)
 	stmt = db_stmt("UPDATE player SET state=0 WHERE state=3");
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);
-	fprintf(stderr, "Player (with error) error states reset\n");
+	INFO("Administrator reset players\' "
+		"(with error) error states");
 }
 
 void
@@ -2030,8 +1976,6 @@ db_player_set_state(int64_t id, enum pstate state)
 	db_bind_int(stmt, 2, id);
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);
-	/*fprintf(stderr, "Player %" PRId64 
-		" state set to %d\n", id, state);*/
 }
 
 void
@@ -2045,7 +1989,7 @@ db_player_set_mailed(int64_t id, const char *pass)
 	db_bind_int(stmt, 3, id);
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);
-	fprintf(stderr, "Player %" PRId64 " mailed password\n", id);
+	INFO("Administrator mailed player %" PRId64, id);
 }
 
 char *
@@ -2077,8 +2021,6 @@ db_game_delete(int64_t id)
 	db_trans_begin(0);
 	if ( ! db_expr_checkstate(ESTATE_NEW)) {
 		db_trans_rollback();
-		fprintf(stderr, "Game %" PRId64 " not "
-			"deleted: bad game state\n", id);
 		return(0);
 	}
 
@@ -2087,7 +2029,7 @@ db_game_delete(int64_t id)
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);
 	db_trans_commit();
-	fprintf(stderr, "Game %" PRId64 " deleted\n", id);
+	INFO("Administrator deleted game %" PRId64, id);
 	return(1);
 }
 
@@ -2099,8 +2041,6 @@ db_player_delete(int64_t id)
 	db_trans_begin(0);
 	if ( ! db_expr_checkstate(ESTATE_NEW)) {
 		db_trans_rollback();
-		fprintf(stderr, "Player %" PRId64 " not "
-			"deleted: bad game state\n", id);
 		return(0);
 	}
 
@@ -2109,7 +2049,7 @@ db_player_delete(int64_t id)
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);
 	db_trans_commit();
-	fprintf(stderr, "Player %" PRId64 " deleted\n", id);
+	INFO("Administrator deleted player %" PRId64, id);
 	return(1);
 }
 
@@ -2123,7 +2063,7 @@ db_player_disable(int64_t id)
 	db_bind_int(stmt, 1, id);
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);
-	fprintf(stderr, "Player %" PRId64 " disabled\n", id);
+	INFO("Administrator disabled player %" PRId64, id);
 }
 
 struct smtp *
@@ -2179,8 +2119,8 @@ db_smtp_set(const char *user, const char *server,
 	db_bind_text(stmt, 4, from);
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);
-	fprintf(stderr, "SMTP server %s, user %s, "
-		"from %s set\n", server, user, from);
+	INFO("Administrator set SMTP server %s, user %s, "
+		"from %s set", server, user, from);
 }
 
 /*
@@ -2302,8 +2242,6 @@ again:
 
 	if (SQLITE_CONSTRAINT == rc) {
 		db_trans_rollback();
-		fprintf(stderr, "Lottery concurrent: player %" 
-			PRId64 ", round %" PRId64 "\n", pid, round);
 		mpq_clear(cur);
 		mpq_clear(aggr);
 		goto again;
@@ -2607,10 +2545,6 @@ again:
 	period->roundups[round] = db_roundup_get(round, game);
 	if (NULL != period->roundups[round])
 		return;
-#if 0
-	fprintf(stderr, "Roundup: game %" PRId64 
-		", round %" PRId64 "\n", game->id, round);
-#endif
 
 	r = kcalloc(1, sizeof(struct roundup));
 	r->round = round;
@@ -2730,19 +2664,9 @@ aggregate:
 
 	if (SQLITE_CONSTRAINT == rc) { 
 		db_trans_rollback();
-#if 0
-		fprintf(stderr, "Roundup concurrent: "
-			"round %" PRId64 ", game %" 
-			PRId64 "\n", round, game->id);
-#endif
 	} else {
 		db_roundup_players(round, r, gamesz, game);
 		db_trans_commit();
-#if 0
-		fprintf(stderr, "Roundup complete: "
-			"round %" PRId64 ", game %" 
-			PRId64 "\n", round, game->id);
-#endif
 	}
 
 	free(cursp1);
@@ -2930,7 +2854,7 @@ db_expr_wipe(void)
 {
 	sqlite3_stmt	*stmt, *stmt2;
 
-	fprintf(stderr, "Database being wiped!\n");
+	INFO("Administrator wiping database");
 	db_trans_begin(1);
 	db_exec("DELETE FROM gameplay");
 	db_exec("DELETE FROM sess WHERE playerid IS NOT NULL");
@@ -2967,6 +2891,7 @@ db_expr_wipe(void)
 	sqlite3_finalize(stmt);
 	sqlite3_finalize(stmt2);
 	db_trans_commit();
+	INFO("Administrator wiped database");
 }
 
 /*
@@ -2978,28 +2903,26 @@ db_expr_wipe(void)
  * after a game has completed.
  */
 int 
-db_backup(const char *zFilename)
+db_backup(const char *zfile)
 {
 	int		 rc;
-	sqlite3		*pFile;
+	sqlite3		*pf;
 	sqlite3_backup	*pBackup;
 	sqlite3_stmt	*stmt;
 
-	fprintf(stderr, "Backing up database: %s\n", zFilename);
+	INFO("Administrator backing up database: %s", zfile);
 
 	db_tryopen();
 
-	rc = sqlite3_open(zFilename, &pFile);
+	rc = sqlite3_open(zfile, &pf);
 	if (SQLITE_OK != rc) {
-		fprintf(stderr, "sqlite3_open: %s\n", 
-			sqlite3_errmsg(pFile));
+		WARN("sqlite3_open: %s", sqlite3_errmsg(pf));
 		goto err;
 	}
 
-	pBackup = sqlite3_backup_init(pFile, "main", db, "main");
+	pBackup = sqlite3_backup_init(pf, "main", db, "main");
 	if (NULL == pBackup) {
-		fprintf(stderr, "sqlite3_backup_init: %s\n", 
-			sqlite3_errmsg(pFile));
+		WARN("sqlite3_backup_init: %s", sqlite3_errmsg(pf));
 		goto err;
 	}
 
@@ -3019,14 +2942,12 @@ db_backup(const char *zFilename)
 		 rc == SQLITE_LOCKED);
 
 	if (SQLITE_DONE != rc) {
-		fprintf(stderr, "sqlite3_backup_step: %s\n", 
-			sqlite3_errmsg(pFile));
+		WARN("sqlite3_backup_step: %s", sqlite3_errmsg(pf));
 		goto err;
 	}
 
 	if (SQLITE_OK != sqlite3_backup_finish(pBackup)) {
-		fprintf(stderr, "sqlite3_backup_finish: %s\n", 
-			sqlite3_errmsg(pFile));
+		WARN("sqlite3_backup_finish: %s", sqlite3_errmsg(pf));
 		goto err;
 	}
 
@@ -3035,56 +2956,56 @@ db_backup(const char *zFilename)
 	 * Redact all password hashes (just in case), the SMTP stored
 	 * password, and the administrator password.
 	 */
-	rc = sqlite3_prepare_v2(pFile, 
-		"UPDATE player SET hash=''", -1, &stmt, NULL);
+	rc = sqlite3_prepare_v2(pf, 
+		"UPDATE player SET hash=''", 
+		-1, &stmt, NULL);
+
 	if (SQLITE_OK != rc) {
-		fprintf(stderr, "sqlite3_prepare_v2: %s\n", 
-			sqlite3_errmsg(pFile));
+		WARN("sqlite3_prepare_v2: %s", sqlite3_errmsg(pf));
 		sqlite3_finalize(stmt);
 		goto err;
 	} else if (SQLITE_DONE != sqlite3_step(stmt)) {
-		fprintf(stderr, "sqlite3_prepare_v2: %s\n", 
-			sqlite3_errmsg(pFile));
+		WARN("sqlite3_prepare_v2: %s", sqlite3_errmsg(pf));
 		sqlite3_finalize(stmt);
 		goto err;
 	}
 	sqlite3_finalize(stmt);
 
-	rc = sqlite3_prepare_v2(pFile, 
-		"UPDATE admin SET hash=''", -1, &stmt, NULL);
+	rc = sqlite3_prepare_v2(pf, 
+		"UPDATE admin SET hash=''", 
+		-1, &stmt, NULL);
+
 	if (SQLITE_OK != rc) {
-		fprintf(stderr, "sqlite3_prepare_v2: %s\n", 
-			sqlite3_errmsg(pFile));
+		WARN("sqlite3_prepare_v2: %s", sqlite3_errmsg(pf));
 		sqlite3_finalize(stmt);
 		goto err;
 	} else if (SQLITE_DONE != sqlite3_step(stmt)) {
-		fprintf(stderr, "sqlite3_prepare_v2: %s\n", 
-			sqlite3_errmsg(pFile));
+		WARN("sqlite3_prepare_v2: %s", sqlite3_errmsg(pf));
 		sqlite3_finalize(stmt);
 		goto err;
 	}
 	sqlite3_finalize(stmt);
 
-	rc = sqlite3_prepare_v2(pFile, 
-		"UPDATE smtp SET pass=''", -1, &stmt, NULL);
+	rc = sqlite3_prepare_v2(pf, 
+		"UPDATE smtp SET pass=''", 
+		-1, &stmt, NULL);
+
 	if (SQLITE_OK != rc) {
-		fprintf(stderr, "sqlite3_prepare_v2: %s\n", 
-			sqlite3_errmsg(pFile));
+		WARN("sqlite3_prepare_v2: %s", sqlite3_errmsg(pf));
 		sqlite3_finalize(stmt);
 		goto err;
 	} else if (SQLITE_DONE != sqlite3_step(stmt)) {
-		fprintf(stderr, "sqlite3_prepare_v2: %s\n", 
-			sqlite3_errmsg(pFile));
+		WARN("sqlite3_prepare_v2: %s", sqlite3_errmsg(pf));
 		sqlite3_finalize(stmt);
 		goto err;
 	}
 	sqlite3_finalize(stmt);
 
-	sqlite3_close(pFile);
-	fprintf(stderr, "Backed up database: %s\n", zFilename);
+	sqlite3_close(pf);
+	INFO("Administrator backed up database: %s", zfile);
 	return(1);
 err:
-	sqlite3_close(pFile);
-	remove(zFilename);
+	sqlite3_close(pf);
+	remove(zfile);
 	return(0);
 }
