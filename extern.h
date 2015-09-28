@@ -38,6 +38,7 @@ struct	expr {
 	time_t		 start; /* game-play begins */
 	time_t		 end; /* game-play ends (computed) */
 	int64_t		 rounds; /* total experiment rounds */
+	int64_t		 roundpid; /* round-watcher daemon (or 0) */
 	int64_t		 playermax; /* max simultaneous players */
 	int64_t		 prounds; /* per-player rounds */
 	time_t		 roundbegan; /* time that round began */
@@ -55,7 +56,6 @@ struct	expr {
 	int64_t		 autoaddpreserve; /* keep autoadd on start */
 	int64_t		 round; /* round (<0 initial, then >=0) */
 	int64_t		 nolottery; /* don't show lottery info */
-	int64_t		 mailround; /* mailing round-advance? */
 	int64_t		 questionnaire; /* require questions */
 };
 
@@ -217,7 +217,7 @@ size_t		 db_expr_round_count(const struct expr *,
 			int64_t, int64_t);
 void		 db_expr_setautoadd(int64_t, int64_t, int64_t);
 void		 db_expr_setinstr(const char *);
-void		 db_expr_setmailround(int64_t);
+void		 db_expr_setmailer(int64_t, int64_t);
 int		 db_expr_start(int64_t, int64_t, int64_t, int64_t, 
 			int64_t, int64_t, int64_t, const char *, 
 			const char *, const char *, int64_t, 
@@ -288,7 +288,7 @@ struct winner	*db_winners_get(int64_t);
 void		 db_winners_free(struct winner *);
 
 void		 mail_players(const char *, const char *);
-void		 mail_roundadvance(void);
+void		 mail_roundadvance(int64_t, int64_t);
 void		 mail_backup(void);
 void		 mail_wipe(int);
 void		 mail_test(void);

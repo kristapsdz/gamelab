@@ -1754,16 +1754,18 @@ db_expr_lobbysize(void)
 }
 
 void
-db_expr_setmailround(int64_t mailround)
+db_expr_setmailer(int64_t old, int64_t new)
 {
 	sqlite3_stmt	*stmt;
+	pid_t		 pid;
 
-	stmt = db_stmt("UPDATE experiment SET mailround=?");
-	db_bind_int(stmt, 1, mailround ? 1 : 0);
+	pid = getpid();
+	stmt = db_stmt("UPDATE experiment SET "
+		"roundpid=? WHERE roundpid=?");
+	db_bind_int(stmt, 1, new);
+	db_bind_int(stmt, 2, old);
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);
-	fprintf(stderr, "Administrator %s mailround\n",
-		mailround ? "enabled" : "disabled");
 }
 
 /*
@@ -2844,7 +2846,8 @@ db_expr_get(int only_started)
 		"autoadd,round,roundbegan,roundpct,"
 		"roundmin,prounds,playermax,autoaddpreserve,"
 		"history,nolottery,questionnaire,mturk,"
-		"conversion,currency,mailround FROM experiment");
+		"conversion,currency,roundpid "
+		"FROM experiment");
 	rc = db_step(stmt, 0);
 	assert(SQLITE_ROW == rc);
 	if (only_started && ESTATE_NEW == sqlite3_column_int64(stmt, 4)) {
@@ -2875,7 +2878,7 @@ db_expr_get(int only_started)
 	expr->mturk = sqlite3_column_int64(stmt, 19);
 	expr->conversion = sqlite3_column_double(stmt, 20);
 	expr->currency = kstrdup((char *)sqlite3_column_text(stmt, 21));
-	expr->mailround = sqlite3_column_int64(stmt, 22);
+	expr->roundpid = sqlite3_column_int64(stmt, 22);
 	sqlite3_finalize(stmt);
 	return(expr);
 }
@@ -2946,7 +2949,8 @@ db_expr_wipe(void)
 		"autoadd=0,mturk=0,autoaddpreserve=0,"
 		"state=0,total='0/1',round=-1,rounds=0,"
 		"prounds=0,roundbegan=0,roundpct=0.0,minutes=0,"
-		"roundmin=0,nolottery=0,questionnaire=0");
+		"roundmin=0,nolottery=0,questionnaire=0,"
+		"roundpid=0");
 	stmt = db_stmt("SELECT id FROM player");
 	stmt2 = db_stmt("UPDATE player SET rseed=? WHERE id=?");
 	/* 

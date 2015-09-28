@@ -281,6 +281,8 @@
 								<input id="addPlayersSubmit" type="submit" value="Submit" />
 							</div>
 						</fieldset>
+						<input type="hidden" id="autoadd2" name="autoadd" value="0" />
+						<input type="hidden" id="mturk2" name="mturk" value="0" />
 					</form>
 					<div>
 						If you set the <q>Allow Captive Players</q> toggle, then players may add themselves.
@@ -299,15 +301,10 @@
 								<i onclick="toggler('mturk', 'mturkToggle');" id="mturkToggle" class="fa fa-fw fa-toggle-off"></i>
 								<span onclick="toggler('mturk', 'mturkToggle');">Allow Mechanical Turk players</span>
 							</div>
-							<div class="input input-check">
-								<i onclick="toggler('mailround', 'mailroundToggle');" id="mailroundToggle" class="fa fa-fw fa-toggle-off"></i>
-								<span onclick="toggler('mailround', 'mailroundToggle');">E-mail round advancement</span>
-							</div>
 							<div class="input input-submit">
 								<i class="fa fa-fw fa-check"></i>
 								<input id="addPlayersSubmit2" type="submit" value="Submit" />
 							</div>
-							<input type="hidden" id="mailround" name="mailround" value="0" />
 							<input type="hidden" id="autoadd" name="autoadd" value="0" />
 							<input type="hidden" id="mturk" name="mturk" value="0" />
 						</fieldset>

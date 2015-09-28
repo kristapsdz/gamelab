@@ -276,6 +276,60 @@ static const struct kvalid keys[KEY__MAX] = {
 	{ kvalid_int, "winseed" }, /* KEY_WINSEED */
 };
 
+/*
+ * This function simply wakes up every thirty seconds and checks the
+ * current round.
+ * If the round has advanced, it tries to mail players.
+ * (See mail_roundadvance() for details.)
+ * It exits if the round-daemon identifier has changed, the game has
+ * ended, or any other number of conditions.
+ */
+static void
+mailround(void)
+{
+	struct expr	*expr;
+	pid_t		 pid;
+	int64_t		 round;
+
+	round = -1;
+	pid = getpid();
+	db_expr_setmailer(0, pid);
+	expr = NULL;
+
+	for (;;) {
+		db_expr_free(expr);
+		sleep(30);
+		expr = db_expr_get(0);
+		if (pid != expr->roundpid) {
+			fprintf(stderr, "Round mailer error: "
+				"invoked with different pid: "
+				"my %u != %" PRId64 " (exiting)\n", 
+				pid, expr->roundpid);
+			break;
+		} 
+		if (expr->state > ESTATE_STARTED ||
+		    expr->round >= expr->rounds) {
+			fprintf(stderr, "Round mailer exiting: "
+				"experiment over: %u\n", pid);
+			break;
+		} else if (expr->round == round) {
+			fprintf(stderr, "Round mailer NOT firing "
+				"for same round %" PRId64 
+				": %u\n", round, pid);
+			continue;
+		}
+		fprintf(stderr, "Round mailer is firing "
+			"for round %" PRId64 " (last saw %" 
+			PRId64 "): %u\n", expr->round, round, pid);
+		mail_roundadvance(round, expr->round);
+		round = expr->round;
+		fprintf(stderr, "Round mailer has fired: %u\n", pid);
+	}
+
+	db_expr_free(expr);
+	db_expr_setmailer(pid, 0);
+}
+
 static int
 sess_valid(struct kreq *r)
 {
@@ -645,17 +699,20 @@ senddotestsmtp(struct kreq *r)
 
 	db_close();
 	if (-1 == (pid = fork())) {
-		fprintf(stderr, "cannot fork!\n");
-	} else if (0 == pid) {
-		khttp_child_free(r);
-		if (0 == (pid = fork())) {
-			mail_test();
-			db_close();
-		} else if (pid < 0) 
-			fprintf(stderr, "cannot double-fork!\n");
-		_exit(EXIT_SUCCESS);
-	} else 
+		perror(NULL);
+		return;
+	} else if (pid > 0) {
 		waitpid(pid, NULL, 0);
+		return;
+	}
+
+	khttp_child_free(r);
+	if (daemon(1, 1) < 0) 
+		perror(NULL);
+	else
+		mail_test();
+
+	exit(EXIT_SUCCESS);
 }
 
 static void
@@ -853,16 +910,19 @@ senddobackup(struct kreq *r)
 
 	if (-1 == (pid = fork())) {
 		perror(NULL);
-	} else if (0 == pid) {
-		khttp_child_free(r);
-		if (0 == (pid = fork())) {
-			mail_backup();
-			db_close();
-		} else if (pid < 0) 
-			perror(NULL);
-		_exit(EXIT_SUCCESS);
-	} else 
+		return;
+	} else if (pid > 0) {
 		waitpid(pid, NULL, 0);
+		return;
+	}
+
+	khttp_child_free(r);
+	if (daemon(1, 1) < 0) 
+		perror(NULL);
+	else
+		mail_backup();
+
+	exit(EXIT_SUCCESS);
 }
 
 static void
@@ -889,9 +949,6 @@ senddoaddplayers(struct kreq *r)
 		 r->fieldmap[KEY_MTURK]->parsed.i : 0,
 		 NULL != r->fieldmap[KEY_AUTOADDPRESERVE] ?
 		 r->fieldmap[KEY_AUTOADDPRESERVE]->parsed.i : 0);
-	db_expr_setmailround
-		(NULL != r->fieldmap[KEY_MAILROUND] ?
-		 r->fieldmap[KEY_MAILROUND]->parsed.i : 0);
 
 	if (NULL == r->fieldmap[KEY_PLAYERS])
 		return;
@@ -1053,21 +1110,23 @@ senddoresetpasswordss(struct kreq *r)
 
 	if (-1 == (pid = fork())) {
 		perror(NULL);
-	} else if (0 == pid) {
-		khttp_child_free(r);
-		if (0 == (pid = fork())) {
-			mail_players(uri, loginuri);
-			db_close();
-		} else if (pid < 0) 
-			perror(NULL);
+		return;
+	} else if (pid > 0) {
+		waitpid(pid, NULL, 0);
 		free(loginuri);
 		free(uri);
-		_exit(EXIT_SUCCESS);
-	} else 
-		waitpid(pid, NULL, 0);
+		return;
+	}
+
+	khttp_child_free(r);
+	if (daemon(1, 1) < 0) 
+		perror(NULL);
+	else
+		mail_players(uri, loginuri);
 
 	free(loginuri);
 	free(uri);
+	exit(EXIT_SUCCESS);
 }
 
 static void
@@ -1096,18 +1155,20 @@ senddoresendmail(struct kreq *r)
 
 	if (-1 == (pid = fork())) {
 		perror(NULL);
-	} else if (0 == pid) {
-		khttp_child_free(r);
-		if (0 == (pid = fork())) {
-			mail_players(uri, loginuri);
-			db_close();
-		} else if (pid < 0) 
-			perror(NULL);
+		return;
+	} else if (pid > 0) {
+		waitpid(pid, NULL, 0);
 		free(loginuri);
 		free(uri);
-		_exit(EXIT_SUCCESS);
-	} else 
-		waitpid(pid, NULL, 0);
+		return;
+	}
+
+	khttp_child_free(r);
+
+	if (daemon(1, 1) < 0)
+		perror(NULL);
+	else
+		mail_players(uri, loginuri);
 
 	free(loginuri);
 	free(uri);
@@ -1129,6 +1190,7 @@ senddostartexpr(struct kreq *r)
 	    kpairbad(r, KEY_CONVERSION) ||
 	    kpairbad(r, KEY_NOLOTTERY) ||
 	    kpairbad(r, KEY_QUESTIONNAIRE) ||
+	    kpairbad(r, KEY_MAILROUND) ||
 	    kpairbad(r, KEY_TIME) ||
 	    kpairbad(r, KEY_ROUNDS) ||
 	    kpairbad(r, KEY_PROUNDS) ||
@@ -1146,6 +1208,7 @@ senddostartexpr(struct kreq *r)
 		return;
 	} 
 
+	/* Determine what kind of instructions to use. */
 	inst = INSTR__MAX;
 	if (0 == strcmp("custom", r->fieldmap[KEY_INSTR]->parsed.s))
 		inst = kpairbad(r, KEY_INSTRFILE) ? 
@@ -1168,6 +1231,12 @@ senddostartexpr(struct kreq *r)
 	map = NULL;
 	fd = -1;
 
+	/*
+	 * If we have pre-supplied instructions, then read them now.
+	 * We do this by simply mmap()ing the entire file into memory.
+	 * If we don't have pre-supplied instructions, we point to the
+	 * memory held by the uploaded instruction buffer.
+	 */
 	if (INSTR_LOTTERY == inst || 
 	    INSTR_NOLOTTERY == inst ||
 	    INSTR_MTURK == inst) {
@@ -1196,6 +1265,11 @@ senddostartexpr(struct kreq *r)
 	} else 
 		instdat = r->fieldmap[KEY_INSTRFILE]->parsed.s;
 	
+	/*
+	 * Actually start the experiment.
+	 * This only fails if the experiment has already been started in
+	 * the meantime.
+	 */
 	if ( ! db_expr_start
 		(r->fieldmap[KEY_DATE]->parsed.i +
 		 r->fieldmap[KEY_TIME]->parsed.i,
@@ -1234,35 +1308,56 @@ senddostartexpr(struct kreq *r)
 
 	loginuri = kstrdup(r->fieldmap[KEY_URI]->parsed.s);
 	kasprintf(&uri, "%s://%s" HTURI 
-		"/playerlogin.html", 
-		kschemes[r->scheme], r->host);
+		"/playerlogin.html", kschemes[r->scheme], r->host);
+
+	/* Get ready for child process work. */
+	db_close();
 
 	/*
-	 * Now we're going to send e-mails to all of those players who
-	 * haven't been emailed.
-	 * See mail_players() for the details.
-	 * To do so, we first close the database, the re-open it in the
-	 * child.
-	 * This prevents the open descriptors being inherited.
+	 * Begin by preparing the round mailer.
+	 * This will fire periodically to mail out notices that the
+	 * round has advanced.
 	 */
-	db_close();
+	if (r->fieldmap[KEY_MAILROUND]->parsed.i) {
+		if (-1 == (pid = fork())) {
+			perror(NULL);
+			return;
+		} else if (0 == pid) {
+			free(loginuri);
+			free(uri);
+			khttp_child_free(r);
+			if (daemon(1, 1) < 0)
+				perror(NULL);
+			else
+				mailround();
+			exit(EXIT_SUCCESS);
+		} else
+			waitpid(pid, NULL, 0);
+	}
+
+	/*
+	 * Now mail out to each of the players to inform them of being
+	 * added to the experiment.
+	 */
 	if (-1 == (pid = fork())) {
-		fprintf(stderr, "cannot fork!\n");
-	} else if (0 == pid) {
-		khttp_child_free(r);
-		if (0 == (pid = fork())) {
-			mail_players(uri, loginuri);
-			db_close();
-		} else if (pid < 0) 
-			fprintf(stderr, "cannot double-fork!\n");
+		perror(NULL);
+		return;
+	} else if (pid > 0) {
+		waitpid(pid, NULL, 0);
 		free(loginuri);
 		free(uri);
-		_exit(EXIT_SUCCESS);
-	} else 
-		waitpid(pid, NULL, 0);
+		return;
+	}
+
+	khttp_child_free(r);
+	if (daemon(1, 1) < 0) 
+		perror(NULL);
+	else
+		mail_players(uri, loginuri);
 
 	free(loginuri);
 	free(uri);
+	exit(EXIT_SUCCESS);
 }
 
 static void
@@ -1330,16 +1425,19 @@ senddowipe(struct kreq *r, int mail)
 
 	if (-1 == (pid = fork())) {
 		perror(NULL);
-	} else if (0 == pid) {
-		khttp_child_free(r);
-		if (0 == (pid = fork())) {
-			mail_wipe(mail);
-			db_close();
-		} else if (pid < 0) 
-			perror(NULL);
-		_exit(EXIT_SUCCESS);
-	} else 
+		return;
+	} else if (pid > 0) {
 		waitpid(pid, NULL, 0);
+		return;
+	}
+
+	khttp_child_free(r);
+	if (daemon(1, 1) < 0)
+		perror(NULL);
+	else
+		mail_wipe(mail);
+
+	exit(EXIT_SUCCESS);
 }
 
 static int

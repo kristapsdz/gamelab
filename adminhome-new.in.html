@@ -269,6 +269,9 @@
 								<input id="addPlayersSubmit" type="submit" value="Submit" />
 							</div>
 						</fieldset>
+						<input type="hidden" id="autoadd2" name="autoadd" value="0" />
+						<input type="hidden" id="mturk2" name="mturk" value="0" />
+						<input type="hidden" id="autoaddpreserve2" name="autoaddpreserve" value="0" />
 					</form>
 					<div>
 						If you set the <q>Allow Captive Players</q> toggle, then players may add themselves.
@@ -292,15 +295,10 @@
 								<i onclick="toggler('autoaddpreserve', 'autoaddTogglePreserve');" id="autoaddTogglePreserve" class="fa fa-fw fa-toggle-off"></i>
 								<span onclick="toggler('autoaddpreserve', 'autoaddTogglePreserve');">Preserve modes after startup</span>
 							</div>
-							<div class="input input-check">
-								<i onclick="toggler('mailround', 'mailroundToggle');" id="mailroundToggle" class="fa fa-fw fa-toggle-off"></i>
-								<span onclick="toggler('mailround', 'mailroundToggle');">E-mail round advancement</span>
-							</div>
 							<div class="input input-submit">
 								<i class="fa fa-fw fa-check"></i>
 								<input id="addPlayersSubmit2" type="submit" value="Submit" />
 							</div>
-							<input type="hidden" id="mailround" name="mailround" value="0" />
 							<input type="hidden" id="autoadd" name="autoadd" value="0" />
 							<input type="hidden" id="mturk" name="mturk" value="0" />
 							<input type="hidden" id="autoaddpreserve" name="autoaddpreserve" value="0" />
@@ -466,8 +464,13 @@
 									<i onclick="toggler('question', 'questionToggle');" id="questionToggle" class="fa fa-fw fa-toggle-off"></i>
 									<span onclick="toggler('question', 'questionToggle');">Show questionnaire</span>
 								</div>
+								<div class="input input-check">
+									<i onclick="toggler('mailround', 'mailroundToggle');" id="mailroundToggle" class="fa fa-fw fa-toggle-off"></i>
+									<span onclick="toggler('mailround', 'mailroundToggle');">E-mail round advancement</span>
+								</div>
 								<input type="hidden" id="nolottery" name="nolottery" value="0" />
 								<input type="hidden" id="question" name="question" value="0" />
+								<input type="hidden" id="mailround" name="mailround" value="0" />
 							</section>
 							<div class="input input-submit">
 								<i class="fa fa-check"></i>

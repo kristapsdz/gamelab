@@ -1,0 +1,15 @@
+<article data-sblg-article="1" data-sblg-tags="version">
+	<header>
+		<h1>1.0.20</h1>
+		<address>Kristaps Dzonsons</address>
+		<time datetime="2015-09-28">2015-09-28</time>
+	</header>
+	<aside>
+		<p>
+			Add ability for e-mailing players when the round rolls.
+			This involves a long-running child process.
+			(<strong>Note</strong>: Apache2 has a <q>feature</q> where it waits for all descendents of its CGI process, so if you
+			use this web server, you might see a zombie'd process if you use this feature.)
+		</p>
+	</aside>
+</article>

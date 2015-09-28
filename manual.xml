@@ -971,11 +971,13 @@
 								<code>@@gamelab-round-time@@</code>, a decimal number of the number of
 								hours per round.</dd>
 							<dt id="db-experiment-loginuri"><var>loginuri</var></dt>
-							<dd>Set when the experiment begins (i.e., when <a
+							<dd>
+								Set when the experiment begins (i.e., when <a
 									href="#db-experiment-state"><var>state</var></a> &gt;0), this is
 								the URL given to players in their initial e-mail for when they log in.
 								This is suffixed by
-								<code>?ident=EMAIL&amp;password=PASSWORD</code>.</dd>
+								<code>?ident=EMAIL&amp;password=PASSWORD</code>.
+							</dd>
 							<dt id="db-experiment-minutes"><var>minutes</var></dt>
 							<dd>The number of minutes per round.  Minimum of one.</dd>
 							<dt id="db-experiment-nolottery"><var>nolottery</var></dt>
@@ -1020,6 +1022,13 @@
 								If <a href="#db-experiment-roundpct"><var>roundpct</var></a> is
 								non-zero, this is the <q>grace time</q> (in minutes) before which the
 								round will automatically advance giving the percentage.
+							</dd>
+							<dt id="db-experiment-roundpid"><var>roundpid</var></dt>
+							<dd>
+								If specified when configuring the experiment, a daemon will be started that
+								periodically checks to see if the round has advanced.
+								Its process identifier is stored in this field.
+								Otherwise, this is zero.
 							</dd>
 							<dt id="db-experiment-roundpct"><var>roundpct</var></dt>
 							<dd>

@@ -6,30 +6,31 @@ MTURKURI	 = https://workersandbox.mturk.com/mturk/externalSubmit
 
 # Mac OSX testing.
 # This is useful when running in a userdir.
-PREFIX		 = /Users/kristaps/Sites
+ADMINURI	 = /~kristaps/admin.cgi
+CGIBIN		 = $(PREFIX)
+CFLAGS		+= -Wno-deprecated-declarations
+DATADIR		 = $(PREFIX)
 HTDOCS		 = $(PREFIX)
 HTURI		 = /~kristaps
 LABURI		 = /~kristaps/lab.cgi
-ADMINURI	 = /~kristaps/admin.cgi
-CGIBIN		 = $(PREFIX)
-DATADIR		 = $(PREFIX)
-RDATADIR	 = $(PREFIX)
 LIBS		 = 
+PREFIX		 = /Users/kristaps/Sites
+RDATADIR	 = $(PREFIX)
 STATIC		 = 
 
 # Linux testing.
 # LIBS		 = -lbsd -lm
 
 # OpenBSD production.
-#PREFIX		 = /var/www
+#ADMINURI	 = /cgi-bin/gamelab/admin
+#CGIBIN		 = $(PREFIX)/cgi-bin/gamelab
+#DATADIR	 	 = $(PREFIX)/data/gamelab
 #HTDOCS		 = $(PREFIX)/htdocs/gamelab
 #HTURI		 = /gamelab
-#CGIBIN		 = $(PREFIX)/cgi-bin/gamelab
 #LABURI		 = /cgi-bin/gamelab/lab
-#ADMINURI	 = /cgi-bin/gamelab/admin
-#DATADIR	 	 = $(PREFIX)/data/gamelab
-#RDATADIR	 = /data/gamelab
 #LIBS		 = -lintl -liconv -lm
+#PREFIX		 = /var/www
+#RDATADIR	 = /data/gamelab
 #STATIC		 = -static
 
 # You really don't want to change anything below this line.
@@ -46,6 +47,7 @@ PAGES 	 = instructions-lottery.html \
 	   mail-backupfail.eml \
 	   mail-backupsuccess.eml \
 	   mail-roundadvance.eml \
+	   mail-roundfirst.eml \
 	   mail-test.eml
 BUILTPS	 = adminhome-new.html \
 	   adminhome-started.html
@@ -155,6 +157,8 @@ updatecgi: all
 
 installcgi: updatecgi gamelab.db
 	rm -f $(DATADIR)/gamelab.db
+	rm -f $(DATADIR)/gamelab.db-wal
+	rm -f $(DATADIR)/gamelab.db-shm
 	install -m 0666 gamelab.db $(DATADIR)
 
 gamelab.tgz:

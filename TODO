@@ -1,15 +1,7 @@
 Short-term:
 
-- Have a "question mark" entry of "History" on the play page that explains
-  what the labels (e.g., "Hyp.") mean.
-
 - Have SurveyLink random value (for HIT confirmation) be a random number
   per user and be part of the CSV that's downloaded.
-
-- Add per-user administration showing whether they've played.
-  (Played rounds?  Current payoff?  Etc.)
-
-- E-mail all players telling players that round has rolled.
 
 Long-term:
 

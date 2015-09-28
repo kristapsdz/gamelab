@@ -60,6 +60,7 @@ struct	mail {
 	const char	*uri; /* full login url (or NULL) */
 	char		*fname; /* backup fname (or NULL) */
 	struct buf	 b; /* buffer to read/write */
+	int64_t		 round; /* current round */
 };
 
 enum	mailkey {
@@ -68,8 +69,9 @@ enum	mailkey {
 	MAILKEY_DATE, /* date (GMT) */
 	MAILKEY_PASS, /* password (or NULL) */
 	MAILKEY_LOGIN, /* login URL (or NULL) */
-	MAILKEY_BACKUP,
-	MAILKEY_LABURL,
+	MAILKEY_BACKUP, /* backup file (or empty) */
+	MAILKEY_LABURL, /* URL of user lab */
+	MAILKEY_ROUND, /* current round */
 	MAILKEY__MAX
 };
 
@@ -81,6 +83,7 @@ static	const char *const mailkeys[MAILKEY__MAX] = {
 	"login", /* MAILKEY_LOGIN */
 	"backup", /* MAILKEY_LOGIN */
 	"uri", /* MAILKEY_LABURL */
+	"round", /* MAILKEY_ROUND */
 };
 
 /*
@@ -259,6 +262,7 @@ static int
 mail_template_buf(size_t key, void *arg)
 {
 	struct mail	*mail = arg;
+	char		 buf[22];
 
 	switch (key) {
 	case (MAILKEY_FROM):
@@ -285,6 +289,10 @@ mail_template_buf(size_t key, void *arg)
 	case (MAILKEY_LABURL):
 		assert(NULL != mail->uri);
 		mail_puts(mail->uri, mail);
+		break;
+	case (MAILKEY_ROUND):
+		snprintf(buf, sizeof(buf), "%" PRId64, mail->round);
+		mail_puts(buf, mail);
 		break;
 	default:
 		abort();
@@ -545,7 +553,7 @@ mail_appendplayer(const struct player *p, void *arg)
 }
 
 void 
-mail_roundadvance(void)
+mail_roundadvance(int64_t last, int64_t round)
 {
 	CURL		  *curl;
 	CURLcode 	   res;
@@ -557,12 +565,16 @@ mail_roundadvance(void)
 
 	if (NULL == (curl = mail_init(&m, &t))) 
 		return;
-	if (NULL == (expr = db_expr_get(1)) || 0 == expr->mailround)
+	if (NULL == (expr = db_expr_get(1)))
 		goto out;
 
+	m.round = expr->round + 1;
+
 	db_player_load_playing(expr, mail_appendplayer, &recpts);
-	rc = khttp_templatex(&t, DATADIR 
-		"/mail-roundadvance.eml", mail_write, &m);
+	rc = khttp_templatex(&t, -1 == last ?
+		DATADIR "/mail-roundfirst.eml" : 
+		DATADIR "/mail-roundadvance.eml",
+		mail_write, &m);
 
 	if (0 == rc) {
 		perror("khttp_templatex");

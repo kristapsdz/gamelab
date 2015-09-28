@@ -127,6 +127,9 @@ function loadNewPlayersSuccess(resp)
 	checkToggle('autoaddToggle', 'autoadd', results.autoadd);
 	checkToggle('mturkToggle', 'mturk', results.mturk);
 	checkToggle('autoaddTogglePreserve', 'autoaddpreserve', results.autoaddpreserve);
+	doValue('autoadd2', results.autoadd);
+	doValue('mturk2', results.mturk);
+	doValue('autoaddpreserve2', results.autoaddpreserve);
 
 	if (results.autoadd || results.mturk)
 		doUnhide('captiveGame');
@@ -251,6 +254,8 @@ function loadPlayersSuccess(resp)
 
 	checkToggle('autoaddToggle', 'autoadd', results.autoadd);
 	checkToggle('mturkToggle', 'mturk', results.mturk);
+	doValue('autoadd2',  results.autoadd);
+	doValue('mturk2', results.mturk);
 
 	if (results.autoadd || results.mturk)
 		doUnhide('captiveGame');
