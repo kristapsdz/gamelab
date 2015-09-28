@@ -10,6 +10,7 @@
 			This involves a long-running child process.
 			(<strong>Note</strong>: Apache2 has a <q>feature</q> where it waits for all descendents of its CGI process, so if you
 			use this web server, you might see a zombie'd process if you use this feature.)
+			Also add the ability for the experimenter to prematurely end experiments by advancing to the last round.
 		</p>
 	</aside>
 </article>
