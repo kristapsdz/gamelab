@@ -6,33 +6,33 @@ MTURKURI	 = https://workersandbox.mturk.com/mturk/externalSubmit
 
 # Mac OSX testing.
 # This is useful when running in a userdir.
-#ADMINURI	 = /~kristaps/admin.cgi
-#CGIBIN		 = $(PREFIX)
-#CFLAGS		+= -Wno-deprecated-declarations
-#DATADIR		 = $(PREFIX)
-#HTDOCS		 = $(PREFIX)
-#HTURI		 = /~kristaps
-#LABURI		 = /~kristaps/lab.cgi
-#LIBS		 = 
-#PREFIX		 = /Users/kristaps/Sites
-#RDATADIR	 = $(PREFIX)
-#STATIC		 = 
+ADMINURI	 = /~kristaps/admin.cgi
+CGIBIN		 = $(PREFIX)
+CFLAGS		+= -Wno-deprecated-declarations
+DATADIR		 = $(PREFIX)
+HTDOCS		 = $(PREFIX)
+HTURI		 = /~kristaps
+LABURI		 = /~kristaps/lab.cgi
+LIBS		 = 
+PREFIX		 = /Users/kristaps/Sites
+RDATADIR	 = $(PREFIX)
+STATIC		 = 
 
 # Linux testing.
 # LIBS		 = -lbsd -lm
 
 # OpenBSD production.
-ADMINURI	 = /cgi-bin/gamelab/admin
-CGIBIN		 = $(PREFIX)/cgi-bin/gamelab
-CFLAGS		+= -DLOGTIME=1
-DATADIR	 	 = $(PREFIX)/data/gamelab
-HTDOCS		 = $(PREFIX)/htdocs/gamelab
-HTURI		 = /gamelab
-LABURI		 = /cgi-bin/gamelab/lab
-LIBS		 = -lintl -liconv -lm
-PREFIX		 = /var/www
-RDATADIR	 = /data/gamelab
-STATIC		 = -static
+#ADMINURI	 = /cgi-bin/gamelab/admin
+#CGIBIN		 = $(PREFIX)/cgi-bin/gamelab
+#CFLAGS		+= -DLOGTIME=1
+#DATADIR	 	 = $(PREFIX)/data/gamelab
+#HTDOCS		 = $(PREFIX)/htdocs/gamelab
+#HTURI		 = /gamelab
+#LABURI		 = /cgi-bin/gamelab/lab
+#LIBS		 = -lintl -liconv -lm
+#PREFIX		 = /var/www
+#RDATADIR	 = /data/gamelab
+#STATIC		 = -static
 
 # You really don't want to change anything below this line.
 
@@ -52,7 +52,6 @@ PAGES 	 = instructions-lottery.html \
 	   mail-test.eml
 BUILTPS	 = adminhome-new.html \
 	   adminhome-started.html
-SCREENS	 = 
 STATICS	 = adminhome.css \
 	   adminlogin.css \
 	   mturkpreview1.png \
@@ -123,7 +122,8 @@ VERSIONS = version_1_0_1.xml \
 	   version_1_0_16.xml \
 	   version_1_0_17.xml \
 	   version_1_0_18.xml \
-	   version_1_0_19.xml
+	   version_1_0_19.xml \
+	   version_1_0_20.xml
 
 all: admin lab gamers $(BUILT) $(BUILTPS)
 
@@ -176,7 +176,6 @@ installwww: www
 	mkdir -p $(PREFIX)
 	mkdir -p $(PREFIX)/snapshots
 	install -m 0444 index.html gamelab.bib manual.html index.css manual.css logo.png bchs-logo.png $(PREFIX)
-	install -m 0444 $(SCREENS) $(PREFIX)
 	install -m 0444 gamelab.tgz $(PREFIX)/snapshots
 	install -m 0444 gamelab.tgz.sha512 $(PREFIX)/snapshots
 	install -m 0444 gamelab.tgz $(PREFIX)/snapshots/gamelab-$(VERSION).tgz
