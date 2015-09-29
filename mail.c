@@ -61,6 +61,7 @@ struct	mail {
 	char		*fname; /* backup fname (or NULL) */
 	struct buf	 b; /* buffer to read/write */
 	int64_t		 round; /* current round */
+	int64_t		 minutes; /* round time in minutes */
 };
 
 enum	mailkey {
@@ -72,6 +73,8 @@ enum	mailkey {
 	MAILKEY_BACKUP, /* backup file (or empty) */
 	MAILKEY_LABURL, /* URL of user lab */
 	MAILKEY_ROUND, /* current round */
+	MAILKEY_ROUNDTIME_HOURS, /* round time */
+	MAILKEY_ROUNDTIME_MINUTES, /* round time */
 	MAILKEY__MAX
 };
 
@@ -84,6 +87,8 @@ static	const char *const mailkeys[MAILKEY__MAX] = {
 	"backup", /* MAILKEY_LOGIN */
 	"uri", /* MAILKEY_LABURL */
 	"round", /* MAILKEY_ROUND */
+	"roundtime-hours", /* MAILKEY_ROUNDTIME_HOURS */
+	"roundtime-minutes", /* MAILKEY_ROUNDTIME_MINUTES */
 };
 
 /*
@@ -292,6 +297,14 @@ mail_template_buf(size_t key, void *arg)
 		break;
 	case (MAILKEY_ROUND):
 		snprintf(buf, sizeof(buf), "%" PRId64, mail->round);
+		mail_puts(buf, mail);
+		break;
+	case (MAILKEY_ROUNDTIME_HOURS):
+		snprintf(buf, sizeof(buf), "%g", mail->minutes / 60.0);
+		mail_puts(buf, mail);
+		break;
+	case (MAILKEY_ROUNDTIME_MINUTES):
+		snprintf(buf, sizeof(buf), "%" PRId64, mail->minutes);
 		mail_puts(buf, mail);
 		break;
 	default:
@@ -552,7 +565,7 @@ mail_appendplayer(const struct player *p, void *arg)
 }
 
 void 
-mail_roundadvance(int64_t last, int64_t round)
+mail_roundadvance(const char *uri, int64_t last, int64_t round)
 {
 	CURL		  *curl;
 	CURLcode 	   res;
@@ -568,6 +581,8 @@ mail_roundadvance(int64_t last, int64_t round)
 		goto out;
 
 	m.round = expr->round + 1;
+	m.minutes = expr->minutes;
+	m.uri = uri;
 
 	db_player_load_playing(expr, mail_appendplayer, &recpts);
 	rc = khttp_templatex(&t, -1 == last ?

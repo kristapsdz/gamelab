@@ -288,7 +288,7 @@ static const struct kvalid keys[KEY__MAX] = {
  * ended, or any other number of conditions.
  */
 static void
-mailround(void)
+mailround(const char *uri)
 {
 	struct expr	*expr;
 	pid_t		 pid;
@@ -323,7 +323,7 @@ mailround(void)
 		INFO("Round mailer is firing for round %" 
 			PRId64 " (last saw %" PRId64 "): %u", 
 			expr->round, round, pid);
-		mail_roundadvance(round, expr->round);
+		mail_roundadvance(uri, round, expr->round);
 		round = expr->round;
 		INFO("Round mailer has fired: %u", pid);
 	}
@@ -1335,13 +1335,13 @@ senddostartexpr(struct kreq *r)
 			perror(NULL);
 			return;
 		} else if (0 == pid) {
-			free(loginuri);
-			free(uri);
 			khttp_child_free(r);
 			if (daemon(1, 1) < 0)
 				perror(NULL);
 			else
-				mailround();
+				mailround(uri);
+			free(loginuri);
+			free(uri);
 			exit(EXIT_SUCCESS);
 		} else
 			waitpid(pid, NULL, 0);

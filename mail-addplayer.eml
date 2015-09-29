@@ -2,11 +2,12 @@ Date: @@date@@ GMT
 To: @@to@@
 From: @@from@@
 Content-Type: text/plain; charset=us-ascii
+MIME-Version: 1.0
 Subject: Gamelab Password
 
 Hello!
 
-You have been invited to participate in a Gamelab experiment. 
+You have been invited to participate in a Gamelab study. 
 
 To log in, please click on the following link: 
 
@@ -21,5 +22,5 @@ password:
 
 Thank you, 
 
-Gamelab Administrator
+Gamelab Genie
 

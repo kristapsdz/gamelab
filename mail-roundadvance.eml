@@ -2,12 +2,14 @@ Date: @@date@@ GMT
 From: @@from@@
 Content-Type: text/plain
 Subject: Gamelab Round Advancement
+MIME-Version: 1.0
 
 Hello!
 
-The round of your Gamelab experiment has advanced to round @@round@@.
+The round of your Gamelab study has advanced to round @@round@@ and
+will be open for at least @@roundtime-hours@@ hours.
 
-Bye,
+Best regards,
 
 Gamelab Genie
 

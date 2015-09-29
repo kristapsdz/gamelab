@@ -289,7 +289,7 @@ struct winner	*db_winners_get(int64_t);
 void		 db_winners_free(struct winner *);
 
 void		 mail_players(const char *, const char *);
-void		 mail_roundadvance(int64_t, int64_t);
+void		 mail_roundadvance(const char *, int64_t, int64_t);
 void		 mail_backup(void);
 void		 mail_wipe(int);
 void		 mail_test(void);
