@@ -1,138 +1,90 @@
-<p>Welcome to the experiment!</p>
 <p>
-You are participating in an experiment in which you will use this web page to play a number of
-games.  Depending on your own and others' choices you can earn a substantial amount of money by
-winning a lottery at the end of the experiment.  Your chances to win the lottery depend in part on
-how well you understand these instructions, so read them carefully.
+    Welcome!
 </p>
 <p>
-Below you will find all the information you need to participate. Feel free to contact <a
-	href="mailto:@@gamelab-admin-email@@">@@gamelab-admin-email@@</a> if you have any additional
-questions.
+    In this study you will use this web page to play a number of games.
+    To play, click the menu in the upper left-hand corner then click <q>Play</q>. 
+    Feel free to contact <a href="mailto:@@gamelab-admin-email@@">@@gamelab-admin-email@@</a> if you have any additional questions.
 </p>
-<h3>Experimental overview</h3>
+<h3>Study overview</h3>
 <p>
-The experiment is divided into @@gamelab-rounds@@ rounds and each round is open during
-@@gamelab-round-time-hours@@ hours.  In each round you play @@gamelab-games@@ games.  These games are the
-same in all rounds.
-</p>
-<p>
-In all games you have the opportunity to get payoffs depending how you and others play.  Your
-payoffs are calculated as soon as a round closes, given that you have played all @@gamelab-games@@
-games in the round.
+    The study is divided into a number of rounds. 
+    In each round you and others will make decisions in @@gamelab-games@@ games.  
+    These games are identical in all rounds.
 </p>
 <p>
-When a new round begins you can view your payoffs from the previous round directly on the
-<q>Play</q> tab.  A more detailed summary of your payoffs for each game from all previous rounds,
-along with the total sum of your payoffs, is available on the <q>History</q> tab.
+    In each game you can earn tickets for a lottery that will take place after the final round. The number of tickets you earn
+    depends on both your own and others' decisions in the games. The prize of the lottery is 10 000 SEK.
+</p>
+<p>
+    Each round will last for at least @@gamelab-round-mintime-minutes@@
+    minutes and will end when either @@gamelab-round-percent@@% of all
+    participants have played or after @@gamelab-round-time-minutes@@ minutes
+    have passed.
 </p>
 <h3>Game setup</h3>
 <p>
-Each game is represented in a game bimatrix (a table) where one player chooses row and the other
-column.  You are a row player in all games and rounds.  Your payoff is the first number in each cell
-and will always have the color of this box: <i class="gamelab-colour fa fa-square"></i>.  The column
-player's payoff is the second number in each cell and will always have the color of this box: <i
-	class="gamelab-ocolour fa fa-square"></i>.
+    Each game is given in a table and you will have to choose one or more rows to play in each.
+    You will then be matched against the other participants who will choose one or more columns.
 </p>
 <p>
-When you play you may either select a pure strategy (one row) or a mixed strategy (a probability
-distribution over the rows).  In the first case, you assign probability one to the row you want to
-play.  In the second case, you select positive probabilities for multiple rows, as long as they sum
-to one.  Your choice of strategy is your private information and is never shared with any other
-participant.
+    Your payoff for a given row and column combination is the first number in each cell, shown in <i class="gamelab-colour fa fa-square"></i>.
+    The column player's payoff is the second number in each cell, shown in <i class="gamelab-ocolour fa fa-square"></i>.
+    Each payoff point awards one lottery ticket at the end of the experiment.
 </p>
 <p>
-When you have decided on a strategy (pure or mixed), click on each row that is included in your
-strategy and assign the corresponding probability in the input field.  Any row that you don't select
-will be assigned probability zero.  Once this is done, click the <q>Submit Play</q> button to submit
-your play.
+    You will only get payoffs from the rows you choose to play.
+    However, column players will be choosing which of the columns to play, so you won't have full control over the payoff you get.
 </p>
 <p>
-After you have submitted your play, click the <q>Go to next game</q> button to proceed to the next
-game.
-</p>
-<h3>Payoffs</h3>
-<p>
-After each round, you are matched against all column players and your strategy is played against
-each of their strategies.  In each game, you are given the average payoff of your strategy against
-all column players.
-</p>
-<p>
-Your final payoff from a round is calculated as the sum of your payoffs from all @@gamelab-games@@
-games.  Your overall payoff in the experiment is the sum of your final payoffs from all rounds.
+    After you have chosen which rows to play you must assign a weight to
+    each of these. 
+    The weights must add up to <strong>1</strong>. 
+    A weight of <strong>1</strong> means that payoffs (for you and the
+    column player) will be calculated solely based on that row. 
+    A smaller weight, for example <strong>1/3</strong>, means that <strong>1/3</strong> of your payoffs will
+    be calculated from that row. 
+    The columns from which your payoffs are calculated are chosen by the
+    column players in the same fashion.
 </p>
 <p>
-You can view information about your previous payoffs at the <q>History</q> tab at any time.
-</p>
-<h3>Lottery tickets and picking the winner</h3>
-<p>
-At the end of the experiment your overall payoff is transformed into the equivalent number of
-lottery tickets.  (Should your overall payoff be a non-integer number, we will round off upwards.)
-Each lottery ticket will be assigned a unique number. Out of all tickets to all participants in the
-experiment, one lottery ticket will be randomly drawn to win a prize of 10 000 SEK.
+    To make a decision in a game, first click all rows you want to play and
+    then input the weights you want to assign to them. 
+    Once you have chosen rows and weights, click the <q>Submit play</q> button
+    and then the <q>Go to next game</q> button to proceed to the next game.
 </p>
 <p>
-In drawing the winning ticket, we will use the Swedish Lotto system.  More exactly, we will use a
-quasi-random process in which an initial seed determines the winning number (the exact code is
-available upon request).  To make sure that the initial seed is completely random it will be
-determined by a random draw by a third party.  More precisely, the seed will be the
-<q>Tilläggsnummer</q> from the first <q><a target="_blank" 
-		href="https://svenskaspel.se/?pageid=/resultat/lottolordag">Lotto 1</a></q> draw
-after the final round of the experiment.
+    You must make decisions for all @@gamelab-games@@ games in a round in
+    order to receive payoffs from that round.
+</p>
+<h3>Bonus payments</h3>
+<p>
+    Your payoffs from a game depend on the rows and weights you choose, as
+    well as  how the column players choose on average. 
+    Other players' payoffs are calculated in the same fashion.
 </p>
 <p>
-Once the initial seed is drawn, the winning lottery ticket will be computed and the winner will be
-contacted.
+    At the end of the study your bonus payment will be calculated by summing
+    your payoffs from all games in all rounds in which you have
+    participated.
+    Each payoff point awards one lottery ticket.
 </p>
 <h3>History of play</h3>
 <p>
-You can view how a game was played in the previous round by looking at the history table directly on
-the <q>Play</q> tab when playing that game.  A full summary of play in all previous rounds is
-available on the <q>History</q> tab.
+    The graphs on the play page and on the <q>History</q> tab provide
+    information about the games and how they have been played in previous
+    rounds. 
+    This information includes:
 </p>
-<p>
-The history table summarizes how players in both roles (including you) have played in the previous
-round.  The number in the white cells in the matrix shows the share of plays that ended in that cell
-in the last round.  The first number in the gray cells shows in what share of plays that row or
-column strategy was used.  The number in brackets in the gray cells to the right show your payoff,
-represented by [U], should you have played the pure strategy associated with each row in the
-previous round.
-</p>
-<p>
-An example of a history table:
-</p>
-<div class="history" style="max-width: 20em;">
-	<div>
-		<div style="width: 1%;" class="labelaside"></div>
-		<div style="width: 32%;" class="labelatop">A</div>
-		<div style="width: 32%;" class="labelatop">B</div>
-		<div style="width: 32%;" class="sumaside">&#x2211; 
-			[<span class="gamelab-colour">U</span>]</div>
-	</div>
-	<div>
-		<div class="labelatop">a</div>
-		<div class="mix">0.315</div>
-		<div class="mix">0.585</div>
-		<div class="sumaside sum">0.900 
-			[<span class="gamelab-colour">U</span>]</div>
-	</div>
-	<div>
-		<div class="labelatop">b</div>
-		<div class="mix">0.035</div>
-		<div class="mix">0.065</div>
-		<div class="sumaside sum">0.100 
-			[<span class="gamelab-colour">U</span>]</div>
-	</div>
-	<div>
-		<div class="labelaside">&#x2211;</div>
-		<div class="sumbelow sum">0.350</div>
-		<div class="sumbelow sum">0.650</div>
-		<div class="sumaside"></div>
-	</div>
-</div>
-<p>
-From the history table we see that the share of plays ending in the combination <q>a</q> and
-<q>A</q> was 0.315 in the last round while the share of plays ending in <q>a</q> and <q>B</q> was
-0.585.  Looking at the numbers in the gray cells we see that the share of plays in which row players
-played <q>a</q> was 0.9, and the share in which column players played <q>B</q> was 0.650.
-</p>
+<ul>
+    <li>
+        Your previous payoffs.
+    </li>
+    <li> 
+        How much payoff you would have gotten by choosing each row with full weight (<strong>1</strong>) in previous
+        rounds.
+    </li>
+    <li>
+       The average choices of the row and column players in previous rounds.
+    </li>
+</ul>

@@ -38,14 +38,15 @@
 									Before playing, you must answer some questions.
 								</p>
 								<p>
-									In this task you will use this web page to play a number of games. Before being
-									able to play you have to read through some short instructions and will be asked
-									to answer a few questions to make sure you understand. You can read these
-									instructions again once you have answered all questions.
+									In this study you will use this web page to play a number of games. 
+									Before being able to play you have to read through some short
+									instructions and will be asked to answer a few questions to make sure
+									you understand. You can read these instructions again once you have
+									answered all questions.
 								</p>
 								<p>
-									Since you can earn a substantial amount as a bonus payment in addition to the
-									task completion fee it is important that you read the instructions carefully.
+									Your chances to win the lottery depend in part on how well you
+									understand these instructions, so read them carefully.
 								</p>
 								<div class="standalone">
 									<div class="input input-submit">
@@ -59,18 +60,20 @@
 									Answer incorrect.
 									Please try again.
 								</p>
-								<p>
-									You will participate in 10 rounds. 
-									In each round you and others will make decisions in 5 games. 
-									These games are identical in all rounds.
+								<p>	
+									The study is divided into a number of rounds. In each round you and
+									others will make decisions in 5 games. These games are identical in all
+									rounds.
+								</p>
+								<p>	
+									In each game you can earn tickets for a lottery that will take place
+									after the final round. The number of tickets you earn depends on both
+									your own and others' decisions in the games. The prize of the lottery is
+									10 000 SEK.
 								</p>
 								<p>
-									In addition to the completion fee you will earn a bonus payment that
-									depends on both your own and others' decisions in the games.
-								</p>
-								<p>
-									Each round will last for at least 3 minutes and will end either when 60%
-									of all participants have played or after 5 minutes have passed.
+									Each round will last for at least 5 hours and will end when either 50%
+									of all participants have played or after 10 hours have passed.
 								</p>
 								<p>
 									How many games will you play in each round?
@@ -139,8 +142,8 @@
 									<i style="color: #333;" class="fa fa-square"></i>.
 									The column player's payoff is the second number in each cell, shown here in
 									<i style="color: #aaa;" class="fa fa-square"></i>.
-									Your payoff contributes to your bonus payment, with higher payoffs
-									resulting in a higher bonus payment.
+									Each payoff point awards one lottery ticket at the end of the
+									experiment.
 								</p>
 								<div class="poffs">
 									<div>
@@ -160,7 +163,7 @@
 									</div>
 								</div>
 								<p>
-									What is your payoff from the combinations of row <strong>a</strong> and
+									What is your payoff from the combination of row <strong>a</strong> and
 									column <strong>B</strong> in the game table?
 								</p>
 								<form action="@LABURI@/doanswer.json" method="post"
@@ -577,15 +580,13 @@
 									Other players' payoffs are calculated in the same fashion.
 								</p>
 								<p>
-									At the end of the task your bonus payment will be calculated by summing
+									At the end of the study your bonus payment will be calculated by summing
 									your payoffs from all games in all rounds in which you have
-									participated. 
-									Your payoff will be converted to US dollars at a <strong>1</strong>
-									payoff point = $<strong>0.03</strong> rate.
+									participated. Each payoff point awards one lottery ticket.
 								</p>
 								<p>
-									If you earn <strong>100</strong> points in total from the
-									<strong>10</strong> rounds, how large will your bonus payment be?
+									If you earn <strong>500</strong> points in total,
+									how m any lottery tickets will you have?
 								</p>
 								<form action="@LABURI@/doanswer.json" method="post"
 									onsubmit="return(sendForm(this, doSetup, doError, doSuccess));">
@@ -596,23 +597,23 @@
 											<div class="inputgroup">
 												<div>
 													<input id="choice6a" name="choice6" type="radio" value="0" />
-													<label for="choice6a">$1</label>
+													<label for="choice6a">100</label>
 												</div>
 												<div>
 													<input id="choice6b" name="choice6" type="radio" value="1" />
-													<label for="choice6b">$2</label>
+													<label for="choice6b">250</label>
 												</div>
 												<div>
 													<input id="choice6c" name="choice6" type="radio" value="2" />
-													<label for="choice6c">$3</label>
+													<label for="choice6c">500</label>
 												</div>
 												<div>
 													<input id="choice6d" name="choice6" type="radio" value="3" />
-													<label for="choice6d">$4</label>
+													<label for="choice6d">750</label>
 												</div>
 												<div>
 													<input id="choice6e" name="choice6" type="radio" value="4" />
-													<label for="choice6e">$5</label>
+													<label for="choice6e">1000</label>
 												</div>
 											</div>
 										</div>
@@ -626,8 +627,8 @@
 							</section>
 							<section id="question6-correct" class="noshow">
 								<p>
-									That's right. <strong>100</strong> points times
-									$<strong>0.03</strong>/point is $<strong>3</strong>.
+									That's right. <strong>500</strong> points times 1 ticket per point is
+									<strong>500</strong> tickets.
 								</p>
 								<div class="standalone">
 									<div class="input input-submit">
