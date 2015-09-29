@@ -4,6 +4,9 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#ifdef LOGTIME
+#include <string.h>
+#endif
 #include <time.h>
 #include <unistd.h>
 
@@ -29,7 +32,7 @@ dbg_info(const char *file, size_t line, const char *fmt, ...)
 	buf[sz - 1] = '\0';
 	fprintf(stderr, "[%s] ", buf);
 #endif
-	fprintf(stderr, "[info] %s:%zu: ", file, line);
+	fprintf(stderr, "[gamelab-info] %s:%zu: ", file, line);
 	va_start(ap, fmt);
 	vfprintf(stderr, fmt, ap);
 	va_end(ap);
@@ -53,7 +56,7 @@ dbg_warn(const char *file, size_t line, const char *fmt, ...)
 	buf[sz - 1] = '\0';
 	fprintf(stderr, "[%s] ", buf);
 #endif
-	fprintf(stderr, "[warn] %s:%zu: ", file, line);
+	fprintf(stderr, "[gamelab-WARN] %s:%zu: ", file, line);
 	va_start(ap, fmt);
 	vfprintf(stderr, fmt, ap);
 	va_end(ap);

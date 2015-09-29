@@ -6,33 +6,33 @@ MTURKURI	 = https://workersandbox.mturk.com/mturk/externalSubmit
 
 # Mac OSX testing.
 # This is useful when running in a userdir.
-ADMINURI	 = /~kristaps/admin.cgi
-CGIBIN		 = $(PREFIX)
-CFLAGS		+= -Wno-deprecated-declarations
-DATADIR		 = $(PREFIX)
-HTDOCS		 = $(PREFIX)
-HTURI		 = /~kristaps
-LABURI		 = /~kristaps/lab.cgi
-LIBS		 = 
-PREFIX		 = /Users/kristaps/Sites
-RDATADIR	 = $(PREFIX)
-STATIC		 = 
+#ADMINURI	 = /~kristaps/admin.cgi
+#CGIBIN		 = $(PREFIX)
+#CFLAGS		+= -Wno-deprecated-declarations
+#DATADIR		 = $(PREFIX)
+#HTDOCS		 = $(PREFIX)
+#HTURI		 = /~kristaps
+#LABURI		 = /~kristaps/lab.cgi
+#LIBS		 = 
+#PREFIX		 = /Users/kristaps/Sites
+#RDATADIR	 = $(PREFIX)
+#STATIC		 = 
 
 # Linux testing.
 # LIBS		 = -lbsd -lm
 
 # OpenBSD production.
-#ADMINURI	 = /cgi-bin/gamelab/admin
-#CGIBIN		 = $(PREFIX)/cgi-bin/gamelab
-#CFLAGS		+= -DLOGTIME=1
-#DATADIR	 	 = $(PREFIX)/data/gamelab
-#HTDOCS		 = $(PREFIX)/htdocs/gamelab
-#HTURI		 = /gamelab
-#LABURI		 = /cgi-bin/gamelab/lab
-#LIBS		 = -lintl -liconv -lm
-#PREFIX		 = /var/www
-#RDATADIR	 = /data/gamelab
-#STATIC		 = -static
+ADMINURI	 = /cgi-bin/gamelab/admin
+CGIBIN		 = $(PREFIX)/cgi-bin/gamelab
+CFLAGS		+= -DLOGTIME=1
+DATADIR	 	 = $(PREFIX)/data/gamelab
+HTDOCS		 = $(PREFIX)/htdocs/gamelab
+HTURI		 = /gamelab
+LABURI		 = /cgi-bin/gamelab/lab
+LIBS		 = -lintl -liconv -lm
+PREFIX		 = /var/www
+RDATADIR	 = /data/gamelab
+STATIC		 = -static
 
 # You really don't want to change anything below this line.
 
