@@ -9,6 +9,11 @@ Hello!
 The round of your Gamelab study has advanced to round @@round@@ and
 will be open for at least @@roundtime-hours@@ hours.
 
+You can log in with your e-mail address and the password that was sent
+to you earlier:
+
+ URL: @@uri@@
+
 Best regards,
 
 Gamelab Genie
