@@ -6,7 +6,7 @@
 	</header>
 	<aside>
 		<p>
-			Add ability for e-mailing players when the round rolls.
+			Add ability for e-mailing players when the round rolls, or when the first round begins.
 			This involves a long-running child process.
 			(<strong>Note</strong>: Apache2 has a <q>feature</q> where it waits for all descendents of its CGI process, so if you
 			use this web server, you might see a zombie'd process if you use this feature.)
