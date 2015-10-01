@@ -585,7 +585,12 @@ mail_roundadvance(const char *uri, int64_t last, int64_t round)
 	m.minutes = expr->minutes;
 	m.uri = uri;
 
-	db_player_load_playing(expr, mail_appendplayer, &recpts);
+	if (-1 == last)
+		db_player_load_all(mail_appendplayer, &recpts);
+	else
+		db_player_load_playing(expr, 
+			mail_appendplayer, &recpts);
+
 	rc = khttp_templatex(&t, -1 == last ?
 		DATADIR "/mail-roundfirst.eml" : 
 		DATADIR "/mail-roundadvance.eml",
