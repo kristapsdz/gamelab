@@ -63,6 +63,7 @@ struct	mail {
 	struct buf	 b; /* buffer to read/write */
 	int64_t		 round; /* current round */
 	int64_t		 minutes; /* round time in minutes */
+	int64_t		 minminutes; /* round time in minutes */
 };
 
 enum	mailkey {
@@ -74,6 +75,8 @@ enum	mailkey {
 	MAILKEY_BACKUP, /* backup file (or empty) */
 	MAILKEY_LABURL, /* URL of user lab */
 	MAILKEY_ROUND, /* current round */
+	MAILKEY_ROUNDMINTIME_HOURS, /* round min time */
+	MAILKEY_ROUNDMINTIME_MINUTES, /* round min time */
 	MAILKEY_ROUNDTIME_HOURS, /* round time */
 	MAILKEY_ROUNDTIME_MINUTES, /* round time */
 	MAILKEY__MAX
@@ -88,6 +91,8 @@ static	const char *const mailkeys[MAILKEY__MAX] = {
 	"backup", /* MAILKEY_LOGIN */
 	"uri", /* MAILKEY_LABURL */
 	"round", /* MAILKEY_ROUND */
+	"roundmintime-hours", /* MAILKEY_ROUNDMINTIME_HOURS */
+	"roundmintime-minutes", /* MAILKEY_ROUNDMINTIME_MINUTES */
 	"roundtime-hours", /* MAILKEY_ROUNDTIME_HOURS */
 	"roundtime-minutes", /* MAILKEY_ROUNDTIME_MINUTES */
 };
@@ -298,6 +303,14 @@ mail_template_buf(size_t key, void *arg)
 		break;
 	case (MAILKEY_ROUND):
 		snprintf(buf, sizeof(buf), "%" PRId64, mail->round);
+		mail_puts(buf, mail);
+		break;
+	case (MAILKEY_ROUNDMINTIME_HOURS):
+		snprintf(buf, sizeof(buf), "%g", mail->minminutes / 60.0);
+		mail_puts(buf, mail);
+		break;
+	case (MAILKEY_ROUNDMINTIME_MINUTES):
+		snprintf(buf, sizeof(buf), "%" PRId64, mail->minminutes);
 		mail_puts(buf, mail);
 		break;
 	case (MAILKEY_ROUNDTIME_HOURS):
@@ -583,6 +596,7 @@ mail_roundadvance(const char *uri, int64_t last, int64_t round)
 
 	m.round = expr->round + 1;
 	m.minutes = expr->minutes;
+	m.minminutes = expr->roundmin;
 	m.uri = uri;
 
 	if (-1 == last)

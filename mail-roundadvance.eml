@@ -7,7 +7,7 @@ MIME-Version: 1.0
 Hello!
 
 The round of your Gamelab study has advanced to round @@round@@ and
-will be open for at least @@roundtime-hours@@ hours.
+will be open for at least @@roundmintime-hours@@ hours and at most @@roundtime-hours@@ hours.
 
 You can log in with your e-mail address and the password that was sent
 to you earlier:
