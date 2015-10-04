@@ -281,10 +281,16 @@ function loadGame()
 
 	doClearReplace('playGameNum', (resindex + 1));
 	doClearReplace('playGameMax', res.gamesz);
-	doClearReplace('playRoundNum', (res.expr.round - res.player.joined) + 1);
+
+	/*doClearReplace('playRoundNum', (res.expr.round - res.player.joined) + 1);
 	doClearReplace('playRoundNum2', (res.expr.round - res.player.joined) + 1);
 	doClearReplace('playRoundMax', res.expr.prounds);
-	doClearReplace('playRoundMax2', res.expr.prounds);
+	doClearReplace('playRoundMax2', res.expr.prounds);*/
+
+	doClearReplace('playRoundNum', res.expr.round + 1);
+	doClearReplace('playRoundNum2', res.expr.round + 1);
+	doClearReplace('playRoundMax', res.expr.rounds);
+	doClearReplace('playRoundMax2', res.expr.rounds);
 
 	game = res.games[res.gameorders[resindex]];
 	if (null === game) {
@@ -295,7 +301,8 @@ function loadGame()
 
 	e = document.getElementById('nextround');
 	if (null !== e && 0 === resindex) {
-		doClearReplace('nextroundround', (res.expr.round - res.player.joined) + 1);
+		/*doClearReplace('nextroundround', (res.expr.round - res.player.joined) + 1);*/
+		doClearReplace('nextroundround', res.expr.round + 1);
 		doUnhideNode(e);
 	}
 

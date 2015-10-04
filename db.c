@@ -1208,8 +1208,8 @@ db_player_load_playing(const struct expr *expr, playerf fp, void *arg)
 	stmt = db_stmt("SELECT email,state,id,enabled,"
 		"role,rseed,instr,finalrank,finalscore,autoadd, "
 		"version,joined,answer,hitid,assignmentid,mturkdone "
-		"FROM player "
-		"WHERE joined >= 0 AND joined <= ? AND ? < joined + ?");
+		"FROM player WHERE CASE WHEN joined >= 0 "
+		"THEN joined <= ? AND ? < JOINED + ? END");
 	db_bind_int(stmt, 1, expr->round);
 	db_bind_int(stmt, 2, expr->round);
 	db_bind_int(stmt, 3, expr->prounds);
