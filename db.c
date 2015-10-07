@@ -1658,7 +1658,7 @@ db_player_create(const char *email, char **pass,
 	rc = db_step(stmt, DB_STEP_CONSTRAINT);
 	sqlite3_finalize(stmt);
 	if (SQLITE_DONE == rc) {
-		INFO("Administrator created player %" PRId64 ": %s", 
+		INFO("Player %" PRId64 " created: %s", 
 			sqlite3_last_insert_rowid(db), email);
 		if (NULL != pass)
 			*pass = hash;
@@ -1787,10 +1787,6 @@ db_player_join(const struct player *player, int64_t answers)
 
 	if (expr->questionnaire && answers != player->answer) {
 		db_trans_rollback();
-		INFO("Player %" PRId64 " asked to join "
-			"round %" PRId64 " without having "
-		        "submitted a questionnaire",
-			 player->id, expr->round + 1);
 		db_expr_free(expr);
 		return(0);
 	}
