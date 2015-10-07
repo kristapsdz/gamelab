@@ -1661,8 +1661,10 @@ db_player_create(const char *email, char **pass,
 		INFO("Administrator created player %" PRId64 ": %s", 
 			sqlite3_last_insert_rowid(db), email);
 		if (NULL != pass)
-			*pass = kstrdup(hash);
+			*pass = hash;
 	}
+	if (NULL == pass)
+		free(hash);
 	return(SQLITE_DONE == rc);
 }
 
