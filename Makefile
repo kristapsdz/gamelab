@@ -1,8 +1,9 @@
-.SUFFIXES: .in.js .js .in.html .html
+.SUFFIXES: .in.js .js .html .xml
 
 # Mechanical Turk testing.
 MTURKURI	 = https://workersandbox.mturk.com/mturk/externalSubmit
 #MTURKURI	 = https://www.mturk.com/mturk/externalSubmit
+FONTURI		 = //maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css
 
 # Mac OSX testing.
 # This is useful when running in a userdir.
@@ -10,6 +11,7 @@ ADMINURI	 = /~kristaps/admin.cgi
 CGIBIN		 = $(PREFIX)
 CFLAGS		+= -Wno-deprecated-declarations
 DATADIR		 = $(PREFIX)
+DSYMUTIL	 = sudo dsymutil
 HTDOCS		 = $(PREFIX)
 HTURI		 = /~kristaps
 LABURI		 = /~kristaps/lab.cgi
@@ -68,9 +70,9 @@ OBJS	 = db.o \
 SRCS	 = Makefile \
 	   admin.c \
 	   adminhome.in.js \
-	   adminhome-new.in.html \
-	   adminhome-started.in.html \
-	   adminlogin.in.html \
+	   adminhome-new.xml \
+	   adminhome-started.xml \
+	   adminlogin.xml \
 	   db.c \
 	   extern.h \
 	   gamelab.sql \
@@ -78,17 +80,17 @@ SRCS	 = Makefile \
 	   lab.c \
 	   mail.c \
 	   mpq.c \
-	   mturkpreview.in.html \
-	   playerautoadd.in.html \
+	   mturkpreview.xml \
+	   playerautoadd.xml \
 	   playerautoadd.in.js \
-	   playerhome.in.html \
+	   playerhome.xml \
 	   playerhome.in.js \
-	   playerlobby.in.html \
+	   playerlobby.xml \
 	   playerlobby.in.js \
-	   playermturk.in.html \
+	   playermturk.xml \
 	   playermturk.in.js \
-	   playerlogin.in.html \
-	   privacy.in.html \
+	   playerlogin.xml \
+	   privacy.xml \
 	   script.in.js
 BUILT	 = adminhome.js \
 	   adminlogin.html \
@@ -156,6 +158,8 @@ updatecgi: all
 	install -m 0755 lab $(CGIBIN)/lab.cgi
 	install -m 0755 lab $(CGIBIN)/lab.fcgi
 	install -m 0755 lab $(CGIBIN)
+	[ -z "$(DSYMUTIL)" ] || $(DSYMUTIL) $(CGIBIN)/lab
+	[ -z "$(DSYMUTIL)" ] || $(DSYMUTIL) $(CGIBIN)/admin
 
 installcgi: updatecgi gamelab.db
 	rm -f $(DATADIR)/gamelab.db
@@ -185,9 +189,6 @@ gamelab.db: gamelab.sql
 	rm -f $@
 	sqlite3 $@ < gamelab.sql
 
-manual.html: manual.xml
-	sed "s!@VERSION@!$(VERSION)!g" manual.xml >$@
-
 index.html: index.xml $(VERSIONS)
 	sblg -t index.xml -o- $(VERSIONS) | \
 		sed "s!@VERSION@!$(VERSION)!g" >$@
@@ -202,14 +203,13 @@ adminhome.js playerautoadd.js playerlobby.js playerhome.js playermturk.js script
 		-e "s!@HTURI@!$(HTURI)!g" $< | ./jsmin > $@
 	chmod 444 $@
 
-.in.html.html:
-	rm -f $@
+.xml.html:
 	sed -e "s!@ADMINURI@!$(ADMINURI)!g" \
 		-e "s!@LABURI@!$(LABURI)!g" \
+		-e "s!@FONTURI@!$(FONTURI)!g" \
 		-e "s!@VERSION@!$(VERSION)!g" \
 		-e "s!@MTURKURI@!$(MTURKURI)!g" \
 		-e "s!@HTURI@!$(HTURI)!g" $< >$@
-	chmod 444 $@
 
 clean:
 	rm -f admin admin.o gamelab.db lab lab.o $(OBJS) jsmin gamers
