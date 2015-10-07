@@ -695,10 +695,11 @@ senddocheckround(struct kreq *r)
 static void
 senddoanswer(struct kreq *r, int64_t id)
 {
-	int	 ok;
-	int64_t	 rank;
-	mpq_t	 one, sum, v1, v2;
-	size_t	 c1, c2;
+	struct player	*player;
+	int		 ok;
+	int64_t		 rank;
+	mpq_t		 one, sum, v1, v2;
+	size_t		 c1, c2;
 
 	if (NULL == r->fieldmap[KEY_ANSWERID]) {
 		http_open(r, KHTTP_400);
@@ -769,6 +770,9 @@ senddoanswer(struct kreq *r, int64_t id)
 	if (ok) {
 		db_player_set_answered(id, 
 			r->fieldmap[KEY_ANSWERID]->parsed.i);
+		player = db_player_load(id);
+		db_player_join(player, QUESTIONS);
+		db_player_free(player);
 		http_open(r, KHTTP_200);
 	} else
 		http_open(r, KHTTP_400);
@@ -817,6 +821,8 @@ senddoautoadd(struct kreq *r)
 		http_open(r, KHTTP_403);
 		khttp_body(r);
 	} else {
+		INFO("Player created from captive portal: %s", 
+			r->fieldmap[KEY_IDENTIFIER]->parsed.s);
 		http_open(r, KHTTP_200);
 		khttp_body(r);
 		kjson_open(&req, r);
@@ -1316,6 +1322,8 @@ main(void)
 	struct kreq	 r;
 	enum kcgi_err	 er;
 	struct kfcgi	*fcgi;
+
+	setlinebuf(stderr);
 
 	if (khttp_fcgi_test()) {
 		er = khttp_fcgi_init(&fcgi, keys, KEY__MAX, 
