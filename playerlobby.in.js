@@ -157,6 +157,13 @@ function doError(err)
 	doUnhide('questionerror' + ques);
 }
 
+function doErrorPlay(err) 
+{
+
+	doValue('questionSubmit' + ques, 'Submit play');
+	doUnhide('questionerror' + ques);
+}
+
 function doSuccess() 
 {
 
