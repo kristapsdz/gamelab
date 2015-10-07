@@ -534,20 +534,20 @@
 							These must resolve to <a href="#laburi"><code>LABURI</code></a>.
 						</dd>
 						<dt><span class="file">adminhome.css</span></dt>
-						<dt><span class="file">adminhome.js</span></dt>
+						<dt><span class="file">adminhome.min.js</span></dt>
 						<dt><span class="file">adminlogin.html</span></dt>
 						<dt><span class="file">playerautoadd.html</span></dt>
-						<dt><span class="file">playerautoadd.js</span></dt>
+						<dt><span class="file">playerautoadd.jmin.s</span></dt>
 						<dt><span class="file">playerhome.css</span></dt>
-						<dt><span class="file">playerhome.js</span></dt>
+						<dt><span class="file">playerhome.jmin.s</span></dt>
 						<dt><span class="file">playerhome.html</span></dt>
 						<dt><span class="file">playerlobby.css</span></dt>
 						<dt><span class="file">playerlobby.html</span></dt>
-						<dt><span class="file">playerlobby.js</span></dt>
+						<dt><span class="file">playerlobby.jmin.s</span></dt>
 						<dt><span class="file">playerlogin.html</span></dt>
 						<dt><span class="file">privacy.html</span></dt>
 						<dt><span class="file">style.css</span></dt>
-						<dt><span class="file">script.js</span></dt>
+						<dt><span class="file">script.jmin.s</span></dt>
 						<dd>
 							These statically-served, read-only files are installed into <a
 								href="#htdocs"><code>HTDOCS</code></a>.

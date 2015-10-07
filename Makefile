@@ -1,4 +1,4 @@
-.SUFFIXES: .in.js .js .html .xml
+.SUFFIXES: .min.js .js .html .xml
 
 # Mechanical Turk testing.
 MTURKURI	 = https://workersandbox.mturk.com/mturk/externalSubmit
@@ -69,7 +69,7 @@ OBJS	 = db.o \
 	   mpq.o
 SRCS	 = Makefile \
 	   admin.c \
-	   adminhome.in.js \
+	   adminhome.js \
 	   adminhome-new.xml \
 	   adminhome-started.xml \
 	   adminlogin.xml \
@@ -82,30 +82,30 @@ SRCS	 = Makefile \
 	   mpq.c \
 	   mturkpreview.xml \
 	   playerautoadd.xml \
-	   playerautoadd.in.js \
+	   playerautoadd.js \
 	   playerhome.xml \
-	   playerhome.in.js \
+	   playerhome.js \
 	   playerlobby.xml \
-	   playerlobby.in.js \
+	   playerlobby.js \
 	   playermturk.xml \
-	   playermturk.in.js \
+	   playermturk.js \
 	   playerlogin.xml \
 	   privacy.xml \
-	   script.in.js
-BUILT	 = adminhome.js \
+	   script.js
+BUILT	 = adminhome.min.js \
 	   adminlogin.html \
 	   mturkpreview.html \
 	   playerautoadd.html \
-	   playerautoadd.js \
+	   playerautoadd.min.js \
 	   playerlobby.html \
-	   playerlobby.js \
+	   playerlobby.min.js \
 	   playermturk.html \
-	   playermturk.js \
+	   playermturk.min.js \
 	   playerhome.html \
-	   playerhome.js \
+	   playerhome.min.js \
 	   playerlogin.html \
 	   privacy.html \
-	   script.js
+	   script.min.js
 VERSIONS = version_1_0_1.xml \
 	   version_1_0_2.xml \
 	   version_1_0_3.xml \
@@ -195,7 +195,7 @@ index.html: index.xml $(VERSIONS)
 
 adminhome.js playerautoadd.js playerlobby.js playerhome.js playermturk.js script.js: jsmin
 
-.in.js.js:
+.js.min.js:
 	rm -f $@
 	sed -e "s!@ADMINURI@!$(ADMINURI)!g" \
 		-e "s!@LABURI@!$(LABURI)!g" \
