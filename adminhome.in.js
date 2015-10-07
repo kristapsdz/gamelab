@@ -202,7 +202,7 @@ function doShowPlayer(source)
 	doClearReplace('playerInfoEmail', 
 		e.getAttribute('data-gamelab-mail'));
 	doClearReplace('playerInfoJoined', 
-		e.getAttribute('data-gamelab-joined'));
+		(parseInt(e.getAttribute('data-gamelab-joined')) + 1));
 	doClearReplace('playerInfoAnswer', 
 		e.getAttribute('data-gamelab-answer'));
 
@@ -896,6 +896,19 @@ function loadExprSuccess(resp)
 		doClearReplace('statusExprLobbysize', res.lobbysize);
 	} else
 		doHide('statusExprHasLobby');
+
+	if (expr.roundpid > 0) {
+		doUnhide('statusMailer');
+		doClearReplace('statusMailerPid', expr.roundpid);
+		if (expr.roundpidok) {
+			doHide('statusMailerPidBad');
+			doUnhide('statusMailerPidOk');
+		} else {
+			doUnhide('statusMailerPidBad');
+			doHide('statusMailerPidOk');
+		}
+	} else
+		doHide('statusMailer');
 
 	if (expr.round >= expr.rounds) {
 		doHide('statusExprProg');

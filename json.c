@@ -15,6 +15,7 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 #include <assert.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -299,6 +300,10 @@ json_putexpr(struct kjsonreq *r, const struct expr *expr)
 	kjson_putintp(r, "round", expr->round);
 	kjson_putdoublep(r, "roundpct", expr->roundpct * 100.0);
 	kjson_putintp(r, "roundmin", expr->roundmin);
+	kjson_putintp(r, "roundpid", expr->roundpid);
+	kjson_putintp(r, "roundpidok", 
+		expr->roundpid <= 0 ? -1 :
+		kill(expr->roundpid, 0) < 0 ? 0 : 1);
 	kjson_putintp(r, "roundbegan", expr->roundbegan);
 	kjson_putintp(r, "autoadd", expr->autoadd);
 	if ('{' == expr->history[0] && (sz = strlen(expr->history)) > 2) {
