@@ -299,6 +299,8 @@ mailround(const char *uri)
 	db_expr_setmailer(0, pid);
 	expr = NULL;
 
+	INFO("Round mailer starting: %u", pid);
+
 	for (;;) {
 		db_expr_free(expr);
 		sleep(30);
@@ -1512,6 +1514,8 @@ main(void)
 {
 	struct kreq	 r;
 	unsigned int	 bit;
+
+	setlinebuf(stderr);
 
 	if (KCGI_OK != khttp_parse(&r, keys, KEY__MAX, 
 			pages, PAGE__MAX, PAGE_INDEX))
