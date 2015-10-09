@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+		<meta charset="utf-8" /> 
+		<title>Gamelab | Participant Login</title>
+		<link rel="stylesheet" href="@HTURI@/style.css" type="text/css" />
+		<link rel="stylesheet" href="@HTURI@/playerlogin.css" type="text/css" />
+		<link rel="stylesheet" href="@FONTURI@" type="text/css" />
+		<script src="@HTURI@/script.min.js"></script>
+		<script>
+			function doError(err) 
+			{
+				document.getElementById('loggingIn').value = 'Login';
+				doUnhide(400 == err || 409 == err ? 'loginError' : 'ajaxError');
+			}
+
+			function doSuccess() 
+			{
+				document.getElementById('loggingIn').value = 'Success!  Redirecting...';
+				location.href = '@HTURI@/playerhome.html';
+			}
+
+			function doSetup() 
+			{
+				doHide('loginError');
+				doHide('ajaxError');
+				document.getElementById('loggingIn').value = 'Logging in...';
+			}
+		</script>
+	</head>
+	<body id="login">
+		<article>
+			<section>
+				<div id="top">
+					<a href="http://www.kcons.eu/gamelab"><img src="logo.png" alt="Gamelab Logo" /></a>
+					<h1><a href="http://www.kcons.eu/gamelab">gamelab</a></h1>
+				</div>
+				<form autocomplete="on" action="@LABURI@/dologin.json" method="post" onsubmit="return(sendForm(this, doSetup, doError, doSuccess));">
+					<section>
+						<h3>Participant Login</h3>
+						<p class="error" id="loggedout">
+							You have been logged out.
+						</p>
+						<p class="error noshow" id="loginError">
+							Incorrect e-mail or password.
+						</p>
+						<p class="error noshow" id="ajaxError">
+							A technical error has occured.
+						</p>
+						<fieldset>
+							<div class="input">
+								<i class="fa fa-fw fa-envelope"></i>
+								<input autofocus="autofocus" type="text" placeholder="E-mail Address" required="required" name="ident" />
+							</div>
+							<div class="input input-password">
+								<i class="fa fa-fw fa-lock"></i>
+								<input type="password" placeholder="Password" required="required" name="password" />
+							</div>
+							<div class="input input-submit">
+								<i class="fa fa-fw fa-check"></i>
+								<input id="loggingIn" type="submit" value="Login" />
+							</div>
+						</fieldset>
+					</section>
+					<section>
+						<p>
+							To use gamelab, you must be using an up-to-date browser with cookies and JavaScript enabled.
+						</p>
+					</section>
+				</form>
+			</section>
+		</article>
+		<footer>
+			&copy; 2014, 2015
+			<a href="http://www.kcons.eu"><i>k</i>-Consulting</a>
+			<a href="http://www.kcons.eu/gamelab">gamelab @VERSION@</a>
+			<a href="@HTURI@/privacy.html">Privacy</a>
+		</footer>
+	</body>
+</html>

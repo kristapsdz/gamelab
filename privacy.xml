@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+		<meta charset="utf-8" /> 
+		<title>Gamelab</title>
+		<link rel="stylesheet" href="@HTURI@/style.css" type="text/css" />
+		<link rel="stylesheet" href="@FONTURI@" type="text/css" />
+		<script src="@HTURI@/script.min.js"></script>
+	</head>
+	<body onclick="onNavUp();">
+		<header>
+			<h1>gamelab</h1>
+			<span>
+			</span>
+		</header>
+		<article id="defaultTab" class="tab">
+			<h2>Privacy Statement: Cookies</h2>
+			<p>
+				Cookies are very small text files that are stored on your computer when you visit some websites. 
+			</p>
+			<p>
+				We use cookies <i>only</i> to help identify you so that you can participate in the laboratory over the course of
+				a single login session.
+			</p>
+			<p>
+				You can disable any cookies already stored on your computer, which will end your current login session.
+			</p>
+			<p>
+				To return to gamelab, use the back button on your browser.
+			</p>
+		</article>
+		<footer>
+			&copy; 2014, 2015
+			<a href="http://www.kcons.eu"><i>k</i>-Consulting</a>
+			<a href="@HTURI@/privacy.html">Privacy</a>
+		</footer>
+	</body>
+</html>

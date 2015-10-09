@@ -3,7 +3,7 @@
 # Mechanical Turk testing.
 MTURKURI	 = https://workersandbox.mturk.com/mturk/externalSubmit
 #MTURKURI	 = https://www.mturk.com/mturk/externalSubmit
-FONTURI		 = //maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css
+FONTURI		 = https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css
 
 # Mac OSX testing.
 # This is useful when running in a userdir.

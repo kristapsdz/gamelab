@@ -1,0 +1,17 @@
+<article data-sblg-article="1" data-sblg-tags="version">
+	<header>
+		<h1>1.0.21</h1>
+		<address>Kristaps Dzonsons</address>
+		<time datetime="2015-10-07">2015-09-28</time>
+	</header>
+	<aside>
+		<p>
+			Address a number of small issues encountered in live trials: <q>join</q> players after answering the last question
+			instead of when they actually try to play the first round, add administrator notice of running the mailer process, ...
+		</p>
+		<p>
+			Also hard-code the <a href="https://fortawesome.github.io/Font-Awesome/">Font Awesome</a> at compilation time instead of
+			within source files, allowing administrators to deploy their own icon server instead for LAN environments.
+		</p>
+	</aside>
+</article>
