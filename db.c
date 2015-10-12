@@ -816,8 +816,9 @@ db_winners(struct expr **expr, size_t winnersz, int64_t seed, size_t count)
 		return(1);
 	}
 
-	if (0 == (*expr)->total) {
-		INFO("Win request when experiment has no tickets");
+	if ((*expr)->total <= 0) {
+		INFO("Win request when experiment has <=0 "
+			"tickets: %" PRId64, (*expr)->total);
 		db_trans_rollback();
 		return(0);
 	}
@@ -851,6 +852,19 @@ db_winners(struct expr **expr, size_t winnersz, int64_t seed, size_t count)
 			id = sqlite3_column_int64(stmt, 0);
 			sum = sqlite3_column_int64(stmt, 1);
 			score = sqlite3_column_int64(stmt, 2);
+			if (score < 0) {
+				sqlite3_finalize(stmt);
+				db_trans_rollback();
+				WARN("Win (lottery) request when "
+					"player %" PRId64 " has "
+					"negative tickets", id);
+				free(winners);
+				free(rnums);
+				free(pids);
+				mpq_clear(div);
+				mpq_clear(aggr);
+				return(0);
+			}
 			if (top >= sum && top < sum + score)
 				break;
 		}
