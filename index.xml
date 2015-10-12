@@ -2,10 +2,10 @@
 <html>
 	<head>
 		<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
-		<meta charset='utf-8' /> 
+		<meta charset="utf-8" /> 
 		<title>gamelab</title>
-		<link rel="stylesheet" href="@HTURI@/index.css" type="text/css" />
-		<link rel="stylesheet" href="@FONTURI@" type="text/css" />
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" type="text/css" />
+		<link rel="stylesheet" href="index.css" type="text/css" />
 	</head>
 	<body>
 		<header>

@@ -262,9 +262,14 @@ div.input input[type=time]	{ width: 20ex; }
 #advanced > span 		{ color: #333; }
 #advanced > span i		{ margin-left: 0.5ex;
 				  margin-right: 0.25ex; }
-#advanced.showadv > div		{ display: table-row; }
-#advanced.showadv > p		{ display: block; }
+#advanced.showadv > p		{ display: block;
+				  margin-top: 0em; }
+#advanced.showadv > div		{ display: block; }
+#advanced.showadv > div.input	{ display: table-row; }
 #advanced.showadv > span 	{ display: none; }
+#advanced.showadv 		{ border-top: thin solid #ccc; 
+				  border-bottom: thin solid #ccc;
+				  padding-top: 8pt; }
 @media only screen and (max-width: 800px), only screen and (max-device-width: 800px) {
 	article			{ padding-left: 10%; 
 			  	  padding-right: 10%; }

@@ -2,10 +2,10 @@
 <html>
 	<head>
 		<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
-		<meta charset='utf-8' /> 
+		<meta charset="utf-8" /> 
 		<title>gamelab</title>
-		<link rel="stylesheet" href="@FONTURI@" type="text/css" />
-		<link rel="stylesheet" href="@HTURI@/manual.css" type="text/css" />
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" type="text/css" />
+		<link rel="stylesheet" href="manual.css" type="text/css" />
 	</head>
 	<body>
 		<header>
@@ -46,8 +46,8 @@
 					<li>
 						<a href="#intro">Introduction</a>
 						<ul>
-							<li><a href="#questionnaire">Questionnaire</a></li>
 							<li><a href="#participants">Participants</a></li>
+							<li><a href="#questionnaire">Questionnaire</a></li>
 							<li><a href="#games">Games</a></li>
 							<li><a href="#gameplay">Game-play</a></li>
 							<li><a href="#lottery">Lottery</a></li>
@@ -74,8 +74,7 @@
 					<li>
 						<a href="#administration">Administration</a>
 						<ul>
-							<li><a href="#firstlogin">First Login</a></li>
-							<li><a href="#firstexperiment">First Experiment</a></li>
+							<li><a href="#createexperiments">Creating Experiments</a></li>
 							<li><a href="#runningexperiments">Running Experiments</a></li>
 						</ul>
 					</li>
@@ -99,43 +98,31 @@
 					You can even play experiments programatically over a JSON API.
 				</p>
 				<p>
-					An experimenter begins by configuring how rounds in the experiment progress and for how long the
-					experiment will run.
+					An experimenter begins by configuring&#8212;among many other parameters&#8212;how rounds in the
+					experiment progress and for how long the experiment will run.
 					Once the experimenter deploys the experiment, players can log in and play each game once per round.
 					When the round advances, players earn points by computing the payoff from their submitted strategies
 					against the average mixture submited by participants playing the opponent player role.
 					After the last round, players' points award lottery tickets, and winners are drawn by selecting lottery
 					tickets.
 				</p>
-				<section id="questionnaire">
-					<h3>Questionnaire</h3>
-					<p>
-						The experimenter may stipulate that participants step through a questionnaire before being
-						allowed to play.
-						Specifically, the participants will be able to log in, but will be placed in a <q>lobby</q>
-						where they'll answer questions before beginning.
-						The <q>lobby</q> concept is also used for dynamic participants.
-					</p>
-					<p>
-						The questionnaire is designed to ensure that participants know how to play with minimum bias
-						toward a given configuration.
-						Results are recorded (duration of answering, number of tries, etc.) so experimenters may
-						correlate performance with outcome.
-					</p>
-				</section>
+				<p>
+					<span class="nm">Gamelab</span> has many configurable parameters, for example, round advancement based
+					on number of players who have played; computing or not computing lotteries; <a
+						href"https://www.mturk.com/mturk/welcome">Mechanical Turk</a> integration; captive
+					<q>laboratory-based</q> participants who cannot log out or back in; and so on.
+				</p>
 				<section id="participants">
 					<h3>Participants</h3>
 					<p>
-						Experiment participants are identified by an e-mail address, 
-						an opaque identifier in <q>captive</q> configurations, or a worker identifier in Mechanical Turk
-						configurations.
-						Your game can have as many participants as the server (or the experimenter!) can handle.
-						In general, the more the merrier.
-						If you wish, participants can also join after the experiment has begun.
+						Experiment participants are identified by an e-mail address, an opaque identifier in
+						<q>captive</q> configurations, or a worker identifier in <a
+							href="https://www.mturk.com/mturk/welcome">Mechanical Turk</a> configurations.
+						An experiments can have as many participants as the server (or the experimenter!) can handle.
 					</p>
 					<p>
-						Participants are assigned by the experimenter or assign themselves in a captive or Mechanical
-						Turk configuration.
+						Participants are assigned by the experimenter or assign themselves in a <q>captive</q> or <a
+							href="https://www.mturk.com/mturk/welcome">Mechanical Turk</a> configuration.
 						In the first case, participants are e-mailed a password and login credentials when the
 						experimenter begins the experiment.
 						(If no e-mail server has been configured, they are not e-mailed.)
@@ -144,32 +131,52 @@
 						duration of the experiment.
 					</p>
 					<p>
-						Participants may be added (or add themselves) before an experiment begins, so the participation
+						Participants may be added (or add themselves) before an experiment begins, so that participation
 						is static; or be added (or add themselves) both before and after the experiment has begun.
 						In this dynamic case, experimenters can limit the number of simultaneous participants, allowing
 						for a constant flow of participants joining and leaving the system as the experiment progresses.
 						Participants that have logged in but cannot yet play due to the concurrent-participant limit are
 						placed in a <q>lobby</q> until they join the experiment.
+						(The same lobby is also used for the <a href="#questionnaire">Questionnaire</a>.)
 					</p>
 					<p>
 						When the experiment begins or when participants otherwise join, participants are randomly
-						assigned a player role per game.
-						This defines whether the participant plays as the row or column player.
+						assigned a player role (row or column) used for all games throughout the experiment.
 						Experiments always have an equal assignment of row and column players unless the total number of
 						players is odd, in which case the extra player is assigned a random role.
 						If participants join after the experiment has started, they are assigned to a player role that
 						balances role counts at the time of assignment.
 					</p>
 				</section>
+				<section id="questionnaire">
+					<h3>Questionnaire</h3>
+					<p>
+						The experimenter may stipulate that participants step through a questionnaire before being
+						allowed to play.
+						In this treatment, participants are initially dropped into a <q>lobby</q> where they must answer
+						questions before beginning.
+						(This lobby is also used to handle an overflow of players as defined in the <a
+							href="#participants">Participants</a> section.)
+					</p>
+					<p>
+						The questionnaire is designed to ensure that participants know how to play with minimum bias
+						toward a given configuration.
+						Results are recorded (duration of answering, number of tries, etc.) so experimenters may
+						correlate performance with outcome.
+						Experimenters may customise their questionnaire manually&#8212;please contact us if you need
+						guidance in doing so.
+					</p>
+				</section>
 				<section id="games">
 					<h3>Games</h3>
 					<p>
 						A game in <span class="nm">gamelab</span> is simply a payoff bi-matrix.
+						Payoffs are rationally-valued numbers.
+						(<strong>Note</strong>: negative player tickets will cause the lottery computation to fail.)
 						There is no limit to the number of strategies for this matrix; however, in practise, only so
 						many columns fit neatly on a small screen.
 						Games larger than four or five strategies wide will look funny.
 						Each experiment can have as many games as desired.
-						Payoffs are rationally-valued numbers.
 					</p>
 				</section>
 				<section id="gameplay">
@@ -226,11 +233,12 @@
 					</p>
 					<p>
 						The experimenter may then trigger the lottery from the administration console.
-						(Experiments may also run without a lobby.)
+						(Experiments may also run without a lottery.)
 						This consists of seeding a deterministic random number generator with a given value.
 						Each of these values is mapped into the lottery tickets to choose a winner.
 						A participant is only chosen once for winning: if the random number re-selects a participant,
 						a new number is drawn (rejection sampling).
+						If any participants have a negative total score, the lottery is disallowed.
 					</p>
 					<p>
 						Upon triggering winner selection, winner participants are notified on their login screen, along
@@ -267,6 +275,11 @@
 						These graphs will display properly on any modern web browser.
 					</p>
 					<p>
+						The interface is styled with the 
+						<a href="https://fortawesome.github.io/Font-Awesome/">Font Awesome</a> icon set.
+						The path to the icon configuration may be provided during compilation, and defaults to the on-line repository.
+					</p>
+					<p>
 						The user interface also makes use of cookies to store your session materials.
 						<span class="nm">Gamelab</span> cookies themselves don't store any identifiable material: they
 						store only the server session identifier and a random number to prevent sharing of session
@@ -284,6 +297,13 @@
 							href="http://curl.haxx.se/libcurl/">libCURL</a>.
 						All of these are open source libraries.
 						Consult the <a href="#deploy">Deployment</a> section for how to install these applications.
+					</p>
+					<p>
+						<span class="nm">Gamelab</span> has been run on OpenBSD with httpd and the historical Apache and
+						Mac OS X with Apache2.
+						Administrators are not encouraged to use Apache2 since it disallows long-running child processes
+						of the CGI scripts.
+						Such scripts are used in several circumstances.
 					</p>
 				</section>
 				<section id="numformat">
@@ -324,11 +344,6 @@
 				<p>
 					<span class="nm">Gamelab</span> is a CGI application that runs under any CGI-compatible web server on a
 					modern UNIX system.
-					For now, you cannot run <span class="nm">gamelab</span> on a server that's not connected to the
-					Internet: the icon set requires access to the <a href="https://fortawesome.github.io/Font-Awesome/">Font
-						Awesome</a> online icon set.
-					This will change with future releases to allow for <span class="nm">gamelab</span> deployments in VLAN
-					and isolated computer environments.
 				</p>
 				<p>
 					In order to use <span class="nm">gamelab</span>, you'll need to download, configure, and install
@@ -352,8 +367,8 @@
 						testing and development environment.
 						I don't discuss web server deployment in this manual: please consult your operating system
 						documentation on how to do so.
-						Specifically, you'll want to research on how to enable CGI scripts (<strong>not</strong>
-						FastCGI).
+						Specifically, you'll want to research on how to enable CGI scripts.
+						FastCGI is also possible, but not the default installation.
 					</p>
 					<p>
 						To date, <span class="nm">gamelab</span> has been deployed on Mac OS X, GNU/Linux, and a number
@@ -370,16 +385,16 @@
 						will also run fine in a non-jail context.
 					</p>
 					<p>
-						Note that several newer web servers only work with FastCGI scripts.
-						<span class="nm">Gamelab</span> does run under FastCGI, but the interface is still under
-						development.
+						As mentioned in <a href="#backend">Backend</a>, many configurations have been tested: only <a
+							href"https://httpd.apache.org/">Apache2</a> is known to have issues, and these generally are
+						harmless.
 					</p>
 				</section>
 				<section id="dependencies">
 					<h3>Dependencies</h3>
 					<p>
-						With your environment prepared, you'll need to download the <span class="nm">gamelab</span>
-						source code as well as its dependencies.
+						With your <a href="#environment">environment</a> prepared, you'll need to download the <span
+							class="nm">gamelab</span> source code as well as its dependencies.
 						These are <i>compile-time</i> dependencies, so if the system compiles, it will run just fine.
 						There are no additional run-time dependencies.
 						The dependencies consist of the following:
@@ -393,9 +408,9 @@
 						<li><a href="https://github.com/json-c/json-c/wiki">json-c</a> (testing system).</li>
 					</ul>
 					<p>
-						The only external dependency required during operation is an Internet connection to use the <a
-							href="https://fortawesome.github.io/Font-Awesome/">Font Awesome</a> icon set.
-						This is expected to change over time.
+						If you're running without a connection to the Internet, you'll also need to download the <a
+							href="https://fortawesome.github.io/Font-Awesome/">Font Awesome</a> icon set and adjust
+						the <a href="#compiling">Compilation</a> flags to point to your local copy.
 					</p>
 					<p>
 						Each of these systems has its own installation procedure beyond the scope of this document.
@@ -423,23 +438,12 @@
 						hard-code a configuration that will define run-time operation, e.g., paths and filenames.
 					</p>
 					<dl>
-						<dt><code>PREFIX</code></dt>
+						<dt id="adminuri"><code>ADMINURI</code></dt>
 						<dd>
-							Convenience variable for defining other variables.
-							This is not used during operation.
-						</dd>
-						<dt id="htdocs"><code>HTDOCS</code></dt>
-						<dd>
-							This is a path used for installing read-only <q>static</q> pages, like CSS,
-							JavaScript, and some HTML.
-							This is usually the <q>htdocs</q> directory for your web server.
-							In most web servers, this defaults to <span class="file">/var/www/htdocs</span>.
-							It must be accessable (i.e., mapped) by the web server process.
-						</dd>
-						<dt><code>HTURI</code></dt>
-						<dd>
-							This is the URI location of the <a href="#htdocs"><code>HTDOCS</code></a> variable.
-							In most web servers, this defaults to <span class="file">/</span> (the root).
+							This is the administrative CGI URI relative to the server root.
+							It will correspond to the mapped location of <a href="#cgibin"><code>CGIBIN</code></a>
+							plus the script name.
+							This is often <span class="file">/cgi-bin/admin</span>.
 						</dd>
 						<dt id="cgibin"><code>CGIBIN</code></dt>
 						<dd>
@@ -447,18 +451,6 @@
 							This is usually the <q>cgibin</q> directory for your web server.
 							In most web servers, this defaults to <span class="file">/var/www/cgi-bin</span>.
 							It must be accessable (i.e., mapped) by the web server process.
-						</dd>
-						<dt id="adminuri"><code>ADMINURI</code></dt>
-						<dd>
-							This is the administrative CGI URI relative to the server root.
-							It will correspond to the mapped location of <a href="#cgibin"><code>CGIBIN</code></a>
-							plus the script name.
-						</dd>
-						<dt id="laburi"><code>LABURI</code></dt>
-						<dd>
-							This is the player (laboratory) CGI URI relative to the server root.
-							It will correspond to the mapped location of <a href="#cgibin"><code>CGIBIN</code></a>
-							plus the script name.
 						</dd>
 						<dt id="datadir"><code>DATADIR</code></dt>
 						<dd>
@@ -468,13 +460,25 @@
 							It <strong>must not</strong> be accessable by the web server process&mdash;only the
 							running CGI processes.
 						</dd>
-						<dt><code>RDATADIR</code></dt>
+						<dt id="htdocs"><code>HTDOCS</code></dt>
 						<dd>
-							This is the path used by the running CGI process to find <a
-								href="#datadir"><code>DATADIR</code></a>.
-							This is because the running process may be jailed in a file-system (such as <span
-								class="file">/var/www</span>) and the absolute path of <a
-								href="#datadir"><code>DATADIR</code></a> may not be available.
+							This is a path used for installing read-only <q>static</q> pages accessable by the web
+							server process like CSS, JavaScript, and HTML.
+							This is usually the <q>htdocs</q> directory for your web server.
+							In most web servers, this defaults to <span class="file">/var/www/htdocs</span>.
+							It must be accessable (i.e., mapped) by the web server process.
+						</dd>
+						<dt><code>HTURI</code></dt>
+						<dd>
+							This is the mapped location of the <a href="#htdocs"><code>HTDOCS</code></a> variable.
+							In most web servers, this defaults to <span class="file">/</span> (the root).
+						</dd>
+						<dt id="laburi"><code>LABURI</code></dt>
+						<dd>
+							This is the player (laboratory) CGI URI relative to the server root.
+							It will correspond to the mapped location of <a href="#cgibin"><code>CGIBIN</code></a>
+							plus the script name.
+							This is often <span class="file">/cgi-bin/lab</span>.
 						</dd>
 						<dt><code>LIBS</code></dt>
 						<dd>
@@ -483,6 +487,19 @@
 							This really depends on the operating system.
 							For OpenBSD, you'll need to define <code>-lintl -liconv</code>.
 							For non-static compilations, you probably don't need anything here.
+						</dd>
+						<dt><code>PREFIX</code></dt>
+						<dd>
+							Convenience variable for defining the prefix of other variables.
+							This is not used during operation.
+						</dd>
+						<dt><code>RDATADIR</code></dt>
+						<dd>
+							This is the path used by the running CGI process to find <a
+								href="#datadir"><code>DATADIR</code></a>.
+							This is because the running process may be jailed in a file-system (such as <span
+								class="file">/var/www</span>) and the absolute path of <a
+								href="#datadir"><code>DATADIR</code></a> may not be available.
 						</dd>
 						<dt id="static"><code>STATIC</code></dt>
 						<dd>
@@ -497,21 +514,50 @@
 						subdirectory of the usual installation locations).
 					</p>
 					<p>
+						There are some miscellaneous components that one may tune.
+					</p>
+					<dl>
+						<dt><code>DSYMUTIL</code></dt>
+						<dd>
+							Only used for testing on systems supporting <a href="http://valgrind.org/">valgrind</a>.
+							This should point to the command required to run <code>dsymutil</code>, which is usually
+							<code>sudo dsymutil</code>, to generate debugging information for valgrind processes.
+						</dd>
+
+						<dt><code>FONTURI</code></dt>
+						<dd>
+							Specify an alternative path for the <a
+								href="https://fortawesome.github.io/Font-Awesome/">Fort Awesome</a> icon set.
+							This allows administrators to deploy LAN-only experiments, as otherwise they'd need to
+							contact the given server for font icons.
+						</dd>
+						<dt><code>MTURKURI</code></dt>
+						<dd>
+							The URL for the Mechanical Turk interface.
+							As described in the <a href="https://www.mturk.com/mturk/welcome">Mechanical Turk</a>
+							documentation, this can either be the production or <q>sandbox</q> site.
+							This option will be moved into the main <span class="nm">gamelab</span> system in future
+							releases.
+						</dd>
+					</dl>
+					<p>
 						Once you've defined these variables, compile the software in the usual way by executing
 						<kbd>make</kbd>.
+						The software should have no errors or warnings.
+						If it does, please contact <a href="mailto:kristaps@kcons.eu">Kristaps</a> with details.
 					</p>
 				</section>
 				<section id="installation">
 					<h3>Installation</h3>
 					<p>
 						Once you've <a href="#compiling">compiled</a> the software and configured its parameters, you
-						can install it by simply running <kbd>make install</kbd>.
-						You'll probably need to do <kbd>sudo make install</kbd>, however.
+						can install it by simply running <kbd>make installcgi</kbd>.
+						(You'll probably need to do <kbd>sudo make installcgi</kbd>, however.)
 					</p>
 					<p>
 						<strong>Warning</strong>: this will overwrite any existing database!
 						To update an existing installation (assuming the database hasn't changed&mdash;the release notes
-						for each version will tell you), use <kbd>make update</kbd> or <kbd>sudo make update</kbd>.
+						for each version will tell you), use <kbd>make updatecgi</kbd> or <kbd>sudo make updatecgi</kbd>.
 						I <strong>do not</strong> recommend this, as it's easy to miss a small database change.
 					</p>
 					<p>
@@ -537,27 +583,28 @@
 						<dt><span class="file">adminhome.min.js</span></dt>
 						<dt><span class="file">adminlogin.html</span></dt>
 						<dt><span class="file">playerautoadd.html</span></dt>
-						<dt><span class="file">playerautoadd.jmin.s</span></dt>
+						<dt><span class="file">playerautoadd.min.js</span></dt>
 						<dt><span class="file">playerhome.css</span></dt>
-						<dt><span class="file">playerhome.jmin.s</span></dt>
+						<dt><span class="file">playerhome.min.js</span></dt>
 						<dt><span class="file">playerhome.html</span></dt>
 						<dt><span class="file">playerlobby.css</span></dt>
 						<dt><span class="file">playerlobby.html</span></dt>
-						<dt><span class="file">playerlobby.jmin.s</span></dt>
+						<dt><span class="file">playerlobby.min.js</span></dt>
 						<dt><span class="file">playerlogin.html</span></dt>
 						<dt><span class="file">privacy.html</span></dt>
 						<dt><span class="file">style.css</span></dt>
-						<dt><span class="file">script.jmin.s</span></dt>
+						<dt><span class="file">script.min.js</span></dt>
 						<dd>
 							These statically-served, read-only files are installed into <a
 								href="#htdocs"><code>HTDOCS</code></a>.
 						</dd>
-						<dt><span class="file">addplayer.eml</span></dt>
 						<dt><span class="file">adminhome-new.html</span></dt>
 						<dt><span class="file">adminhome-started.html</span></dt>
-						<dt><span class="file">backupfail.eml</span></dt>
-						<dt><span class="file">backupsuccess.eml</span></dt>
+						<dt><span class="file">mail-addplayer.eml</span></dt>
+						<dt><span class="file">mail-backupfail.eml</span></dt>
+						<dt><span class="file">mail-backupsuccess.eml</span></dt>
 						<dt><span class="file">mail-roundadvance.eml</span></dt>
+						<dt><span class="file">mail-roundfirst.eml</span></dt>
 						<dt><span class="file">mail-test.eml</span></dt>
 						<dd>
 							These read-only files are installed into <a href="#datadir"><code>DATADIR</code></a>.
@@ -565,7 +612,7 @@
 						</dd>
 					</dl>
 					<p>
-						If you run <kbd>make install</kbd> (instead of <kbd>make update</kbd>), the following will also
+						If you run <kbd>make installcgi</kbd> (instead of <kbd>make updatecgi</kbd>), the following will also
 						be installed.
 					</p>
 					<dl>
@@ -586,6 +633,7 @@
 						directory exists in the root of the jai.
 						On default installations, this consists of a <span class="file">tmp</span> directory in the
 						document root, e.g., <span class="file">/var/www/tmp</span>, with world-writable permissions.
+						You will also need the <span class="file">/dev/null</span> device in the jail.
 					</p>
 					<p>
 						<strong>Note</strong>: if you're running in a file-system jail, the security measures of <a
@@ -608,8 +656,6 @@
 					In this section, I describe how to administer the <span class="nm">gamelab</span> system.
 					I assume that you've just installed it following the <a href="#installation">Installation</a> section or
 					that your system administrator has done so.
-					I'll use screenshots from the <a class="http://getfirefox.org">Firefox</a> web browser installed on Mac
-					OS X.  Your system may not look like this&mdash;that's ok.
 				</p>
 				<p>
 					<span class="nm">Gamelab</span> experiments consist of a series of games (normal form bimatrices) played
@@ -622,8 +668,8 @@
 					However, you can back up and wipe the experiment installation database&mdash;starting over&mdash;at any
 					time to start over.
 				</p>
-				<section id="firstlogin">
-					<h3>First Login</h3>
+				<section id="createexperiments">
+					<h3>Creating Experiments</h3>
 					<p>
 						Begin by accessing the administrator URL with your browser.
 						This will usually look like <span class="url">http://foo.com/cgi-bin/admin</span>, but it
@@ -632,158 +678,135 @@
 						<strong>Note</strong>: you'll need to configure your browser to accept cookies and run
 						JavaScript for the domain upon which <span class="nm">gamelab</span> is running.
 					</p>
-					<!-- figure>
-						<a href="screen-admin1.png"><img src="screen-admin1.png" alt="Administrator Login" /></a>
-					</figure -->
 					<p>
 						The default e-mail address is <samp>foo@example.com</samp> and the default password is
-						<samp>foobar</samp>.
+						<samp>xyzzy</samp>.
 						If the system has been properly configured, you'll be logged in.
 						<strong>Note</strong>: you can log out at any time by clicking the navigation bars in the upper
 						left-hand corner, then selecting <q>Logout</q>.
 					</p>
 					<p>
-						The first thing you should do upon logging in is change the administrator e-mail address and password.
+						The first thing you should do upon logging in is change the administrator e-mail address and
+						password using the <q>Change Password</q> and <q>Change E-mail</q> sections of the
+						administratino console.
 						Set the administrator e-mail to be your own e-mail address and the password to something fairly
 						complicated.
 						You'll be logged out&mdash;and must log back in&mdash;after each step.
 						Make sure that no participants will be able to guess (or know) your credentials!
 					</p>
-					<!-- figure>
-						<a href="screen-admin2.png"><img src="screen-admin2.png" alt="Administrator Homepage" /></a>
-					</figure -->
 					<p>
-						The next step is e-mail configuration.
-						<span class="nm">Gamelab</span> uses e-mail to notify participants of events.
-						You won't be able to use the system properly without it!
+						The next step is optional e-mail configuration in the <q>E-mail Server</q> section.
+						You can run some experiments (e.g., captive-only) without e-mail support, but you won't be able
+						to e-mail yourself the database.
+						So it's best to set this.
 						You may need your system administrator's help, but you should be able to enter the same information as
 						when you configure your e-mail reader: 
 						the <q>from</q> address the e-mails will use (usually your own so that they can respond to you);
 						the outgoing (SMTP) e-mail server in the form <samp>smtp://foo.bar:587</samp>; 
 						and the user and password for accessing that server.
 						<span class="nm">Gamelab</span> won't work for non-secure (i.e., non-TLS) e-mail access.
-					</p>
-					<!-- figure>
-						<a href="screen-admin3.png"><img src="screen-admin3.png" alt="Administrator Homepage" /></a>
-					</figure -->
-					<p>
 						When you're finished entering this information, test the configuration.
 						You should receive an e-mail in a few minutes from the <span class="nm">gamelab</span> server.
 					</p>
-				</section>
-				<section id="firstexperiment">
-					<h3>First Experiment</h3>
 					<p>
-						Now that you've set your e-mail and administrator credentials as described in <a
-							href="#firstlogin">First Login</a>, you're ready to configure an experiment.
-						Don't worry&mdash;you don't need to start your experiment immediately.
-						You can slowly add the players and games you want until you're ready to deploy the experiment
-						itself.
-						Start with the following.
+						Next, the experiment itself.
+						Start with a set of normal form bimatrix games in the <q>Games</q> section.
+						These can have any number of strategies and either positive integer or rational payoffs.
+						Enter these games into the <q>Games</q> section.
+						Bimatrix games are laid out top-left to bottom-right.
+						So let's say you have the following game shown first as a symmetric game then with the
+						<span style="color: red;">implied payoffs</span> to the opponent player.
 					</p>
-					<!-- figure>
-						<a href="screen-admin4.png"><img src="screen-admin4.png" alt="Administrator Homepage" /></a>
-					</figure -->
-					<ul>
-						<li>
-							A set of players identified by e-mail address.
-							The more, the merrier, but you'll need two at a minimum.
-							(If you're running with captive players, at least two will need to have registered.)
-							Make sure the e-mail addresses are real!
-							Enter these e-mails into the <q>Players</q> section.
-							You'll be able to add and remove e-mails before the experiment, so no worries.
-							Moreover, if you start an experiment with mistaken e-mails, you'll be able to disable them.
-							If you specify <q>Allow captive players</q>, participants can register themselves by
-							accessing the <span class="file">playerautoadd.html</span> URL.
-							They are captive in the sense that their logout button is disabled and that they are
-							<strong>never</strong> e-mailed, nor are they retained if the database is wiped.
-							They will be shown with a special symbol.
-							In general, captive mode is disabled when you start an experiment.
-							This is a security measure so that players can't join after you've started.
-							You can opt to allow players to continually join by specifying that captive mode should
-							be preserved when the experiment begins.
-						</li>
-						<li>
-							A set of normal form bimatrix games.
-							These can have any number of strategies and either positive integer or rational payoffs.
-							Enter these games into the <q>Games</q> section.
-							Bimatrix games are laid out top-left to bottom-right.
-							So let's say you have the following game shown first as a symmetric game then with the
-							<span style="color: red;">implied payoffs</span> to the opponent player.
-							<div id="gamepanes" class="gamepanes"><div>
-									<table>
-										<tr>
-											<td>1</td>
-											<td>0</td>
-											<td>-1</td>
-										</tr>
-										<tr>
-											<td>0</td>
-											<td>-1</td>
-											<td>1</td>
-										</tr>
-										<tr>
-											<td>-1</td>
-											<td>1</td>
-											<td>0</td>
-										</tr>
-									</table>
-								</div><div>
-									<table>
-										<tr>
-											<td>1<span>, -1</span></td>
-											<td>0<span>, 0</span></td>
-											<td>-1<span>, 1</span></td>
-										</tr>
-										<tr>
-											<td>0<span>, 0</span></td>
-											<td>-1<span>, 1</span></td>
-											<td>1<span>, -1</span></td>
-										</tr>
-										<tr>
-											<td>-1<span>, 1</span></td>
-											<td>1<span>, -1</span></td>
-											<td>0<span>, 0</span></td>
-										</tr>
-									</table>
-							</div></div>
-							These would decompose into <kbd class="gamepayoffs">1 <span>-1</span> 0 <span>0</span>
-								-1 <span>1</span> 0 <span>0</span> -1 <span>1</span> 1 <span>-1</span> -1
-								<span>1</span> 1 <span>-1</span> 0 <span>0</span></kbd>,
-							where opponent payoffs are <span style="color: red;">coloured</span>.
-						</li>
-						<li>
-							The duration (minutes per round and rounds) that players will participate in the
-							experiment.
-							The round time is specified in minutes.
-							It's important to factor in network lag: while one-minute experiments are certainly
-							well-tested and possible, they're not realistic if people sometimes must wait for the
-							page to load!
-						</li>
-					</ul>
-					<!-- figure>
-						<a href="screen-admin5.png"><img src="screen-admin5.png" alt="Administrator Homepage" /></a>
-					</figure -->
+					<div id="gamepanes" class="gamepanes">
+						<div>
+							<table>
+								<tr>
+									<td>1</td>
+									<td>0</td>
+									<td>-1</td>
+								</tr>
+								<tr>
+									<td>0</td>
+									<td>-1</td>
+									<td>1</td>
+								</tr>
+								<tr>
+									<td>-1</td>
+									<td>1</td>
+									<td>0</td>
+								</tr>
+							</table>
+						</div>
+						<div>
+							<table>
+								<tr>
+									<td>1<span>, -1</span></td>
+									<td>0<span>, 0</span></td>
+									<td>-1<span>, 1</span></td>
+								</tr>
+								<tr>
+									<td>0<span>, 0</span></td>
+									<td>-1<span>, 1</span></td>
+									<td>1<span>, -1</span></td>
+								</tr>
+								<tr>
+									<td>-1<span>, 1</span></td>
+									<td>1<span>, -1</span></td>
+									<td>0<span>, 0</span></td>
+								</tr>
+							</table>
+						</div>
+					</div>
 					<p>
-						Once you've added your games and your players, you're ready to actually deploy the experiment
-						itself.
-						Set the time and date when the experiment begins (<strong>remember</strong>: in GMT!) and the
-						number of rounds and duration of each round.
-						If you enter a non-zero percentage for the number of players per role, then the round will
-						advance if enough players have played.
+						These would decompose into <kbd class="gamepayoffs">1 <span>-1</span> 0 <span>0</span> -1
+							<span>1</span> 0 <span>0</span> -1 <span>1</span> 1 <span>-1</span> -1 <span>1</span> 1
+							<span>-1</span> 0 <span>0</span></kbd>, where opponent payoffs are <span style="color:
+							red;">coloured</span>.
+					</p>
+					<p>
+						Next, specify a set of players identified by e-mail address in the <q>Players</q> section.
+						Identifiers may be separated by white-space (newlines, tabs, spaces).
+						You'll see valid identifiers noted after submitting the form.
+						If you specify <q>Allow captive players</q>, participants can register themselves by
+						accessing the <span class="file">playerautoadd.html</span> URL <strong>from the moment
+							you submit the form</strong>, so you may see participants appear as they add
+						themselves.
+						They are captive in the sense that their logout button is disabled and that they are
+						never e-mailed (their identifiers are free-form, not e-mail addresses), nor are they
+						retained if the database is wiped.
+						Captive mode is disabled when you start an experiment: 
+						this is a security measure so that players can't join after you've started.
+						You can opt to allow players to continually join by specifying that captive mode should
+						be preserved when the experiment begins.
+						You can also specify <a href="https://www.mturk.com/mturk/welcome">Mechanical Turk</a>
+						participants.
+						See the <a href="#mechanicalturk">Mechanical Turk</a> section for details.
+					</p>
+					<p>
+						Once you've added your games and your players, you're ready for the experiment configuration as
+						assigned in <q>Experiment Parameters</q>.
+						Start with the simple options (don't click on <q>Show Advanced Options</q> yet.)
+						Begin with the time and date when the experiment begins, the
+						number of rounds, duration of each round, and a fraction of players that will cause the round to
+						advance before the maximum time has elapsed.
+						(You can set this to zero to force the maximum time to elapse before the round advances.)
 						For example, if set to 50%, then 50% or more players playing all games in both roles will cause
 						the round to advance regardless the amount of time left.
-						(If not enough players play, then round will advance by the given, and now maximum, time.)
-						For non-zero percentages, you can also specify a <q>grace time</q> in minutes: the experiment
-						won't automatically advance rounds until after this duration.
-						<!-- If there are no players to play (for example, when allowing players to dynamically join after
-						starting for fewer plays than total rounds), the round will advance immediately after any grace
-						time. -->
+						If there are zero participants in either player role, then it's as if nobody plays, making the
+						round run until the maximum time elapses.
+						The minimum time per round is one moment; the minimum number of rounds is one round.
 					</p>
 					<p>
-						You can edit the instructions given to players&mdash;in fact, that's a good idea, as you
-						probably want to tune the winnings.
-						Then hit <q>Start</q> and you're ready to go!
+						The advanced options allow for finer control&mdash;be careful in using these!
+						The login URL is used when sending non-captive participants the welcome e-mail.
+						Their query string credentials will be appended to the given URL.
+						You don't want to change this unless, for example, the laboratory CGI script is sitting in
+						another URL path.
+						You can customise the instructions shown to participants by choosing from a set of pre-made
+						instructions or providing your own.
+						If you provide your own, it's up to you to make sure that the instructions are a well-formatted
+						HTML5 fragment.
+						Review the existing instructions on how to customise.
 					</p>
 					<p>
 						Once you hit the <q>Start</q> button, the experiment has begun.
@@ -795,8 +818,7 @@
 				<section id="runningexperiments">
 					<h3>Running Experiments</h3>
 					<p>
-						Once you've deployed your experiment as described in <a href="#firstexperiment">First
-							Experiment</a>, you must now administer it.
+						Once you've deployed your experiment, you must now administer it.
 						For the time being, there's very little in the way of <span class="nm">gamelab</span>
 						administration.
 						You can enable and disable players, reset player passwords, and reconfigure your administrator
@@ -837,6 +859,9 @@
 						Note that captive players are not retained if the database is wiped.
 					</p>
 				</section>
+			</section>
+			<section id="mechanicalturk">
+				<h2>Mechanical Turk</h2>
 			</section>
 			<section id="analysingexperiments">
 				<h2>Analysing Experiments</h2>

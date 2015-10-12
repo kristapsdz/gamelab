@@ -27,7 +27,6 @@ article			{ color: #fff;
 			  line-height: 125%;
 			  text-shadow: 1px 1px #333;
 			  font-size: 17pt; }
-#moreinfo		{ padding-top: 2em; }
 footer			{ margin-top: 3em; 
 		  	  margin-bottom: 2em;
 			  font-size: 11pt;
@@ -44,11 +43,13 @@ a:hover			{ color: #ff6000; }
 			  text-shadow: none; }
 footer a		{ color: #cc9000; }
 section			{ text-shadow: none;
-			  font-size: 14pt;
-			  color: #aeaeae; }
+			  font-size: 13pt;
+			  color: #cecece; }
 nav[data-sblg-nav] ul	{ list-style-type: none; 
+			  margin-top: 24pt;
 			  color: #aeaeae; 
-			  padding: 0; }
+			  padding: 0; 
+		  	  padding-top: 1.12em; }
 nav[data-sblg-nav] li	{ margin-bottom: 1em; }
 nav[data-sblg-nav] li p	{ margin: 0; 
 			  line-height: 120%; }
@@ -57,7 +58,9 @@ nav[data-sblg-nav] li code
 nav[data-sblg-nav] li p + p	
 			{ margin-top: 0.5em; }
 nav[data-sblg-nav] li > div:first-child
-			{ color: #dfdfdf; }
+			{ color: #dfdfdf; 
+			  margin-bottom: 4pt;
+			  border-bottom: thin groove #bc2806; }
 @media only screen and (max-width: 480px), only screen and (max-device-width: 480px) {
 header			{ padding-top: 1ex; }
 header span a:first-child

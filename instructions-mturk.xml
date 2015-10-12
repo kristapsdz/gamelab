@@ -1,0 +1,92 @@
+<p>
+Welcome! 
+In this HIT you will use this web page to play a number of games.
+To play, click the menu in the upper left-hand corner then click <q>Play</q>.
+</p>
+<h3>HIT overview</h3>
+<p>
+You will participate in @@gamelab-rounds@@ rounds.  
+In each round you and others will make decisions in @@gamelab-games@@ games.  
+These games are identical in all rounds.
+</p>
+<p>
+In addition to the completion fee you will earn a bonus payment that
+depends on both your own and others' decisions in the games.
+</p>
+<p>
+Each round will last for at least @@gamelab-round-mintime-minutes@@
+minutes and will end when either @@gamelab-round-percent@@% of all
+participants have played or after @@gamelab-round-time-minutes@@ minutes
+have passed.
+</p>
+<h3>Game setup</h3>
+<p>
+Each game is given in a table and you will have to choose 1 or more
+rows to play in each. 
+You will then be matched against one of the other participants who will
+choose one or more columns.
+</p>
+Your payoff for a given row and column combination is the first number
+in each cell, shown in:
+<i class="gamelab-colour fa fa-square"></i>.
+The column player's payoff is the second number in each cell, shown in:
+<i class="gamelab-ocolour fa fa-square"></i>.
+Your payoff contributes to your bonus payment, with higher payoffs
+resulting in a higher bonus payment.
+</p>
+<p>
+You will only get payoffs from the rows you choose to play. 
+However, column players will be choosing which of the columns to play,
+so you won't have full control over the payoff you get.
+</p>
+<p>
+After you have chosen which rows to play you must assign a weight to
+each of these. 
+The weights must add up to <strong>1</strong>. 
+A weight of <strong>1</strong> means that payoffs (for you and the
+column player) will be calculated solely based on that row. 
+A smaller weight, for example <strong>1/2</strong>, means that <strong>1/2</strong> of your payoffs will
+be calculated from that row. 
+The columns from which your payoffs are calculated are chosen by the
+column players in the same fashion.
+</p>
+<p>
+To make a decision in a game, first click all rows you want to play and
+then input the weights you want to assign to them. 
+Once you have chosen rows and weights, click the <q>Submit play</q> button
+and then the <q>Go to next game</q> button to proceed to the next game.
+</p>
+<p>
+You must make decisions for all @@gamelab-games@@ games in a round in
+order to receive payoffs from that round.
+</p>
+<h3>Bonus payments</h3>
+<p>
+Your payoffs from a game depend on the rows and weights you choose, as
+well as  how the column players choose on average. 
+Other players' payoffs are calculated in the same fashion.
+</p>
+<p>
+At the end of the task your total payoffs will be calculated by summing
+your payoffs from all games in all rounds in which you have
+participated. 
+Your payoff will be converted to @@gamelab-currency@@ at a 1 payoff
+point = @@gamelab-conversion@@ rate.
+</p>
+<h3>History of play</h3>
+<p>
+The graphs on the play page and on the <q>History</q> tab provide
+information about the games and how they have been played in previous
+rounds. 
+This information includes:
+</p>
+<ul>
+	<li>
+	Your previous payoffs.
+	</li>
+	<li> 
+	How much payoff you would have gotten by choosing each row with full weight (1) in previous
+	rounds.
+	</li>
+	<li>The average choices of the row and column players in previous rounds.</li>
+</ul>

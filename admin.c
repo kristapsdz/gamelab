@@ -1255,10 +1255,10 @@ senddostartexpr(struct kreq *r)
 	    INSTR_NOLOTTERY == inst ||
 	    INSTR_MTURK == inst) {
 		fd = open(INSTR_LOTTERY == inst ?
-			  DATADIR "/instructions-lottery.html" :
+			  DATADIR "/instructions-lottery.xml" :
 			  (INSTR_NOLOTTERY == inst ?
-			   DATADIR "/instructions-nolottery.html" :
-			   DATADIR "/instructions-mturk.html"),
+			   DATADIR "/instructions-nolottery.xml" :
+			   DATADIR "/instructions-mturk.xml"),
 			  O_RDONLY, 0);
 		if (-1 == fd || -1 == fstat(fd, &st)) {
 			http_open(r, KHTTP_400);

@@ -7,7 +7,7 @@
 		<link rel="stylesheet" href="@HTURI@/adminhome.css" type="text/css" />
 		<link href="@FONTURI@" rel="stylesheet" />
 		<script src="@HTURI@/script.min.js"></script>
-		<script src="@HTURI@/adminhme.min.js"></script>
+		<script src="@HTURI@/adminhome.min.js"></script>
 	</head>
 	<body onload="loadNewGames(); loadNewPlayers(); loadNewExpr(); loadSmtp(); seturls();" onclick="onNavUp();">
 		<header>
@@ -388,40 +388,47 @@
 									<a href="#" onclick="document.getElementById('advanced').className='showadv'; return false;">Show Advanced Options</a>.
 								</span>
 								<p>
-									Optionally enter the <i class="fa fa-link"></i> address for logging in
-									(sent in players' welcome email), <i class="fa fa-code"></i>
-									instructions (HTML5 markup) that will be shown to players, <i class="fa
-										fa-gears"></i> rounds per player (zero to be all rounds), <i
-										class="fa fa-history fa-flip-horizontal"></i> minimum minutes for
-									the percentage to take affect so as to allow players to have a chance at
-									playing, and <i class="fa fa-group"></i> maximum number of simulataneous
-									players per player role (0, the default, for no limit).
-									Upload a <i class="fa fa-fw fa-file-code-o"></i> history of play (a JSON
-									file as created with by exporting the history) to be prepended to the
-									history shown to players.
-									Finally, set the toggle for <q>Do not show lottery</q> to suppress
-									information shown to users about the lottery system, or the
-									<q>Show questionnaire</q> toggle to require that players submit answers
-									to some verification questions before playing.
+									<i class="fa fa-chevron-circle-up"></i>
+									<a href="#" onclick="document.getElementById('advanced').className=''; return false;">Hide Advanced Options</a>.
 								</p>
+								<div>
+									Enter the <i class="fa fa-link"></i> address for logging in, which is
+									sent in players' welcome email.
+								</div>
 								<div class="input">
 									<i class="fa fa-fw fa-link"></i>
 									<input required="required" id="loginURI" type="url" name="uri" />
+								</div>
+								<div>
+									Set your <i class="fa fa-code"></i>
+									instructions that will be shown to players, which can consist of an uploaded HTML5 fragment.
 								</div>
 								<div class="input">
 									<i class="fa fa-fw fa-code"></i>
 									<div>
 										<div>
 											<input value="lottery" id="default-lottery" checked="checked" type="radio" name="instr" />
-											<label for="default-lottery">Lottery</label>
+											<label for="default-lottery">
+												<a href="@HTURI@/instructions-lottery.xml.txt">
+													Lottery
+												</a>
+											</label>
 										</div>
 										<div>
 											<input value="nolottery" id="default-nolottery" type="radio" name="instr" />
-											<label for="default-lottery">No Lottery</label>
+											<label for="default-lottery">
+												<a href="@HTURI@/instructions-nolottery.xml.txt">
+													No Lottery
+												</a>
+											</label>
 										</div>
 										<div>
 											<input value="mturk" id="default-mturk" type="radio" name="instr" />
-											<label for="default-mturk">Mechanical Turk</label>
+											<label for="default-mturk">
+												<a href="@HTURI@/instructions-mturk.xml.txt">
+													Mechanical Turk
+												</a>
+											</label>
 										</div>
 										<div>
 											<input value="custom" id="default-custom" type="radio" name="instr" />
@@ -432,6 +439,12 @@
 										</div>
 									</div>
 								</div>
+								<div>
+									Set <i class="fa fa-money"></i> to the current (e.g., EUR, USD, etc.)
+									and <i class="fa fa-exchange"></i> to the conversion rate from points to
+									currency.
+									These are not shown to participants.
+								</div>
 								<div class="input">
 									<i class="fa fa-fw fa-money"></i>
 									<input required="required" type="text" id="currency" name="currency" value="US dollars" />
@@ -439,6 +452,15 @@
 								<div class="input">
 									<i class="fa fa-fw fa-exchange"></i>
 									<input required="required" type="number" id="conversion" name="conversion" step="any" min="0.0" value="1.0" />
+								</div>
+								<div>
+									Set 
+									<i class="fa
+										fa-gears"></i> rounds per player (zero to be all rounds), <i
+										class="fa fa-history fa-flip-horizontal"></i> minimum minutes for
+									the percentage to take affect so as to allow players to have a chance at
+									playing, and <i class="fa fa-group"></i> maximum number of simulataneous
+									players per player role (0, the default, for no limit).
 								</div>
 								<div class="input">
 									<i class="fa fa-fw fa-gears"></i>
@@ -452,9 +474,22 @@
 									<i class="fa fa-fw fa-group"></i>
 									<input required="required" type="number" name="playermax" id="playermax" min="0" step="1" value="0" />
 								</div>
+								<div>
+									Upload a <i class="fa fa-fw fa-file-code-o"></i> history of play (a JSON
+									file as created with by exporting the history) to be prepended to the
+									history shown to players.
+								</div>
 								<div class="input">
 									<i class="fa fa-fw fa-file-code-o"></i>
 									<input type="file" name="historyfile" id="historyfile" accept=".json" />
+								</div>
+								<div>
+									Finally, set the toggle for <q>Do not show lottery</q> to suppress
+									information shown to users about the lottery system;
+									<q>Show questionnaire</q> toggle to require that players submit answers
+									to some verification questions before playing; or
+									<q>E-mail round advancement</q> to e-mail non-captive participants when
+									the round advances.
 								</div>
 								<div class="input input-check">
 									<i onclick="toggler('nolottery', 'nolotteryToggle');" id="nolotteryToggle" class="fa fa-fw fa-toggle-off"></i>

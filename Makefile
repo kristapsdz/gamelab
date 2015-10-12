@@ -43,10 +43,10 @@ VMONTH	 = September
 VYEAR	 = 2015
 CFLAGS 	+= -g -W -Wall -Wstrict-prototypes -Wno-unused-parameter -Wwrite-strings -I/usr/local/include
 CFLAGS	+= -DDATADIR=\"$(RDATADIR)\" -DHTURI=\"$(HTURI)\"
-PAGES 	 = instructions-lottery.html \
-	   instructions-nolottery.html \
-	   instructions-mturk.html \
-	   mail-addplayer.eml \
+INSTRS 	 = instructions-lottery.xml \
+	   instructions-nolottery.xml \
+	   instructions-mturk.xml
+MAILS	 = mail-addplayer.eml \
 	   mail-backupfail.eml \
 	   mail-backupsuccess.eml \
 	   mail-roundadvance.eml \
@@ -125,7 +125,8 @@ VERSIONS = version_1_0_1.xml \
 	   version_1_0_17.xml \
 	   version_1_0_18.xml \
 	   version_1_0_19.xml \
-	   version_1_0_20.xml
+	   version_1_0_20.xml \
+	   version_1_0_21.xml
 
 all: admin lab gamers $(BUILT) $(BUILTPS)
 
@@ -152,7 +153,8 @@ gamelab.bib: gamelab.in.bib
 
 updatecgi: all
 	install -m 0444 $(STATICS) $(BUILT) flotr2.min.js logo.png logo-dark.png $(HTDOCS)
-	install -m 0444 $(PAGES) $(BUILTPS) $(DATADIR)
+	for f in $(INSTRS) ; do install -m 0444 $$f $(HTDOCS)/`basename $$f`.txt ; done
+	install -m 0444 $(INSTRS) $(MAILS) $(BUILTPS) $(DATADIR)
 	install -m 0755 admin $(CGIBIN)/admin.cgi
 	install -m 0755 admin $(CGIBIN)
 	install -m 0755 lab $(CGIBIN)/lab.cgi
@@ -169,7 +171,7 @@ installcgi: updatecgi gamelab.db
 
 gamelab.tgz:
 	mkdir -p .dist/gamelab-$(VERSION)
-	cp $(SRCS) $(PAGES) $(STATICS) .dist/gamelab-$(VERSION)
+	cp $(SRCS) $(INSTRS) $(MAILS) $(STATICS) .dist/gamelab-$(VERSION)
 	(cd .dist && tar zcf ../$@ gamelab-$(VERSION))
 	rm -rf .dist
 
@@ -191,7 +193,12 @@ gamelab.db: gamelab.sql
 
 index.html: index.xml $(VERSIONS)
 	sblg -t index.xml -o- $(VERSIONS) | \
-		sed "s!@VERSION@!$(VERSION)!g" >$@
+		sed -e "s!@ADMINURI@!$(ADMINURI)!g" \
+			-e "s!@LABURI@!$(LABURI)!g" \
+			-e "s!@FONTURI@!$(FONTURI)!g" \
+			-e "s!@VERSION@!$(VERSION)!g" \
+			-e "s!@MTURKURI@!$(MTURKURI)!g" \
+			-e "s!@HTURI@!$(HTURI)!g" >$@
 
 adminhome.js playerautoadd.js playerlobby.js playerhome.js playermturk.js script.js: jsmin
 

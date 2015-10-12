@@ -442,7 +442,7 @@ function loadGameGraphs(gameidx, lineName, barName, small)
 {
 	var	e, c, i, j, k, l, m, data, datas, lot, 
 		avg, len, matrix, hmatrix, sum, sub, 
-		stratidx, oldest, newest;
+		stratidx, oldest, newest, min;
 
 	oldest = small ? 'old' : 'oldest';
 	newest = small ? 'new' : 'newest';
@@ -472,6 +472,7 @@ function loadGameGraphs(gameidx, lineName, barName, small)
 		res.history[gameidx].roundups[0].navgp1.length : 
 		res.history[gameidx].roundups[0].navgp2.length;
 	datas = [];
+	min = 0.0;
 	for (j = 0; j < len; j++) {
 		data = [];
 		/* Start with zero! */
@@ -488,6 +489,8 @@ function loadGameGraphs(gameidx, lineName, barName, small)
 						hmatrix[res.roworders[gameidx][j]]
 						       [res.colorders[gameidx][m]][0];
 				data.push([k + 1, sum]);
+				if (sum < min)
+					min = sum;
 			}
 		l = k;
 		for (k = 0; k < res.history[gameidx].roundups.length; k++) {
@@ -499,6 +502,8 @@ function loadGameGraphs(gameidx, lineName, barName, small)
 					matrix[res.roworders[gameidx][j]]
 					      [res.colorders[gameidx][m]][0];
 			data.push([(k + l) + 1, sum]);
+			if (sum < min)
+				min = sum;
 		}
 		datas[j] = {
 			data: data,
@@ -510,7 +515,7 @@ function loadGameGraphs(gameidx, lineName, barName, small)
 		  xaxis: { ticks: [[ 0, oldest ], [(l + k), newest]] },
 		  shadowSize: 0,
 		  subtitle: (small ? 'Row PO' : 'Previous row payoffs'),
-		  yaxis: { min: 0.0, tickDecimals: 1 },
+		  yaxis: { min: min, tickDecimals: 1 },
 		  lines: { show: true },
 		  points: { show: true }});
 
@@ -523,6 +528,7 @@ function loadGameGraphs(gameidx, lineName, barName, small)
 	/* Start with zero! */
 	data.push([0, 0.0]);
 	j = 0;
+	min = 0.0;
 	if (null !== hmatrix)
 		for ( ; j < res.expr.history[gameidx].roundups.length; j++) 
 			data.push([j + 1, 0.0]);
@@ -530,6 +536,8 @@ function loadGameGraphs(gameidx, lineName, barName, small)
 	for (j = 0; j < res.history[gameidx].roundups.length; j++) {
 		lot = res.lotteries[j].plays[gameidx];
 		data.push([(j + k) + 1, null === lot ? 0.0 : lot.poff]);
+		if (null !== lot && lot.poff < min)
+			min = lot.poff;
 	}
 	Flotr.draw(c, 
 		[{ data: data }],
@@ -538,7 +546,7 @@ function loadGameGraphs(gameidx, lineName, barName, small)
 		  shadowSize: 0,
 		  lines: { show: true },
 		  points: { show: true },
-		  yaxis: { min: 0.0, tickDecimals: 1 }});
+		  yaxis: { min: min, tickDecimals: 1 }});
 
 	/* 
 	 * Accumulated payoff. 
@@ -548,6 +556,7 @@ function loadGameGraphs(gameidx, lineName, barName, small)
 	data = [];
 	/* Start with zero! */
 	data.push([0, 0.0]);
+	min = 0.0;
 	j = 0;
 	if (null !== hmatrix)
 		for (j = 0; j < res.expr.history[gameidx].roundups.length; j++)
@@ -558,6 +567,8 @@ function loadGameGraphs(gameidx, lineName, barName, small)
 		if (null !== lot)
 			l += lot.poff;
 		data.push([(j + k) + 1, l]);
+		if (l < min)
+			min = l;
 	}
 	Flotr.draw(c, 
 		[{ data: data }],
@@ -566,7 +577,7 @@ function loadGameGraphs(gameidx, lineName, barName, small)
 		  shadowSize: 0,
 		  lines: { show: true },
 		  points: { show: true },
-		  yaxis: { min: 0.0, tickDecimals: 1 }});
+		  yaxis: { min: min, tickDecimals: 1 }});
 
 	e = document.getElementById(barName);
 	sub = document.createElement('div');
