@@ -7,7 +7,11 @@
 	<aside>
 		<p>
 			Address a number of small issues encountered in live trials: <q>join</q> players after answering the last question
-			instead of when they actually try to play the first round, add administrator notice of running the mailer process, ...
+			instead of when they actually try to play the first round, add administrator notice of running the mailer process,
+			disallow negative accumulated tickets (in the event of negative payoffs) from crashing the system.
+			(This last part will be later fixed even more.)
+			Make the administrative console even clearer.
+			Bring the manual up to date with the current system.
 		</p>
 		<p>
 			Also hard-code the <a href="https://fortawesome.github.io/Font-Awesome/">Font Awesome</a> at compilation time instead of

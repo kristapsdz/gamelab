@@ -13,36 +13,10 @@
 			<h1><a href="index.html">gamelab</a></h1>
 		</header>
 		<nav>
-			<span>Version @VERSION@</span>
-			<span>
-				<a href="mailto:kristaps@kcons.eu">Contact</a>
-				<a title="Contact" href="mailto:kristaps@kcons.eu"><i class="fa fa-envelope-o"></i></a>
-			</span>
-			<!-- span>
-				<span>Source</span>
-				<a title="Source Code" href="snapshots/gamelab.tgz"><i class="fa fa-gears"></i></a>
-				<a title="Source Checksum" href="snapshots/gamelab.tgz.sha512"><i class="fa fa-lock"></i></a>
-				<a title="Source Archive" href="snapshots"><i class="fa fa-archive"></i></a>
-			</span -->
-			<span>
-				<a href="gamelab.bib">Cite</a>
-				<a title="BibTeX Citation" href="gamelab.bib"><i class="fa fa-bookmark"></i></a>
-			</span>
-		</nav>
-		<article>
-			<p>
-				<span class="nm">Gamelab</span> is an online game theory laboratory where participants assign mixed strategies
-				to game bimatrices over a series of rounds, accumulating payoffs as the experiment progresses.
-				The mission of <span class="nm">gamelab</span> is to allow for laboratory-style interaction without the
-				need for a laboratory.
-			</p>
-			<p>
-				This is the user's manual for <span class="nm">gamelab</span>.
-				Its purpose is to <a href="#intro">introduce</a> the system, then describe how to <a href="#deploy">deploy</a>
-				it and how to <a href="#administration">run experiments</a>.
-			</p>
-			<nav>
-				<ul>
+			<div onmouseover="document.getElementById('nav').style.display='block';" 
+			     onmouseout="document.getElementById('nav').style.display='none';">
+			     	<a href="#"><i class="fa fa-navicon"></i></a>
+				<ul id="nav">
 					<li>
 						<a href="#intro">Introduction</a>
 						<ul>
@@ -78,7 +52,19 @@
 							<li><a href="#runningexperiments">Running Experiments</a></li>
 						</ul>
 					</li>
-					<li><a href="#analysingexperiments">Analysing Experiments</a></li>
+					<li>
+						<a href="#mechanicalturk">Mechanical Turk</a>
+						<ul>
+							<li><a href="#mturkexperiment">Experiment Setup</a></li>
+							<li><a href="#mturkhit">HIT Setup</a></li>
+						</ul>
+					</li>
+					<li>
+						<a href="#analysingexperiments">Analysing Experiments</a>
+						<ul>
+							<li><a href="#databaseschema">Database Schema</a></li>
+						</ul>
+					</li>
 					<li>
 						<a href="#api">Programmable API</a>
 						<ul>
@@ -88,9 +74,40 @@
 						</ul>
 					</li>
 				</ul>
-			</nav>
+			</div>
+			<div><span class="bigview">Version</span> @VERSION@</div>
+			<div>
+				<a href="mailto:kristaps@kcons.eu">Contact</a>
+				<a title="Contact" href="mailto:kristaps@kcons.eu"><i class="fa fa-envelope-o"></i></a>
+			</div>
+			<!-- span>
+				<span>Source</span>
+				<a title="Source Code" href="snapshots/gamelab.tgz"><i class="fa fa-gears"></i></a>
+				<a title="Source Checksum" href="snapshots/gamelab.tgz.sha512"><i class="fa fa-lock"></i></a>
+				<a title="Source Archive" href="snapshots"><i class="fa fa-archive"></i></a>
+			</span -->
+			<div>
+				<a href="gamelab.bib">Cite</a>
+				<a title="BibTeX Citation" href="gamelab.bib"><i class="fa fa-bookmark"></i></a>
+			</div>
+		</nav>
+		<article>
+			<p>
+				<span class="nm">Gamelab</span> is an online game theory laboratory where participants assign mixed strategies
+				to game bimatrices over a series of rounds, accumulating payoffs as the experiment progresses.
+				The mission of <span class="nm">gamelab</span> is to allow for laboratory-style interaction without the
+				need for a laboratory.
+			</p>
+			<p>
+				This is the user's manual for <span class="nm">gamelab</span>.
+				Its purpose is to <a href="#intro">introduce</a> the system, then describe how to <a href="#deploy">deploy</a>
+				it and how to <a href="#administration">run experiments</a>.
+			</p>
 			<section id="intro">
-				<h2>Introduction</h2>
+				<header>
+					<a href="#"><i class="fa fa-angle-up fa-fw"></i></a>
+					<h2>Introduction</h2>
+				</header>
 				<p>
 					<span class="nm">Gamelab</span> is an online laboratory for conducting game theory experiments.
 					Experiments consist of an experimenter, an experiment configuration, participants, and a set of games.
@@ -100,29 +117,31 @@
 				<p>
 					An experimenter begins by configuring&#8212;among many other parameters&#8212;how rounds in the
 					experiment progress and for how long the experiment will run.
-					Once the experimenter deploys the experiment, players can log in and play each game once per round.
-					When the round advances, players earn points by computing the payoff from their submitted strategies
+					Once the experimenter deploys the experiment, participants can log in and play each game once per round.
+					When the round advances, participants earn points by computing the payoff from their submitted strategies
 					against the average mixture submited by participants playing the opponent player role.
-					After the last round, players' points award lottery tickets, and winners are drawn by selecting lottery
+					After the last round, participants' points award lottery tickets, and winners are drawn by selecting lottery
 					tickets.
 				</p>
 				<p>
 					<span class="nm">Gamelab</span> has many configurable parameters, for example, round advancement based
-					on number of players who have played; computing or not computing lotteries; <a
-						href"https://www.mturk.com/mturk/welcome">Mechanical Turk</a> integration; captive
+					on number of participants who have played; computing or not computing lotteries; <a
+						href="#mechanicalturk">Mechanical Turk</a> integration; captive
 					<q>laboratory-based</q> participants who cannot log out or back in; and so on.
 				</p>
 				<section id="participants">
-					<h3>Participants</h3>
+					<header>
+						<a href="#"><i class="fa fa-angle-up fa-fw"></i></a>
+						<h3>Participants</h3>
+					</header>
 					<p>
 						Experiment participants are identified by an e-mail address, an opaque identifier in
-						<q>captive</q> configurations, or a worker identifier in <a
-							href="https://www.mturk.com/mturk/welcome">Mechanical Turk</a> configurations.
+						<q>captive</q> configurations, or a worker identifier in Mechanical Turk configurations (this is effectively a captive scenario).
 						An experiments can have as many participants as the server (or the experimenter!) can handle.
 					</p>
 					<p>
-						Participants are assigned by the experimenter or assign themselves in a <q>captive</q> or <a
-							href="https://www.mturk.com/mturk/welcome">Mechanical Turk</a> configuration.
+						Participants are assigned by the experimenter or assign themselves in a <q>captive</q> 
+						configuration.
 						In the first case, participants are e-mailed a password and login credentials when the
 						experimenter begins the experiment.
 						(If no e-mail server has been configured, they are not e-mailed.)
@@ -142,20 +161,23 @@
 					<p>
 						When the experiment begins or when participants otherwise join, participants are randomly
 						assigned a player role (row or column) used for all games throughout the experiment.
-						Experiments always have an equal assignment of row and column players unless the total number of
-						players is odd, in which case the extra player is assigned a random role.
+						Experiments always have an equal assignment of row and column player participants unless the total number of
+						participants is odd, in which case the extra participant is assigned a random role.
 						If participants join after the experiment has started, they are assigned to a player role that
 						balances role counts at the time of assignment.
 					</p>
 				</section>
 				<section id="questionnaire">
-					<h3>Questionnaire</h3>
+					<header>
+						<a href="#"><i class="fa fa-angle-up fa-fw"></i></a>
+						<h3>Questionnaire</h3>
+					</header>
 					<p>
 						The experimenter may stipulate that participants step through a questionnaire before being
 						allowed to play.
 						In this treatment, participants are initially dropped into a <q>lobby</q> where they must answer
 						questions before beginning.
-						(This lobby is also used to handle an overflow of players as defined in the <a
+						(This lobby is also used to handle an overflow of participants as defined in the <a
 							href="#participants">Participants</a> section.)
 					</p>
 					<p>
@@ -168,11 +190,14 @@
 					</p>
 				</section>
 				<section id="games">
-					<h3>Games</h3>
+					<header>
+						<a href="#"><i class="fa fa-angle-up fa-fw"></i></a>
+						<h3>Games</h3>
+					</header>
 					<p>
 						A game in <span class="nm">gamelab</span> is simply a payoff bi-matrix.
 						Payoffs are rationally-valued numbers.
-						(<strong>Note</strong>: negative player tickets will cause the lottery computation to fail.)
+						(<strong>Note</strong>: negative participant tickets will cause the lottery computation to fail.)
 						There is no limit to the number of strategies for this matrix; however, in practise, only so
 						many columns fit neatly on a small screen.
 						Games larger than four or five strategies wide will look funny.
@@ -180,27 +205,30 @@
 					</p>
 				</section>
 				<section id="gameplay">
-					<h3>Game-play</h3>
+					<header>
+						<a href="#"><i class="fa fa-angle-up fa-fw"></i></a>
+						<h3>Game-play</h3>
+					</header>
 					<p>
 						Once the participant joins an experiment, participants can submit game-plays, one per game per
 						round.
 						A game-play consists of a strategy mixture: a set of probabilities assigned to each of the
 						player role's actions.
 						The submitted probabilities are non-negative and rationally-valued, and always sum to one.
-						Participants submit these probabilites by clicking on rows in the game matrix (players appear to
+						Participants submit these probabilites by clicking on rows in the game matrix (participants appear to
 						play the row player regardless of their player role) and entering in a decimal or rational
 						number corresponding to the action.
 					</p>
 					<p>
 						Participants can only play one game at a time, with each game played once per round.
-						If they log out and log back in (an action available only to non-captive players), then the last game
+						If they log out and log back in (an action available only to non-captive participants), then the last game
 						to play is displayed, assuming the round has not advanced in the meantime.
 						Game matrices have their rows and columns randomly shuffled between participants, making it
 						slightly more difficult to compare actions.
 						Moreover, the order in which games are displayed is randomised between participants.
 					</p>
 					<p>
-						At the conclusion of each round, players who have submitted mixtures for all games have their
+						At the conclusion of each round, participants who have submitted mixtures for all games have their
 						payoffs computed as points.
 						(Rounds with incomplete games yield zero points.)
 						Points are computed by playing the participant's mixture against the average mixture of
@@ -223,7 +251,10 @@
 					</p>
 				</section>
 				<section id="lottery">
-					<h3>Lottery</h3>
+					<header>
+						<a href="#"><i class="fa fa-angle-up fa-fw"></i></a>
+						<h3>Lottery</h3>
+					</header>
 					<p>
 						When a participant has exceeded her maximum allowed rounds, she is no longer able to submit
 						plays to the experiment.
@@ -249,7 +280,10 @@
 				</section>
 			</section>
 			<section id="technicalities">
-				<h2>Technicalities</h2>
+				<header>
+					<a href="#"><i class="fa fa-angle-up fa-fw"></i></a>
+					<h2>Technicalities</h2>
+				</header>
 				<p>
 					<span class="nm">Gamelab</span> uses a broad set of technologies to work.
 					In this section, I briefly describe the specific technologies used.
@@ -258,7 +292,10 @@
 					and the server backend, which is accessed by the user interface.
 				</p>
 				<section id="userinterface">
-					<h3>User Interface</h3>
+					<header>
+						<a href="#"><i class="fa fa-angle-up fa-fw"></i></a>
+						<h3>User Interface</h3>
+					</header>
 					<p>
 						The <q>user interface</q> to <span class="nm">gamelab</span> is via a web browser.
 						In general, the user interface involves an HTML5 web-page styled with CSS.
@@ -287,7 +324,10 @@
 					</p>
 				</section>
 				<section id="backend">
-					<h3>Server Backend</h3>
+					<header>
+						<a href="#"><i class="fa fa-angle-up fa-fw"></i></a>
+						<h3>Server Backend</h3>
+					</header>
 					<p>
 						The backend of <span class="nm">gamelab</span> is a <a href="http://learnbchs.org">BCHS</a>
 						system consisting of two compiled CGI programs: one for the administrator, one for participants.
@@ -307,7 +347,10 @@
 					</p>
 				</section>
 				<section id="numformat">
-					<h3>Number Format</h3>
+					<header>
+						<a href="#"><i class="fa fa-angle-up fa-fw"></i></a>
+						<h3>Number Format</h3>
+					</header>
 					<p>
 						Internally, <span class="nm">gamelab</span> stores all non-integer numbers (strategy mixtures,
 						payoffs, etc.) as rational numbers encoded as strings.
@@ -322,14 +365,19 @@
 					</p>
 				</section>
 				<section id="randomness">
-					<h3>Randomness</h3>
+					<header>
+						<a href="#"><i class="fa fa-angle-up fa-fw"></i></a>
+						<h3>Randomness</h3>
+					</header>
 					<p>
-						Player section and group assignment, as well a other subsystems, require a reliable random
-						number generator.
+						Matrix ordering and player role, among other subsystems, require a
+						non-deterministic random number generator.
 						To accomplish this, <span class="nm">gamelab</span> uses the BSD <a
 							href="http://www.openbsd.org/cgi-bin/man.cgi/OpenBSD-current/man3/arc4random.3">arc4random</a>
 						system interface to provide high-quality randomness.
 						This is emulated with <a href="https://wiki.freedesktop.org/libbsd/">libbsd</a> on GNU/Linux.
+						The lottery computation uses a deterministic random number generator using an
+						experimenter-defined seed: this allows lottery draws to be repeatable.
 					</p>
 					<p>
 						<strong>Note</strong>: if you're running on GNU/Linux, you may not benefit from the high quality
@@ -340,7 +388,10 @@
 				</section>
 			</section>
 			<section id="deploy">
-				<h2>Deployment</h2>
+				<header>
+					<a href="#"><i class="fa fa-angle-up fa-fw"></i></a>
+					<h2>Deployment</h2>
+				</header>
 				<p>
 					<span class="nm">Gamelab</span> is a CGI application that runs under any CGI-compatible web server on a
 					modern UNIX system.
@@ -359,7 +410,10 @@
 					e-mail <a href="mailto:kristaps@kcons.eu">Kristaps</a> with the issue.
 				</p>
 				<section id="environment">
-					<h3>Environment</h3>
+					<header>
+						<a href="#"><i class="fa fa-angle-up fa-fw"></i></a>
+						<h3>Environment</h3>
+					</header>
 					<p>
 						To operate a <span class="nm">gamelab</span> server, you'll need a modern UNIX system with a web
 						server accessable to your participants.
@@ -391,7 +445,10 @@
 					</p>
 				</section>
 				<section id="dependencies">
-					<h3>Dependencies</h3>
+					<header>
+						<a href="#"><i class="fa fa-angle-up fa-fw"></i></a>
+						<h3>Dependencies</h3>
+					</header>
 					<p>
 						With your <a href="#environment">environment</a> prepared, you'll need to download the <span
 							class="nm">gamelab</span> source code as well as its dependencies.
@@ -418,7 +475,10 @@
 					</p>
 				</section>
 				<section id="compiling">
-					<h3>Compiling</h3>
+					<header>
+						<a href="#"><i class="fa fa-angle-up fa-fw"></i></a>
+						<h3>Compiling</h3>
+					</header>
 					<p>
 						Move the <span class="nm">gamelab</span> source code into a source directory (we suggest <span
 							class="file">~/Source</span> or <span class="file">~/src</span> and unpack.
@@ -533,9 +593,7 @@
 						</dd>
 						<dt><code>MTURKURI</code></dt>
 						<dd>
-							The URL for the Mechanical Turk interface.
-							As described in the <a href="https://www.mturk.com/mturk/welcome">Mechanical Turk</a>
-							documentation, this can either be the production or <q>sandbox</q> site.
+							The URL for the <a href="#mechanicalturk">Mechanical Turk</a> interface.
 							This option will be moved into the main <span class="nm">gamelab</span> system in future
 							releases.
 						</dd>
@@ -548,7 +606,10 @@
 					</p>
 				</section>
 				<section id="installation">
-					<h3>Installation</h3>
+					<header>
+						<a href="#"><i class="fa fa-angle-up fa-fw"></i></a>
+						<h3>Installation</h3>
+					</header>
 					<p>
 						Once you've <a href="#compiling">compiled</a> the software and configured its parameters, you
 						can install it by simply running <kbd>make installcgi</kbd>.
@@ -582,6 +643,9 @@
 						<dt><span class="file">adminhome.css</span></dt>
 						<dt><span class="file">adminhome.min.js</span></dt>
 						<dt><span class="file">adminlogin.html</span></dt>
+						<dt><span class="file">instructions-lottery.xml.txt</span></dt>
+						<dt><span class="file">instructions-mturk.xml.txt</span></dt>
+						<dt><span class="file">instructions-nolottery.xml.txt</span></dt>
 						<dt><span class="file">playerautoadd.html</span></dt>
 						<dt><span class="file">playerautoadd.min.js</span></dt>
 						<dt><span class="file">playerhome.css</span></dt>
@@ -600,6 +664,9 @@
 						</dd>
 						<dt><span class="file">adminhome-new.html</span></dt>
 						<dt><span class="file">adminhome-started.html</span></dt>
+						<dt><span class="file">instructions-lottery.xml</span></dt>
+						<dt><span class="file">instructions-mturk.xml</span></dt>
+						<dt><span class="file">instructions-nolottery.xml</span></dt>
 						<dt><span class="file">mail-addplayer.eml</span></dt>
 						<dt><span class="file">mail-backupfail.eml</span></dt>
 						<dt><span class="file">mail-backupsuccess.eml</span></dt>
@@ -651,7 +718,10 @@
 				</section>
 			</section>
 			<section id="administration">
-				<h2>Administration</h2>
+				<header>
+					<a href="#"><i class="fa fa-angle-up fa-fw"></i></a>
+					<h2>Administration</h2>
+				</header>
 				<p>
 					In this section, I describe how to administer the <span class="nm">gamelab</span> system.
 					I assume that you've just installed it following the <a href="#installation">Installation</a> section or
@@ -669,7 +739,10 @@
 					time to start over.
 				</p>
 				<section id="createexperiments">
-					<h3>Creating Experiments</h3>
+					<header>
+						<a href="#"><i class="fa fa-angle-up fa-fw"></i></a>
+						<h3>Creating Experiments</h3>
+					</header>
 					<p>
 						Begin by accessing the administrator URL with your browser.
 						This will usually look like <span class="url">http://foo.com/cgi-bin/admin</span>, but it
@@ -778,9 +851,7 @@
 						this is a security measure so that players can't join after you've started.
 						You can opt to allow players to continually join by specifying that captive mode should
 						be preserved when the experiment begins.
-						You can also specify <a href="https://www.mturk.com/mturk/welcome">Mechanical Turk</a>
-						participants.
-						See the <a href="#mechanicalturk">Mechanical Turk</a> section for details.
+						You can also specify <a href="#mechanicalturk">Mechanical Turk</a> participants.
 					</p>
 					<p>
 						Once you've added your games and your players, you're ready for the experiment configuration as
@@ -798,10 +869,14 @@
 					</p>
 					<p>
 						The advanced options allow for finer control&mdash;be careful in using these!
+					</p>
+					<p>
 						The login URL is used when sending non-captive participants the welcome e-mail.
 						Their query string credentials will be appended to the given URL.
 						You don't want to change this unless, for example, the laboratory CGI script is sitting in
 						another URL path.
+					</p>
+					<p>
 						You can customise the instructions shown to participants by choosing from a set of pre-made
 						instructions or providing your own.
 						If you provide your own, it's up to you to make sure that the instructions are a well-formatted
@@ -809,28 +884,55 @@
 						Review the existing instructions on how to customise.
 					</p>
 					<p>
-						Once you hit the <q>Start</q> button, the experiment has begun.
-						It won't be playable until the time and date you specified, but the players are notified
-						immediately with their login credentials.
-						Only players you add are e-mailed: captive players are not e-mailed.
+						Currency is only used in formatting instructions and in computing bonuses as used in <a
+							href="#mechanicalturk">Mechanical Turk</a> experiments.
+						For this, you must specify a currency (any currency will do, and may consist of arbitrary UTF-8
+						markings for the currency symbols) as well as a conversion from tickets into currency.
+					</p>
+					<p>
+						You can customise round advancement in several ways.
+						The first is limiting the total number of rounds per participant.
+						Thus, if one specifies 10 total rounds and 5 rounds per participant, each participant will play
+						at most five rounds.
+						This is useful for running with captive players that can join and participant over an extended
+						period of play time.
+						The minimum-time (in minutes) establishes a <q>grace time</q> for play.
+						This is especially useful when &lt;100% of participants play before the round automatically
+						advances to prevent <q>fast players</q> from having an unfair advantage.
+						Lastly, the maximum limit per round bounds the number of simultaneous players.
+					</p>
+					<p>
+						There are a number of option toggles in the last subsection.
+						You can disable the lottery computation, which is useful for <a
+							href="#mechanicalturk">Mechanical Turk</a> scenarios, so that participants are only
+						shown their payoffs and not ranked and assigned lottery numbers.
+						The questionnaire is a more significant option: if specified, participants are required to step
+						through a series of questions before playing.
+						<strong>Note</strong>: if you specify a questionnaire, participants will not automatically be
+						<q>joined</q> to the experiment when it begins.
+						In other words, until they finish the experiment, they will not be included in the count of
+						current players when looking at the fraction of completed game-plays per round.
+						They join the round following the current one upon finishing the questionnaire.
+						Lastly, you may specify that round advancement will trigger an e-mail to the players.
 					</p>
 				</section>
 				<section id="runningexperiments">
-					<h3>Running Experiments</h3>
+					<header>
+						<a href="#"><i class="fa fa-angle-up fa-fw"></i></a>
+						<h3>Running Experiments</h3>
+					</header>
 					<p>
 						Once you've deployed your experiment, you must now administer it.
 						For the time being, there's very little in the way of <span class="nm">gamelab</span>
 						administration.
 						You can enable and disable players, reset player passwords, and reconfigure your administrator
 						credentials.
+						You can also review some statistics on the current experiment status.
 					</p>
-					<!-- figure>
-						<a href="screen-admin7.png"><img src="screen-admin7.png" alt="Administrator Homepage" /></a>
-					</figure -->
 					<p>
 						If a player forgets her password, you can reset it by clicking on the player's email address and
 						selecting the <q>Reset Password</q> option.
-						(Auto-added players are <strong>not</strong> affected.)
+						(Captive players are <strong>not</strong> affected.)
 						You can reset all non-captive players' passwords with the <q>Reset All Passwords</q> option.
 						If a player is misbehaving, you can disable her login by toggling the button next to her e-mail
 						address.
@@ -843,13 +945,9 @@
 							Mails</q>.
 					</p>
 					<p>
-						When a game has finished, you can compute its lottery by specifying a seed for the random number
-						generator and a number of lottery winners.
-						<strong>Note</strong>: for the time being, only choose one!
+						When an experiment has finished and you haven't disabled the lottery, you can compute its
+						lottery by specifying a seed for the random number generator and a number of lottery winners.
 					</p>
-					<!-- figure>
-						<a href="screen-admin6.png"><img src="screen-admin6.png" alt="Administrator Homepage" /></a>
-					</figure -->
 					<p>
 						Once the winner has been chosen and notified, and the game wound down, you can wipe and start
 						afresh by selecting the <q>Wipe Experiment</q> option.
@@ -861,10 +959,67 @@
 				</section>
 			</section>
 			<section id="mechanicalturk">
-				<h2>Mechanical Turk</h2>
+				<header>
+					<a href="#"><i class="fa fa-angle-up fa-fw"></i></a>
+					<h2>Mechanical Turk</h2>
+				</header>
+				<p>
+					<a href="https://www.mturk.com/mturk/welcome">Mechanical Turk</a> is a system for allowing human workers
+					to participant in Internet-based tasks.
+					<span class="nm">Gamelab</span> can integrate with Mechanical Turk in several different ways.
+					This section assumes a bit of familiarity with the Mechanical Turk system overall.
+				</p>
+				<section id="mturkexperiment">
+					<header>
+						<a href="#"><i class="fa fa-angle-up fa-fw"></i></a>
+						<h3>Experiment Setup</h3>
+					</header>
+					<p>
+						Setting up a Mechanical Turk experiment is very easy.
+						Simply set the Mechanical Turk option in the <q>Players</q> section of the experiment <a
+							href="#createexperiments">configuration</a>.
+						Mechanical Turk workers will now be able to join the system through a special URL indicated in
+						the Player section after you select the applicable option.
+					</p>
+					<p>
+						When you start the experiment, you'll probably want to use the Mechanical Turk instructions.
+						You should also enable the questionnaire to control for workers' understanding of game-play.
+					</p>
+				</section>
+				<section id="mturkhit">
+					<header>
+						<a href="#"><i class="fa fa-angle-up fa-fw"></i></a>
+						<h3>HIT Setup</h3>
+					</header>
+					<p>
+						There are two kinds of HIT configurations you can use.
+						The first is using a survey link; the second is to use an external link.
+						When using a survey link, you provide the link noted in the Player section when you enable
+						Mechanical Turk participants.
+						Participants must then provide their own worker identifier when arriving at the given page.
+						If you provide the given link as an external link, workers jump directly to the link with their
+						identifiers already filled in by the Mechanical Turk system.
+					</p>
+					<p>
+						The difference between these two is how the experiment ends.
+						For the survey link, participants are given a random number they must enter into the Mechanical
+						Turk page to indicate completion.
+						For the external link, participants must click on a form that responds to the Mechanical Turk
+						site to indicate completion.
+					</p>
+					<p>
+						<strong>Note</strong>: a current caveat in the external link process is that participants must
+						allow for <q>third-party cookies</q> in their browser configuration.
+						As this is not the default for some browsers, there might be issues when allowing players to
+						join.
+					</p>
+				</section>
 			</section>
 			<section id="analysingexperiments">
-				<h2>Analysing Experiments</h2>
+				<header>
+					<a href="#"><i class="fa fa-angle-up fa-fw"></i></a>
+					<h2>Analysing Experiments</h2>
+				</header>
 				<p>
 					At this time, <span class="nm">gamelab</span> doesn't have any special functionality for
 					analysing played (or in-flight) experiments.
@@ -875,620 +1030,629 @@
 					The database is in <a href="https://www.sqlite.org/wal.html">WAL</a> mode, so don't open it during an
 					experiment: instead, back it up then manipulate the backup.
 				</p>
-				<p>
-					The database schema is fairly straightforward.
-					It consists of the following tables.
-					In all of these, note that <q>Unique Identifier</q> fields are non-zero SQLite <q>rowid</q> fields.
-					Rational numbers are stored as text, such as <var>1/2</var> or just <var>2</var>, starting with
-					<var>0/1</var>.
-				</p>
-				<dl>
-					<dt id="db-admin"><code>admin</code></dt>
-					<dd>
-						<p>
-							Administrator (a.k.a. experimenter) credentials.
-							There is always one (and only one) row that exists, initialised to default
-							values.
-						</p>
-						<dl>
-							<dt id="db-admin-email"><var>email</var></dt>
-							<dd>The experimenter e-mail address.  This is used as a predefined template
-								value for the instructions.  It is also used as the destination for
-								backups of the database.  Initialises to <code>foo@example.com</code>.</dd>
-							<dt id="db-admin-hash"><var>hash</var></dt>
-							<dd>The experimenter password.  <strong>Note</strong>: this is stored as
-								cleartext, so it is not really a hash (yet).  Initialises to
-								<code>xyzzy</code>.</dd>
-							<dt id="db-admin-isset"><var>isset</var></dt>
-							<dd>
-								Bit-field on whether the email and hash have been set by the user.
-								Contains 0x01 if the e-mail has been set, 0x02 for the password.
-							</dd>
-							<dt id="db-admin-id"><var>id</var></dt>
-							<dd>Unique identifier.</dd>
-						</dl>
-					</dd>
-					<dt id="db-choice"><code>choice</code></dt>
-					<dd>
-						<p>
-							A strategy mixture created when a <a href="#db-player"><code>player</code></a>
-							plays a round in a <a href="#db-game"><code>game</code></a>.
-						</p>
-						<dl>
-							<dt id="db-choice-round"><var>round</var></dt>
-							<dd>
-								The round number (starting at zero).
-							</dd>
-							<dt id="db-choice-sessid"><var>sessid</var></dt>
-							<dd>
-								The <a href="#db-sess"><code>sess</code></a> used when submitting this choice mixture.
-							</dd>
-							<dt id="db-choice-created"><var>created</var></dt>
-							<dd>
-								The epoch timestamp when this choice was made.
-							</dd>
-							<dt id="db-choice-strats"><var>strats</var></dt>
-							<dd>
-								A text (space-separated) list of rational numbers of the strategy mixture
-								ordered from the top if a row-playing <a
-									href="#db-player-role"><var>role</var></a> or left if a
-								column-player.
-							</dd>
-							<dt id="db-choice-stratsz"><var>stratsz</var></dt>
-							<dd>
-								Number of entries in <a href="#db-choice-strats"><var>strats</var></a>.
-								This obviously equals the number of strategies available to the player
-								in that <a href="#db-game"><code>game</code></a>, given the player <a
-									href="#db-player-role"><var>role</var></a>.
-							</dd>
-							<dt id="db-choice-playerid"><var>playerid</var></dt>
-							<dd>
-								A foreign key reference to the <a href="#db-player"><code>player</code></a>
-								<a href="#db-player-id"><var>id</var></a>.
-							</dd>
-							<dt id="db-choice-gameid"><var>gameid</var></dt>
-							<dd>
-								A foreign key reference to the <a href="#db-game"><code>game</code></a>
-								<a href="#db-game-id"><var>id</var></a>.
-							</dd>
-							<dt id="db-choice-id"><var>id</var></dt>
-							<dd>Unique identifier.</dd>
-						</dl>
-					</dd>
-					<dt id="db-experiment"><code>experiment</code></dt>
-					<dd>
-						<p>
-							This describes an experiment configured by the experimenter.
-							There is always one (and only one) row in this table.
-							It is initialised to default values.
-						</p>
-						<dl>
-							<dt id="db-experiment-autoadd"><var>autoadd</var></dt>
-							<dd>The experiment is currently accepting (or did accept) auto-added players.</dd>
-							<dt id="db-experiment-autoaddpreserve"><var>autoaddpreserve</var></dt>
-							<dd>
-								Preserve the <a href="#db-experiment-autoadd"><var>autoadd</var></a> bit
-								during and after the experiment start.
-								This is useful for rolling experiments so as not to have a break between
-								starting the experiment and reenabling captive mode.
-							</dd>
-							<dt id="db-experiment-conversion"><var>conversion</var></dt>
-							<dd>
-								A positive real number used in computing a conversion rate between points and currency.
-							</dd>
-							<dt id="db-experiment-currency"><var>currency</var></dt>
-							<dd>
-								The string currency (e.g., <q>US dollars</q>, <q>Euro</q>) used when displaying currency information.
-							</dd>
-							<dt id="db-experiment-end"><var>end</var></dt>
-							<dd>An epoch-encoded (seconds) time and date when the experiment when the last
-								round of the experiment concludes.  This also corresponds to the
-								starting time plus the number of rounds times round duration.
-							</dd>
-							<dt id="db-experiment-id"><var>id</var></dt>
-							<dd>Unique identifier.</dd>
-							<dt id="db-experiment-instr"><var>instr</var></dt>
-							<dd>The instructions shown to players.  This must contain valid HTML5.  It may
-								contain <code>@@gamelab-admin-email@@</code>, which is filled in with
-								the experimenter's configured e-mail address;
-								<code>@@gamelab-games@@</code> for the number of games;
-								<code>@@gamelab-rounds@@</code> for the number of rounds; and
-								<code>@@gamelab-round-time@@</code>, a decimal number of the number of
-								hours per round.</dd>
-							<dt id="db-experiment-loginuri"><var>loginuri</var></dt>
-							<dd>
-								Set when the experiment begins (i.e., when <a
-									href="#db-experiment-state"><var>state</var></a> &gt;0), this is
-								the URL given to players in their initial e-mail for when they log in.
-								This is suffixed by
-								<code>?ident=EMAIL&amp;password=PASSWORD</code>.
-							</dd>
-							<dt id="db-experiment-minutes"><var>minutes</var></dt>
-							<dd>The number of minutes per round.  Minimum of one.</dd>
-							<dt id="db-experiment-nolottery"><var>nolottery</var></dt>
-							<dd>
-								If non-zero, do not show the lottery facility to players or the
-								administrator.
-							</dd>
-							<dt id="db-experiment-playermax"><var>playermax</var></dt>
-							<dd>
-								The maximum number of players per player role at any given time.
-								If zero, the number of players is unbound.
-							</dd>
-							<dt id="db-experiment-prounds"><var>prounds</var></dt>
-							<dd>
-								The number of rounds playable by each player.
-								If zero, players will play until the end of the experiment.
-								If &gt;0, players will not be allowed to play more than the given number
-								of rounds within the experiment.
-							</dd>
-							<dt id="db-experiment-questionnaire"><var>questionnaire</var></dt>
-							<dd>
-								If non-zero, new players are not directly assigned a join round and must
-								use the lobby facility.
-								There, they will be asked questions and cannot proceed until all
-								questions have been answered.
-							</dd>
-							<dt id="db-experiment-round"><var>round</var></dt>
-							<dd>
-								The current round of the experiment, or -1 if the rounds have not begun incrementing.
-								This will be set to <a
-									href="#db-experiment-rounds"><var>rounds</var></a> when the
-								experiment concludes.
-							</dd>
-							<dt id="db-experiment-roundbegan"><var>roundbegan</var></dt>
-							<dd>
-								If <a href="#db-experiment-round"><var>round</var></a> is non-negative,
-								then the timestamp (epoch) when the round was incremented.
-								Otherwise, this is zero.
-							</dd>
-							<dt id="db-experiment-roundmin"><var>roundmin</var></dt>
-							<dd>
-								If <a href="#db-experiment-roundpct"><var>roundpct</var></a> is
-								non-zero, this is the <q>grace time</q> (in minutes) before which the
-								round will automatically advance giving the percentage.
-							</dd>
-							<dt id="db-experiment-roundpid"><var>roundpid</var></dt>
-							<dd>
-								If specified when configuring the experiment, a daemon will be started that
-								periodically checks to see if the round has advanced.
-								Its process identifier is stored in this field.
-								Otherwise, this is zero.
-							</dd>
-							<dt id="db-experiment-roundpct"><var>roundpct</var></dt>
-							<dd>
-								If &gt;0, this represents the fraction of players per role who play all
-								games and determine that the round automatically advances.
-								In other words, if set to 0.5 (50%), then from both player roles, if 50%
-								or more players have played all games, the round advances in advance of
-								the set round termination time.
-							</dd>
-							<dt id="db-experiment-rounds"><var>rounds</var></dt>
-							<dd>The number of rounds that will be played.  Minimum of one.</dd>
-							<dt id="db-experiment-start"><var>start</var></dt>
-							<dd>An epoch-encoded (seconds) time and date when the experiment when the first
-								round of the experiment begins.</dd>
-							<dt id="db-experiment-state"><var>state</var></dt>
-							<dd>The running state of the experiment, being either <var>0</var>, for new
-								(still in the configuration stage); <var>1</var>, for started (players
-								can log in, though the experiment itself may not be accepting plays
-								yet); <var>2</var>, where the experiment has expired, but the winner has
-								not been chosen by the experimenter; or <var>3</var>, where the
-								experiment has expired and the winner has been chosen.</dd>
-							<dt id="db-experiment-total"><var>total</var></dt>
-							<dd>When the experiment finishes (i.e., when <a
-									href="#db-experiment-state"><var>state</var></a> is set to 2),
-								this is filled in with the total number of lottery tickets (the <a
-									href="#db-player-finalscore"><var>finalscore</var></a>) awarded to
-								all players.</dd>
-						</dl>
-					</dd>
-					<dt id="db-game"><code>game</code></dt>
-					<dd>
-						<p>
-							A game is a payoff bimatrix configured by the experimenter.
-							There may be any non-zero number of games in a running experiment.
-						</p>
-						<dl>
-							<dt id="db-game-p1"><var>p1</var></dt>
-							<dd>The number of strategies for the row player.</dd>
-							<dt id="db-game-p2"><var>p2</var></dt>
-							<dd>The number of strategies for the column player.</dd>
-							<dt id="db-game-payoffs"><var>payoffs</var></dt>
-							<dd>A list of payoffs from the top-left to the bottom-right of the payoff
-								matrix, ordered row-player payoff, column-player payoff.
-								See <a href="#firstexperiment">First Experiment</a> configuration for
-								more.</dd>
-							<dt id="db-game-name"><var>name</var></dt>
-							<dd>The name of the experiment.  This is shown only to the experimenter.</dd>
-							<dt id="db-game-id"><var>id</var></dt>
-							<dd>Unique identifier.</dd>
-						</dl>
-					</dd>
-					<dt id="db-gameplay"><code>gameplay</code></dt>
-					<dd>
-						<p>
-							During a given round, this records a <a
-								href="#db-player"><code>player</code></a>'s status in terms of number of
-							<a href="#db-choice"><code>choice</code></a> rows (plays) made.
-						</p>
-						<dl>
-							<dt id="db-gameplay-round"><var>round</var></dt>
-							<dd>The round number (starting at zero).</dd>
-							<dt id="db-gameplay-choices"><var>choices</var></dt>
-							<dd>The number of games this player has played, i.e., the count of <a
-									href="#db-choice"><code>choice</code></a> rows.</dd>
-							<dt id="db-gameplay-playerid"><var>playerid</var></dt>
-							<dd>A foreign key reference to the <a href="#db-player"><code>player</code></a>
-								<a href="#db-player-id"><var>id</var></a>. When this equals the number
-								of games, the player has played all games for a round.</dd>
-							<dt id="db-gameplay-id"><var>id</var></dt>
-							<dd>Unique identifier.</dd>
-						</dl>
-					</dd>
-					<dt id="db-lottery"><code>lottery</code></dt>
-					<dd>
-						<p>
-							A lottery is created for an individual <a
-								href="#db-player"><code>player</code></a> when that player has been
-							granted <a href="#db-payoff"><code>payoff</code></a> for all <a
-								href="#db-game"><code>game</code></a> rows in a round.
-						</p>
-						<dl>
-							<dt id="db-lottery-aggrpayoff"><var>aggrpayoff</var></dt>
-							<dd>
-								The player's aggregate payoff (as a rational number) computing by adding
-								the previous round's aggregate payoff to the current <a
-									href="#db-lottery-curpayoff"><var>curpayoff</var></a>.
-							</dd>
-							<dt id="db-lottery-aggrtickets"><var>aggrtickets</var></dt>
-							<dd>
-								The value of <a href="#db-lottery-aggrpayoff"><var>aggrpayoff</var></a>
-								represented as a natural number of tickets.
-							</dd>
-							<dt id="db-lottery-curpayoff"><var>curpayoff</var></dt>
-							<dd>The player's current payoff (as a rational number) computing by accumulating
-								her <a href="#db-payoff"><code>payoff</code></a> <a
-									href="#db-payoff-payoff"><var>payoff</var></a> for all
-								games in the experiment.
-								This is set to <var>0/1</var> if the player has not played all
-								games.</dd>
-							<dt id="db-lottery-id"><var>id</var></dt>
-							<dd>Unique identifier.</dd>
-							<dt id="db-lottery-playerid"><var>playerid</var></dt>
-							<dd>A foreign key reference to the <a href="#db-player"><code>player</code></a>
-								<a href="#db-player-id"><var>id</var></a>.</dd>
-							<dt id="db-lottery-round"><var>round</var></dt>
-							<dd>The round number (starting at zero).</dd>
-						</dl>
-					</dd>
-					<dt id="db-past"><code>past</code></dt>
-					<dd>
-						<p>
-							Records the average strategy mixture of a given player role for a given round
-							and <a href="#db-game"><code>game</code></a> when a round has concluded.
-						</p>
-						<dl>
-							<dt id="db-past-currentsp1"><var>currentsp1</var></dt>
-							<dd>
-								For the row player, the average strategy mixture of the current round.
-								Strategy mixtures are only considered for <a
-									href="#db-choice"><code>choice</code></a> rows where the <a
-									href="#db-player"><code>player</code></a> played all games
-								for the round, so this will be a set of zeroes if no players completed
-								all games.
-								This is recorded as a space-separated sequence of rational numbers, one
-								per strategy.
-							</dd>
-							<dt id="db-past-currentsp2"><var>currentsp2</var></dt>
-							<dd>
-								Like <a href="#db-past-currentsp1"><var>currentsp1</var></a> but for the
-								column player.
-							</dd>
-							<dt id="db-past-gameid"><var>gameid</var></dt>
-							<dd>
-								A foreign key reference to the <a href="#db-game"><code>game</code></a>
-								<a href="#db-game-id"><var>id</var></a>.
-							</dd>
-							<dt id="db-past-id"><var>id</var></dt>
-							<dd>
-								Unique identifier.
-							</dd>
-							<dt id="db-past-plays"><var>plays</var></dt>
-							<dd>
-								The total number of plays that were submitted (over all games) in this
-								round if and only if the player submitted for all games in that round.
-							</dd>
-							<dt id="db-past-round"><var>round</var></dt>
-							<dd>
-								The round starting at zero.
-							</dd>
-							<dt id="db-past-roundcount"><var>roundcount</var></dt>
-							<dd>
-								The accumulated count of rounds not skipping, i.e., the count of zero-valued
-								<a href="#db-past-skip"><var>skip</var></a> rounds.
-							</dd>
-							<dt id="db-past-skip"><var>skip</var></dt>
-							<dd>
-								If zero row or column players played all games, this is set to
-								<var>1</var>, else it is <var>0</var> (sufficient players played).
-							</dd>
-						</dl>
-					</dd>
-					<dt id="db-payoff"><code>payoff</code></dt>
-					<dd>
-						<p>
-							When the given round has completed, this consists of the payoff of the player's
-							<a href="#db-choice"><code>choice</code></a> strategy mix for a given <a
-								href="#db-game"><code>game</code></a> when played against the average
-							strategy of the opposing player role.
-						</p>
-						<dl>
-							<dt id="db-payoff-round"><var>round</var></dt>
-							<dd>The round number (starting at zero).</dd>
-							<dt id="db-payoff-playerid"><var>playerid</var></dt>
-							<dd>A foreign key reference to the <a href="#db-player"><code>player</code></a>
-								<a href="#db-player-id"><var>id</var></a>. When this equals the number
-								of games, the player has played all games for a round.</dd>
-							<dt id="db-payoff-gameid"><var>gameid</var></dt>
-							<dd>A foreign key reference to the <a href="#db-game"><code>game</code></a>
-								<a href="#db-game-id"><var>id</var></a>.</dd>
-							<dt id="db-payoff-payoff"><var>payoff</var></dt>
-							<dd>A rational number of the payoff.</dd>
-							<dt id="db-payoff-id"><var>id</var></dt>
-							<dd>Unique identifier.</dd>
-						</dl>
-					</dd>
-					<dt id="db-player"><code>player</code></dt>
-					<dd>
-						<p>
-							The central <code>player</code> table consists of all participants.
-							The <a href="#db-player-hash"><var>hash</var></a> variable is redacted when the
-							experiment is wiped.
-						</p>
-						<dl>
-							<dt id="db-player-answer"><var>answer</var></dt>
-							<dd>
-								If the questionnaire facility has been enabled (via the <a
-									href="#db-experiment"><code>experiment</code></a> <a
-									href="#db-experiment-questionnaire"><var>questionnaire</var></a>),
-								this is non-zero if the questionnaire has been answered.
-							</dd>
-							<dt id="db-player-assignmentid"><var>assignmentid</var></dt>
-							<dd>
-								If the player joined from Mechanical Turk, the assignment identifier.
-								Otherwise set to the empty string.
-							</dd>
-							<dt id="db-player-autoadd"><var>autoadd</var></dt>
-							<dd>
-								Player was auto-added (i.e., auto-added herself).
-								These players are never e-mailed.
-							</dd>
-							<dt id="db-player-email"><var>email</var></dt>
-							<dd>
-								Player e-mail address or identifier, in the event of a captive player.  
-								This is unique in the set of all players.
-							</dd>
-							<dt id="db-player-enabled"><var>enabled</var></dt>
-							<dd>
-								Whether a player is allowed to login during an experiment.
-							</dd>
-							<dt id="db-player-finalrank"><var>finalrank</var></dt>
-							<dd>
-								The minimum of the slot of the player's tickets among all players' tickets.
-								For example, given 100 players with roughly 10 tickets each, this might
-								be <var>543</var> to indicate that slot <var>543</var> to <var>543</var>
-								plus <a href="#db-player-finalscore"><var>finalscore</var></a> are this
-								player's slots in the lottery.
-							</dd>
-							<dt id="db-player-finalscore"><var>finalscore</var></dt>
-							<dd>
-								Set to the accumulated payoffs from the <a
-									href="#db-lottery"><code>lottery</code></a> <a
-									href="#db-lottery-aggrpayoff"><var>aggrpayoff</var></a>
-								rounded up to the nearest integer.
-							</dd>
-							<dt id="db-player-hash"><var>hash</var></dt>
-							<dd>
-								The player's password set when the experiment is started (i.e., when the <a
-									href="#db-experiment"><code>experiment</code></a> <a
-									href="#db-experiment-state"><var>state</var></a> is &gt;0) or
-								when reset, or when a captive player registeres. 
-								<strong>Note</strong>: this is stored in the clear: it is not a hash.
-							</dd>
-							<dt id="db-player-hitid"><var>hitid</var></dt>
-							<dd>
-								If the player joined from Mechanical Turk, the HIT identifier.
-								Otherwise set to the empty string.
-							</dd>
-							<dt id="db-player-id"><var>id</var></dt>
-							<dd>
-								Unique identifier.
-							</dd>
-							<dt id="db-player-instr"><var>instr</var></dt>
-							<dd>
-								Whether the player should be shown instructions when she logs in (versus
-								being taken directly to the game-play tab).
-							</dd>
-							<dt id="db-player-mturkdone"><var>mturkdone</var></dt>
-							<dd>
-								Whether the Mechanical Turk player, if applicable, has indicated that they've
-								finished the experiment.
-								Note that this is unprotected and can be set at any time: it is only used to
-								display a message to report to the Mechanical Turk server.
-							</dd>
-							<dt id="db-player-questionnaire"><var>questionnaire</var></dt>
-							<dd>
-								The number of questions the player has entered, if applicable.
+				<section id="databaseschema">
+					<header>
+						<a href="#"><i class="fa fa-angle-up fa-fw"></i></a>
+						<h3>Database Schema</h3>
+					</header>
+					<p>
+						The database schema is fairly straightforward.
+						It consists of the following tables.
+						In all of these, note that <q>Unique Identifier</q> fields are non-zero SQLite <q>rowid</q> fields.
+						Rational numbers are stored as text, such as <var>1/2</var> or just <var>2</var>, starting with
+						<var>0/1</var>.
+					</p>
+					<dl>
+						<dt id="db-admin"><code>admin</code></dt>
+						<dd>
+							<p>
+								Administrator (a.k.a. experimenter) credentials.
+								There is always one (and only one) row that exists, initialised to default
+								values.
+							</p>
+							<dl>
+								<dt id="db-admin-email"><var>email</var></dt>
+								<dd>The experimenter e-mail address.  This is used as a predefined template
+									value for the instructions.  It is also used as the destination for
+									backups of the database.  Initialises to <code>foo@example.com</code>.</dd>
+								<dt id="db-admin-hash"><var>hash</var></dt>
+								<dd>The experimenter password.  <strong>Note</strong>: this is stored as
+									cleartext, so it is not really a hash (yet).  Initialises to
+									<code>xyzzy</code>.</dd>
+								<dt id="db-admin-isset"><var>isset</var></dt>
+								<dd>
+									Bit-field on whether the email and hash have been set by the user.
+									Contains 0x01 if the e-mail has been set, 0x02 for the password.
+								</dd>
+								<dt id="db-admin-id"><var>id</var></dt>
+								<dd>Unique identifier.</dd>
+							</dl>
+						</dd>
+						<dt id="db-choice"><code>choice</code></dt>
+						<dd>
+							<p>
+								A strategy mixture created when a <a href="#db-player"><code>player</code></a>
+								plays a round in a <a href="#db-game"><code>game</code></a>.
+							</p>
+							<dl>
+								<dt id="db-choice-round"><var>round</var></dt>
+								<dd>
+									The round number (starting at zero).
+								</dd>
+								<dt id="db-choice-sessid"><var>sessid</var></dt>
+								<dd>
+									The <a href="#db-sess"><code>sess</code></a> used when submitting this choice mixture.
+								</dd>
+								<dt id="db-choice-created"><var>created</var></dt>
+								<dd>
+									The epoch timestamp when this choice was made.
+								</dd>
+								<dt id="db-choice-strats"><var>strats</var></dt>
+								<dd>
+									A text (space-separated) list of rational numbers of the strategy mixture
+									ordered from the top if a row-playing <a
+										href="#db-player-role"><var>role</var></a> or left if a
+									column-player.
+								</dd>
+								<dt id="db-choice-stratsz"><var>stratsz</var></dt>
+								<dd>
+									Number of entries in <a href="#db-choice-strats"><var>strats</var></a>.
+									This obviously equals the number of strategies available to the player
+									in that <a href="#db-game"><code>game</code></a>, given the player <a
+										href="#db-player-role"><var>role</var></a>.
+								</dd>
+								<dt id="db-choice-playerid"><var>playerid</var></dt>
+								<dd>
+									A foreign key reference to the <a href="#db-player"><code>player</code></a>
+									<a href="#db-player-id"><var>id</var></a>.
+								</dd>
+								<dt id="db-choice-gameid"><var>gameid</var></dt>
+								<dd>
+									A foreign key reference to the <a href="#db-game"><code>game</code></a>
+									<a href="#db-game-id"><var>id</var></a>.
+								</dd>
+								<dt id="db-choice-id"><var>id</var></dt>
+								<dd>Unique identifier.</dd>
+							</dl>
+						</dd>
+						<dt id="db-experiment"><code>experiment</code></dt>
+						<dd>
+							<p>
+								This describes an experiment configured by the experimenter.
+								There is always one (and only one) row in this table.
+								It is initialised to default values.
+							</p>
+							<dl>
+								<dt id="db-experiment-autoadd"><var>autoadd</var></dt>
+								<dd>The experiment is currently accepting (or did accept) auto-added players.</dd>
+								<dt id="db-experiment-autoaddpreserve"><var>autoaddpreserve</var></dt>
+								<dd>
+									Preserve the <a href="#db-experiment-autoadd"><var>autoadd</var></a> bit
+									during and after the experiment start.
+									This is useful for rolling experiments so as not to have a break between
+									starting the experiment and reenabling captive mode.
+								</dd>
+								<dt id="db-experiment-conversion"><var>conversion</var></dt>
+								<dd>
+									A positive real number used in computing a conversion rate between points and currency.
+								</dd>
+								<dt id="db-experiment-currency"><var>currency</var></dt>
+								<dd>
+									The string currency (e.g., <q>US dollars</q>, <q>Euro</q>) used when displaying currency information.
+								</dd>
+								<dt id="db-experiment-end"><var>end</var></dt>
+								<dd>An epoch-encoded (seconds) time and date when the experiment when the last
+									round of the experiment concludes.  This also corresponds to the
+									starting time plus the number of rounds times round duration.
+								</dd>
+								<dt id="db-experiment-id"><var>id</var></dt>
+								<dd>Unique identifier.</dd>
+								<dt id="db-experiment-instr"><var>instr</var></dt>
+								<dd>The instructions shown to players.  This must contain valid HTML5.  It may
+									contain <code>@@gamelab-admin-email@@</code>, which is filled in with
+									the experimenter's configured e-mail address;
+									<code>@@gamelab-games@@</code> for the number of games;
+									<code>@@gamelab-rounds@@</code> for the number of rounds; and
+									<code>@@gamelab-round-time@@</code>, a decimal number of the number of
+									hours per round.</dd>
+								<dt id="db-experiment-loginuri"><var>loginuri</var></dt>
+								<dd>
+									Set when the experiment begins (i.e., when <a
+										href="#db-experiment-state"><var>state</var></a> &gt;0), this is
+									the URL given to players in their initial e-mail for when they log in.
+									This is suffixed by
+									<code>?ident=EMAIL&amp;password=PASSWORD</code>.
+								</dd>
+								<dt id="db-experiment-minutes"><var>minutes</var></dt>
+								<dd>The number of minutes per round.  Minimum of one.</dd>
+								<dt id="db-experiment-nolottery"><var>nolottery</var></dt>
+								<dd>
+									If non-zero, do not show the lottery facility to players or the
+									administrator.
+								</dd>
+								<dt id="db-experiment-playermax"><var>playermax</var></dt>
+								<dd>
+									The maximum number of players per player role at any given time.
+									If zero, the number of players is unbound.
+								</dd>
+								<dt id="db-experiment-prounds"><var>prounds</var></dt>
+								<dd>
+									The number of rounds playable by each player.
+									If zero, players will play until the end of the experiment.
+									If &gt;0, players will not be allowed to play more than the given number
+									of rounds within the experiment.
+								</dd>
+								<dt id="db-experiment-questionnaire"><var>questionnaire</var></dt>
+								<dd>
+									If non-zero, new players are not directly assigned a join round and must
+									use the lobby facility.
+									There, they will be asked questions and cannot proceed until all
+									questions have been answered.
+								</dd>
+								<dt id="db-experiment-round"><var>round</var></dt>
+								<dd>
+									The current round of the experiment, or -1 if the rounds have not begun incrementing.
+									This will be set to <a
+										href="#db-experiment-rounds"><var>rounds</var></a> when the
+									experiment concludes.
+								</dd>
+								<dt id="db-experiment-roundbegan"><var>roundbegan</var></dt>
+								<dd>
+									If <a href="#db-experiment-round"><var>round</var></a> is non-negative,
+									then the timestamp (epoch) when the round was incremented.
+									Otherwise, this is zero.
+								</dd>
+								<dt id="db-experiment-roundmin"><var>roundmin</var></dt>
+								<dd>
+									If <a href="#db-experiment-roundpct"><var>roundpct</var></a> is
+									non-zero, this is the <q>grace time</q> (in minutes) before which the
+									round will automatically advance giving the percentage.
+								</dd>
+								<dt id="db-experiment-roundpid"><var>roundpid</var></dt>
+								<dd>
+									If specified when configuring the experiment, a daemon will be started that
+									periodically checks to see if the round has advanced.
+									Its process identifier is stored in this field.
+									Otherwise, this is zero.
+								</dd>
+								<dt id="db-experiment-roundpct"><var>roundpct</var></dt>
+								<dd>
+									If &gt;0, this represents the fraction of players per role who play all
+									games and determine that the round automatically advances.
+									In other words, if set to 0.5 (50%), then from both player roles, if 50%
+									or more players have played all games, the round advances in advance of
+									the set round termination time.
+								</dd>
+								<dt id="db-experiment-rounds"><var>rounds</var></dt>
+								<dd>The number of rounds that will be played.  Minimum of one.</dd>
+								<dt id="db-experiment-start"><var>start</var></dt>
+								<dd>An epoch-encoded (seconds) time and date when the experiment when the first
+									round of the experiment begins.</dd>
+								<dt id="db-experiment-state"><var>state</var></dt>
+								<dd>The running state of the experiment, being either <var>0</var>, for new
+									(still in the configuration stage); <var>1</var>, for started (players
+									can log in, though the experiment itself may not be accepting plays
+									yet); <var>2</var>, where the experiment has expired, but the winner has
+									not been chosen by the experimenter; or <var>3</var>, where the
+									experiment has expired and the winner has been chosen.</dd>
+								<dt id="db-experiment-total"><var>total</var></dt>
+								<dd>When the experiment finishes (i.e., when <a
+										href="#db-experiment-state"><var>state</var></a> is set to 2),
+									this is filled in with the total number of lottery tickets (the <a
+										href="#db-player-finalscore"><var>finalscore</var></a>) awarded to
+									all players.</dd>
+							</dl>
+						</dd>
+						<dt id="db-game"><code>game</code></dt>
+						<dd>
+							<p>
+								A game is a payoff bimatrix configured by the experimenter.
+								There may be any non-zero number of games in a running experiment.
+							</p>
+							<dl>
+								<dt id="db-game-p1"><var>p1</var></dt>
+								<dd>The number of strategies for the row player.</dd>
+								<dt id="db-game-p2"><var>p2</var></dt>
+								<dd>The number of strategies for the column player.</dd>
+								<dt id="db-game-payoffs"><var>payoffs</var></dt>
+								<dd>A list of payoffs from the top-left to the bottom-right of the payoff
+									matrix, ordered row-player payoff, column-player payoff.
+									See <a href="#firstexperiment">First Experiment</a> configuration for
+									more.</dd>
+								<dt id="db-game-name"><var>name</var></dt>
+								<dd>The name of the experiment.  This is shown only to the experimenter.</dd>
+								<dt id="db-game-id"><var>id</var></dt>
+								<dd>Unique identifier.</dd>
+							</dl>
+						</dd>
+						<dt id="db-gameplay"><code>gameplay</code></dt>
+						<dd>
+							<p>
+								During a given round, this records a <a
+									href="#db-player"><code>player</code></a>'s status in terms of number of
+								<a href="#db-choice"><code>choice</code></a> rows (plays) made.
+							</p>
+							<dl>
+								<dt id="db-gameplay-round"><var>round</var></dt>
+								<dd>The round number (starting at zero).</dd>
+								<dt id="db-gameplay-choices"><var>choices</var></dt>
+								<dd>The number of games this player has played, i.e., the count of <a
+										href="#db-choice"><code>choice</code></a> rows.</dd>
+								<dt id="db-gameplay-playerid"><var>playerid</var></dt>
+								<dd>A foreign key reference to the <a href="#db-player"><code>player</code></a>
+									<a href="#db-player-id"><var>id</var></a>. When this equals the number
+									of games, the player has played all games for a round.</dd>
+								<dt id="db-gameplay-id"><var>id</var></dt>
+								<dd>Unique identifier.</dd>
+							</dl>
+						</dd>
+						<dt id="db-lottery"><code>lottery</code></dt>
+						<dd>
+							<p>
+								A lottery is created for an individual <a
+									href="#db-player"><code>player</code></a> when that player has been
+								granted <a href="#db-payoff"><code>payoff</code></a> for all <a
+									href="#db-game"><code>game</code></a> rows in a round.
+							</p>
+							<dl>
+								<dt id="db-lottery-aggrpayoff"><var>aggrpayoff</var></dt>
+								<dd>
+									The player's aggregate payoff (as a rational number) computing by adding
+									the previous round's aggregate payoff to the current <a
+										href="#db-lottery-curpayoff"><var>curpayoff</var></a>.
+								</dd>
+								<dt id="db-lottery-aggrtickets"><var>aggrtickets</var></dt>
+								<dd>
+									The value of <a href="#db-lottery-aggrpayoff"><var>aggrpayoff</var></a>
+									represented as a natural number of tickets.
+								</dd>
+								<dt id="db-lottery-curpayoff"><var>curpayoff</var></dt>
+								<dd>The player's current payoff (as a rational number) computing by accumulating
+									her <a href="#db-payoff"><code>payoff</code></a> <a
+										href="#db-payoff-payoff"><var>payoff</var></a> for all
+									games in the experiment.
+									This is set to <var>0/1</var> if the player has not played all
+									games.</dd>
+								<dt id="db-lottery-id"><var>id</var></dt>
+								<dd>Unique identifier.</dd>
+								<dt id="db-lottery-playerid"><var>playerid</var></dt>
+								<dd>A foreign key reference to the <a href="#db-player"><code>player</code></a>
+									<a href="#db-player-id"><var>id</var></a>.</dd>
+								<dt id="db-lottery-round"><var>round</var></dt>
+								<dd>The round number (starting at zero).</dd>
+							</dl>
+						</dd>
+						<dt id="db-past"><code>past</code></dt>
+						<dd>
+							<p>
+								Records the average strategy mixture of a given player role for a given round
+								and <a href="#db-game"><code>game</code></a> when a round has concluded.
+							</p>
+							<dl>
+								<dt id="db-past-currentsp1"><var>currentsp1</var></dt>
+								<dd>
+									For the row player, the average strategy mixture of the current round.
+									Strategy mixtures are only considered for <a
+										href="#db-choice"><code>choice</code></a> rows where the <a
+										href="#db-player"><code>player</code></a> played all games
+									for the round, so this will be a set of zeroes if no players completed
+									all games.
+									This is recorded as a space-separated sequence of rational numbers, one
+									per strategy.
+								</dd>
+								<dt id="db-past-currentsp2"><var>currentsp2</var></dt>
+								<dd>
+									Like <a href="#db-past-currentsp1"><var>currentsp1</var></a> but for the
+									column player.
+								</dd>
+								<dt id="db-past-gameid"><var>gameid</var></dt>
+								<dd>
+									A foreign key reference to the <a href="#db-game"><code>game</code></a>
+									<a href="#db-game-id"><var>id</var></a>.
+								</dd>
+								<dt id="db-past-id"><var>id</var></dt>
+								<dd>
+									Unique identifier.
+								</dd>
+								<dt id="db-past-plays"><var>plays</var></dt>
+								<dd>
+									The total number of plays that were submitted (over all games) in this
+									round if and only if the player submitted for all games in that round.
+								</dd>
+								<dt id="db-past-round"><var>round</var></dt>
+								<dd>
+									The round starting at zero.
+								</dd>
+								<dt id="db-past-roundcount"><var>roundcount</var></dt>
+								<dd>
+									The accumulated count of rounds not skipping, i.e., the count of zero-valued
+									<a href="#db-past-skip"><var>skip</var></a> rounds.
+								</dd>
+								<dt id="db-past-skip"><var>skip</var></dt>
+								<dd>
+									If zero row or column players played all games, this is set to
+									<var>1</var>, else it is <var>0</var> (sufficient players played).
+								</dd>
+							</dl>
+						</dd>
+						<dt id="db-payoff"><code>payoff</code></dt>
+						<dd>
+							<p>
+								When the given round has completed, this consists of the payoff of the player's
+								<a href="#db-choice"><code>choice</code></a> strategy mix for a given <a
+									href="#db-game"><code>game</code></a> when played against the average
+								strategy of the opposing player role.
+							</p>
+							<dl>
+								<dt id="db-payoff-round"><var>round</var></dt>
+								<dd>The round number (starting at zero).</dd>
+								<dt id="db-payoff-playerid"><var>playerid</var></dt>
+								<dd>A foreign key reference to the <a href="#db-player"><code>player</code></a>
+									<a href="#db-player-id"><var>id</var></a>. When this equals the number
+									of games, the player has played all games for a round.</dd>
+								<dt id="db-payoff-gameid"><var>gameid</var></dt>
+								<dd>A foreign key reference to the <a href="#db-game"><code>game</code></a>
+									<a href="#db-game-id"><var>id</var></a>.</dd>
+								<dt id="db-payoff-payoff"><var>payoff</var></dt>
+								<dd>A rational number of the payoff.</dd>
+								<dt id="db-payoff-id"><var>id</var></dt>
+								<dd>Unique identifier.</dd>
+							</dl>
+						</dd>
+						<dt id="db-player"><code>player</code></dt>
+						<dd>
+							<p>
+								The central <code>player</code> table consists of all participants.
+								The <a href="#db-player-hash"><var>hash</var></a> variable is redacted when the
+								experiment is wiped.
+							</p>
+							<dl>
+								<dt id="db-player-answer"><var>answer</var></dt>
+								<dd>
+									If the questionnaire facility has been enabled (via the <a
+										href="#db-experiment"><code>experiment</code></a> <a
+										href="#db-experiment-questionnaire"><var>questionnaire</var></a>),
+									this is non-zero if the questionnaire has been answered.
+								</dd>
+								<dt id="db-player-assignmentid"><var>assignmentid</var></dt>
+								<dd>
+									If the player joined from Mechanical Turk, the assignment identifier.
+									Otherwise set to the empty string.
+								</dd>
+								<dt id="db-player-autoadd"><var>autoadd</var></dt>
+								<dd>
+									Player was auto-added (i.e., auto-added herself).
+									These players are never e-mailed.
+								</dd>
+								<dt id="db-player-email"><var>email</var></dt>
+								<dd>
+									Player e-mail address or identifier, in the event of a captive player.  
+									This is unique in the set of all players.
+								</dd>
+								<dt id="db-player-enabled"><var>enabled</var></dt>
+								<dd>
+									Whether a player is allowed to login during an experiment.
+								</dd>
+								<dt id="db-player-finalrank"><var>finalrank</var></dt>
+								<dd>
+									The minimum of the slot of the player's tickets among all players' tickets.
+									For example, given 100 players with roughly 10 tickets each, this might
+									be <var>543</var> to indicate that slot <var>543</var> to <var>543</var>
+									plus <a href="#db-player-finalscore"><var>finalscore</var></a> are this
+									player's slots in the lottery.
+								</dd>
+								<dt id="db-player-finalscore"><var>finalscore</var></dt>
+								<dd>
+									Set to the accumulated payoffs from the <a
+										href="#db-lottery"><code>lottery</code></a> <a
+										href="#db-lottery-aggrpayoff"><var>aggrpayoff</var></a>
+									rounded up to the nearest integer.
+								</dd>
+								<dt id="db-player-hash"><var>hash</var></dt>
+								<dd>
+									The player's password set when the experiment is started (i.e., when the <a
+										href="#db-experiment"><code>experiment</code></a> <a
+										href="#db-experiment-state"><var>state</var></a> is &gt;0) or
+									when reset, or when a captive player registeres. 
+									<strong>Note</strong>: this is stored in the clear: it is not a hash.
+								</dd>
+								<dt id="db-player-hitid"><var>hitid</var></dt>
+								<dd>
+									If the player joined from Mechanical Turk, the HIT identifier.
+									Otherwise set to the empty string.
+								</dd>
+								<dt id="db-player-id"><var>id</var></dt>
+								<dd>
+									Unique identifier.
+								</dd>
+								<dt id="db-player-instr"><var>instr</var></dt>
+								<dd>
+									Whether the player should be shown instructions when she logs in (versus
+									being taken directly to the game-play tab).
+								</dd>
+								<dt id="db-player-mturkdone"><var>mturkdone</var></dt>
+								<dd>
+									Whether the Mechanical Turk player, if applicable, has indicated that they've
+									finished the experiment.
+									Note that this is unprotected and can be set at any time: it is only used to
+									display a message to report to the Mechanical Turk server.
+								</dd>
+								<dt id="db-player-questionnaire"><var>questionnaire</var></dt>
+								<dd>
+									The number of questions the player has entered, if applicable.
+									See <a href="#db-experiment-questionnaire"><var>questionnaire</var></a>.
+								</dd>
+								<dt id="db-player-rseed"><var>rseed</var></dt>
+								<dd>
+									A non-zero cryptographically random number given to the player when created.
+								</dd>
+								<dt id="db-player-role"><var>role</var></dt>
+								<dd>
+									The player role (<var>0</var> for row player, <var>1</var> for column
+									player) set when the <a
+										href="#db-experiment"><code>experiment</code></a> <a
+										href="#db-experiment-state"><var>state</var></a> is
+									&gt;0 or when the player joins.
+								</dd>
+								<dt id="db-player-state"><var>state</var></dt>
+								<dd>
+									The state of a player can be <var>0</var>, meaning the player is
+									newly-added and has no password; <var>1</var> when the player has been
+									mailed her password; <var>2</var>, the player has logged in; and
+									<var>3</var>, an error occured when the password e-mail was attempted.
+								</dd>
+								<dt id="db-player-version"><var>version</var></dt>
+								<dd>
+									A number from zero that indicates the number of time the player field
+									has been updated.
+									This is used to make the player object cachable.
+								</dd>
+							</dl>
+						</dd>
+						<dt id="db-questionnaire"><code>questionnaire</code></dt>
+						<dd>
+							<p>
+								The questionnaire is an optional set of questions given to each player.
+								These players must submit a set number of correct answers before joining the game.
 								See <a href="#db-experiment-questionnaire"><var>questionnaire</var></a>.
-							</dd>
-							<dt id="db-player-rseed"><var>rseed</var></dt>
-							<dd>
-								A non-zero cryptographically random number given to the player when created.
-							</dd>
-							<dt id="db-player-role"><var>role</var></dt>
-							<dd>
-								The player role (<var>0</var> for row player, <var>1</var> for column
-								player) set when the <a
-									href="#db-experiment"><code>experiment</code></a> <a
-									href="#db-experiment-state"><var>state</var></a> is
-								&gt;0 or when the player joins.
-							</dd>
-							<dt id="db-player-state"><var>state</var></dt>
-							<dd>
-								The state of a player can be <var>0</var>, meaning the player is
-								newly-added and has no password; <var>1</var> when the player has been
-								mailed her password; <var>2</var>, the player has logged in; and
-								<var>3</var>, an error occured when the password e-mail was attempted.
-							</dd>
-							<dt id="db-player-version"><var>version</var></dt>
-							<dd>
-								A number from zero that indicates the number of time the player field
-								has been updated.
-								This is used to make the player object cachable.
-							</dd>
-						</dl>
-					</dd>
-					<dt id="db-questionnaire"><code>questionnaire</code></dt>
-					<dd>
-						<p>
-							The questionnaire is an optional set of questions given to each player.
-							These players must submit a set number of correct answers before joining the game.
-							See <a href="#db-experiment-questionnaire"><var>questionnaire</var></a>.
-							These rows are unique per player-rank.
-						</p>
-						<dl>
-							<dt id="db-questionnaire-first"><var>first</var></dt>
-							<dd>
-								The epoch time when the row is created.
-							</dd>
-							<dt id="db-questionnaire-id"><var>id</var></dt>
-							<dd>
-								Unique identifier.
-							</dd>
-							<dt id="db-questionnaire-playerid"><var>playerid</var></dt>
-							<dd>
-								The associated <a href="#db-player"><code>player</code></a>.
-							</dd>
-							<dt id="db-questionnaire-rank"><var>rank</var></dt>
-							<dd>
-								The question number starting at zero.
-							</dd>
-							<dt id="db-questionnaire-tries"><var>tries</var></dt>
-							<dd>
-								The number of tries, correct or not.
-								This is zero only in the race after initially creating the row and
-								noting an attempt.
-							</dd>
-						</dl>
-					</dd>
-					<dt id="db-sess"><code>sess</code></dt>
-					<dd>
-						<p>
-							A session.
-							Sessions are the usual browser session used when players (or the experimenter)
-							are interacting with the system.
-						</p>
-						<dl>
-							<dt id="db-sess-created"><var>created</var></dt>
-							<dd>
-								An epoch timestamp of when the session was originally created.
-							</dd>
-							<dt id="db-sess-cookie"><var>cookie</var></dt>
-							<dd>
-								A cryptographically random cookie assigned to each session.
-								This is used as a security feature so that people can't guess others'
-								session identifiers and re-use them.
-								When a session has expired or the user is logged out, this is set to
-								zero.
-								(Session entries are never deleted.)
-							</dd>
-							<dt id="db-sess-playerid"><var>playerid</var></dt>
-							<dd>
-								A foreign key reference to the <a
-									href="#db-player"><code>player</code></a> <a
-									href="#db-player-id"><var>id</var></a>.
-								For experimenter logins, this value is <var>null</var>.
-							</dd>
-							<dt id="db-sess-useragent"><var>useragent</var></dt>
-							<dd>
-								The user-agent as reported by the player's (or administrator's) browser.
-								Remember: these are easy to fake, so they shouldn't be taken as
-								authoritative, but suggestive.
-								Also note that this is set when the player first creates the session
-								(cookie), and may not reflect later plays.
-								(But usually does.)
-							</dd>
-							<dt id="db-sess-id"><var>id</var></dt>
-							<dd>Unique identifier.</dd>
-						</dl>
-					</dd>
-					<dt id="db-smtp"><code>smtp</code></dt>
-					<dd>
-						<p>
-							This consists of the SMTP server information used in sending e-mails.
-							There is always only one row set, which defaults to empty values (see <a
-								href="#db-smtp-isset"><var>isset</var></a>).
-						</p>
-						<dl>
-							<dt id="db-smtp-user"><var>user</var></dt>
-							<dd>The SMTP server username (used for logging in).</dd>
-							<dt id="db-smtp-email"><var>email</var></dt>
-							<dd>The e-mail address used as the <q>From</q> address in all communication from
-								the server to players and the experimenter.
-								It is usually the same as the experimenter <a
-									href="#db-admin-email"><var>email</var></a> set in the <a
-									href="#db-admin"><code>admin</code></a> table, but may be set as
-								a standard <q>No-Reply</q>. (This is discouraged, as your players should
-								be able to reply to you if things go wrong.)
-							<dt id="db-smtp-pass"><var>pass</var></dt>
-							<dd>The SMTP username's password (used for logging in).  <strong>Note</strong>
-								that this is stored in cleartext, so make sure that your password isn't
-								used elsewhere.</dd>
-							<dt id="db-smtp-server"><var>server</var></dt>
-							<dd>The SMTP server in <code>smtp://server:port</code> format.</dd>
-							<dt id="db-smtp-isset"><var>isset</var></dt>
-							<dd>Whether these entries have been set.</dd>
-							<dt id="db-smtp-id"><var>id</var></dt>
-							<dd>Unique identifier.</dd>
-						</dl>
-					</dd>
-					<dt id="db-winner"><code>winner</code></dt>
-					<dd>
-						<p>
-							The <code>winner</code> table consists of rows corresponding to a player and her
-							winner status.
-							This table does not exist until the <a
-								href="db-experiment-status"><var>status</var></a> field of the <a
-								href="#db-experiment"><code>experiment</code></a> is set to
-							<var>3</var>.
-							This table is deleted when the database is wiped.
-						</p>
-						<dl>
-							<dt id="db-winner-playerid"><var>playerid</var></dt>
-							<dd>A foreign key reference to the <a href="#db-player"><code>player</code></a> table.</dd>
-							<dt id="db-winner-winner"><var>winner</var></dt>
-							<dd>
-								Boolean value as to whether the player is a winner.
-								If this is <var>false</var>, then the <a
-									href="#db-winner-winrank"><var>winrank</var></a> and
-								<a href="#db-winner-rnum"><var>rnum</var></a> columns are undefined.
-							</dd>
-							<dt id="db-winner-winrank"><var>winrank</var></dt>
-							<dd>If the player is a winner, the rank (first, second, third draw...) of their winning.</dd>
-							<dt id="db-winner-rnum"><var>rnum</var></dt>
-							<dd>
-								The random number modulo the total number of tickts used for this winning draw.
-								In other words, this is the winning lottery ticket.
-							</dd>
-							<dt id="db-winner-id"><var>id</var></dt>
-							<dd>Unique identifier.</dd>
-						</dl>
-					</dd>
-				</dl>
+								These rows are unique per player-rank.
+							</p>
+							<dl>
+								<dt id="db-questionnaire-first"><var>first</var></dt>
+								<dd>
+									The epoch time when the row is created.
+								</dd>
+								<dt id="db-questionnaire-id"><var>id</var></dt>
+								<dd>
+									Unique identifier.
+								</dd>
+								<dt id="db-questionnaire-playerid"><var>playerid</var></dt>
+								<dd>
+									The associated <a href="#db-player"><code>player</code></a>.
+								</dd>
+								<dt id="db-questionnaire-rank"><var>rank</var></dt>
+								<dd>
+									The question number starting at zero.
+								</dd>
+								<dt id="db-questionnaire-tries"><var>tries</var></dt>
+								<dd>
+									The number of tries, correct or not.
+									This is zero only in the race after initially creating the row and
+									noting an attempt.
+								</dd>
+							</dl>
+						</dd>
+						<dt id="db-sess"><code>sess</code></dt>
+						<dd>
+							<p>
+								A session.
+								Sessions are the usual browser session used when players (or the experimenter)
+								are interacting with the system.
+							</p>
+							<dl>
+								<dt id="db-sess-created"><var>created</var></dt>
+								<dd>
+									An epoch timestamp of when the session was originally created.
+								</dd>
+								<dt id="db-sess-cookie"><var>cookie</var></dt>
+								<dd>
+									A cryptographically random cookie assigned to each session.
+									This is used as a security feature so that people can't guess others'
+									session identifiers and re-use them.
+									When a session has expired or the user is logged out, this is set to
+									zero.
+									(Session entries are never deleted.)
+								</dd>
+								<dt id="db-sess-playerid"><var>playerid</var></dt>
+								<dd>
+									A foreign key reference to the <a
+										href="#db-player"><code>player</code></a> <a
+										href="#db-player-id"><var>id</var></a>.
+									For experimenter logins, this value is <var>null</var>.
+								</dd>
+								<dt id="db-sess-useragent"><var>useragent</var></dt>
+								<dd>
+									The user-agent as reported by the player's (or administrator's) browser.
+									Remember: these are easy to fake, so they shouldn't be taken as
+									authoritative, but suggestive.
+									Also note that this is set when the player first creates the session
+									(cookie), and may not reflect later plays.
+									(But usually does.)
+								</dd>
+								<dt id="db-sess-id"><var>id</var></dt>
+								<dd>Unique identifier.</dd>
+							</dl>
+						</dd>
+						<dt id="db-smtp"><code>smtp</code></dt>
+						<dd>
+							<p>
+								This consists of the SMTP server information used in sending e-mails.
+								There is always only one row set, which defaults to empty values (see <a
+									href="#db-smtp-isset"><var>isset</var></a>).
+							</p>
+							<dl>
+								<dt id="db-smtp-user"><var>user</var></dt>
+								<dd>The SMTP server username (used for logging in).</dd>
+								<dt id="db-smtp-email"><var>email</var></dt>
+								<dd>The e-mail address used as the <q>From</q> address in all communication from
+									the server to players and the experimenter.
+									It is usually the same as the experimenter <a
+										href="#db-admin-email"><var>email</var></a> set in the <a
+										href="#db-admin"><code>admin</code></a> table, but may be set as
+									a standard <q>No-Reply</q>. (This is discouraged, as your players should
+									be able to reply to you if things go wrong.)
+								<dt id="db-smtp-pass"><var>pass</var></dt>
+								<dd>The SMTP username's password (used for logging in).  <strong>Note</strong>
+									that this is stored in cleartext, so make sure that your password isn't
+									used elsewhere.</dd>
+								<dt id="db-smtp-server"><var>server</var></dt>
+								<dd>The SMTP server in <code>smtp://server:port</code> format.</dd>
+								<dt id="db-smtp-isset"><var>isset</var></dt>
+								<dd>Whether these entries have been set.</dd>
+								<dt id="db-smtp-id"><var>id</var></dt>
+								<dd>Unique identifier.</dd>
+							</dl>
+						</dd>
+						<dt id="db-winner"><code>winner</code></dt>
+						<dd>
+							<p>
+								The <code>winner</code> table consists of rows corresponding to a player and her
+								winner status.
+								This table does not exist until the <a
+									href="db-experiment-status"><var>status</var></a> field of the <a
+									href="#db-experiment"><code>experiment</code></a> is set to
+								<var>3</var>.
+								This table is deleted when the database is wiped.
+							</p>
+							<dl>
+								<dt id="db-winner-playerid"><var>playerid</var></dt>
+								<dd>A foreign key reference to the <a href="#db-player"><code>player</code></a> table.</dd>
+								<dt id="db-winner-winner"><var>winner</var></dt>
+								<dd>
+									Boolean value as to whether the player is a winner.
+									If this is <var>false</var>, then the <a
+										href="#db-winner-winrank"><var>winrank</var></a> and
+									<a href="#db-winner-rnum"><var>rnum</var></a> columns are undefined.
+								</dd>
+								<dt id="db-winner-winrank"><var>winrank</var></dt>
+								<dd>If the player is a winner, the rank (first, second, third draw...) of their winning.</dd>
+								<dt id="db-winner-rnum"><var>rnum</var></dt>
+								<dd>
+									The random number modulo the total number of tickts used for this winning draw.
+									In other words, this is the winning lottery ticket.
+								</dd>
+								<dt id="db-winner-id"><var>id</var></dt>
+								<dd>Unique identifier.</dd>
+							</dl>
+						</dd>
+					</dl>
+				</section>
 			</section>
 			<section id="api">
-				<h2>Programmable API</h2>
+				<header>
+					<a href="#"><i class="fa fa-angle-up fa-fw"></i></a>
+					<h2>Programmable API</h2>
+				</header>
 				<p>
 					As described in the <a href="#technicalities">Technicalities</a> section, <span
 						class="nm">gamelab</span> is at heart a web application making JSON requests of a server.
@@ -1504,7 +1668,10 @@
 						href="http://curl.haxx.se/libcurl/">libCURL</a>, respectively.
 				</p>
 				<section id="generalseq">
-					<h3>General Sequence</h3>
+					<header>
+						<a href="#"><i class="fa fa-angle-up fa-fw"></i></a>
+						<h3>General Sequence</h3>
+					</header>
 					<p>
 						The general sequence is as follows:
 					</p>
@@ -1550,7 +1717,10 @@
 					</p>
 				</section>
 				<section id="resources">
-					<h3>Resources</h3>
+					<header>
+						<a href="#"><i class="fa fa-angle-up fa-fw"></i></a>
+						<h3>Resources</h3>
+					</header>
 					<p>
 						This section describes the resources (URLs) that may be accessed for programmatic play.
 						Each of these resources is the immediate path following the laboratory CGI script name, for
@@ -1621,7 +1791,10 @@
 					</dl>
 				</section>
 				<section id="objects">
-					<h3>Objects</h3>
+					<header>
+						<a href="#"><i class="fa fa-angle-up fa-fw"></i></a>
+						<h3>Objects</h3>
+					</header>
 					<p>
 						This section needs to be written.
 					</p>

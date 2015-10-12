@@ -18,6 +18,18 @@ header div		{ color: #ff5a09;
 #logoh1 img		{ margin-bottom: -8pt; 
 			  height: 64pt;
 			  margin-right: 4pt; }
+#team >*		{ display: inline-block; }
+#team >* >*		{ display: block; 
+			  line-height: 100%;
+			  text-align: center; }
+#team span		{ font-size: 9pt;
+			  padding-top: 6pt;
+			  color: #ccc; }
+#team img		{ height: 70px; 
+			  border-radius: 4px;
+			  box-shadow: 1px 1px 2px #222; }
+#team			{ margin: 0; }
+#team + p		{ margin-top: 0; }
 header div > span	{ padding-left: 1ex;
 			  padding-right: 1ex; }
 header span:first-child	{ padding-left: 0; }
@@ -25,7 +37,6 @@ article			{ color: #fff;
 		   	  margin-left: 7%;
 		   	  margin-right: 7%;
 			  line-height: 125%;
-			  text-shadow: 1px 1px #333;
 			  font-size: 17pt; }
 footer			{ margin-top: 3em; 
 		  	  margin-bottom: 2em;
