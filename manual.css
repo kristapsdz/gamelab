@@ -72,6 +72,9 @@ article header		{ margin-top: 1em;
 			  margin-left: -22pt; 
 			  margin-bottom: 1em; }
 article header a	{ font-size: 14pt; }
+article dd > p:first-child
+			{ margin-top: 2pt; 
+			  margin-bottom: 4pt; }
 @media only screen and (max-width: 480px), only screen and (max-device-width: 480px) {
 body > nav > span span	{ display: none; }
 body > header img	{ height: 34pt; 

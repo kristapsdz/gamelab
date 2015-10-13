@@ -1145,8 +1145,16 @@
 									round of the experiment concludes.  This also corresponds to the
 									starting time plus the number of rounds times round duration.
 								</dd>
+								<dt id="db-experiment-flags"><var>flags</var></dt>
+								<dd>
+									Bit-flags.
+									(There's only one experiment row in the table.)
+								</dd>
 								<dt id="db-experiment-id"><var>id</var></dt>
-								<dd>Unique identifier.</dd>
+								<dd>
+									Unique identifier.
+									(There's only one experiment row in the table.)
+								</dd>
 								<dt id="db-experiment-instr"><var>instr</var></dt>
 								<dd>The instructions shown to players.  This must contain valid HTML5.  It may
 									contain <code>@@gamelab-admin-email@@</code>, which is filled in with
@@ -1667,6 +1675,18 @@
 					In C, you can use <a href="https://github.com/json-c/json-c/wiki">json-c</a> and <a
 						href="http://curl.haxx.se/libcurl/">libCURL</a>, respectively.
 				</p>
+				<p>
+					<strong>Note to developers</strong>: if you're writing your own bot, <strong>do not flood requests</strong>.
+					Be courteous to other users: there is no competitive advantage to be gained by polling the system
+					constantly.
+				</p>
+				<p>
+					<strong>Note to administrators</strong>:
+					in order to run a programmable experiment, you cannot use a <a href="#questionnaire">Questionnaire</a>,
+					as questions are free-form.
+					In theory, you could enable the questionnaire and have players play through it, then turn on their bots,
+					but in practise participants knowledgeable enough to deploy bots won't need the questionnaire!
+				</p>
 				<section id="generalseq">
 					<header>
 						<a href="#"><i class="fa fa-angle-up fa-fw"></i></a>
@@ -1730,63 +1750,71 @@
 					<dl>
 						<dt id="seq-doautoadd">doautoadd.json (POST)</dt>
 						<dd>
-							Post your e-mail address using the <code>ident</code> field name.
-							Returns HTTP error code 
-							400 (invalid or missing e-mail field), 
-							403 (player by that e-mail already exists),
-							404 (captive players disallowed), or
-							200 (success).
-							Upon success, the return body is a JSON object consisting of the <code>ident</code> and
-							<code>password</code> string fields.
+							<p>
+								Post your e-mail address using the <code>ident</code> field name.
+								Returns HTTP error code 
+								400 (invalid or missing e-mail field), 
+								403 (player by that e-mail already exists),
+								404 (captive players disallowed), or
+								200 (success).
+								Upon success, the return body is a JSON object consisting of the <code>ident</code> and
+								<code>password</code> string fields.
+							</p>
 						</dd>
 						<dt id="seq-dologin">dologin.json (POST)</dt>
 						<dd>
-							Post your e-mail address (or identifier) and password using the <code>ident</code> and
-							<code>password</code> field names.
-							Returns HTTP error code
-							400 (invalid or missing input fields),
-							409 (experiment not started yet), 
-							200 (success).
-							If you receive HTTP error code 409, wait and continue polling: the experiment is not yet
-							accepting player logins.
-							Upon success, the return body is empty, but the cookie field consists of
-							<code>sessid</code>, your session identifiers (a number); and <code>sesscookie</code>, a
-							magic number attached to your identifier.
+							<p>
+								Post your e-mail address (or identifier) and password using the <code>ident</code> and
+								<code>password</code> field names.
+								Returns HTTP error code
+								400 (invalid or missing input fields),
+								409 (experiment not started yet), 
+								200 (success).
+								If you receive HTTP error code 409, wait and continue polling: the experiment is not yet
+								accepting player logins.
+								Upon success, the return body is empty, but the cookie field consists of
+								<code>sessid</code>, your session identifiers (a number); and <code>sesscookie</code>, a
+								magic number attached to your identifier.
+							</p>
 						</dd>
 						<dt id="seq-doloadexpr">doloadexpr.json (GET)</dt>
 						<dd>
-							Get a JSON object describing the full experiment.
-							You will need to pass the <code>sessid</code> and <code>sesscookie</code> cookie fields
-							as described in <a href="#seq-dologin">dologin.json</a>.
-							Returns HTTP error code
-							304 (not changed since last request),
-							409 (experiment not started yet),
-							429 (player accepted, but not yet joined for play),
-							200 (success).
-							If you receive HTTP error code 409 or 429, wait and continue polling: the experiment is
-							not yet started or has started, but you are not allowed to join yet.
-							Upon success, returns the JSON experiment object.
+							<p>
+								Get a <a href="#obj-expr">doloadexpr</a> object describing the full experiment.
+								You will need to pass the <code>sessid</code> and <code>sesscookie</code> cookie fields
+								as described in <a href="#seq-dologin">dologin.json</a>.
+								Returns HTTP error code
+								304 (not changed since last request),
+								409 (experiment not started yet),
+								429 (player accepted, but not yet joined for play),
+								200 (success).
+								If you receive HTTP error code 409 or 429, wait and continue polling: the experiment is
+								not yet started or has started, but you are not allowed to join yet.
+								Upon success, returns the JSON experiment object.
+							</p>
 						</dd>
 						<dt id="seq-doplay">doplay.json (POST)</dt>
 						<dd>
-							Post a probability mixture for a game's actions.
-							You will need to pass the <code>sessid</code> and <code>sesscookie</code> cookie fields
-							as described in <a href="#seq-dologin">dologin.json</a>.
-							The game identifier and round must be encoded in the <code>gid</code> and
-							<code>round</code> fields, respectively.
-							Each action with a requested probability must be posted as field <code>indexNNN</code>,
-							where <code>N</code> is the action index (starting at zero), e.g.,
-							<code>index0</code>, <code>index1</code>, and so on.
-							Probabilities may be decimal or fractional strings.
-							Missing actions are assigned zero probability.
-							Actions greater than the maximum action are ignored.
-							Returns HTTP error code
-							400 (invalid game, round, or probability, or probability sum doesn't equal one), 
-							409 (round has passed or is being played again, experiment hasn't started or has
-							finished, or player hasn't joined), or
-							200 (success).
-							<strong>Note</strong>: the error codes for this resource are likely to become more
-							specific in future releases.
+							<p>
+								Post a probability mixture for a game's actions.
+								You will need to pass the <code>sessid</code> and <code>sesscookie</code> cookie fields
+								as described in <a href="#seq-dologin">dologin.json</a>.
+								The game identifier and round must be encoded in the <code>gid</code> and
+								<code>round</code> fields, respectively.
+								Each action with a requested probability must be posted as field <code>indexNNN</code>,
+								where <code>N</code> is the action index (starting at zero), e.g.,
+								<code>index0</code>, <code>index1</code>, and so on.
+								Probabilities may be decimal or fractional strings.
+								Missing actions are assigned zero probability.
+								Actions greater than the maximum action are ignored.
+								Returns HTTP error code
+								400 (invalid game, round, or probability, or probability sum doesn't equal one), 
+								409 (round has passed or is being played again, experiment hasn't started or has
+								finished, or player hasn't joined), or
+								200 (success).
+								<strong>Note</strong>: the error codes for this resource are likely to become more
+								specific in future releases.
+							</p>
 						</dd>
 					</dl>
 				</section>
@@ -1796,8 +1824,143 @@
 						<h3>Objects</h3>
 					</header>
 					<p>
-						This section needs to be written.
+						When using the <a href="#api">Programmable API</a> via the web <a
+							href="#resources">Resources</a>, you'll need to examine some JSON objects to ascertain
+						the experiment status.
+						The following defines the objects available to you by resource.
+						The type of each field is listed alongside the field name: object for dictionaries (i.e., things
+						that contain other things), strings being UTF-8 strings, integers being 64-bit signed integers,
+						doubles being double-precision floating points, and times being seconds since UNIX epoch.
 					</p>
+					<p>
+						There are many undocumented fields that are transmitted while playing: these are to be
+						considered unstable and will not be included in subsequent releases.
+					</p>
+					<dl>
+						<dt><var>experiment</var></dt>
+						<dd>
+							<p>
+								Obtained from a successful <a href="#seq-doloadexpr">doloadexpr.json</a> request, i.e.,
+								with an HTTP error code 200 and a parsed JSON object.
+								The resulting dictionary consists of the following top-level fields.
+							</p>
+							<dl>
+								<dt id="obj-expr"><var>expr</var> (object)</dt>
+								<dd>
+									<p>
+										Object describing the experiment status.
+										This object is <strong>always</strong> non-null.
+										This contains more or less all the information you'll need.
+									</p>
+									<dl>
+										<dt><var>history</var> (object)</dt>
+										<dd>
+											Additional history.
+											See the <a href="#obj-history">history</a> object.
+										</dd>
+										<dt><var>instr</var> (string)</dt>
+										<dd>
+											Instructions for participating in the experiment.
+											This is an HTML5 fragment describing how to use the
+											experiment.
+											It is generally formatted in the web interface, so the
+											styling may make the data non-obvious.
+										</dd>
+										<dt><var>minutes</var> (integer)</dt>
+										<dd>
+											The maximum number of minutes per round (all games).
+											This is the maximum: in reality, rounds may range from
+											<a href="#obj-expr-roundmin">roundmin</a> to this value.
+										</dd>
+										<dt id="obj-expr-prounds"><var>prounds</var> (integer)</dt>
+										<dd>
+											The total number of rounds played by the logged-in participant.
+											The <a href="#obj-player-joined">joined</a> round plus
+											this is the participation span for any participant.
+										</dd>
+										<dt id="obj-expr-round"><var>round</var> (integer)</dt>
+										<dd>
+											The current round number starting at zero.
+											(If the round is less than zero, the experiment has not
+											yet begun.)
+										</dd>
+										<dt><var>roundbegan</var> (time)</dt>
+										<dd>
+											When the current round began.
+										</dd>
+										<dt id="obj-expr-roundmin"><var>roundmin</var> (integer)</dt>
+										<dd>
+											The minimum amount of time, in minutes, per round.
+											This is also called the <q>grace time</q>.
+											If this is non-zero, players are given this much time to
+											play freely until the round will advance based upon the
+											player fraction (see <a
+												href="#obj-expr-roundpct">roundpct</a>).
+										</dd>
+										<dt id="obj-expr-rounds"><var>rounds</var> (integer)</dt>
+										<dd>
+											Total number of rounds in the experiment.
+											<strong>Note</strong>: you may not actually play this
+											number of rounds. 
+											See <a href="#obj-expr-prounds"><var>prounds</var></a>.
+										</dd>
+										<dt><var>start</var> (time)</dt>
+										<dd>
+											Time when the experiment started (or will start).
+										</dd>
+									</dl>
+								</dd>
+								<dt id="obj-player"><var>player</var> (object)</dt>
+								<dd>
+									<p>
+										Information about the current participant.
+										This object is <strong>always</strong> non-null.
+									</p>
+									<dl>
+										<dt id="obj-player-joined"><var>joined</var> (integer)</dt>
+										<dd>
+											The <a href="#obj-expr-round">round</a> when the current
+											participant may first play.
+											If this is less than the current round, the participant
+											has been accepted into the system, but is not yet
+											playing.
+										</dd>
+										<dt><var>role</var> (integer)</dt>
+										<dd>
+											Whether the participant is playing the row (zero) or
+											column (non-zero) role in the game bimatrices.
+										</dd>
+									</dl>
+								</dd>
+								<dt id="obj-history"><var>history</var> (array)</dt>
+								<dd>
+									<p>
+										The game history and information about individual games.
+										This is an array of objects with the following fields.
+									</p>
+									<dl>
+										<dt><var>p1</var> (integer)</dt>
+										<dd>
+											Number of actions for the row player.
+										</dd>
+										<dt><var>p2</var> (integer)</dt>
+										<dd>
+											Number of actions for the column player.
+										</dd>
+										<dt><var>payoffs</var> (array)</dt>
+										<dd>
+											Payoff matrix.
+											This is an array (of length <a
+												href="#obj-history-p1">p1</a> of arrays (each of
+											length <a href="#obj-history-p2">p2</a>) of strings.
+											Each string is a rational number formatted as a fraction
+											(e.g., 1/2, -1/2, 0, 1, etc.).
+										</dd>
+									</dl>
+								</dd>
+							</dl>
+						</dd>
+					</dl>
 				</section>
 			</section>
 		</article>
