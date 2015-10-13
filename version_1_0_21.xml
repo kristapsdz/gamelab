@@ -14,6 +14,11 @@
 			Bring the manual up to date with the current system.
 		</p>
 		<p>
+			Add the ability for the administrator to disable history altogether.
+			This prevents the history of other players' plays from being transmitted, effectively making games <q>history-free</q>.
+			This is useful for testing the difference in play between information sets.
+		</p>
+		<p>
 			Also hard-code the <a href="https://fortawesome.github.io/Font-Awesome/">Font Awesome</a> at compilation time instead of
 			within source files, allowing administrators to deploy their own icon server instead for LAN environments.
 		</p>

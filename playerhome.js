@@ -731,12 +731,8 @@ function loadHistory(res)
 {
 	var gamee, e, i, j, k, child, bmatrix, c, oc, tbl, game;
 
-	if (res.expr.nohistory) {
-		doHide('historyButton');
+	if (res.expr.nohistory)
 		return;
-	} 
-
-	doUnhide('historyButton');
 
 	loadGraphs();
 
@@ -861,6 +857,14 @@ function loadExprSuccess(resp)
 		res.roworders = null;
 		res.colorders = null;
 		res.gameorders = null;
+	}
+
+	if (res.expr.nohistory) {
+		doHide('exprHistoryExplain');
+		doHide('historyButton');
+	} else {
+		doUnhide('exprHistoryExplain');
+		doUnhide('historyButton');
 	}
 
 	doClearReplace('nextRound', 'Next round');

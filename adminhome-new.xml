@@ -490,6 +490,8 @@
 									to some verification questions before playing; or
 									<q>E-mail round advancement</q> to e-mail non-captive participants when
 									the round advances.
+									If you don't want to transmit (or show) experiment history to players,
+									select <q>Do not show history</q>.
 								</div>
 								<div class="input input-check">
 									<i onclick="toggler('nolottery', 'nolotteryToggle');" id="nolotteryToggle" class="fa fa-fw fa-toggle-off"></i>

@@ -1002,6 +1002,11 @@ again:
 	else
 		gamesz = db_game_count_all();
 
+	/*
+	 * If we're not expressing our history, explicitly disable it
+	 * here, which continues getting (and thus computing) our
+	 * roundups and such, but not displaying them.
+	 */
 	if (EXPR_NOHISTORY & expr->flags) {
 		db_interval_free(stor.intv);
 		stor.intv = NULL;

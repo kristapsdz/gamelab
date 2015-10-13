@@ -117,7 +117,7 @@
 							You've played all the games for this round.
 							Please wait to play again.
 						</p>
-						<p>
+						<p id="exprHistoryExplain">
 							While you wait, you can view how the game has been played previously by
 							going to the <q>History</q> tab. 
 							The menu is in the top left corner of the screen.
