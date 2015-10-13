@@ -52,6 +52,22 @@ function shuffle(o, seed)
         return o;
 }
 
+function rational2float(fraction) 
+{
+	var result, frac;
+
+	if (fraction.search('/') >= 0) {
+		frac = fraction.split('/');
+		if (0 == parseInt(frac[1], 10))
+			result = 0;
+		else
+			result = parseInt(frac[0], 10) / parseInt(frac[1], 10);
+	} else
+		result = fraction
+
+	return (result);
+}
+
 function prowOut(source)
 {
 	var e, id;
@@ -485,9 +501,8 @@ function loadGameGraphs(gameidx, lineName, barName, small)
 					res.expr.history[gameidx].roundups[k].navgp2 :
 					res.expr.history[gameidx].roundups[k].navgp1;
 				for (sum = 0.0, m = 0; m < hmatrix[0].length; m++)
-					sum += avg[res.colorders[gameidx][m]] *
-						hmatrix[res.roworders[gameidx][j]]
-						       [res.colorders[gameidx][m]][0];
+					sum += avg[res.colorders[gameidx][m]] * rational2float
+						(hmatrix[res.roworders[gameidx][j]][res.colorders[gameidx][m]][0]);
 				data.push([k + 1, sum]);
 				if (sum < min)
 					min = sum;
@@ -498,9 +513,8 @@ function loadGameGraphs(gameidx, lineName, barName, small)
 				res.history[gameidx].roundups[k].navgp2 :
 				res.history[gameidx].roundups[k].navgp1;
 			for (sum = 0.0, m = 0; m < matrix[0].length; m++)
-				sum += avg[res.colorders[gameidx][m]] *
-					matrix[res.roworders[gameidx][j]]
-					      [res.colorders[gameidx][m]][0];
+				sum += avg[res.colorders[gameidx][m]] * rational2float
+					(matrix[res.roworders[gameidx][j]][res.colorders[gameidx][m]][0]);
 			data.push([(k + l) + 1, sum]);
 			if (sum < min)
 				min = sum;
