@@ -1147,8 +1147,8 @@
 								</dd>
 								<dt id="db-experiment-flags"><var>flags</var></dt>
 								<dd>
-									Bit-flags.
-									(There's only one experiment row in the table.)
+									Bit-field.
+									Contains 0x01 if the history is not to be transmitted to participants.
 								</dd>
 								<dt id="db-experiment-id"><var>id</var></dt>
 								<dd>
