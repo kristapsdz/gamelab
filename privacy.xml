@@ -33,6 +33,7 @@
 		<footer>
 			&copy; 2014, 2015
 			<a href="http://www.kcons.eu"><i>k</i>-Consulting</a>
+			<a href="http://www.kcons.eu/gamelab">gamelab @VERSION@</a>
 			<a href="@HTURI@/privacy.html">Privacy</a>
 		</footer>
 	</body>
