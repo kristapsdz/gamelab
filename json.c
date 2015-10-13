@@ -196,7 +196,11 @@ json_puthistory(struct kjsonreq *r, int admin,
 		return;
 	}
 
-	/* Fetch the full history record now. */
+	/* 
+	 * Fetch the full history record now. 
+	 * Note: if history-showing has been disabled experiment-wide,
+	 * then don't do it at all.
+	 */
 	if (NULL == intv && ! (EXPR_NOHISTORY & expr->flags))
 		p.intv = db_interval_get(expr->round - 1);
 	else
