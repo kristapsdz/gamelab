@@ -181,7 +181,7 @@ gamelab.tgz.sha512: gamelab.tgz
 installwww: www
 	mkdir -p $(PREFIX)
 	mkdir -p $(PREFIX)/snapshots
-	install -m 0444 index.html gamelab.bib manual.html index.css manual.css logo.png bchs-logo.png $(PREFIX)
+	install -m 0444 index.html gamelab.bib manual.html index.css manual.css logo.png $(PREFIX)
 	install -m 0444 gamelab.tgz $(PREFIX)/snapshots
 	install -m 0444 gamelab.tgz.sha512 $(PREFIX)/snapshots
 	install -m 0444 gamelab.tgz $(PREFIX)/snapshots/gamelab-$(VERSION).tgz
