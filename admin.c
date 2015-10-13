@@ -134,6 +134,7 @@ enum	key {
 	KEY_SERVER,
 	KEY_SESSCOOKIE,
 	KEY_SESSID,
+	KEY_SHOWHISTORY,
 	KEY_URI,
 	KEY_USER,
 	KEY_WINNERS,
@@ -273,6 +274,7 @@ static const struct kvalid keys[KEY__MAX] = {
 	{ kvalid_stringne, "server" }, /* KEY_SERVER */
 	{ kvalid_int, "sesscookie" }, /* KEY_SESSCOOKIE */
 	{ kvalid_int, "sessid" }, /* KEY_SESSID */
+	{ kvalid_int, "showhistory" }, /* KEY_SHOWHISTORY */
 	{ kvalid_stringne, "uri" }, /* KEY_URI */
 	{ kvalid_stringne, "user" }, /* KEY_USER */
 	{ kvalid_uint, "winners" }, /* KEY_WINNERS */
@@ -312,10 +314,8 @@ mailround(const char *uri)
 				"my %u != %" PRId64 " (exiting)", 
 				pid, expr->roundpid);
 			break;
-		} 
-
-		if (expr->state > ESTATE_STARTED ||
-		    expr->round >= expr->rounds) {
+		} else if (expr->state > ESTATE_STARTED ||
+		           expr->round >= expr->rounds) {
 			INFO("Round mailer exiting: "
 				"experiment over: %u", pid);
 			break;
@@ -343,15 +343,17 @@ sess_valid(struct kreq *r)
 		NULL == r->cookiemap[KEY_SESSCOOKIE]) 
 		return(0);
 
-	return(db_admin_sess_valid(r->cookiemap[KEY_SESSID]->parsed.i,
-		r->cookiemap[KEY_SESSCOOKIE]->parsed.i));
+	return(db_admin_sess_valid
+		(r->cookiemap[KEY_SESSID]->parsed.i,
+		 r->cookiemap[KEY_SESSCOOKIE]->parsed.i));
 }
 
 static int
 kpairbad(struct kreq *r, enum key key)
 {
 
-	return(NULL == r->fieldmap[key] || NULL != r->fieldnmap[key]);
+	return(NULL == r->fieldmap[key] || 
+	       NULL != r->fieldnmap[key]);
 }
 
 static int
@@ -359,10 +361,12 @@ admin_valid(struct kreq *r)
 {
 
 
-	if (kpairbad(r, KEY_EMAIL) || kpairbad(r, KEY_PASSWORD))
+	if (kpairbad(r, KEY_EMAIL) || 
+	    kpairbad(r, KEY_PASSWORD))
 		return(0);
-	return(db_admin_valid(r->fieldmap[KEY_EMAIL]->parsed.s,
-		r->fieldmap[KEY_PASSWORD]->parsed.s));
+	return(db_admin_valid
+		(r->fieldmap[KEY_EMAIL]->parsed.s,
+		 r->fieldmap[KEY_PASSWORD]->parsed.s));
 }
 
 static void
@@ -465,7 +469,8 @@ sendhighest(const struct player *p,
 }
 
 static void
-sendwinners(const struct player *p, const struct winner *winner, void *arg)
+sendwinners(const struct player *p, 
+	const struct winner *winner, void *arg)
 {
 	struct kjsonreq	*req = arg;
 
@@ -613,10 +618,8 @@ senddodeletegame(struct kreq *r)
 {
 
 	if ( ! kpairbad(r, KEY_GAMEID)) {
-		if ( ! db_game_delete(r->fieldmap[KEY_GAMEID]->parsed.i))
-			http_open(r, KHTTP_409);
-		else
-			http_open(r, KHTTP_200);
+		db_game_delete(r->fieldmap[KEY_GAMEID]->parsed.i);
+		http_open(r, KHTTP_200);
 		http_open(r, KHTTP_200);
 	} else
 		http_open(r, KHTTP_400);
@@ -629,10 +632,8 @@ senddodeleteplayer(struct kreq *r)
 {
 
 	if ( ! kpairbad(r, KEY_PLAYERID)) {
-		if ( ! db_player_delete(r->fieldmap[KEY_PLAYERID]->parsed.i))
-			http_open(r, KHTTP_409);
-		else
-			http_open(r, KHTTP_200);
+		db_player_delete(r->fieldmap[KEY_PLAYERID]->parsed.i);
+		http_open(r, KHTTP_200);
 		http_open(r, KHTTP_200);
 	} else
 		http_open(r, KHTTP_400);
@@ -658,12 +659,12 @@ senddochangemail(struct kreq *r)
 {
 
 	if (kpairbad(r, KEY_EMAIL1) ||
-		kpairbad(r, KEY_EMAIL2) ||
-		kpairbad(r, KEY_EMAIL3) ||
-		strcmp(r->fieldmap[KEY_EMAIL2]->parsed.s,
-		       r->fieldmap[KEY_EMAIL3]->parsed.s) ||
-		! db_admin_valid_email
-		(r->fieldmap[KEY_EMAIL1]->parsed.s)) {
+	    kpairbad(r, KEY_EMAIL2) ||
+	    kpairbad(r, KEY_EMAIL3) ||
+	    strcmp(r->fieldmap[KEY_EMAIL2]->parsed.s,
+		   r->fieldmap[KEY_EMAIL3]->parsed.s) ||
+	    ! db_admin_valid_email
+	     (r->fieldmap[KEY_EMAIL1]->parsed.s)) {
 		http_open(r, KHTTP_400);
 		khttp_body(r);
 		return;
@@ -1030,7 +1031,6 @@ senddoloadplayers(struct kreq *r)
 	db_expr_free(expr);
 }
 
-
 static void
 senddoloadgames(struct kreq *r)
 {
@@ -1196,6 +1196,7 @@ senddostartexpr(struct kreq *r)
 	const char	*instdat;
 	enum instrs	 inst;
 	int		 fd;
+	int64_t		 flags;
 	struct stat	 st;
 	size_t		 sz;
 
@@ -1204,6 +1205,7 @@ senddostartexpr(struct kreq *r)
 	    kpairbad(r, KEY_CONVERSION) ||
 	    kpairbad(r, KEY_NOLOTTERY) ||
 	    kpairbad(r, KEY_QUESTIONNAIRE) ||
+	    kpairbad(r, KEY_SHOWHISTORY) ||
 	    kpairbad(r, KEY_MAILROUND) ||
 	    kpairbad(r, KEY_TIME) ||
 	    kpairbad(r, KEY_ROUNDS) ||
@@ -1278,6 +1280,10 @@ senddostartexpr(struct kreq *r)
 		instdat = map;
 	} else 
 		instdat = r->fieldmap[KEY_INSTRFILE]->parsed.s;
+
+	flags = 0;
+	if (r->fieldmap[KEY_SHOWHISTORY]->parsed.i)
+		flags |= EXPR_NOHISTORY;
 	
 	/*
 	 * Actually start the experiment.
@@ -1300,7 +1306,8 @@ senddostartexpr(struct kreq *r)
 		 r->fieldmap[KEY_NOLOTTERY]->parsed.i,
 		 r->fieldmap[KEY_QUESTIONNAIRE]->parsed.i,
 		 r->fieldmap[KEY_CONVERSION]->parsed.d,
-		 r->fieldmap[KEY_CURRENCY]->parsed.s)) {
+		 r->fieldmap[KEY_CURRENCY]->parsed.s,
+		 flags)) {
 		http_open(r, KHTTP_409);
 		khttp_body(r);
 		if (INSTR_LOTTERY == inst || 

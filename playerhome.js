@@ -716,7 +716,7 @@ function loadGraphs()
 
 	if (null === res)
 		return;
-	else if (res.expr.round <= 0)
+	else if (res.expr.round <= 0 || res.expr.nohistory)
 		return;
 
 	doClear('historyLineGraphs');
@@ -730,6 +730,13 @@ function loadGraphs()
 function loadHistory(res)
 {
 	var gamee, e, i, j, k, child, bmatrix, c, oc, tbl, game;
+
+	if (res.expr.nohistory) {
+		doHide('historyButton');
+		return;
+	} 
+
+	doUnhide('historyButton');
 
 	loadGraphs();
 

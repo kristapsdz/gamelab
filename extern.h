@@ -57,6 +57,8 @@ struct	expr {
 	int64_t		 round; /* round (<0 initial, then >=0) */
 	int64_t		 nolottery; /* don't show lottery info */
 	int64_t		 questionnaire; /* require questions */
+#define	EXPR_NOHISTORY 0x01
+	int64_t		 flags;
 };
 
 /*
@@ -222,7 +224,7 @@ void		 db_expr_setmailer(int64_t, int64_t);
 int		 db_expr_start(int64_t, int64_t, int64_t, int64_t, 
 			int64_t, int64_t, int64_t, const char *, 
 			const char *, const char *, int64_t, 
-			int64_t, double, const char *);
+			int64_t, double, const char *, int64_t);
 void		 db_expr_wipe(void);
 
 struct game	*db_game_alloc(const char *,

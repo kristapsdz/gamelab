@@ -100,7 +100,8 @@ article ul.stratplays		{ list-style-type: circle;
 div.caption			{ text-align: center; 
 				  color: #444;
 				  width: 100%; }
-div.caption a			{ color: #336699; }
+div.caption a			{ color: #999; }
+div.caption a:hover		{ color: #333; }
 div.lottery			{ text-align: center; }
 div.history			{ display: table;
 				  width: 100%;
@@ -149,15 +150,15 @@ div.payoffs > div .pair		{ background-color: #ddd; }
 div.payoffs > div.active .pair	{ background-color: #fff; 
 				  box-shadow: 1px 1px 1px #444; }
 div.iactive > *			{ box-shadow: 1px 1px 1px #444; }
-div.canclose			{ border: thin solid blue;
+div.canclose			{ box-shadow: 1px 1px 2px #333;
 				  border-radius: 1ex;
 				  margin: 1ex auto;
 				  padding: 1ex; 
-				  color: #eee;
-				  background-color: #336699; }
-div.canclose a:hover	 	{ color: #ccc; }
+				  color: #000;
+				  background-color: #b0b0b0; }
+div.canclose a:hover	 	{ color: #fff; }
 div.canclose a 		 	{ text-align: right;
-				  color: #00eeee; }
+				  color: #eee; }
 div.input input[readonly]	{ background-color: #ddd; }
 .noshow				{ max-height: 0 !important; 
 				  padding: 0 !important; 
@@ -314,5 +315,5 @@ div.input input[type=time]	{ width: 20ex; }
 				  width: 50%; }
 	#graphButtons > *:last-child
 				{ text-align: right; }
-			
+	footer			{ font-size: 10pt; }
 }

@@ -586,6 +586,7 @@ senddoloadgame(const struct game *game, int64_t round, void *arg)
 	for (i = 0; i < p->intv->periodsz; i++) 
 		if (game->id == p->intv->periods[i].gameid)
 			break;
+
 	assert(i < p->intv->periodsz);
 	per = &p->intv->periods[i];
 	json_putroundup(req, "roundup", per->roundups[round - 1], 0);
@@ -949,9 +950,6 @@ again:
 		}
 	}
 
-	memset(&stor, 0, sizeof(struct intvstor));
-	memset(&pstor, 0, sizeof(struct poffstor));
-
 	khttp_head(r, kresps[KRESP_STATUS], 
 		"%s", khttps[KHTTP_200]);
 	khttp_head(r, kresps[KRESP_CONTENT_TYPE], 
@@ -967,8 +965,7 @@ again:
 	 * If the game has completed, then disallow the cache: the
 	 * amdinistrator can grant winnings whenever.
 	 */
-	if (expr->round >= expr->rounds) {
-	} else
+	if (expr->round < expr->rounds) 
 		khttp_head(r, kresps[KRESP_ETAG], 
 			"\"%" PRIu64 "-%" PRId64 "-%" PRId64 "-%zu\"", 
 			expr->round, player->id, player->version,
@@ -978,13 +975,16 @@ again:
 	kjson_open(&req, r);
 	kjson_obj_open(&req);
 
+	memset(&stor, 0, sizeof(struct intvstor));
+	memset(&pstor, 0, sizeof(struct poffstor));
+
 	/*
 	 * If the experiment hasn't started yet, have it contain nothing
 	 * other than the experiment data itself.
 	 */
 	if (expr->round < 0) {
 		json_putexpr(&req, expr);
-		kjson_putnullp(&req, "winner");
+		kjson_putnullp(&req, "win");
 		kjson_putnullp(&req, "history");
 		json_putplayer(&req, player);
 		goto out;
@@ -1002,12 +1002,18 @@ again:
 	else
 		gamesz = db_game_count_all();
 
+	if (EXPR_NOHISTORY & expr->flags) {
+		db_interval_free(stor.intv);
+		stor.intv = NULL;
+	}
+
 	/* 
 	 * If the experiment is over but we don't have a total yet,
 	 * refresh the experiment object to reflect the total number of
 	 * lottery tickets.
 	 */
-	if (expr->round >= expr->rounds && expr->state < ESTATE_PREWIN) {
+	if (expr->round >= expr->rounds && 
+	    expr->state < ESTATE_PREWIN) {
 		db_expr_finish(&expr, gamesz);
 		/* Reload with new final ranking... */
 		db_player_free(player);
@@ -1015,7 +1021,9 @@ again:
 	}
 
 	json_putexpr(&req, expr);
+
 	if (ESTATE_POSTWIN == expr->state) {
+		kjson_objp_open(&req, "win");
 		kjson_arrayp_open(&req, "winrnums");
 		db_winners_load_all(&req, senddowinrnums);
 		kjson_array_close(&req);
@@ -1027,8 +1035,9 @@ again:
 			kjson_putintp(&req, "winner", -1);
 			kjson_putdoublep(&req, "winrnum", 0.0);
 		}
-	} else
-		kjson_putnullp(&req, "winner");
+		kjson_obj_close(&req);
+	} else 
+		kjson_putnullp(&req, "win");
 
 	json_putplayer(&req, player);
 

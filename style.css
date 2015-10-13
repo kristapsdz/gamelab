@@ -318,7 +318,7 @@ div.input input[readonly]	{ background-color: #ddd; }
 				{ margin-left: 0; }
 	article ul li > span:last-child
 				{ margin-right: 0; }
-	section section >*	{ margin: 1em 0.5em 1em 0.5em; }
+	section section >*	{ margin: 0.5em 0.5em 0.5em 0.5em; }
 	section section >h3	{ font-size: 14pt;
 				  padding: 1ex; }
 	article			{ padding-bottom: 1em;
@@ -332,4 +332,5 @@ div.input input[readonly]	{ background-color: #ddd; }
 	h1			{ font-size: 18pt; }
 	header span		{ font-size: 12pt; }
 	#historyNav		{ text-align: center; }
+	footer			{ font-size: 10pt; }
 }

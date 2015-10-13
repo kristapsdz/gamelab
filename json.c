@@ -197,7 +197,7 @@ json_puthistory(struct kjsonreq *r, int admin,
 	}
 
 	/* Fetch the full history record now. */
-	if (NULL == intv)
+	if (NULL == intv && ! (EXPR_NOHISTORY & expr->flags))
 		p.intv = db_interval_get(expr->round - 1);
 	else
 		p.intv = intv;
@@ -290,6 +290,7 @@ json_putexpr(struct kjsonreq *r, const struct expr *expr)
 	kjson_putintp(r, "end", (int64_t)expr->end);
 	kjson_putintp(r, "rounds", expr->rounds);
 	kjson_putintp(r, "prounds", expr->prounds);
+	kjson_putintp(r, "nohistory", EXPR_NOHISTORY & expr->flags);
 	kjson_putintp(r, "nolottery", expr->nolottery);
 	kjson_putdoublep(r, "conversion", expr->conversion);
 	kjson_putstringp(r, "currency", expr->currency);

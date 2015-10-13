@@ -503,9 +503,14 @@
 									<i onclick="toggler('mailround', 'mailroundToggle');" id="mailroundToggle" class="fa fa-fw fa-toggle-off"></i>
 									<span onclick="toggler('mailround', 'mailroundToggle');">E-mail round advancement</span>
 								</div>
+								<div class="input input-check">
+									<i onclick="toggler('showhistory', 'showhistoryToggle');" id="showhistoryToggle" class="fa fa-fw fa-toggle-off"></i>
+									<span onclick="toggler('showhistory', 'showhistoryToggle');">Do not show history</span>
+								</div>
 								<input type="hidden" id="nolottery" name="nolottery" value="0" />
 								<input type="hidden" id="question" name="question" value="0" />
 								<input type="hidden" id="mailround" name="mailround" value="0" />
+								<input type="hidden" id="showhistory" name="showhistory" value="0" />
 							</section>
 							<div class="input input-submit">
 								<i class="fa fa-check"></i>

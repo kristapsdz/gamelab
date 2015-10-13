@@ -399,7 +399,7 @@
 				<p>
 					In order to use <span class="nm">gamelab</span>, you'll need to download, configure, and install
 					it&mdash;just like any piece of software.
-					<emph>Note</emph>: we're still getting <span class="nm">gamelab</span> into ship-shape, so the source
+					<strong>Note</strong>: we're still getting <span class="nm">gamelab</span> into ship-shape, so the source
 					can't yet be downloaded&#8211;contact us for a copy!
 					If a system administrator has already installed the server and given you the web address for its
 					laboratory and administrative interfaces, jump down to the <a href="#administration">Administration</a>
@@ -440,7 +440,7 @@
 					</p>
 					<p>
 						As mentioned in <a href="#backend">Backend</a>, many configurations have been tested: only <a
-							href"https://httpd.apache.org/">Apache2</a> is known to have issues, and these generally are
+							href="https://httpd.apache.org/">Apache2</a> is known to have issues, and these generally are
 						harmless.
 					</p>
 				</section>
