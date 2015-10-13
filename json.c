@@ -222,7 +222,6 @@ json_putplayer(struct kjsonreq *r, const struct player *p)
 
 {
 	kjson_objp_open(r, "player");
-	kjson_putstringp(r, "mail", p->mail);
 	if ('\0' == *p->hitid)
 		kjson_putnullp(r, "hitid");
 	else
@@ -291,7 +290,6 @@ json_putexpr(struct kjsonreq *r, const struct expr *expr)
 	kjson_string_close(r);
 	kjson_putintp(r, "maxtickets", expr->total);
 	kjson_putintp(r, "start", (int64_t)expr->start);
-	kjson_putintp(r, "end", (int64_t)expr->end);
 	kjson_putintp(r, "rounds", expr->rounds);
 	kjson_putintp(r, "prounds", expr->prounds);
 	kjson_putintp(r, "nohistory", EXPR_NOHISTORY & expr->flags);

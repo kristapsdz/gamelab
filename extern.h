@@ -36,7 +36,6 @@ enum	estate {
 struct	expr {
 	enum estate	 state; /* state of play */
 	time_t		 start; /* game-play begins */
-	time_t		 end; /* game-play ends (computed) */
 	int64_t		 rounds; /* total experiment rounds */
 	int64_t		 roundpid; /* round-watcher daemon (or 0) */
 	int64_t		 playermax; /* max simultaneous players */

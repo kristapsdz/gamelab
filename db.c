@@ -2799,7 +2799,6 @@ db_expr_get(int only_started)
 	expr->loginuri = kstrdup((char *)sqlite3_column_text(stmt, 3));
 	expr->instr = kstrdup((char *)sqlite3_column_text(stmt, 5));
 	expr->state = (time_t)sqlite3_column_int64(stmt, 6);
-	expr->end = expr->start + (expr->rounds * expr->minutes * 60);
 	expr->total = sqlite3_column_int64(stmt, 7);
 	expr->autoadd = sqlite3_column_int64(stmt, 8);
 	expr->round = sqlite3_column_int64(stmt, 9);
@@ -2885,7 +2884,7 @@ db_expr_wipe(void)
 	db_exec("UPDATE experiment SET "
 		"currency='',conversion=1,"
 		"autoadd=0,mturk=0,autoaddpreserve=0,"
-		"state=0,total='0/1',round=-1,rounds=0,"
+		"state=0,total=0,round=-1,rounds=0,"
 		"prounds=0,roundbegan=0,roundpct=0.0,minutes=0,"
 		"roundmin=0,nolottery=0,questionnaire=0,"
 		"roundpid=0,flags=0");
