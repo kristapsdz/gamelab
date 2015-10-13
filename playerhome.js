@@ -776,7 +776,7 @@ function loadHistory(res)
 
 function loadExprSuccess(resp)
 {
-	var i, j, e, expr, c, oc, v, elems, next;
+	var i, j, e, c, oc, v, elems, next;
 
 	resindex = 0;
 	res = null;
@@ -795,8 +795,6 @@ function loadExprSuccess(resp)
 		return;
 	}
 
-	expr = res.expr;
-
 	document.getElementById('instructionsPromptYes').checked = 
 		res.player.instr ? 'checked' : '';
 	if (0 === res.player.instr && '' == window.location.hash)
@@ -808,7 +806,7 @@ function loadExprSuccess(resp)
 	doUnhide('exprLoaded');
 	doUnhide('historyLoaded');
 	doUnhide('instructionsLoaded');
-	doClearReplaceMarkup('instructionsLoaded', expr.instr);
+	doClearReplaceMarkup('instructionsLoaded', res.expr.instr);
 
 	/* 
 	 * If the player is captive, don't let her log out.
@@ -860,68 +858,68 @@ function loadExprSuccess(resp)
 
 	doClearReplace('nextRound', 'Next round');
 
-	if (expr.round < 0) {
+	if (res.expr.round < 0) {
 		/*
 		 * If we haven't yet started, then simply set our timer
 		 * and exit: we have nothing to show.
 		 */
 		doUnhide('historyNotStarted');
 		doUnhide('exprNotStarted');
-		next = expr.start - Math.floor(new Date().getTime() / 1000);
+		next = res.expr.start - Math.floor(new Date().getTime() / 1000);
 		e = doClear('exprCountdown');
 		formatCountdown(next, e);
-		setTimeout(timerCountdown, 1000, loadExpr, e, expr.start);
-	} else if (expr.round < res.player.joined) {
+		setTimeout(timerCountdown, 1000, loadExpr, e, res.expr.start);
+	} else if (res.expr.round < res.player.joined) {
 		doUnhide('historyNotStarted');
 		doUnhide('exprNotStarted');
-		if (expr.roundmin > 0 && Math.floor(new Date().getTime() / 1000) - 
-				expr.roundbegan <= expr.roundmin * 60) {
+		if (res.expr.roundmin > 0 && Math.floor(new Date().getTime() / 1000) - 
+				res.expr.roundbegan <= res.expr.roundmin * 60) {
 			doClearReplace('nextRound', 'Grace time');
-			next = (expr.roundbegan + (expr.roundmin * 60)) -
+			next = (res.expr.roundbegan + (res.expr.roundmin * 60)) -
 				Math.floor(new Date().getTime() / 1000);
 			e = doClear('exprCountdown');
 			formatCountdown(next, e);
 			setTimeout(timerCountdown, 1000, checkRound, e, 
-				(expr.roundbegan + (expr.roundmin * 60)));
+				(res.expr.roundbegan + (res.expr.roundmin * 60)));
 		} else {
-			next = (expr.roundbegan + (expr.minutes * 60)) -
+			next = (res.expr.roundbegan + (res.expr.minutes * 60)) -
 				Math.floor(new Date().getTime() / 1000);
 			e = doClear('exprCountdown');
 			formatCountdown(next, e);
 			setTimeout(timerCountdown, 1000, null, e, 
-				(expr.roundbegan + (expr.minutes * 60)));
+				(res.expr.roundbegan + (res.expr.minutes * 60)));
 			setTimeout(checkRoundEnd, 
 				((res.expr.minutes < 10 || res.expr.roundpct > 0) ? 
 				5000 : 60000));
 		}
-	} else if (expr.round < expr.rounds && 
-		   expr.round < res.player.joined + expr.prounds) {
+	} else if (res.expr.round < res.expr.rounds && 
+		   res.expr.round < res.player.joined + res.expr.prounds) {
 		/*
 		 * Start by setting the countdown til the next
 		 * game-play.
 		 */
-		if (expr.roundmin > 0 && Math.floor(new Date().getTime() / 1000) - 
-				expr.roundbegan <= expr.roundmin * 60) {
+		if (res.expr.roundmin > 0 && Math.floor(new Date().getTime() / 1000) - 
+				res.expr.roundbegan <= res.expr.roundmin * 60) {
 			doClearReplace('nextRound', 'Grace time');
-			next = (expr.roundbegan + (expr.roundmin * 60)) -
+			next = (res.expr.roundbegan + (res.expr.roundmin * 60)) -
 				Math.floor(new Date().getTime() / 1000);
 			e = doClear('exprCountdown');
 			formatCountdown(next, e);
 			setTimeout(timerCountdown, 1000, checkRound, e, 
-				expr.roundbegan + (expr.roundmin * 60));
+				res.expr.roundbegan + (res.expr.roundmin * 60));
 		} else {
-			next = (expr.roundbegan + (expr.minutes * 60)) -
+			next = (res.expr.roundbegan + (res.expr.minutes * 60)) -
 				Math.floor(new Date().getTime() / 1000);
 			e = doClear('exprCountdown');
 			formatCountdown(next, e);
 			setTimeout(timerCountdown, 1000, null, e, 
-				(expr.roundbegan + (expr.minutes * 60)));
+				(res.expr.roundbegan + (res.expr.minutes * 60)));
 			setTimeout(checkRoundEnd, 
 				((res.expr.minutes < 10 || res.expr.roundpct > 0) ? 
 				5000 : 60000));
 		}
-		doValue('exprPlayRound', expr.round);
-		if (expr.round > 0) {
+		doValue('exprPlayRound', res.expr.round);
+		if (res.expr.round > 0) {
 			doUnhide('historyPlay');
 			doHide('historyNotYet');
 			loadHistory(res);
@@ -930,7 +928,7 @@ function loadExprSuccess(resp)
 			doUnhide('historyNotYet');
 		}
 		loadGame();
-	} else if (expr.round < expr.rounds) {
+	} else if (res.expr.round < res.expr.rounds) {
 		/* 
 		 * Case where player has finished, but game has not.
 		 */
@@ -942,18 +940,18 @@ function loadExprSuccess(resp)
 			doUnhide('exprFinishedMturk');
 			doUnhide('exprFinishedMturkProfit');
 			doClearReplace('exprFinishedMturkBonus', 
-				(res.aggrtickets * expr.conversion));
-			doClearReplace('currency', expr.currency);
+				(res.aggrtickets * res.expr.conversion));
+			doClearReplace('currency', res.expr.currency);
 		} else if (null !== res.player.hitid) {
 			doClearReplace('hitid', res.player.hitid);
 			doUnhide('exprFinishedMturkSurvey');
 			doUnhide('exprFinishedMturkProfit');
 			doClearReplace('exprFinishedMturkBonus', 
-				(res.aggrtickets * expr.conversion));
-			doClearReplace('currency', expr.currency);
+				(res.aggrtickets * res.expr.conversion));
+			doClearReplace('currency', res.expr.currency);
 		}
 
-		if (expr.round > 0) {
+		if (res.expr.round > 0) {
 			doUnhide('historyPlay');
 			doHide('historyNotYet');
 			loadHistory(res);
@@ -973,7 +971,7 @@ function loadExprSuccess(resp)
 		doHide('exprPlay');
 		doHide('exprDone');
 		doUnhide('exprFinished');
-		if (expr.round > 0) {
+		if (res.expr.round > 0) {
 			doUnhide('historyPlay');
 			doHide('historyNotYet');
 			loadHistory(res);
@@ -988,30 +986,30 @@ function loadExprSuccess(resp)
 			doUnhide('exprFinishedMturk');
 			doUnhide('exprFinishedMturkProfit');
 			doClearReplace('exprFinishedMturkBonus', 
-				(res.player.finalscore * expr.conversion));
-			doClearReplace('currency', expr.currency);
+				(res.player.finalscore * res.expr.conversion));
+			doClearReplace('currency', res.expr.currency);
 		} else if (null !== res.player.hitid) {
 			doClearReplace('hitid', res.player.hitid);
 			doUnhide('exprFinishedMturkSurvey');
 			doUnhide('exprFinishedMturkProfit');
 			doClearReplace('exprFinishedMturkBonus', 
-				(res.player.finalscore * expr.conversion));
-			doClearReplace('currency', expr.currency);
+				(res.player.finalscore * res.expr.conversion));
+			doClearReplace('currency', res.expr.currency);
 		}
 		doClearReplace('exprFinishedScore', res.aggrlottery.toFixed(2));
-		doClearReplace('exprFinishedTicketsMax', expr.maxtickets);
+		doClearReplace('exprFinishedTicketsMax', res.expr.maxtickets);
 		doClearReplace('exprFinishedFinalRank', res.player.finalrank);
 		doClearReplace('exprFinishedTickets', res.player.finalscore);
 		v = res.player.finalrank + res.player.finalscore;
 		doClearReplace('exprFinishedFinalRankEnd', v);
 		doClearReplace('exprCountdown', 'finished');
-		if (expr.nolottery) {
+		if (res.expr.nolottery) {
 			doHide('exprLottery');
 		} else {
 			doUnhide('exprLottery');
 		}
 
-		if (null === res.winner) {
+		if (null === res.win) {
 			doHide('exprFinishedResults');
 			doUnhide('exprFinishedWinWait');
 			doHide('exprFinishedWin');
@@ -1019,7 +1017,7 @@ function loadExprSuccess(resp)
 			doHide('exprFinishedWinHead');
 			doHide('exprFinishedWinRnums');
 			setTimeout(loadExpr, 1000 * 60);
-		} else if (res.winner < 0) {
+		} else if (res.win.winner < 0) {
 			doUnhide('exprFinishedResults');
 			doHide('exprFinishedWinWait');
 			doHide('exprFinishedWin');
@@ -1027,10 +1025,10 @@ function loadExprSuccess(resp)
 			doUnhide('exprFinishedWinHead');
 			doUnhide('exprFinishedWinRnums');
 			e = doClear('exprFinishedRnums');
-			for (i = 0; i < res.winrnums.length; i++) {
+			for (i = 0; i < res.win.winrnums.length; i++) {
 				if (i > 0)
 					e.appendChild(document.createTextNode(', '));
-				e.appendChild(document.createTextNode(res.winrnums[i]));
+				e.appendChild(document.createTextNode(res.win.winrnums[i]));
 			}
 		} else {
 			doUnhide('exprFinishedResults');
@@ -1040,13 +1038,13 @@ function loadExprSuccess(resp)
 			doUnhide('exprFinishedWinHead');
 			doUnhide('exprFinishedWinRnums');
 			e = doClear('exprFinishedRnums');
-			for (i = 0; i < res.winrnums.length; i++) {
+			for (i = 0; i < res.win.winrnums.length; i++) {
 				if (i > 0)
 					e.appendChild(document.createTextNode(', '));
-				e.appendChild(document.createTextNode(res.winrnums[i]));
+				e.appendChild(document.createTextNode(res.win.winrnums[i]));
 			}
-			doClearReplace('exprFinishedWinRank', (res.winner + 1));
-			doClearReplace('exprFinishedWinRnum', res.winrnum);
+			doClearReplace('exprFinishedWinRank', (res.win.winner + 1));
+			doClearReplace('exprFinishedWinRnum', res.win.winrnum);
 		}
 	}
 }
