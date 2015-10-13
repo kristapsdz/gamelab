@@ -11,7 +11,11 @@
 			disallow negative accumulated tickets (in the event of negative payoffs) from crashing the system.
 			(This last part will be later fixed even more.)
 			Make the administrative console even clearer.
-			Bring the manual up to date with the current system.
+			Remove the <var>end</var> variable from the experiment table (unused) and properly reset (upon wiping) the
+			<var>total</var> variable as 0, not 0/1.
+			Fix a presentation bug in showing hypothetical payoffs where the payoffs were fractional and the payoff would show zero
+			instead of the fractional result.
+			Bring the manual up to date with the current system, partially documenting the JSON API in the process.
 		</p>
 		<p>
 			Add the ability for the administrator to disable history altogether.

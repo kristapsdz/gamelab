@@ -1939,11 +1939,15 @@
 										This is an array of objects with the following fields.
 									</p>
 									<dl>
-										<dt><var>p1</var> (integer)</dt>
+										<dt><var>id</var> (integer)</dt>
+										<dd>
+											The identifier of this game.
+										</dd>
+										<dt id="obj-history-p1"><var>p1</var> (integer)</dt>
 										<dd>
 											Number of actions for the row player.
 										</dd>
-										<dt><var>p2</var> (integer)</dt>
+										<dt id="obj-history-p2"><var>p2</var> (integer)</dt>
 										<dd>
 											Number of actions for the column player.
 										</dd>
@@ -1955,6 +1959,49 @@
 											length <a href="#obj-history-p2">p2</a>) of strings.
 											Each string is a rational number formatted as a fraction
 											(e.g., 1/2, -1/2, 0, 1, etc.).
+											Clients should use the <a
+												href="https://gmplib.org/">GMP</a> library to
+											work with these rational numbers.
+										</dd>
+										<dt><var>roundups</var> (array)</dt>
+										<dd>
+											<p>
+												An array of prior play for this game, indexed by round.
+												If this is set to an empty-length array, the
+												administrator might be prohibiting the display of
+												history, or there may not yet be a history to display
+												given the current round number.
+											</p>
+											<dl>
+												<dt><var>skip</var> (integer)</dt>
+												<dd>
+													Non-zero if there weren't enough plays
+													in the given round to compute payoffs.
+													Zero otherwise.
+												</dd>
+												<dt><var>navgp1</var> (array)</dt>
+												<dd>
+													An array of doubles representing the
+													average weight of this action for the
+													row player role.
+													The array if of length <a
+														href="#obj-history-p1">p1</a>.
+												</dd>
+												<dt><var>navgp2</var> (array)</dt>
+												<dd>
+													An array of doubles representing the
+													average weight of this action for the
+													column player role.
+													The array if of length <a
+														href="#obj-history-p2">p2</a>.
+												</dd>
+												<dt><var>navgs</var> (array)</dt>
+												<dd>
+													An array of arrays consisting of the
+													multiples of the average fraction for
+													the given row and column player cell.
+												</dd>
+											</dl>
 										</dd>
 									</dl>
 								</dd>
