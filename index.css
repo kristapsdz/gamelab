@@ -45,20 +45,20 @@ footer			{ margin-top: 3em;
 			  text-align: center;
 			  color: #6e6e6e; }
 .nm			{ color: #ff5a09; }
-#moreinfo .nm		{ color: #cc3806; }
 a			{ text-decoration: none; 
 			  color: #ff9000; }
 a:hover			{ color: #ff6000; }
-#moreinfo a		{ color: #cc7000; }
-#moreinfo a:hover	{ color: #ff9000;
-			  text-shadow: none; }
 footer a		{ color: #cc9000; }
+section .nm		{ color: #cc3806; }
+section a		{ color: #dd8000; }
+section a:hover	{ color: #ff9000;
+			  text-shadow: none; }
 section			{ text-shadow: none;
 			  font-size: 13pt;
-			  color: #cecece; }
+			  color: #dfdfdf; }
 nav[data-sblg-nav] ul	{ list-style-type: none; 
 			  margin-top: 24pt;
-			  color: #aeaeae; 
+			  color: #bebebe; 
 			  padding: 0; 
 		  	  padding-top: 1.12em; }
 nav[data-sblg-nav] li	{ margin-bottom: 1em; }
