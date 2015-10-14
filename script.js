@@ -1,5 +1,34 @@
 "use strict";
 
+/*
+ * We want to disable the "enter" key from submitting the form when
+ * participants are entering strategy mixtures.
+ * This is to force them to press the rows instead of just using easy
+ * keyboard input.
+ */
+function disableEnter(e) 
+{
+	var keycode;
+
+	e = e || window.event;
+	keycode = e.which || e.keyCode;
+
+	if (keycode != 13) 
+		return(true);
+
+	if (e.preventDefault) 
+		e.preventDefault();
+	else 
+		e.returnValue = false;
+
+	if (e.stopPropagation)
+		e.stopPropagation();
+	else 
+		e.cancelBubble = true;
+
+	return(false);
+}
+
 function onNavUp()
 {
 	var nav = document.getElementById('nav');

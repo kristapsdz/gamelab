@@ -135,6 +135,7 @@ enum	key {
 	KEY_SESSCOOKIE,
 	KEY_SESSID,
 	KEY_SHOWHISTORY,
+	KEY_SHUFFLE,
 	KEY_URI,
 	KEY_USER,
 	KEY_WINNERS,
@@ -275,6 +276,7 @@ static const struct kvalid keys[KEY__MAX] = {
 	{ kvalid_int, "sesscookie" }, /* KEY_SESSCOOKIE */
 	{ kvalid_int, "sessid" }, /* KEY_SESSID */
 	{ kvalid_int, "showhistory" }, /* KEY_SHOWHISTORY */
+	{ kvalid_int, "shuffle" }, /* KEY_SHUFFLE */
 	{ kvalid_stringne, "uri" }, /* KEY_URI */
 	{ kvalid_stringne, "user" }, /* KEY_USER */
 	{ kvalid_uint, "winners" }, /* KEY_WINNERS */
@@ -1206,6 +1208,7 @@ senddostartexpr(struct kreq *r)
 	    kpairbad(r, KEY_NOLOTTERY) ||
 	    kpairbad(r, KEY_QUESTIONNAIRE) ||
 	    kpairbad(r, KEY_SHOWHISTORY) ||
+	    kpairbad(r, KEY_SHUFFLE) ||
 	    kpairbad(r, KEY_MAILROUND) ||
 	    kpairbad(r, KEY_TIME) ||
 	    kpairbad(r, KEY_ROUNDS) ||
@@ -1284,6 +1287,8 @@ senddostartexpr(struct kreq *r)
 	flags = 0;
 	if (r->fieldmap[KEY_SHOWHISTORY]->parsed.i)
 		flags |= EXPR_NOHISTORY;
+	if (r->fieldmap[KEY_SHUFFLE]->parsed.i)
+		flags |= EXPR_NOSHUFFLE;
 	
 	/*
 	 * Actually start the experiment.

@@ -1148,7 +1148,8 @@
 								<dt id="db-experiment-flags"><var>flags</var></dt>
 								<dd>
 									Bit-field.
-									Contains 0x01 if the history is not to be transmitted to participants.
+									Contains 0x01 if the history is not to be transmitted to participants and/or
+									0x02 if games and rows shouldn't be randomised prior to display.
 								</dd>
 								<dt id="db-experiment-id"><var>id</var></dt>
 								<dd>

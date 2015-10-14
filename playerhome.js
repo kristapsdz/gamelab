@@ -254,33 +254,14 @@ function bimatrixCreateTranspose(vector)
 	return(matrix);
 }
 
-function disableEnter(e) 
-{
-	e = e || window.event;
-	var keycode = e.which || e.keyCode;
-	if (keycode == 13) {
-		if (e.preventDefault) { 
-			e.preventDefault();
-		} else { 
-			e.returnValue = false;
-		}
-		if (e.stopPropagation) {
-			e.stopPropagation();
-		} else { 
-			e.cancelBubble = true;
-		}
-		return (false);
-	}
-}
-
-/*
- * Given that we've already loaded the experiment via loadGameSuccess(),
- * take the existing game and lay out our inputs.
- */
 function loadGame()
 {
 	var game, matrix, e, div, ii, i, j, input, c, oc;
 
+	/*
+	 * In this case, we've played through all of the games that we
+	 * have available to play: just wait for the next round.
+	 */
 	if (resindex == res.games.length) {
 		doUnhide('exprDone');
 		doHide('exprPlay');
@@ -298,16 +279,26 @@ function loadGame()
 	doClearReplace('playGameNum', (resindex + 1));
 	doClearReplace('playGameMax', res.gamesz);
 
-	/*doClearReplace('playRoundNum', (res.expr.round - res.player.joined) + 1);
-	doClearReplace('playRoundNum2', (res.expr.round - res.player.joined) + 1);
-	doClearReplace('playRoundMax', res.expr.prounds);
-	doClearReplace('playRoundMax2', res.expr.prounds);*/
+	/* We can show absolute or relative round. */
+	if (res.expr.absoluteround) {
+		doClearReplace('playRoundNum', res.expr.round + 1);
+		doClearReplace('playRoundNum2', res.expr.round + 1);
+		doClearReplace('playRoundMax', res.expr.rounds);
+		doClearReplace('playRoundMax2', res.expr.rounds);
+	} else {
+		doClearReplace('playRoundNum', 
+			(res.expr.round - res.player.joined) + 1);
+		doClearReplace('playRoundNum2', 
+			(res.expr.round - res.player.joined) + 1);
+		doClearReplace('playRoundMax', res.expr.prounds);
+		doClearReplace('playRoundMax2', res.expr.prounds);
+	}
 
-	doClearReplace('playRoundNum', res.expr.round + 1);
-	doClearReplace('playRoundNum2', res.expr.round + 1);
-	doClearReplace('playRoundMax', res.expr.rounds);
-	doClearReplace('playRoundMax2', res.expr.rounds);
-
+	/*
+	 * It might be that we play our games out of order for some
+	 * reason--I don't know, but it can happen.
+	 * If so, simply skip over this game index.
+	 */
 	game = res.games[res.gameorders[resindex]];
 	if (null === game) {
 		resindex++;
@@ -317,17 +308,28 @@ function loadGame()
 
 	e = document.getElementById('nextround');
 	if (null !== e && 0 === resindex) {
-		/*doClearReplace('nextroundround', (res.expr.round - res.player.joined) + 1);*/
-		doClearReplace('nextroundround', res.expr.round + 1);
+		doClearReplace('nextroundround', 
+			res.expr.absoluteround ?  
+			(res.expr.round + 1) :
+			((res.expr.round - res.player.joined) + 1));
 		doUnhideNode(e);
+		if (window.Notification && Notification.permission === "granted") {
+			var options = {
+				body: 'Gamelab round has advanced to ' +
+					(res.expr.absoluteround ?  
+					 (res.expr.round + 1) :
+					 ((res.expr.round - res.player.joined) + 1))
+			};
+			var n = new Notification('Gamelab Update', options);
+			n.onclick = function() { doHide('nextround'); };
+			setTimeout(n.close.bind(n), 5000);
+		}
 	}
-
 
 	/* Transpose the matrix, if necessary. */
 	matrix = 0 === res.player.role ? 
 		bimatrixCreate(game.payoffs) : 
 		bimatrixCreateTranspose(game.payoffs);
-
 
 	c = res.player.rseed % colours.length;
 	oc = (0 === c % 2) ? c + 1 : c - 1;
@@ -336,15 +338,23 @@ function loadGame()
 		res.roworders[res.gameorders[resindex]],
 		res.colorders[res.gameorders[resindex]]);
 
+	/*
+	 * We don't have a history if we're still on the first round,
+	 * otherwise load the graphs for our history.
+	 */
 	if (null !== game.roundup) {
 		doUnhide('exprHistory');
 		doClear('historyLineGraphsSmall');
 		doClear('historyBarGraphsSmall');
 		loadGameGraphs(res.gameorders[resindex], 
-			'historyLineGraphsSmall', 'historyBarGraphsSmall', 1);
-		doUnhide('historyLineGraphsSmall' + res.gameorders[resindex]);
-		doUnhide('historyBarGraphsSmall' + res.gameorders[resindex]);
-		if (0 !== game.roundup.skip && res.expr.round > res.player.joined)
+			'historyLineGraphsSmall', 
+			'historyBarGraphsSmall', 1);
+		doUnhide('historyLineGraphsSmall' + 
+			res.gameorders[resindex]);
+		doUnhide('historyBarGraphsSmall' + 
+			res.gameorders[resindex]);
+		if (0 !== game.roundup.skip && 
+		    res.expr.round > res.player.joined)
 			doUnhide('skipExplain');
 		else
 			doHide('skipExplain');
@@ -373,7 +383,9 @@ function loadGame()
 			res.roworders[res.gameorders[resindex]][i]);
 		input.setAttribute('name', 'index' + 
 			res.roworders[res.gameorders[resindex]][i]);
-		input.setAttribute('onkeypress', 'return(disableEnter(event));');
+		input.onkeypress = function() {
+			return function(event){return(disableEnter(event));};
+		}();
 		div.appendChild(ii);
 		div.appendChild(input);
 		e.appendChild(div);
@@ -797,20 +809,16 @@ function loadExprSuccess(resp)
 
 	resindex = 0;
 	res = null;
-	doHide('loading');
-	doUnhide('loaded');
 
 	try  { 
 		res = JSON.parse(resp);
 	} catch (error) {
-		doUnhide('exprLoading');
-		doUnhide('historyLoading');
-		doUnhide('instructionsLoading');
-		doHide('exprLoaded');
-		doHide('historyLoaded');
-		doHide('instructionsLoaded');
+		console.log('JSON parse fail: ' + resp);
 		return;
 	}
+
+	doHide('loading');
+	doUnhide('loaded');
 
 	document.getElementById('instructionsPromptYes').checked = 
 		res.player.instr ? 'checked' : '';
@@ -827,6 +835,8 @@ function loadExprSuccess(resp)
 
 	/* 
 	 * If the player is captive, don't let her log out.
+	 * Also don't let her change whether to show the instructions
+	 * when she logs in because she can't log in anyway.
 	 */
 	if (res.player.autoadd) {
 		doHide('logoutButton');
@@ -835,7 +845,6 @@ function loadExprSuccess(resp)
 
 	c = res.player.rseed % colours.length;
 	oc = (0 === c % 2) ? c + 1 : c - 1;
-
 	elems = document.getElementsByClassName('gamelab-colour');
 	for (i = 0; i < elems.length; i++)
 		elems[i].style.color = colours[c];
@@ -843,12 +852,20 @@ function loadExprSuccess(resp)
 	for (i = 0; i < elems.length; i++)
 		elems[i].style.color = colours[oc];
 
-	/* Shuffle our game list and row orders. */
+	/* 
+	 * Shuffle our game list and row orders. 
+	 * To do this, we use our player's random seed as input to a
+	 * very simple deterministic PRNG.
+	 * This by no means needs to be strong or have any particularly
+	 * random properties.
+	 * Don't randomise if the experiment stipulates so.
+	 */
 	if (null !== res.history) {
 		res.gameorders = new Array(res.history.length);
 		for (j = 0; j < res.gameorders.length; j++)
 			res.gameorders[j] = j;
-		shuffle(res.gameorders, res.player.rseed);
+		if ( ! res.expr.noshuffle)
+			shuffle(res.gameorders, res.player.rseed);
 		res.roworders = new Array(res.history.length);
 		res.colorders = new Array(res.history.length);
 		for (i = 0; i < res.roworders.length; i++) {
@@ -864,8 +881,10 @@ function loadExprSuccess(resp)
 				res.roworders[i][j] = j;
 			for (j = 0; j < res.colorders[i].length; j++)
 				res.colorders[i][j] = j;
-			shuffle(res.roworders[i], res.player.rseed);
-			shuffle(res.colorders[i], res.player.rseed);
+			if ( ! res.expr.noshuffle) {
+				shuffle(res.roworders[i], res.player.rseed);
+				shuffle(res.colorders[i], res.player.rseed);
+			}
 		}
 	} else {
 		res.roworders = null;
@@ -885,8 +904,8 @@ function loadExprSuccess(resp)
 
 	if (res.expr.round < 0) {
 		/*
-		 * If we haven't yet started, then simply set our timer
-		 * and exit: we have nothing to show.
+		 * Branch indicating that we haven't yet started: simply
+		 * set our timer and exit: we have nothing to show.
 		 */
 		doUnhide('historyNotStarted');
 		doUnhide('exprNotStarted');
@@ -895,6 +914,10 @@ function loadExprSuccess(resp)
 		formatCountdown(next, e);
 		setTimeout(timerCountdown, 1000, loadExpr, e, res.expr.start);
 	} else if (res.expr.round < res.player.joined) {
+		/*
+		 * We won't be here if we haven't joined, so this branch
+		 * covers that we've joined but for a future round.
+		 */
 		doUnhide('historyNotStarted');
 		doUnhide('exprNotStarted');
 		if (res.expr.roundmin > 0 && Math.floor(new Date().getTime() / 1000) - 
@@ -920,6 +943,7 @@ function loadExprSuccess(resp)
 	} else if (res.expr.round < res.expr.rounds && 
 		   res.expr.round < res.player.joined + res.expr.prounds) {
 		/*
+		 * This is the main branch where we're actually playing.
 		 * Start by setting the countdown til the next
 		 * game-play.
 		 */
@@ -955,7 +979,8 @@ function loadExprSuccess(resp)
 		loadGame();
 	} else if (res.expr.round < res.expr.rounds) {
 		/* 
-		 * Case where player has finished, but game has not.
+		 * Branch where player has finished, but experiment has
+		 * not finished.
 		 */
 		doHide('exprPlay');
 		doHide('exprDone');
@@ -991,7 +1016,7 @@ function loadExprSuccess(resp)
 		doClearReplace('exprCountdown', 'finished');
 	} else {
 		/*
-		 * Case where the game has finished.
+		 * Lastly, branch where the experiment has finished.
 		 */
 		doHide('exprPlay');
 		doHide('exprDone');
@@ -1093,6 +1118,13 @@ function loadExprFirst()
 {
 
 	doHide('loaded');
+	if (window.Notification && Notification.permission !== "granted") {
+		Notification.requestPermission(function (status) {
+			if (Notification.permission !== status) {
+				Notification.permission = status;
+			}
+		});
+	}
 	loadExpr();
 }
 

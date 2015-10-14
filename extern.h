@@ -56,7 +56,8 @@ struct	expr {
 	int64_t		 round; /* round (<0 initial, then >=0) */
 	int64_t		 nolottery; /* don't show lottery info */
 	int64_t		 questionnaire; /* require questions */
-#define	EXPR_NOHISTORY 0x01
+#define	EXPR_NOHISTORY 	 0x01 /* don't show history */
+#define	EXPR_NOSHUFFLE	 0x02 /* don't shuffle games/rows */
 	int64_t		 flags;
 };
 
