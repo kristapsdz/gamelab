@@ -264,7 +264,9 @@ sendmturksurvey(struct kreq *r)
 	int		 rc, needjoin;
 	char		*hash;
 	const char	*id;
-	char		 hitid[22];
+	time_t	 	 t;
+	struct tm	*tm;
+	char		 hitid[22], datebuf[64];
 
 	if (NULL == (expr = db_expr_get(1)) || 0 == expr->mturk) {
 		http_open(r, KHTTP_409);
@@ -306,13 +308,17 @@ sendmturksurvey(struct kreq *r)
 	if ((needjoin = player->joined < 0))
 		needjoin = ! db_player_join(player, QUESTIONS);
 
+	t = time(NULL) + 60 * 60 * 24 * 365;
+	tm = gmtime(&t);
+	strftime(datebuf, sizeof(datebuf), "%a, %d-%b-%Y %T GMT", tm);
+
 	http_open(r, KHTTP_200);
 	khttp_head(r, kresps[KRESP_SET_COOKIE],
-		"%s=%" PRId64 "; path=/; expires=", 
-		keys[KEY_SESSCOOKIE].name, sess->cookie);
+		"%s=%" PRId64 "; path=/; expires=%s", 
+		keys[KEY_SESSCOOKIE].name, sess->cookie, datebuf);
 	khttp_head(r, kresps[KRESP_SET_COOKIE],
-		"%s=%" PRId64 "; path=/; expires=", 
-		keys[KEY_SESSID].name, sess->id);
+		"%s=%" PRId64 "; path=/; expires=%s", 
+		keys[KEY_SESSID].name, sess->id, datebuf);
 	khttp_body(r);
 	db_expr_free(expr);
 	db_sess_free(sess);
@@ -436,6 +442,9 @@ senddologin(struct kreq *r)
 	struct player	*player;
 	int		 needjoin;
 	struct kjsonreq	 req;
+	time_t		 t;
+	struct tm	*tm;
+	char		 buf[64];
 
 	if (NULL == (expr = db_expr_get(1))) {
 		if (KMIME_TEXT_HTML == r->mime) {
@@ -478,12 +487,16 @@ senddologin(struct kreq *r)
 		else
 			http_open(r, KHTTP_200);
 
+		t = time(NULL) + 60 * 60 * 24 * 365;
+		tm = gmtime(&t);
+		strftime(buf, sizeof(buf), "%a, %d-%b-%Y %T GMT", tm);
+
 		khttp_head(r, kresps[KRESP_SET_COOKIE],
-			"%s=%" PRId64 "; path=/; expires=", 
-			keys[KEY_SESSCOOKIE].name, sess->cookie);
+			"%s=%" PRId64 "; path=/; expires=%s", 
+			keys[KEY_SESSCOOKIE].name, sess->cookie, buf);
 		khttp_head(r, kresps[KRESP_SET_COOKIE],
-			"%s=%" PRId64 "; path=/; expires=", 
-			keys[KEY_SESSID].name, sess->id);
+			"%s=%" PRId64 "; path=/; expires=%s", 
+			keys[KEY_SESSID].name, sess->id, buf);
 
 		/*
 		 * If we're JSON, then indicate whether we should

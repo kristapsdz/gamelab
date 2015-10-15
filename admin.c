@@ -659,6 +659,9 @@ senddodisableplayer(struct kreq *r)
 static void
 senddochangemail(struct kreq *r)
 {
+	time_t	 	 t;
+	struct tm	*tm;
+	char		 buf[64];
 
 	if (kpairbad(r, KEY_EMAIL1) ||
 	    kpairbad(r, KEY_EMAIL2) ||
@@ -675,14 +678,18 @@ senddochangemail(struct kreq *r)
 	assert(NULL != r->cookiemap[KEY_SESSID]);
 	db_sess_delete(r->cookiemap[KEY_SESSID]->parsed.i);
 
+	t = time(NULL) + 60 * 60 * 24 * 365;
+	tm = gmtime(&t);
+	strftime(buf, sizeof(buf), "%a, %d-%b-%Y %T GMT", tm);
+
 	db_admin_set_mail(r->fieldmap[KEY_EMAIL2]->parsed.s);
 	http_open(r, KHTTP_200);
 	khttp_head(r, kresps[KRESP_SET_COOKIE],
-		"%s=; path=/; expires=", 
-		keys[KEY_SESSCOOKIE].name);
+		"%s=; path=/; expires=%s", 
+		keys[KEY_SESSCOOKIE].name, buf);
 	khttp_head(r, kresps[KRESP_SET_COOKIE],
-		"%s=; path=/; expires=", 
-		keys[KEY_SESSID].name);
+		"%s=; path=/; expires=%s", 
+		keys[KEY_SESSID].name, buf);
 	khttp_body(r);
 }
 
@@ -794,6 +801,9 @@ senddochangesmtp(struct kreq *r)
 static void
 senddochangepass(struct kreq *r)
 {
+	time_t		 t;
+	struct tm	*tm;
+	char		 buf[64];
 
 	if (kpairbad(r, KEY_PASSWORD1) ||
 		kpairbad(r, KEY_PASSWORD2) ||
@@ -807,15 +817,19 @@ senddochangepass(struct kreq *r)
 		return;
 	} 
 
+	t = time(NULL) + 60 * 60 * 24 * 365;
+	tm = gmtime(&t);
+	strftime(buf, sizeof(buf), "%a, %d-%b-%Y %T GMT", tm);
+
 	db_sess_delete(r->cookiemap[KEY_SESSID]->parsed.i);
 	db_admin_set_pass(r->fieldmap[KEY_PASSWORD2]->parsed.s);
 	http_open(r, KHTTP_200);
 	khttp_head(r, kresps[KRESP_SET_COOKIE],
-		"%s=; path=/; expires=", 
-		keys[KEY_SESSCOOKIE].name);
+		"%s=; path=/; expires=%s", 
+		keys[KEY_SESSCOOKIE].name, buf);
 	khttp_head(r, kresps[KRESP_SET_COOKIE],
-		"%s=; path=/; expires=", 
-		keys[KEY_SESSID].name);
+		"%s=; path=/; expires=%s", 
+		keys[KEY_SESSID].name, buf);
 	khttp_body(r);
 }
 
@@ -1051,18 +1065,24 @@ static void
 senddologin(struct kreq *r)
 {
 	struct sess	*sess;
+	time_t		 t;
+	struct tm	*tm;
+	char		 buf[64];
 
 	if (admin_valid(r)) {
+		t = time(NULL) + 60 * 60 * 24 * 365;
+		tm = gmtime(&t);
+		strftime(buf, sizeof(buf), "%a, %d-%b-%Y %T GMT", tm);
 		sess = db_admin_sess_alloc
 			(NULL != r->reqmap[KREQU_USER_AGENT] ?
 			 r->reqmap[KREQU_USER_AGENT]->val : "");
 		http_open(r, KHTTP_200);
 		khttp_head(r, kresps[KRESP_SET_COOKIE],
-			"%s=%" PRId64 "; path=/; expires=", 
-			keys[KEY_SESSCOOKIE].name, sess->cookie);
+			"%s=%" PRId64 "; path=/; expires=%s", 
+			keys[KEY_SESSCOOKIE].name, sess->cookie, buf);
 		khttp_head(r, kresps[KRESP_SET_COOKIE],
-			"%s=%" PRId64 "; path=/; expires=", 
-			keys[KEY_SESSID].name, sess->id);
+			"%s=%" PRId64 "; path=/; expires=%s", 
+			keys[KEY_SESSID].name, sess->id, buf);
 		db_sess_free(sess);
 	} else
 		http_open(r, KHTTP_400);
