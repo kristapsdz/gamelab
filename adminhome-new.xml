@@ -4,8 +4,8 @@
 		<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
 		<meta charset="utf-8" /> 
 		<title>Gamelab Administration</title>
-		<link rel="stylesheet" href="@HTURI@/adminhome.css" type="text/css" />
-		<link href="@FONTURI@" rel="stylesheet" />
+		<link rel="stylesheet" href="@HTURI@/adminhome.css" />
+		<link rel="stylesheet" href="@FONTURI@" />
 		<script src="@HTURI@/script.min.js"></script>
 		<script src="@HTURI@/adminhome.min.js"></script>
 	</head>
@@ -515,11 +515,16 @@
 									<i onclick="toggler('shuffle', 'shuffleToggle');" id="shuffleToggle" class="fa fa-fw fa-toggle-off"></i>
 									<span onclick="toggler('shuffle', 'shuffleToggle');">Do not shuffle games/actions</span>
 								</div>
+								<div class="input input-check">
+									<i onclick="toggler('relative', 'relativeToggle');" id="relativeToggle" class="fa fa-fw fa-toggle-off"></i>
+									<span onclick="toggler('relative', 'relativeToggle');">Show relative round numbers</span>
+								</div>
 								<input type="hidden" id="nolottery" name="nolottery" value="0" />
 								<input type="hidden" id="question" name="question" value="0" />
 								<input type="hidden" id="mailround" name="mailround" value="0" />
 								<input type="hidden" id="showhistory" name="showhistory" value="0" />
 								<input type="hidden" id="shuffle" name="shuffle" value="0" />
+								<input type="hidden" id="relative" name="relative" value="0" />
 							</section>
 							<div class="input input-submit">
 								<i class="fa fa-check"></i>

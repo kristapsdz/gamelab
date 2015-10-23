@@ -131,6 +131,7 @@ enum	key {
 	KEY_PLAYERMAX,
 	KEY_PLAYERS,
 	KEY_QUESTIONNAIRE,
+	KEY_RELATIVE,
 	KEY_SERVER,
 	KEY_SESSCOOKIE,
 	KEY_SESSID,
@@ -272,6 +273,7 @@ static const struct kvalid keys[KEY__MAX] = {
 	{ kvalid_uint, "playermax" }, /* KEY_PLAYERMAX */
 	{ kvalid_stringne, "players" }, /* KEY_PLAYERS */
 	{ kvalid_int, "question" }, /* KEY_QUESTIONNAIRE */
+	{ kvalid_int, "relative" }, /* KEY_RELATIVE */
 	{ kvalid_stringne, "server" }, /* KEY_SERVER */
 	{ kvalid_int, "sesscookie" }, /* KEY_SESSCOOKIE */
 	{ kvalid_int, "sessid" }, /* KEY_SESSID */
@@ -680,7 +682,7 @@ senddochangemail(struct kreq *r)
 
 	t = time(NULL) + 60 * 60 * 24 * 365;
 	tm = gmtime(&t);
-	strftime(buf, sizeof(buf), "%a, %d-%b-%Y %T GMT", tm);
+	strftime(buf, sizeof(buf), "%a, %d %b %Y %T GMT", tm);
 
 	db_admin_set_mail(r->fieldmap[KEY_EMAIL2]->parsed.s);
 	http_open(r, KHTTP_200);
@@ -819,7 +821,7 @@ senddochangepass(struct kreq *r)
 
 	t = time(NULL) + 60 * 60 * 24 * 365;
 	tm = gmtime(&t);
-	strftime(buf, sizeof(buf), "%a, %d-%b-%Y %T GMT", tm);
+	strftime(buf, sizeof(buf), "%a, %d %b %Y %T GMT", tm);
 
 	db_sess_delete(r->cookiemap[KEY_SESSID]->parsed.i);
 	db_admin_set_pass(r->fieldmap[KEY_PASSWORD2]->parsed.s);
@@ -1072,7 +1074,7 @@ senddologin(struct kreq *r)
 	if (admin_valid(r)) {
 		t = time(NULL) + 60 * 60 * 24 * 365;
 		tm = gmtime(&t);
-		strftime(buf, sizeof(buf), "%a, %d-%b-%Y %T GMT", tm);
+		strftime(buf, sizeof(buf), "%a, %d %b %Y %T GMT", tm);
 		sess = db_admin_sess_alloc
 			(NULL != r->reqmap[KREQU_USER_AGENT] ?
 			 r->reqmap[KREQU_USER_AGENT]->val : "");
@@ -1227,6 +1229,7 @@ senddostartexpr(struct kreq *r)
 	    kpairbad(r, KEY_CONVERSION) ||
 	    kpairbad(r, KEY_NOLOTTERY) ||
 	    kpairbad(r, KEY_QUESTIONNAIRE) ||
+	    kpairbad(r, KEY_RELATIVE) ||
 	    kpairbad(r, KEY_SHOWHISTORY) ||
 	    kpairbad(r, KEY_SHUFFLE) ||
 	    kpairbad(r, KEY_MAILROUND) ||
@@ -1309,6 +1312,8 @@ senddostartexpr(struct kreq *r)
 		flags |= EXPR_NOHISTORY;
 	if (r->fieldmap[KEY_SHUFFLE]->parsed.i)
 		flags |= EXPR_NOSHUFFLE;
+	if (r->fieldmap[KEY_RELATIVE]->parsed.i)
+		flags |= EXPR_RELATIVE;
 	
 	/*
 	 * Actually start the experiment.

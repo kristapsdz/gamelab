@@ -294,7 +294,7 @@ json_putexpr(struct kjsonreq *r, const struct expr *expr)
 	kjson_putintp(r, "prounds", expr->prounds);
 	kjson_putintp(r, "nohistory", EXPR_NOHISTORY & expr->flags);
 	kjson_putintp(r, "noshuffle", EXPR_NOSHUFFLE & expr->flags);
-	kjson_putintp(r, "absoluteround", 1);
+	kjson_putintp(r, "absoluteround", ! (EXPR_RELATIVE & expr->flags));
 	kjson_putintp(r, "nolottery", expr->nolottery);
 	kjson_putdoublep(r, "conversion", expr->conversion);
 	kjson_putstringp(r, "currency", expr->currency);

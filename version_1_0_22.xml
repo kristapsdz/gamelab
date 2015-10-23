@@ -12,6 +12,8 @@
 			Use the <a
 				href="https://developer.mozilla.org/en-US/docs/Web/API/Notifications_API/Using_the_Notifications_API">Notifications
 				API</a> to note changes to the current round.
+			Switch to using long-lasting cookies instead of session cookies (fewer superfluous logouts).
+			Add administrator flag to show relative rounds (instead of absolute rounds) for players.
 		</p>
 	</aside>
 </article>

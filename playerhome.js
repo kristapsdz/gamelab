@@ -290,8 +290,16 @@ function loadGame()
 			(res.expr.round - res.player.joined) + 1);
 		doClearReplace('playRoundNum2', 
 			(res.expr.round - res.player.joined) + 1);
-		doClearReplace('playRoundMax', res.expr.prounds);
-		doClearReplace('playRoundMax2', res.expr.prounds);
+		doClearReplace('playRoundMax', 
+			(res.player.joined + res.expr.prounds > res.expr.rounds ?
+			 (res.expr.prounds - 
+			 ((res.player.joined + res.expr.prounds) - res.expr.rounds)) :
+			 res.expr.prounds));
+		doClearReplace('playRoundMax2', 
+			(res.player.joined + res.expr.prounds > res.expr.rounds ?
+			 (res.expr.prounds - 
+			 ((res.player.joined + res.expr.prounds) - res.expr.rounds)) :
+			 res.expr.prounds));
 	}
 
 	/*

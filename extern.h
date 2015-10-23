@@ -58,6 +58,7 @@ struct	expr {
 	int64_t		 questionnaire; /* require questions */
 #define	EXPR_NOHISTORY 	 0x01 /* don't show history */
 #define	EXPR_NOSHUFFLE	 0x02 /* don't shuffle games/rows */
+#define	EXPR_RELATIVE	 0x04 /* show relative rounds */
 	int64_t		 flags;
 };
 

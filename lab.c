@@ -310,7 +310,7 @@ sendmturksurvey(struct kreq *r)
 
 	t = time(NULL) + 60 * 60 * 24 * 365;
 	tm = gmtime(&t);
-	strftime(datebuf, sizeof(datebuf), "%a, %d-%b-%Y %T GMT", tm);
+	strftime(datebuf, sizeof(datebuf), "%a, %d %b %Y %T GMT", tm);
 
 	http_open(r, KHTTP_200);
 	khttp_head(r, kresps[KRESP_SET_COOKIE],
@@ -489,7 +489,7 @@ senddologin(struct kreq *r)
 
 		t = time(NULL) + 60 * 60 * 24 * 365;
 		tm = gmtime(&t);
-		strftime(buf, sizeof(buf), "%a, %d-%b-%Y %T GMT", tm);
+		strftime(buf, sizeof(buf), "%a, %d %b %Y %T GMT", tm);
 
 		khttp_head(r, kresps[KRESP_SET_COOKIE],
 			"%s=%" PRId64 "; path=/; expires=%s", 
