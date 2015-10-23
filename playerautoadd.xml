@@ -56,29 +56,21 @@
 						</p>
 					</section>
 				</form>
-				<form class="noshow" action="@LABURI@/dologin.json" method="post" 
-					id="loginSection" onsubmit="return(sendForm(this, doLogSetup, doLogErr, doLogOk));">
+				<form class="noshow" action="@LABURI@/dologin.json" method="post" id="loginSection">
 					<section>
 						<h3>Participant Captive Login</h3>
-						<p class="error noshow" id="loginError">
-							Experiment hasn't started yet!
+						<p>
+							You have been registered.
+							You will be logged in automatically when the experiment begins.
 						</p>
 						<p class="error noshow" id="loginSysError">
 							A technical error has occured.
 						</p>
-						<fieldset>
-							<input type="hidden" id="ident" name="ident" />
-							<input type="hidden" id="password" name="password" />
-							<div class="input input-submit">
-								<i class="fa fa-fw fa-check"></i>
-								<input id="loggingin" type="submit" value="Login" />
-							</div>
-						</fieldset>
+						<input type="hidden" id="ident" name="ident" />
+						<input type="hidden" id="password" name="password" />
 					</section>
 					<section>
 						<p>
-							You have been registered.
-							Please click the <q>Login</q> button when the proctor begins the game.
 							To use gamelab, you must be using an up-to-date browser with cookies and JavaScript
 							enabled.
 						</p>

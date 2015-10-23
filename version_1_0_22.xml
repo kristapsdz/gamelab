@@ -14,6 +14,7 @@
 				API</a> to note changes to the current round.
 			Switch to using long-lasting cookies instead of session cookies (fewer superfluous logouts).
 			Add administrator flag to show relative rounds (instead of absolute rounds) for players.
+			Cleaned up the captive portal to make it easier for participants to join that way.
 		</p>
 	</aside>
 </article>
