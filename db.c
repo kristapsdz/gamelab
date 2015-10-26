@@ -1005,7 +1005,8 @@ db_player_valid(const char *mail, const char *pass)
 		sqlite3_finalize(stmt);
 		return(NULL);
 	} 
-	if ( ! db_crypt_check(sqlite3_column_text(stmt, 0), pass)) {
+	if (NULL != pass &&
+	    ! db_crypt_check(sqlite3_column_text(stmt, 0), pass)) {
 		sqlite3_finalize(stmt);
 		return(NULL);
 	}
@@ -1088,8 +1089,8 @@ db_player_count_plays(int64_t round, int64_t playerid)
 	return(val);
 }
 
-void
-db_player_free(struct player *player)
+static void
+db_player_clear(struct player *player)
 {
 
 	if (NULL == player)
@@ -1097,6 +1098,14 @@ db_player_free(struct player *player)
 	free(player->mail);
 	free(player->hitid);
 	free(player->assignmentid);
+	free(player->hash);
+}
+
+void
+db_player_free(struct player *player)
+{
+
+	db_player_clear(player);
 	free(player);
 }
 
@@ -1152,6 +1161,7 @@ db_player_fill(struct player *p, sqlite3_stmt *s)
 	p->hitid = kstrdup((char *)sqlite3_column_text(s, 13));
 	p->assignmentid = kstrdup((char *)sqlite3_column_text(s, 14));
 	p->mturkdone = sqlite3_column_int64(s, 15);
+	p->hash = kstrdup((char *)sqlite3_column_text(s, 16));
 }
 
 /*
@@ -1166,8 +1176,8 @@ db_player_load(int64_t id)
 
 	stmt = db_stmt("SELECT email,state,id,enabled,"
 		"role,rseed,instr,finalrank,finalscore,autoadd,"
-	        "version,joined,answer,hitid,assignmentid,mturkdone "
-		"FROM player WHERE id=?");
+	        "version,joined,answer,hitid,assignmentid,mturkdone,"
+		"hash FROM player WHERE id=?");
 	db_bind_int(stmt, 1, id);
 	if (SQLITE_ROW != db_step(stmt, 0)) {
 		sqlite3_finalize(stmt);
@@ -1221,7 +1231,7 @@ db_player_load_playing(const struct expr *expr, playerf fp, void *arg)
 
 	stmt = db_stmt("SELECT email,state,id,enabled,"
 		"role,rseed,instr,finalrank,finalscore,autoadd, "
-		"version,joined,answer,hitid,assignmentid,mturkdone "
+		"version,joined,answer,hitid,assignmentid,mturkdone,hash "
 		"FROM player WHERE CASE WHEN joined >= 0 "
 		"THEN joined <= ? AND ? < JOINED + ? ELSE 1 END");
 	db_bind_int(stmt, 1, expr->round);
@@ -1230,9 +1240,7 @@ db_player_load_playing(const struct expr *expr, playerf fp, void *arg)
 	while (SQLITE_ROW == db_step(stmt, 0)) {
 		db_player_fill(&player, stmt);
 		(*fp)(&player, arg);
-		free(player.mail);
-		free(player.hitid);
-		free(player.assignmentid);
+		db_player_clear(&player);
 	}
 	sqlite3_finalize(stmt);
 }
@@ -1245,14 +1253,12 @@ db_player_load_all(playerf fp, void *arg)
 
 	stmt = db_stmt("SELECT email,state,id,enabled,"
 		"role,rseed,instr,finalrank,finalscore,autoadd, "
-		"version,joined,answer,hitid,assignmentid,mturkdone "
+		"version,joined,answer,hitid,assignmentid,mturkdone,hash "
 		"FROM player ORDER BY email ASC");
 	while (SQLITE_ROW == db_step(stmt, 0)) {
 		db_player_fill(&player, stmt);
 		(*fp)(&player, arg);
-		free(player.mail);
-		free(player.hitid);
-		free(player.assignmentid);
+		db_player_clear(&player);
 	}
 	sqlite3_finalize(stmt);
 }

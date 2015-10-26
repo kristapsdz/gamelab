@@ -258,17 +258,16 @@ send303(struct kreq *r, const char *pg, enum page dest, int st)
 static void
 sendmturksurvey(struct kreq *r)
 {
-	struct sess	*sess;
 	struct expr	*expr;
 	struct player	*player;
-	int		 rc, needjoin;
 	char		*hash;
 	const char	*id;
-	time_t	 	 t;
-	struct tm	*tm;
-	char		 hitid[22], datebuf[64];
+	struct kjsonreq	 req;
+	char		 hitid[22];
 
-	if (NULL == (expr = db_expr_get(1)) || 0 == expr->mturk) {
+	expr = db_expr_get(0);
+	assert(NULL != expr);
+	if (0 == expr->mturk) {
 		http_open(r, KHTTP_409);
 		khttp_body(r);
 		db_expr_free(expr);
@@ -281,47 +280,24 @@ sendmturksurvey(struct kreq *r)
 	} 
 
 	id = r->fieldmap[KEY_WORKERID]->parsed.s;
-	snprintf(hitid, sizeof(hitid), "%lld", (long long)expr->start);
-
-	/* 
-	 * If the player does not exist, then ok.
-	 * If the player does exist, make sure that they entered with
-	 * the same hitId else we route them to the login page.
-	 */
-	if (0 == (rc = db_player_create(id, &hash, hitid, "")) &&
-	    ! db_player_mturkvrfy(id, &hash, hitid, "")) {
-		http_open(r, KHTTP_403);
-		khttp_body(r);
-		db_expr_free(expr);
-		return;
-	}
-
-	player = db_player_valid(id, hash);
-	assert(NULL != player);
+	snprintf(hitid, sizeof(hitid), "%llu", 
+		(unsigned long long)arc4random());
+	if (db_player_create(id, &hash, hitid, ""))
+		INFO("MTurk survey player (new): %s", id);
+	else 
+		INFO("MTurk survey player (existing): %s", id);
 	free(hash);
-
-	sess = db_player_sess_alloc(player->id,
-		 NULL != r->reqmap[KREQU_USER_AGENT] ?
-		 r->reqmap[KREQU_USER_AGENT]->val : "");
-	assert(NULL != sess);
-
-	if ((needjoin = player->joined < 0))
-		needjoin = ! db_player_join(player, QUESTIONS);
-
-	t = time(NULL) + 60 * 60 * 24 * 365;
-	tm = gmtime(&t);
-	strftime(datebuf, sizeof(datebuf), "%a, %d %b %Y %T GMT", tm);
-
+	player = db_player_valid(id, NULL);
+	assert(NULL != player);
 	http_open(r, KHTTP_200);
-	khttp_head(r, kresps[KRESP_SET_COOKIE],
-		"%s=%" PRId64 "; path=/; expires=%s", 
-		keys[KEY_SESSCOOKIE].name, sess->cookie, datebuf);
-	khttp_head(r, kresps[KRESP_SET_COOKIE],
-		"%s=%" PRId64 "; path=/; expires=%s", 
-		keys[KEY_SESSID].name, sess->id, datebuf);
 	khttp_body(r);
+	kjson_open(&req, r);
+	kjson_obj_open(&req);
+	kjson_putstringp(&req, keys[KEY_IDENTIFIER].name, id);
+	kjson_putstringp(&req, "password", player->hash);
+	kjson_obj_close(&req);
+	kjson_close(&req);
 	db_expr_free(expr);
-	db_sess_free(sess);
 	db_player_free(player);
 }
 

@@ -1,5 +1,69 @@
 "use strict";
 
+function doLogErr(err) 
+{
+
+	if (409 == err) 
+		setTimeout(doRegTimeout, 10000);
+	else
+		doUnhide('loginSysError');
+}
+
+function doLogOk(resp) 
+{
+	var res;
+
+	try {
+		res = JSON.parse(resp);
+	} catch (error) {
+		location.href = '@HTURI@/playerhome.html';
+		return;
+	}
+	location.href = res.needjoin ?
+		'@HTURI@/playerlobby.html' :
+		'@HTURI@/playerhome.html';
+}
+
+function doLogSetup() 
+{
+
+	doHide('loginSysError');
+}
+
+function doRegTimeout()
+{
+
+	sendForm(document.getElementById('loginSection'),
+		doLogSetup, doLogErr, doLogOk);
+}
+
+function doRegOk(resp) 
+{
+	var res;
+
+	doHide('registerSection');
+	doUnhide('loginSection');
+
+	try {
+		res = JSON.parse(resp);
+	} catch (error) {
+		doUnhide('loginSysError');
+		return;
+	}
+
+	doValue('ident', res.ident);
+	doValue('password', res.password);
+	doRegTimeout();
+}
+
+function doRegSetup() 
+{
+
+	doHide('registerError');
+	doHide('registerSysError');
+	doValue('registering', 'Registering...');
+}
+
 function doRegErr(err) 
 {
 
@@ -18,18 +82,4 @@ function doRegErr(err)
 		doUnhide('registerSysError');
 		break;
 	}
-}
-
-function doRegOk(resp) 
-{
-
-	location.href = '@HTURI@/playerhome.html';
-}
-
-function doRegSetup() 
-{
-
-	doHide('registerError');
-	doHide('registerSysError');
-	doValue('registering', 'Registering...');
 }

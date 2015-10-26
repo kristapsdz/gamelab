@@ -3,7 +3,6 @@
 # Mechanical Turk testing.
 MTURKURI	 = https://workersandbox.mturk.com/mturk/externalSubmit
 #MTURKURI	 = https://www.mturk.com/mturk/externalSubmit
-FONTURI		 = https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css
 
 # Mac OSX testing.
 # This is useful when running in a userdir.
@@ -12,6 +11,7 @@ CGIBIN		 = $(PREFIX)
 CFLAGS		+= -Wno-deprecated-declarations
 DATADIR		 = $(PREFIX)
 DSYMUTIL	 = sudo dsymutil
+FONTURI		 = /~kristaps/font-awesome-4.4.0/css/font-awesome.min.css
 HTDOCS		 = $(PREFIX)
 HTURI		 = /~kristaps
 LABURI		 = /~kristaps/lab.cgi
@@ -28,6 +28,7 @@ STATIC		 =
 #CGIBIN		 = $(PREFIX)/cgi-bin/gamelab
 #CFLAGS		+= -DLOGTIME=1
 #DATADIR	 	 = $(PREFIX)/data/gamelab
+#FONTURI		 = //maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css
 #HTDOCS		 = $(PREFIX)/htdocs/gamelab
 #HTURI		 = /gamelab
 #LABURI		 = /cgi-bin/gamelab/lab
@@ -106,6 +107,9 @@ BUILT	 = adminhome.min.js \
 	   playerlogin.html \
 	   privacy.html \
 	   script.min.js
+IMAGES   = eskil.jpg \
+	   jorgen.jpg \
+	   kristaps.jpg
 VERSIONS = version_1_0_1.xml \
 	   version_1_0_2.xml \
 	   version_1_0_3.xml \
@@ -182,7 +186,7 @@ gamelab.tgz.sha512: gamelab.tgz
 installwww: www
 	mkdir -p $(PREFIX)
 	mkdir -p $(PREFIX)/snapshots
-	install -m 0444 index.html gamelab.bib manual.html index.css manual.css logo.png $(PREFIX)
+	install -m 0444 $(IMAGES) index.html gamelab.bib manual.html index.css manual.css logo.png $(PREFIX)
 	install -m 0444 gamelab.tgz $(PREFIX)/snapshots
 	install -m 0444 gamelab.tgz.sha512 $(PREFIX)/snapshots
 	install -m 0444 gamelab.tgz $(PREFIX)/snapshots/gamelab-$(VERSION).tgz

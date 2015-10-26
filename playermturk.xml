@@ -58,6 +58,26 @@
 						</p>
 					</section>
 				</form>
+				<form class="noshow" action="@LABURI@/dologin.json" method="post" id="loginSection">
+					<section>
+						<h3>Mechanical Turk Login</h3>
+						<p>
+							You have been registered.
+							You will be logged in automatically when the experiment begins.
+						</p>
+						<p class="error noshow" id="loginSysError">
+							A technical error has occured.
+						</p>
+						<input type="hidden" id="ident" name="ident" />
+						<input type="hidden" id="password" name="password" />
+					</section>
+					<section>
+						<p>
+							To use gamelab, you must be using an up-to-date browser with cookies and JavaScript
+							enabled.
+						</p>
+					</section>
+				</form>
 			</section>
 		</article>
 		<footer>

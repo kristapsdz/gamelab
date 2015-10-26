@@ -146,6 +146,7 @@ struct	player {
 	char		*mail; /* e-mail address */
 	char		*hitid; /* mturk id (or empty) */
 	char		*assignmentid; /* assignment id (or empty) */
+	char		*hash; /* password token */
 	int		 mturkdone; /* entire mturk process done */
 	enum pstate	 state; /* state of participant */
 	int		 enabled; /* whether can login */
