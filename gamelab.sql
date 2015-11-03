@@ -15,9 +15,7 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-/*
- * All of these tables and columns are documented in manual.xml.
- */
+PRAGMA journal_mode=WAL;
 
 CREATE TABLE winner (
 	playerid INTEGER REFERENCES player(id) NOT NULL,
@@ -168,8 +166,7 @@ CREATE TABLE smtp (
 	id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL
 );
 
-INSERT INTO admin (email, hash) VALUES ('foo@example.com', 'xyzzy');
 INSERT INTO experiment DEFAULT VALUES;
 INSERT INTO smtp DEFAULT VALUES;
 
-PRAGMA journal_mode=WAL;
+INSERT INTO admin (email, hash) VALUES ('foo@example.com', 'xyzzy');

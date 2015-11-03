@@ -6,36 +6,38 @@ MTURKURI	 = https://workersandbox.mturk.com/mturk/externalSubmit
 
 # Mac OSX testing.
 # This is useful when running in a userdir.
-ADMINURI	 = /~kristaps/admin.cgi
-CGIBIN		 = $(PREFIX)
-CFLAGS		+= -Wno-deprecated-declarations
-DATADIR		 = $(PREFIX)
-DSYMUTIL	 = sudo dsymutil
-FONTURI		 = /~kristaps/font-awesome-4.4.0/css/font-awesome.min.css
-HTDOCS		 = $(PREFIX)
-HTURI		 = /~kristaps
-LABURI		 = /~kristaps/lab.cgi
-LIBS		 = 
-PREFIX		 = /Users/kristaps/Sites
-RDATADIR	 = $(PREFIX)
-STATIC		 = 
+#ADMINURI	 = /~kristaps/admin.cgi
+#CGIBIN		 = $(PREFIX)
+#CFLAGS		+= -Wno-deprecated-declarations
+#DATADIR		 = $(PREFIX)
+#DSYMUTIL	 = sudo dsymutil
+#FONTURI		 = /~kristaps/font-awesome-4.4.0/css/font-awesome.min.css
+#HTDOCS		 = $(PREFIX)
+#HTURI		 = /~kristaps
+#LABURI		 = /~kristaps/lab.cgi
+#LIBS		 = 
+#PREFIX		 = /Users/kristaps/Sites
+#RDATADIR	 = $(PREFIX)
+#STATIC		 = 
 
 # Linux testing.
 # LIBS		 = -lbsd -lm
 
 # OpenBSD production.
-#ADMINURI	 = /cgi-bin/gamelab/admin
-#CGIBIN		 = $(PREFIX)/cgi-bin/gamelab
-#CFLAGS		+= -DLOGTIME=1
-#DATADIR	 	 = $(PREFIX)/data/gamelab
-#FONTURI		 = //maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css
-#HTDOCS		 = $(PREFIX)/htdocs/gamelab
-#HTURI		 = /gamelab
-#LABURI		 = /cgi-bin/gamelab/lab
-#LIBS		 = -lintl -liconv -lm
-#PREFIX		 = /var/www
-#RDATADIR	 = /data/gamelab
-#STATIC		 = -static
+PREFIX		?= /var/www/gamelab
+URIPREFIX	?= /gamelab
+RELPREFIX	?= /gamelab
+ADMINURI	 = $(URIPREFIX)/cgi-bin/admin
+CGIBIN		 = $(PREFIX)/cgi-bin
+CFLAGS		+= -DLOGTIME=1
+DATADIR	 	 = $(PREFIX)/data
+FONTURI		 = //maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css
+HTDOCS		 = $(PREFIX)/htdocs
+HTURI		 = $(URIPREFIX)
+LABURI		 = $(URIPREFIX)/cgi-bin/lab
+LIBS		 = -lintl -liconv -lm
+RDATADIR	 = $(RELPREFIX)/data
+STATIC		 = -static
 
 # You really don't want to change anything below this line.
 
@@ -157,6 +159,9 @@ gamelab.bib: gamelab.in.bib
 	    -e "s!@VYEAR@!$(VYEAR)!g" gamelab.in.bib >$@
 
 updatecgi: all
+	mkdir -p $(HTDOCS)
+	mkdir -p $(DATADIR)
+	mkdir -p $(CGIBIN)
 	install -m 0444 $(STATICS) $(BUILT) flotr2.min.js logo.png logo-dark.png $(HTDOCS)
 	for f in $(INSTRS) ; do install -m 0444 $$f $(HTDOCS)/`basename $$f`.txt ; done
 	install -m 0444 $(INSTRS) $(MAILS) $(BUILTPS) $(DATADIR)
@@ -169,10 +174,12 @@ updatecgi: all
 	[ -z "$(DSYMUTIL)" ] || $(DSYMUTIL) $(CGIBIN)/admin
 
 installcgi: updatecgi gamelab.db
+	mkdir -p $(DATADIR)
 	rm -f $(DATADIR)/gamelab.db
 	rm -f $(DATADIR)/gamelab.db-wal
 	rm -f $(DATADIR)/gamelab.db-shm
 	install -m 0666 gamelab.db $(DATADIR)
+	chmod 0777 $(DATADIR)
 
 gamelab.tgz:
 	mkdir -p .dist/gamelab-$(VERSION)
