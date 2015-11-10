@@ -13,16 +13,23 @@ article > section > form 	{ padding: 0; }
 #form, form 			{ box-shadow: 1px 1px 4px #333; }
 section section 		{ background-color: #fff; 
 				  margin: 0; 
-				  padding: 0; 
-				  padding-bottom: 1em;
 				  border: 0; }
 section section:last-child 	{ background-color: #ddd; 
-				  padding: 1ex 0; 
 				  color: #236;
 				  line-height: 120%; }
+section section > *		{ margin: 0; 
+				  padding: 1em; }
+.error				{ margin: 0; 
+				  padding: 1em 1em 0 1em; }
+.error > *			{ display: block; }
+.suberror			{ padding-top: 0.5em;
+				  font-weight: normal;
+				  color: rgba(255, 0, 0, 0.5); }
 @media only screen and (max-width: 480px), only screen and (max-device-width: 480px) {
+#top img			{ margin-bottom: -8pt; }
 #top				{ text-align: center; 
 				  padding: 1ex; }
 #form,
 form 				{ box-shadow: none; }
+section section >h3		{ text-align: center; }
 }

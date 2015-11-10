@@ -25,12 +25,20 @@
 							Invalid identifier.
 						</p>
 						<p class="error noshow" id="registerAgainError">
-							A participant by that identifier already exists.
-							Please talk to the proctor if you accidentally closed the gamelab window!
+							<span>
+								A participant by that identifier already exists.
+							</span>
+							<span class="suberror">
+								Please talk to the experimenter if you accidentally closed the browser window!
+							</span>
 						</p>
 						<p class="error noshow" id="registerNoAutoError">
-							Experiment does not allow auto-registration.
-							Please talk to the proctor to register!
+							<span>
+								Experiment does not allow auto-registration.
+							</span>
+							<span class="suberror">
+								Please talk to the experimenter to register!
+							</span>
 						</p>
 						<p class="error noshow" id="registerStartedError">
 							Experiment has already started!

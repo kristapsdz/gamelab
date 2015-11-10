@@ -6,38 +6,38 @@ MTURKURI	 = https://workersandbox.mturk.com/mturk/externalSubmit
 
 # Mac OSX testing.
 # This is useful when running in a userdir.
-#ADMINURI	 = /~kristaps/admin.cgi
-#CGIBIN		 = $(PREFIX)
-#CFLAGS		+= -Wno-deprecated-declarations
-#DATADIR		 = $(PREFIX)
+ADMINURI	 = /~kristaps/admin.cgi
+CGIBIN		 = $(PREFIX)
+CFLAGS		+= -Wno-deprecated-declarations
+DATADIR		 = $(PREFIX)
 #DSYMUTIL	 = sudo dsymutil
-#FONTURI		 = /~kristaps/font-awesome-4.4.0/css/font-awesome.min.css
-#HTDOCS		 = $(PREFIX)
-#HTURI		 = /~kristaps
-#LABURI		 = /~kristaps/lab.cgi
-#LIBS		 = 
-#PREFIX		 = /Users/kristaps/Sites
-#RDATADIR	 = $(PREFIX)
-#STATIC		 = 
+FONTURI		 = /~kristaps/font-awesome-4.4.0/css/font-awesome.min.css
+HTDOCS		 = $(PREFIX)
+HTURI		 = /~kristaps
+LABURI		 = /~kristaps/lab.cgi
+LIBS		 = 
+PREFIX		 = /Users/kristaps/Sites
+RDATADIR	 = $(PREFIX)
+STATIC		 = 
 
 # Linux testing.
 # LIBS		 = -lbsd -lm
 
 # OpenBSD production.
-PREFIX		?= /var/www/gamelab
-URIPREFIX	?= /gamelab
-RELPREFIX	?= /gamelab
-ADMINURI	 = $(URIPREFIX)/cgi-bin/admin
-CGIBIN		 = $(PREFIX)/cgi-bin
-CFLAGS		+= -DLOGTIME=1
-DATADIR	 	 = $(PREFIX)/data
-FONTURI		 = //maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css
-HTDOCS		 = $(PREFIX)/htdocs
-HTURI		 = $(URIPREFIX)
-LABURI		 = $(URIPREFIX)/cgi-bin/lab
-LIBS		 = -lintl -liconv -lm
-RDATADIR	 = $(RELPREFIX)/data
-STATIC		 = -static
+#PREFIX		?= /var/www/gamelab
+#URIPREFIX	?= /gamelab
+#RELPREFIX	?= /gamelab
+#ADMINURI	 = $(URIPREFIX)/cgi-bin/admin
+#CGIBIN		 = $(PREFIX)/cgi-bin
+#CFLAGS		+= -DLOGTIME=1
+#DATADIR	 	 = $(PREFIX)/data
+#FONTURI		 = //maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css
+#HTDOCS		 = $(PREFIX)/htdocs
+#HTURI		 = $(URIPREFIX)
+#LABURI		 = $(URIPREFIX)/cgi-bin/lab
+#LIBS		 = -lintl -liconv -lm
+#RDATADIR	 = $(RELPREFIX)/data
+#STATIC		 = -static
 
 # You really don't want to change anything below this line.
 
@@ -75,6 +75,7 @@ SRCS	 = Makefile \
 	   adminhome.js \
 	   adminhome-new.xml \
 	   adminhome-started.xml \
+	   adminlogin.js \
 	   adminlogin.xml \
 	   db.c \
 	   extern.h \
@@ -93,10 +94,12 @@ SRCS	 = Makefile \
 	   playermturk.xml \
 	   playermturk.js \
 	   playerlogin.xml \
+	   playerlogin.js \
 	   privacy.xml \
 	   script.js
 BUILT	 = adminhome.min.js \
 	   adminlogin.html \
+	   adminlogin.min.js \
 	   mturkpreview.html \
 	   playerautoadd.html \
 	   playerautoadd.min.js \
@@ -107,6 +110,7 @@ BUILT	 = adminhome.min.js \
 	   playerhome.html \
 	   playerhome.min.js \
 	   playerlogin.html \
+	   playerlogin.min.js \
 	   privacy.html \
 	   script.min.js
 IMAGES   = eskil.jpg \
