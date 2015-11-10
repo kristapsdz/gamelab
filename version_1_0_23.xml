@@ -1,0 +1,17 @@
+<article data-sblg-article="1" data-sblg-tags="version">
+	<header>
+		<h1>1.0.23</h1>
+		<address>Kristaps Dzonsons</address>
+		<time datetime="2015-11-09">2015-11-09</time>
+	</header>
+	<aside>
+		<p>
+			Have the entire system (except the administrative console) automatically handle embedded session identification in the
+			query string.
+			This allows <q>external program</q> Mechanical Turk workers to participate without needing cookies.
+		</p>
+		<p>
+			Clean up the login pages for smartphone and tablet-sized devices.
+		</p>
+	</aside>
+</article>

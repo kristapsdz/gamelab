@@ -41,8 +41,8 @@ STATIC		 =
 
 # You really don't want to change anything below this line.
 
-VERSION	 = 1.0.21
-VMONTH	 = October
+VERSION	 = 1.0.23
+VMONTH	 = November
 VYEAR	 = 2015
 CFLAGS 	+= -g -W -Wall -Wstrict-prototypes -Wno-unused-parameter -Wwrite-strings -I/usr/local/include
 CFLAGS	+= -DDATADIR=\"$(RDATADIR)\" -DHTURI=\"$(HTURI)\"
@@ -97,21 +97,21 @@ SRCS	 = Makefile \
 	   playerlogin.js \
 	   privacy.xml \
 	   script.js
-BUILT	 = adminhome.min.js \
-	   adminlogin.html \
-	   adminlogin.min.js \
+HTMLS	 = adminlogin.html \
 	   mturkpreview.html \
 	   playerautoadd.html \
-	   playerautoadd.min.js \
 	   playerlobby.html \
-	   playerlobby.min.js \
 	   playermturk.html \
-	   playermturk.min.js \
 	   playerhome.html \
-	   playerhome.min.js \
 	   playerlogin.html \
+	   privacy.html
+JSMINS   = adminhome.min.js \
+	   adminlogin.min.js \
+	   playerautoadd.min.js \
+	   playerhome.min.js \
+	   playerlobby.min.js \
 	   playerlogin.min.js \
-	   privacy.html \
+	   playermturk.min.js \
 	   script.min.js
 IMAGES   = eskil.jpg \
 	   jorgen.jpg \
@@ -137,9 +137,10 @@ VERSIONS = version_1_0_1.xml \
 	   version_1_0_19.xml \
 	   version_1_0_20.xml \
 	   version_1_0_21.xml \
-	   version_1_0_22.xml
+	   version_1_0_22.xml \
+	   version_1_0_23.xml
 
-all: admin lab gamers $(BUILT) $(BUILTPS)
+all: admin lab gamers $(HTMLS) $(JSMINS) $(BUILTPS)
 
 jsmin: jsmin.c
 	$(CC) $(CFLAGS) -o $@ jsmin.c
@@ -166,7 +167,7 @@ updatecgi: all
 	mkdir -p $(HTDOCS)
 	mkdir -p $(DATADIR)
 	mkdir -p $(CGIBIN)
-	install -m 0444 $(STATICS) $(BUILT) flotr2.min.js logo.png logo-dark.png $(HTDOCS)
+	install -m 0444 $(STATICS) $(HTMLS) $(JSMINS) flotr2.min.js logo.png logo-dark.png $(HTDOCS)
 	for f in $(INSTRS) ; do install -m 0444 $$f $(HTDOCS)/`basename $$f`.txt ; done
 	install -m 0444 $(INSTRS) $(MAILS) $(BUILTPS) $(DATADIR)
 	install -m 0755 admin $(CGIBIN)/admin.cgi
@@ -216,7 +217,8 @@ index.html: index.xml $(VERSIONS)
 			-e "s!@MTURKURI@!$(MTURKURI)!g" \
 			-e "s!@HTURI@!$(HTURI)!g" >$@
 
-adminhome.js playerautoadd.js playerlobby.js playerhome.js playermturk.js script.js: jsmin
+
+$(JSMINS): jsmin
 
 .js.min.js:
 	rm -f $@
@@ -236,6 +238,6 @@ adminhome.js playerautoadd.js playerlobby.js playerhome.js playermturk.js script
 
 clean:
 	rm -f admin admin.o gamelab.db lab lab.o $(OBJS) jsmin gamers
-	rm -f $(BUILT) $(BUILTPS) 
+	rm -f $(HTMLS) $(JSMINS) $(BUILTPS) 
 	rm -f index.html manual.html gamelab.tgz gamelab.tgz.sha512 gamelab.bib
 	rm -rf *.dSYM

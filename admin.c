@@ -44,9 +44,6 @@ enum	instrs {
 	INSTR__MAX
 };
 
-/*
- * Unique pages under the CGI "directory".
- */
 enum	page {
 	PAGE_DOADDGAME,
 	PAGE_DOADDPLAYERS,
@@ -83,19 +80,12 @@ enum	page {
 	PAGE__MAX
 };
 
-/*
- * Content that we manage.
- * By "manage" I mean that we template them.
- */
 enum	cntt {
 	CNTT_HTML_HOME_NEW,
 	CNTT_HTML_HOME_STARTED,
 	CNTT__MAX
 };
 
-/*
- * Input form field names.
- */
 enum	key {
 	KEY_AUTOADD,
 	KEY_AUTOADDPRESERVE,

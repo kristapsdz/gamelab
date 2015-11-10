@@ -191,15 +191,20 @@ static const struct kvalid keys[KEY__MAX] = {
 static int
 sess_valid(struct kreq *r, int64_t *id)
 {
+	int64_t	sid, scookie;
 
-	if (NULL == r->cookiemap[KEY_SESSID] ||
-		NULL == r->cookiemap[KEY_SESSCOOKIE]) 
+	if (NULL != r->cookiemap[KEY_SESSID] &&
+	    NULL != r->cookiemap[KEY_SESSCOOKIE]) {
+		sid = r->cookiemap[KEY_SESSID]->parsed.i;
+		scookie = r->cookiemap[KEY_SESSCOOKIE]->parsed.i;
+	} else if (NULL != r->fieldmap[KEY_SESSID] &&
+		   NULL != r->fieldmap[KEY_SESSCOOKIE]) {
+		sid = r->fieldmap[KEY_SESSID]->parsed.i;
+		scookie = r->fieldmap[KEY_SESSCOOKIE]->parsed.i;
+	} else 
 		return(0);
 
-	return(db_player_sess_valid
-		(id,
-		 r->cookiemap[KEY_SESSID]->parsed.i,
-		 r->cookiemap[KEY_SESSCOOKIE]->parsed.i));
+	return(db_player_sess_valid(id, sid, scookie));
 }
 
 static int
@@ -316,6 +321,7 @@ sendmturk(struct kreq *r)
 	int		 rc, needjoin;
 	char		*hash;
 	const char	*id, *hitid, *assid;
+	char		 addr[1024];
 
 	if (NULL != r->fieldmap[KEY_ASSIGNMENTID] && 
 	    0 == strcmp("ASSIGNMENT_ID_NOT_AVAILABLE", 
@@ -390,9 +396,13 @@ sendmturk(struct kreq *r)
 		"%s=%" PRId64 "; path=/; expires=", 
 		keys[KEY_SESSID].name, sess->id);
 
-	send303(r, needjoin ?
-		HTURI "/playerlobby.html" :
-		HTURI "/playerhome.html", PAGE__MAX, 0);
+	snprintf(addr, sizeof(addr),
+		HTURI "/%s.html?%s=%" PRId64 "&%s=%" PRId64,
+		needjoin ? "playerlobby" : "playerhome",
+		keys[KEY_SESSCOOKIE].name, sess->cookie,
+		keys[KEY_SESSID].name, sess->id);
+
+	send303(r, addr, PAGE__MAX, 0);
 
 	db_expr_free(expr);
 	db_sess_free(sess);
@@ -1178,10 +1188,14 @@ senddoplay(struct kreq *r, int64_t playerid)
 	 * This can fail for many reasons, in which case we kick to
 	 * KHTTP_400 and depend on the frontend.
 	 */
-	assert(NULL != r->cookiemap[KEY_SESSID]);
+	assert(NULL != r->cookiemap[KEY_SESSID] ||
+	       NULL != r->fieldmap[KEY_SESSID]);
+
 	if (0 ==  db_player_play
 		(player, 
-		 r->cookiemap[KEY_SESSID]->parsed.i,
+		 NULL != r->cookiemap[KEY_SESSID] ?
+		 r->cookiemap[KEY_SESSID]->parsed.i :
+		 r->fieldmap[KEY_SESSID]->parsed.i,
 		 r->fieldmap[KEY_ROUND]->parsed.i,
 		 game->id, mixes, strats))
 		http_open(r, KHTTP_409);
@@ -1209,7 +1223,11 @@ static void
 senddologout(struct kreq *r)
 {
 
-	db_sess_delete(r->cookiemap[KEY_SESSID]->parsed.i);
+	if (NULL != r->cookiemap[KEY_SESSID])
+		db_sess_delete(r->cookiemap[KEY_SESSID]->parsed.i);
+	else if (NULL != r->fieldmap[KEY_SESSID])
+		db_sess_delete(r->fieldmap[KEY_SESSID]->parsed.i);
+
 	http_open(r, KHTTP_303);
 	khttp_head(r, kresps[KRESP_SET_COOKIE],
 		"%s=; path=/; expires=", 

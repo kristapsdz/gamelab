@@ -11,8 +11,10 @@ form 				{ margin-left: auto;
 				  max-width: 100%; }
 #loading			{ padding-top: 20%; 
 				  text-align: center; }
-#nextround			{ position: absolute;
+#nextround			{ position: fixed;
 				  cursor: pointer;
+				  left: 0;
+				  top: 0;
 				  width: 100%;
 				  height: 100%;
 				  text-align: center;
@@ -282,9 +284,9 @@ div.input input[type=time]	{ width: 20ex; }
 				  padding-right: 0.5ex;
 			 	  padding-top: 2em; }
 	div.payoffs		{ width: 100%; 
-				  border-spacing: 0.25ex; }
+				  border-spacing: 0.25ex 0.75ex; }
 	div.history		{ width: 100%; 
-				  border-spacing: 0.25ex; }
+				  border-spacing: 0.25ex 0.75ex; }
 	header span		{ font-size: 12pt; }
 	h1			{ font-size: 18pt; }
 	h2			{ font-size: 15pt; }

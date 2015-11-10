@@ -25,6 +25,7 @@ section section > *		{ margin: 0;
 .suberror			{ padding-top: 0.5em;
 				  font-weight: normal;
 				  color: rgba(255, 0, 0, 0.5); }
+h3				{ text-shadow: 1px 1px #333; }
 @media only screen and (max-width: 480px), only screen and (max-device-width: 480px) {
 #top img			{ margin-bottom: -8pt; }
 #top				{ text-align: center; 

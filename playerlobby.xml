@@ -11,7 +11,7 @@
 		<script src="@HTURI@/playerlobby.min.js"></script>
 		<script src="@HTURI@/flotr2.min.js"></script>
 	</head>
-	<body onload="sendQuery('@LABURI@/doloadquestions.json', doInitSetup, doInitSuccess, doInitFailure);">
+	<body onload="doInit();">
 		<article>
 			<section>
 				<div id="top">
@@ -78,8 +78,7 @@
 								<p>
 									How many games will you play in each round?
 								</p>
-								<form action="@LABURI@/doanswer.json" method="post"
-									onsubmit="return(sendForm(this, doSetup, doError, doSuccess));">
+								<form action="@LABURI@/doanswer.json" method="post" onsubmit="return(doPlay(this));">
 									<input type="hidden" name="aid" value="0" />
 									<fieldset>
 										<div class="input">
@@ -166,8 +165,7 @@
 									What is your payoff from the combination of row <strong>a</strong> and
 									column <strong>B</strong> in the game table?
 								</p>
-								<form action="@LABURI@/doanswer.json" method="post"
-									onsubmit="return(sendForm(this, doSetup, doError, doSuccess));">
+								<form action="@LABURI@/doanswer.json" method="post" onsubmit="return(doPlay(this));">
 									<input type="hidden" name="aid" value="1" />
 									<fieldset>
 										<div class="input">
@@ -261,8 +259,7 @@
 								<p>
 									What would your payoff be if you played row <strong>b</strong> in the game above?
 								</p>
-								<form action="@LABURI@/doanswer.json" method="post"
-									onsubmit="return(sendForm(this, doSetup, doError, doSuccess));">
+								<form action="@LABURI@/doanswer.json" method="post" onsubmit="return(doPlay(this));">
 									<input type="hidden" name="aid" value="2" />
 									<fieldset>
 										<div class="input">
@@ -349,8 +346,7 @@
 									<strong>1/2</strong> and row <strong>b</strong> with weight
 									<strong>1/2</strong>, what would your payoff be?
 								</p>
-								<form action="@LABURI@/doanswer.json" method="post"
-									onsubmit="return(sendForm(this, doSetup, doError, doSuccess));">
+								<form action="@LABURI@/doanswer.json" method="post" onsubmit="return(doPlay(this));">
 									<input type="hidden" name="aid" value="3" />
 									<fieldset>
 										<div class="input">
@@ -462,8 +458,7 @@
 										</div>
 									</div>
 								</div>
-								<form action="@LABURI@/doanswer.json" method="post"
-									onsubmit="return(sendForm(this, doSetup, doErrorPlay, doSuccess));">
+								<form action="@LABURI@/doanswer.json" method="post" onsubmit="return(doPlay(this));">
 									<input type="hidden" name="aid" value="4" />
 									<fieldset>
 										<div class="input">
@@ -538,8 +533,7 @@
 										</div>
 									</div>
 								</div>
-								<form action="@LABURI@/doanswer.json" method="post"
-									onsubmit="return(sendForm(this, doSetup, doErrorPlay, doSuccess));">
+								<form action="@LABURI@/doanswer.json" method="post" onsubmit="return(doPlay(this));">
 									<input type="hidden" name="aid" value="5" />
 									<fieldset>
 										<div class="input">
@@ -588,8 +582,7 @@
 									If you earn <strong>500</strong> points in total,
 									how m any lottery tickets will you have?
 								</p>
-								<form action="@LABURI@/doanswer.json" method="post"
-									onsubmit="return(sendForm(this, doSetup, doError, doSuccess));">
+								<form action="@LABURI@/doanswer.json" method="post" onsubmit="return(doPlay(this));">
 									<input type="hidden" name="aid" value="6" />
 									<fieldset>
 										<div class="input">
@@ -662,8 +655,7 @@
 									Based on the graphs above: in the last round, choosing what row with full
 									weight (<strong>1</strong>) would have given you the highest payoff?
 								</p>
-								<form action="@LABURI@/doanswer.json" method="post"
-									onsubmit="return(sendForm(this, doSetup, doError, doSuccess));">
+								<form action="@LABURI@/doanswer.json" method="post" onsubmit="return(doPlay(this));">
 									<input type="hidden" name="aid" value="7" />
 									<fieldset>
 										<div class="input">
@@ -699,7 +691,7 @@
 								<div class="standalone">
 									<div class="input input-submit">
 										<i class="fa fa-fw fa-check"></i>
-										<button onclick="location.href='@HTURI@/playerhome.html';">Start Playing</button>
+										<button onclick="location.href=getURL('@HTURI@/playerhome.html');">Start Playing</button>
 									</div>
 								</div>
 							</section>

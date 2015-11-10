@@ -1141,7 +1141,7 @@ function loadExprFailure(err)
 
 	switch (err) {
 	case 429:
-		location.href = '@HTURI@/playerlobby.html';
+		location.href = getURL('@HTURI@/playerlobby.html');
 		break;
 	default:
 		location.href = '@HTURI@/playerlogin.html#loggedout';
@@ -1199,21 +1199,21 @@ function checkRoundSuccess(resp)
 function checkRound()
 {
 
-	sendQuery('@LABURI@/docheckround.json', 
+	sendQuery(getURL('@LABURI@/docheckround.json'),
 		null, checkRoundSuccess, null);
 }
 
 function checkRoundEnd()
 {
 
-	sendQuery('@LABURI@/docheckround.json', 
+	sendQuery(getURL('@LABURI@/docheckround.json'),
 		null, checkRoundEndSuccess, null);
 }
 
 function loadExpr() 
 {
 
-	sendQuery('@LABURI@/doloadexpr.json', 
+	sendQuery(getURL('@LABURI@/doloadexpr.json'),
 		loadExprSetup, loadExprSuccess, loadExprFailure);
 }
 
@@ -1249,7 +1249,7 @@ function doPlayGameError(err)
 function submitMturkSuccess(resp)
 {
 
-	sendQuery('@LABURI@/dofinishmturk.json', 
+	sendQuery(getURL('@LABURI@/dofinishmturk.json'), 
 		null, function(){ doHide('exprFinishedMturk');}, null);
 }
 
@@ -1295,24 +1295,30 @@ function doPlayGameSuccess(resp)
 
 function playGame(form)
 {
+	var data = new FormData(form);
 
-	return(sendForm(form, 
-		doPlayGameSetup,
-		doPlayGameError, 
-		doPlayGameSuccess));
+	augmentForm(data);
+
+	return(sendFormData(form, data,
+		doPlayGameSetup, doPlayGameError, doPlayGameSuccess));
 }
 
 function submitMturk(form)
 {
+	var data = new FormData(form);
 
-	return(sendForm(form, null, null, submitMturkSuccess));
+	augmentForm(data);
+
+	return(sendFormData(form, data,
+		null, null, submitMturkSuccess));
 }
 
 function updateInstr(form)
 {
+	var data = new FormData(form);
 
-	return(sendForm(form, 
-		null, 
-		null, 
-		function() { window.location.reload(true); }));
+	augmentForm(data);
+
+	return(sendFormData(form, data, null, 
+		null, function() { window.location.reload(true); }));
 }

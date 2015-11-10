@@ -204,6 +204,21 @@ function formatCountdown(v, e)
 	}
 }
 
+function getQueryVariable(variable)
+{
+	var query, vars, i, pair;
+
+	query = window.location.search.substring(1);
+	vars = query.split("&");
+
+	for (i = 0; i < vars.length; i++) {
+		pair = vars[i].split("=");
+		if(pair[0] == variable)
+			return(pair[1]);
+	}
+	return(null);
+}
+
 function sendQuery(url, setup, success, error) 
 {
 	var xmlhttp = new XMLHttpRequest();
@@ -222,10 +237,9 @@ function sendQuery(url, setup, success, error)
 	xmlhttp.send(null);
 }
 
-function sendFormTo(oFormElement, action, setup, error, success) 
+function sendFormData(oFormElement, formdata, setup, error, success) 
 {
 	var xmlhttp = new XMLHttpRequest();
-	var formdata = new FormData(oFormElement);
 
 	if (null !== setup)
 		setup();
@@ -237,14 +251,48 @@ function sendFormTo(oFormElement, action, setup, error, success)
 			error(xmlhttp.status);
 	};
 
-	xmlhttp.open(oFormElement.method, action, true);
+	xmlhttp.open(oFormElement.method, oFormElement.action, true);
 	xmlhttp.send(formdata);
 	return(false);
 }
 
+
 function sendForm(oFormElement, setup, error, success) 
 {
 
-	return(sendFormTo(oFormElement, 
-		oFormElement.action, setup, error, success));
+	return(sendFormData(oFormElement, 
+		new FormData(oFormElement), setup, error, success));
+}
+
+/*
+ * Check our URL to see if we have a session identifier and/or session
+ * cookie in our query string.
+ * This happens if we're invoked from a cookie-less place.
+ */
+function getURL(base)
+{
+	var sessid, sesscookie, url;
+
+	url = base;
+
+	if (null !== (sessid = getQueryVariable('sessid')) &&
+	    null !== (sesscookie = getQueryVariable('sesscookie'))) 
+		url += '?sessid=' + sessid + '&sesscookie=' + sesscookie;
+
+	return(url);
+}
+
+/*
+ * If we're calling from a cookie-less place (e.g., Mechanical Turk
+ * external window), then append our session information to the form.
+ */
+function augmentForm(e)
+{
+	var sessid, sesscookie;
+
+	if (null !== (sessid = getQueryVariable('sessid')) &&
+	    null !== (sesscookie = getQueryVariable('sesscookie'))) {
+		e.set('sessid', sessid);
+		e.set('sesscookie', sesscookie);
+	}
 }
