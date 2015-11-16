@@ -1000,6 +1000,9 @@ function loadExprSuccess(resp)
 			doClearReplace('exprFinishedMturkBonus', 
 				(res.aggrtickets * res.expr.conversion));
 			doClearReplace('currency', res.expr.currency);
+			document.getElementById('mturkform').action = res.expr.sandbox ?
+				'https://workersandbox.mturk.com/mturk/externalSubmit' :
+				'https://www.mturk.com/mturk/externalSubmit';
 		} 
 		if (res.expr.round > 0) {
 			doUnhide('historyPlay');
@@ -1038,6 +1041,9 @@ function loadExprSuccess(resp)
 			doClearReplace('exprFinishedMturkBonus', 
 				(res.player.finalscore * res.expr.conversion));
 			doClearReplace('currency', res.expr.currency);
+			document.getElementById('mturkform').action = res.expr.sandbox ?
+				'https://workersandbox.mturk.com/mturk/externalSubmit' :
+				'https://www.mturk.com/mturk/externalSubmit';
 		} else if (null !== res.player.hitid) {
 			doClearReplace('hitid', res.player.hitid);
 			doUnhide('exprFinishedMturkSurvey');

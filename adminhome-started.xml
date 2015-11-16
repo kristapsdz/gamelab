@@ -40,6 +40,12 @@
 						If each player role has at least <span id="statusExprRoundpct"></span>% plays, the round
 						will advance (with <span id="statusExprRoundmin"></span> minutes of grace time).
 					</span>
+					<span id="mturkbox">
+						This is a Mechanical Turk experiment with HIT identifier
+						<code id="hitid"></code> in
+						<span id="mturksandbox">sandbox</span>
+						<span id="mturknosandbox">production (non-sandbox)</span> mode.
+					</span>
 				</p>
 				<p id="statusExprHasLobby">
 					Players waiting in the lobby: <span id="statusExprLobbysize"></span>.
@@ -293,14 +299,11 @@
 							</div>
 						</fieldset>
 						<input type="hidden" id="autoadd2" name="autoadd" value="0" />
-						<input type="hidden" id="mturk2" name="mturk" value="0" />
 					</form>
 					<div>
 						If you set the <q>Allow Captive Players</q> toggle, then players may add themselves.
 						Captive players will not be e-mailed when the experiment is started, nor will they be remembered
 						when the experiment is wiped.
-						If checked, <q>E-mail round advancement</q> will mail currently-playing non-captive players a
-						note whenever the round advances.
 					</div>
 					<form action="@ADMINURI@/doaddplayers.json" method="post" id="addPlayers2" onsubmit="return(addPlayers2(this));">
 						<fieldset>
@@ -308,25 +311,17 @@
 								<i onclick="toggler('autoadd', 'autoaddToggle');" id="autoaddToggle" class="fa fa-fw fa-toggle-off"></i>
 								<span onclick="toggler('autoadd', 'autoaddToggle');">Allow Captive Players</span>
 							</div>
-							<div class="input input-check">
-								<i onclick="toggler('mturk', 'mturkToggle');" id="mturkToggle" class="fa fa-fw fa-toggle-off"></i>
-								<span onclick="toggler('mturk', 'mturkToggle');">Allow Mechanical Turk players</span>
-							</div>
 							<div class="input input-submit">
 								<i class="fa fa-fw fa-check"></i>
 								<input id="addPlayersSubmit2" type="submit" value="Submit" />
 							</div>
 							<input type="hidden" id="autoadd" name="autoadd" value="0" />
-							<input type="hidden" id="mturk" name="mturk" value="0" />
 						</fieldset>
 					</form>
 					<div id="captiveGame">
-						<strong>Note</strong>: you have opted for a captive or Mechanical Turk experiment.
+						<strong>Note</strong>: you have opted for a captive experiment.
 						To enter the captive portal, your players will need to access <a
 							href="@HTURI@/playerautoadd.html">@HTURI@/playerautoadd.html</a> in order to log in.
-						Mechanical Turkers must use <a href="@LABURI@/mturk.html">@LABURI@/mturk.html</a> or,
-						if playing from a survey window,
-						<a href="@HTURI@/playermturk.html">@HTURI@/playermturk.html</a>.
 					</div>
 				</section>
 				<section class="rolled">
@@ -522,8 +517,9 @@
 			</section>
 		</article>
 		<footer>
-			<span>&copy; 2014, 2015 <a href="http://www.kcons.eu"><i>k</i>-Consulting</a></span>
-			<a href="http://www.kcons.eu">gamelab @VERSION@</a>
+			&copy; 2014, 2015 
+			<a href="http://www.kcons.eu"><i>k</i>-Consulting</a>
+			<a href="http://www.kcons.eu/gamelab">gamelab @VERSION@</a>
 			<a href="@HTURI@/privacy.html">Privacy</a>
 		</footer>
 	</body>

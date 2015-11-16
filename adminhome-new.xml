@@ -270,12 +270,10 @@
 							</div>
 						</fieldset>
 						<input type="hidden" id="autoadd2" name="autoadd" value="0" />
-						<input type="hidden" id="mturk2" name="mturk" value="0" />
 						<input type="hidden" id="autoaddpreserve2" name="autoaddpreserve" value="0" />
 					</form>
 					<div>
 						If you set the <q>Allow Captive Players</q> toggle, then players may add themselves.
-						Mechanical Turk players may be similarly enabled.
 						Captive players will not be e-mailed when the experiment is started, nor will they be remembered
 						when the experiment is wiped.
 						If checked, <q>E-mail round advancement</q> will mail currently-playing non-captive players a
@@ -288,10 +286,6 @@
 								<span onclick="toggler('autoadd', 'autoaddToggle');">Allow captive players</span>
 							</div>
 							<div class="input input-check">
-								<i onclick="toggler('mturk', 'mturkToggle');" id="mturkToggle" class="fa fa-fw fa-toggle-off"></i>
-								<span onclick="toggler('mturk', 'mturkToggle');">Allow Mechanical Turk players</span>
-							</div>
-							<div class="input input-check">
 								<i onclick="toggler('autoaddpreserve', 'autoaddTogglePreserve');" id="autoaddTogglePreserve" class="fa fa-fw fa-toggle-off"></i>
 								<span onclick="toggler('autoaddpreserve', 'autoaddTogglePreserve');">Preserve modes after startup</span>
 							</div>
@@ -300,20 +294,14 @@
 								<input id="addPlayersSubmit2" type="submit" value="Submit" />
 							</div>
 							<input type="hidden" id="autoadd" name="autoadd" value="0" />
-							<input type="hidden" id="mturk" name="mturk" value="0" />
 							<input type="hidden" id="autoaddpreserve" name="autoaddpreserve" value="0" />
 						</fieldset>
 					</form>
 					<div id="captiveGame">
-						<strong>Note</strong>: you have opted for a captive or Mechanical Turk experiment.
+						<strong>Note</strong>: you have opted for a captive experiment.
 						To enter the captive portal, your players will need to access <a
 							href="@HTURI@/playerautoadd.html">@HTURI@/playerautoadd.html</a> in order to log in.
 						They can do this <strong>at any time after now</strong>.
-						Mechanical Turkers must use <a href="@LABURI@/mturk.html">@LABURI@/mturk.html</a> or,
-						if playing from a survey window,
-						<a href="@HTURI@/playermturk.html">@HTURI@/playermturk.html</a>.
-						They can use this <strong>after you've committed the experiment</strong>, so make sure they have
-						enough time after you commit your parameters and the experiment start time.
 						Once you start the experiment, captive mode will be disabled, but you can enable it again if you
 						wish to continue adding players.
 					</div>
@@ -335,7 +323,7 @@
 							An unexpected error occurred.
 						</div>
 						<div class="noshow" id="startExprErrForm">
-							Can't start: start date in the past, not enough days, no e-mail setup, or no no participants or games.
+							Can't start: start date in the past or no games.
 						</div>
 						<div class="noshow" id="startExprErrState">
 							Experiment already started!
@@ -382,14 +370,41 @@
 								<i class="fa fa-fw fa-pie-chart"></i>
 								<input required="required" type="number" name="roundpct" id="roundpct" max="100" min="0" step="1" value="100" />
 							</div>
-							<section id="advanced">
-								<span>
+							<section class="advanced" id="mturkadvanced">
+								<div>
 									<i class="fa fa-chevron-circle-down"></i>
-									<a href="#" onclick="document.getElementById('advanced').className='showadv'; return false;">Show Advanced Options</a>.
-								</span>
+									<a href="#" onclick="document.getElementById('mturkadvanced').className='advanced showadv'; return false;">
+										Show Mechanical Turk Options</a>.
+								</div>
 								<p>
 									<i class="fa fa-chevron-circle-up"></i>
-									<a href="#" onclick="document.getElementById('advanced').className=''; return false;">Hide Advanced Options</a>.
+									<a href="#" onclick="document.getElementById('mturkadvanced').className='advanced'; return false;">
+										Hide Mechanical Turk Options</a>.
+								</p>
+								<div>
+									If you enter a HIT identifier below, Mechanical Turk players will be allowed to join your game.
+									Leave this blank if you don't want Mechanical Turk players.
+								</div>
+								<div class="input">
+									<i class="fa fa-fw fa-amazon"></i>
+									<input type="text" id="hitid" name="hitid" placeholder="HIT Identifier" />
+								</div>
+								<div class="input input-check">
+									<i onclick="toggler('sandbox', 'sandboxToggle');" id="sandboxToggle" class="fa fa-fw fa-toggle-off"></i>
+									<span onclick="toggler('sandbox', 'sandboxToggle');">Sandbox Mode</span>
+								</div>
+								<input type="hidden" id="sandbox" name="sandbox" value="0" />
+							</section>
+							<section class="advanced" id="advanced">
+								<div>
+									<i class="fa fa-chevron-circle-down"></i>
+									<a href="#" onclick="document.getElementById('advanced').className='advanced showadv'; return false;">
+										Show Advanced Options</a>.
+								</div>
+								<p>
+									<i class="fa fa-chevron-circle-up"></i>
+									<a href="#" onclick="document.getElementById('advanced').className='advanced'; return false;">
+										Hide Advanced Options</a>.
 								</p>
 								<div>
 									Enter the <i class="fa fa-link"></i> address for logging in, which is
@@ -433,7 +448,6 @@
 										<div>
 											<input value="custom" id="default-custom" type="radio" name="instr" />
 											<div>
-												<label for="default-custom">Custom: </label>
 												<input type="file" name="instrFile" />
 											</div>
 										</div>
@@ -536,7 +550,8 @@
 			</section>
 		</article>
 		<footer>
-			<span>&copy; 2014, 2015 <a href="http://www.kcons.eu"><i>k</i>-Consulting</a></span>
+			&copy; 2014, 2015 
+			<a href="http://www.kcons.eu"><i>k</i>-Consulting</a>
 			<a href="http://www.kcons.eu/gamelab">gamelab @VERSION@</a>
 			<a href="@HTURI@/privacy.html">Privacy</a>
 		</footer>

@@ -177,7 +177,7 @@
 							<p>
 								To indicate completion, you must click the button to report back to the Amazon Mechanical Turk site.
 							</p>
-							<form action="@MTURKURI@" method="post" onsubmit="return(submitMturk(this));">
+							<form id="mturkform" method="post" onsubmit="return(submitMturk(this));">
 								<input type="hidden" id="assignmentId" name="assignmentId" />
 								<input type="hidden" name="finished" value="1" />
 								<input type="submit" value="Finish" />

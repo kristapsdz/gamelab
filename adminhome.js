@@ -125,13 +125,11 @@ function loadNewPlayersSuccess(resp)
 	}
 
 	checkToggle('autoaddToggle', 'autoadd', results.autoadd);
-	checkToggle('mturkToggle', 'mturk', results.mturk);
 	checkToggle('autoaddTogglePreserve', 'autoaddpreserve', results.autoaddpreserve);
 	doValue('autoadd2', results.autoadd);
-	doValue('mturk2', results.mturk);
 	doValue('autoaddpreserve2', results.autoaddpreserve);
 
-	if (results.autoadd || results.mturk)
+	if (results.autoadd)
 		doUnhide('captiveGame');
 	else
 		doHide('captiveGame');
@@ -253,11 +251,9 @@ function loadPlayersSuccess(resp)
 	}
 
 	checkToggle('autoaddToggle', 'autoadd', results.autoadd);
-	checkToggle('mturkToggle', 'mturk', results.mturk);
 	doValue('autoadd2',  results.autoadd);
-	doValue('mturk2', results.mturk);
 
-	if (results.autoadd || results.mturk)
+	if (results.autoadd)
 		doUnhide('captiveGame');
 	else
 		doHide('captiveGame');
@@ -896,6 +892,18 @@ function loadExprSuccess(resp)
 		doClearReplace('statusExprLobbysize', res.lobbysize);
 	} else
 		doHide('statusExprHasLobby');
+
+	doHide('mturkbox');
+	if (expr.hitid) {
+		doUnhide('mturkbox');
+		doClearReplace('hitid', expr.hitid);
+		doHide('mturksandbox');
+		doHide('mturknosandbox');
+		if (expr.sandbox)
+			doUnhide('mturksandbox');
+		else
+			doUnhide('mturknosandbox');
+	}
 
 	if (expr.roundpid > 0) {
 		doUnhide('statusMailer');

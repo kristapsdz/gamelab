@@ -51,7 +51,7 @@ struct	expr {
 	char		*history; /* "fake" JSON history */
 	int64_t		 total; /* total winnings (>ESTATE_STARTED) */
 	int64_t		 autoadd; /* auto-adding players */
-	int64_t		 mturk; /* mechanical turk players */
+	char		*hitid; /* mechanical turk id (or '') */
 	int64_t		 autoaddpreserve; /* keep autoadd on start */
 	int64_t		 round; /* round (<0 initial, then >=0) */
 	int64_t		 nolottery; /* don't show lottery info */
@@ -59,6 +59,7 @@ struct	expr {
 #define	EXPR_NOHISTORY 	 0x01 /* don't show history */
 #define	EXPR_NOSHUFFLE	 0x02 /* don't shuffle games/rows */
 #define	EXPR_RELATIVE	 0x04 /* show relative rounds */
+#define	EXPR_SANDBOX	 0x08 /* Mechanical Turk sandbox */
 	int64_t		 flags;
 };
 
@@ -220,13 +221,14 @@ struct expr	*db_expr_get(int);
 size_t		 db_expr_lobbysize(void);
 size_t		 db_expr_round_count(const struct expr *, 
 			int64_t, int64_t);
-void		 db_expr_setautoadd(int64_t, int64_t, int64_t);
+void		 db_expr_setautoadd(int64_t, int64_t);
 void		 db_expr_setinstr(const char *);
 void		 db_expr_setmailer(int64_t, int64_t);
 int		 db_expr_start(int64_t, int64_t, int64_t, int64_t, 
 			int64_t, int64_t, int64_t, const char *, 
 			const char *, const char *, int64_t, 
-			int64_t, double, const char *, int64_t);
+			int64_t, double, const char *, int64_t,
+			const char *);
 void		 db_expr_wipe(void);
 
 struct game	*db_game_alloc(const char *,

@@ -17,6 +17,7 @@
 #include <sys/param.h>
 
 #include <assert.h>
+#include <ctype.h>
 #include <inttypes.h>
 #include <math.h>
 #include <stdio.h>
@@ -154,12 +155,13 @@ static int kvalid_choice2(struct kpair *);
 static int kvalid_choice3(struct kpair *);
 static int kvalid_choice6(struct kpair *);
 static int kvalid_choice7(struct kpair *);
+static int kvalid_mstring(struct kpair *);
 static int kvalid_rational(struct kpair *);
 
 static const struct kvalid keys[KEY__MAX] = {
 	{ kvalid_stringne, "answer0" }, /* KEY_ANSWER0 */
 	{ kvalid_int, "aid" }, /* KEY_ANSWERID */
-	{ kvalid_stringne, "assignmentId" }, /* KEY_ASSIGNMENTID */
+	{ kvalid_mstring, "assignmentId" }, /* KEY_ASSIGNMENTID */
 	{ kvalid_choice0, "choice0" }, /* KEY_CHOICE0 */
 	{ kvalid_choice1, "choice1" }, /* KEY_CHOICE1 */
 	{ kvalid_choice2, "choice2" }, /* KEY_CHOICE2 */
@@ -171,14 +173,14 @@ static const struct kvalid keys[KEY__MAX] = {
 	{ kvalid_choice6, "choice6" }, /* KEY_CHOICE6 */
 	{ kvalid_choice7, "choice7" }, /* KEY_CHOICE7 */
 	{ kvalid_int, "gid" }, /* KEY_GAMEID */
-	{ kvalid_stringne, "hitId" }, /* KEY_HITID */
+	{ kvalid_mstring, "hitId" }, /* KEY_HITID */
 	{ kvalid_stringne, "ident" }, /* KEY_IDENTIFIER */
 	{ NULL, "instr" }, /* KEY_INSTR */
 	{ kvalid_stringne, "password" }, /* KEY_PASSWORD */
 	{ kvalid_uint, "round" }, /* KEY_ROUND */
 	{ kvalid_int, "sesscookie" }, /* KEY_SESSCOOKIE */
 	{ kvalid_int, "sessid" }, /* KEY_SESSID */
-	{ kvalid_stringne, "workerId" }, /* KEY_WORKERID */
+	{ kvalid_mstring, "workerId" }, /* KEY_WORKERID */
 };
 
 /*
@@ -294,19 +296,27 @@ sendmturk(struct kreq *r)
 		send303(r, HTURI "/playerautoadd.html", PAGE__MAX, 0);
 		db_expr_free(expr);
 		return;
-	} else if (0 == expr->mturk) {
+	} 
+	
+	id = r->fieldmap[KEY_WORKERID]->parsed.s;
+	hitid = r->fieldmap[KEY_HITID]->parsed.s;
+	assid = r->fieldmap[KEY_ASSIGNMENTID]->parsed.s;
+	
+	if ('\0' == *expr->hitid) {
 		INFO("Mechanical Turk player trying "
 			"to play non-turk experiment");
 		http_open(r, KHTTP_303);
 		send303(r, HTURI "/playerautoadd.html", PAGE__MAX, 0);
 		db_expr_free(expr);
 		return;
+	} else if (strcmp(expr->hitid, hitid)) {
+		INFO("Mechanical Turk player trying "
+			"to play with incorrect HIT identifier");
+		http_open(r, KHTTP_303);
+		send303(r, HTURI "/playerautoadd.html", PAGE__MAX, 0);
+		db_expr_free(expr);
+		return;
 	}
-
-	/* Add the worker to the system. */
-	id = r->fieldmap[KEY_WORKERID]->parsed.s;
-	hitid = r->fieldmap[KEY_HITID]->parsed.s;
-	assid = r->fieldmap[KEY_ASSIGNMENTID]->parsed.s;
 
 	/* 
 	 * If the player does not exist, then ok.
@@ -558,6 +568,26 @@ senddoloadgame(const struct game *game, int64_t round, void *arg)
 	per = &p->intv->periods[i];
 	json_putroundup(req, "roundup", per->roundups[round - 1], 0);
 	kjson_obj_close(req);
+}
+
+static int
+kvalid_mstring(struct kpair *kp)
+{
+	char		*cp;
+	unsigned char	 c;
+
+	if ( ! kvalid_stringne(kp) || kp->valsz > 64)
+		return(0);
+	for (cp = kp->val; '\0' != *cp; cp++) {
+		c = (unsigned char)*cp;
+		if ('_' == c || '-' == c)
+			continue;
+		if ( ! isalnum(c))
+			return(0);
+		if (isalpha(c) && islower(c))
+			return(0);
+	}
+	return(1);
 }
 
 static int

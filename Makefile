@@ -1,9 +1,5 @@
 .SUFFIXES: .min.js .js .html .xml
 
-# Mechanical Turk testing.
-MTURKURI	 = https://workersandbox.mturk.com/mturk/externalSubmit
-#MTURKURI	 = https://www.mturk.com/mturk/externalSubmit
-
 # Mac OSX testing.
 # This is useful when running in a userdir.
 ADMINURI	 = /~kristaps/admin.cgi

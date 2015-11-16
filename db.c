@@ -1691,7 +1691,8 @@ db_player_create(const char *email, char **pass,
 	rc = db_step(stmt, DB_STEP_CONSTRAINT);
 	sqlite3_finalize(stmt);
 	if (SQLITE_DONE == rc) {
-		INFO("Player %" PRId64 " created: %s", 
+		INFO("%sPlayer %" PRId64 " created: %s", 
+			NULL != hitid ? "Mechanical Turk " : "",
 			sqlite3_last_insert_rowid(db), email);
 		if (NULL != pass)
 			*pass = hash;
@@ -1753,26 +1754,24 @@ db_expr_setmailer(int64_t old, int64_t new)
 
 /*
  * Set the "auto-add" (captive mode) facility.
- * Also set whether we're going to continue inheriting this facility when 
- * This can be done at any time, but only really makes sense when
- * ESTATE_NEW is in effect.
+ * Also set whether we're going to continue inheriting this facility
+ * after the experiment has started.
+ * (Not doing so is a security measure to cut off the number of players
+ * when the experiment begins.)
  */
 void
-db_expr_setautoadd(int64_t autoadd, int64_t mturk, int64_t preserve)
+db_expr_setautoadd(int64_t autoadd, int64_t preserve)
 {
 	sqlite3_stmt	*stmt;
 
 	stmt = db_stmt("UPDATE experiment SET "
-		"autoadd=?,mturk=?,autoaddpreserve=?");
+		"autoadd=?,autoaddpreserve=?");
 	db_bind_int(stmt, 1, autoadd ? 1 : 0);
-	db_bind_int(stmt, 2, mturk ? 1 : 0);
-	db_bind_int(stmt, 3, preserve ? 1 : 0);
+	db_bind_int(stmt, 2, preserve ? 1 : 0);
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);
-	INFO("Administrator %s captive, "
-		"%s mturk: %s preserve",
+	INFO("Administrator %s captive: %s preserve",
 		autoadd ? "enabled" : "disabled",
-		mturk ? "enabled" : "disabled",
 		preserve ? "do" : "do not");
 }
 
@@ -1875,7 +1874,8 @@ db_expr_start(int64_t date, int64_t roundpct, int64_t roundmin,
 	int64_t rounds, int64_t prounds, int64_t minutes, 
 	int64_t playermax, const char *instr, const char *uri,
 	const char *historyfile, int64_t nolottery, int64_t ques,
-	double conversion, const char *currency, int64_t flags)
+	double conversion, const char *currency, int64_t flags,
+	const char *hitid)
 {
 	sqlite3_stmt	*stmt, *stmt2;
 	int64_t		 id;
@@ -1904,7 +1904,7 @@ db_expr_start(int64_t date, int64_t roundpct, int64_t roundmin,
 		"conversion=?,currency=?,"
 		"autoadd=CASE WHEN autoaddpreserve=1 "
 			"THEN autoadd ELSE 0 END,"
-		"roundmin=?,flags=?");
+		"roundmin=?,flags=?,hitid=?");
 	db_bind_int(stmt, 1, date);
 	db_bind_int(stmt, 2, rounds);
 	db_bind_int(stmt, 3, minutes);
@@ -1922,6 +1922,7 @@ db_expr_start(int64_t date, int64_t roundpct, int64_t roundmin,
 	db_bind_text(stmt, 15, currency);
 	db_bind_int(stmt, 16, roundmin);
 	db_bind_int(stmt, 17, flags);
+	db_bind_text(stmt, 18, hitid);
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);
 
@@ -2801,7 +2802,7 @@ db_expr_get(int only_started)
 		"loginuri,state,instr,state,total,"
 		"autoadd,round,roundbegan,roundpct,"
 		"roundmin,prounds,playermax,autoaddpreserve,"
-		"history,nolottery,questionnaire,mturk,"
+		"history,nolottery,questionnaire,hitid,"
 		"conversion,currency,roundpid,flags "
 		"FROM experiment");
 	rc = db_step(stmt, 0);
@@ -2830,7 +2831,7 @@ db_expr_get(int only_started)
 	expr->history = kstrdup((char *)sqlite3_column_text(stmt, 16));
 	expr->nolottery = sqlite3_column_int64(stmt, 17);
 	expr->questionnaire = sqlite3_column_int64(stmt, 18);
-	expr->mturk = sqlite3_column_int64(stmt, 19);
+	expr->hitid = kstrdup((char *)sqlite3_column_text(stmt, 19));
 	expr->conversion = sqlite3_column_double(stmt, 20);
 	expr->currency = kstrdup((char *)sqlite3_column_text(stmt, 21));
 	expr->roundpid = sqlite3_column_int64(stmt, 22);
@@ -2844,8 +2845,8 @@ db_expr_free(struct expr *expr)
 {
 	if (NULL == expr)
 		return;
-
 	free(expr->loginuri);
+	free(expr->hitid);
 	free(expr->currency);
 	free(expr->instr);
 	free(expr->history);
@@ -2902,7 +2903,7 @@ db_expr_wipe(void)
 		"mturkdone=0");
 	db_exec("UPDATE experiment SET "
 		"currency='',conversion=1,"
-		"autoadd=0,mturk=0,autoaddpreserve=0,"
+		"autoadd=0,hitid='',autoaddpreserve=0,"
 		"state=0,total=0,round=-1,rounds=0,"
 		"prounds=0,roundbegan=0,roundpct=0.0,minutes=0,"
 		"roundmin=0,nolottery=0,questionnaire=0,"

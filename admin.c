@@ -103,11 +103,11 @@ enum	key {
 	KEY_EMAIL2,
 	KEY_EMAIL3,
 	KEY_GAMEID,
+	KEY_HITID,
 	KEY_HISTORYFILE,
 	KEY_INSTR,
 	KEY_INSTRFILE,
 	KEY_MAILROUND,
-	KEY_MTURK,
 	KEY_NAME,
 	KEY_NOLOTTERY,
 	KEY_P1,
@@ -122,6 +122,7 @@ enum	key {
 	KEY_PLAYERS,
 	KEY_QUESTIONNAIRE,
 	KEY_RELATIVE,
+	KEY_SANDBOX,
 	KEY_SERVER,
 	KEY_SESSCOOKIE,
 	KEY_SESSID,
@@ -224,8 +225,8 @@ static const char *const cntts[CNTT__MAX] = {
 	"adminhome-started.html", /* CNTT_HTML_HOME_STARTED */
 };
 
-static int kvalid_rounds(struct kpair *);
 static int kvalid_minutes(struct kpair *);
+static int kvalid_rounds(struct kpair *);
 static int kvalid_time(struct kpair *);
 
 static const struct kvalid keys[KEY__MAX] = {
@@ -245,11 +246,11 @@ static const struct kvalid keys[KEY__MAX] = {
 	{ kvalid_email, "email2" }, /* KEY_EMAIL2 */
 	{ kvalid_email, "email3" }, /* KEY_EMAIL3 */
 	{ kvalid_int, "gid" }, /* KEY_GAMEID */
+	{ kvalid_string, "hitid" }, /* KEY_HITID */
 	{ kvalid_stringne, "historyfile" }, /* KEY_HISTORYFILE */
 	{ kvalid_stringne, "instr" }, /* KEY_INSTR */
 	{ kvalid_stringne, "instrFile" }, /* KEY_INSTRFILE */
 	{ kvalid_int, "mailround" }, /* KEY_MAILROUND */
-	{ kvalid_int, "mturk" }, /* KEY_MTURK */
 	{ kvalid_stringne, "name" }, /* KEY_NAME */
 	{ kvalid_int, "nolottery" }, /* KEY_NOLOTTERY */
 	{ kvalid_int, "p1" }, /* KEY_P1 */
@@ -264,6 +265,7 @@ static const struct kvalid keys[KEY__MAX] = {
 	{ kvalid_stringne, "players" }, /* KEY_PLAYERS */
 	{ kvalid_int, "question" }, /* KEY_QUESTIONNAIRE */
 	{ kvalid_int, "relative" }, /* KEY_RELATIVE */
+	{ kvalid_int, "sandbox" }, /* KEY_SANDBOX */
 	{ kvalid_stringne, "server" }, /* KEY_SERVER */
 	{ kvalid_int, "sesscookie" }, /* KEY_SESSCOOKIE */
 	{ kvalid_int, "sessid" }, /* KEY_SESSID */
@@ -968,8 +970,6 @@ senddoaddplayers(struct kreq *r)
 	db_expr_setautoadd
 		(NULL != r->fieldmap[KEY_AUTOADD] ?
 		 r->fieldmap[KEY_AUTOADD]->parsed.i : 0,
-		 NULL != r->fieldmap[KEY_MTURK] ?
-		 r->fieldmap[KEY_MTURK]->parsed.i : 0,
 		 NULL != r->fieldmap[KEY_AUTOADDPRESERVE] ?
 		 r->fieldmap[KEY_AUTOADDPRESERVE]->parsed.i : 0);
 
@@ -1027,7 +1027,6 @@ senddoloadplayers(struct kreq *r)
 	kjson_open(&req, r);
 	kjson_obj_open(&req);
 	kjson_putintp(&req, "autoadd", expr->autoadd);
-	kjson_putintp(&req, "mturk", expr->mturk);
 	kjson_putintp(&req, "prounds", expr->prounds);
 	kjson_putintp(&req, "round", expr->round);
 	kjson_putintp(&req, "autoaddpreserve", expr->autoaddpreserve);
@@ -1214,23 +1213,25 @@ senddostartexpr(struct kreq *r)
 	struct stat	 st;
 	size_t		 sz;
 
-	if (kpairbad(r, KEY_DATE) ||
+	if (kpairbad(r, KEY_CONVERSION) ||
 	    kpairbad(r, KEY_CURRENCY) ||
-	    kpairbad(r, KEY_CONVERSION) ||
+	    kpairbad(r, KEY_DATE) ||
+	    kpairbad(r, KEY_HITID) ||
+	    kpairbad(r, KEY_INSTR) ||
+	    kpairbad(r, KEY_MAILROUND) ||
+	    kpairbad(r, KEY_MINUTES) ||
 	    kpairbad(r, KEY_NOLOTTERY) ||
+	    kpairbad(r, KEY_PLAYERMAX) ||
+	    kpairbad(r, KEY_PROUNDS) ||
 	    kpairbad(r, KEY_QUESTIONNAIRE) ||
 	    kpairbad(r, KEY_RELATIVE) ||
+	    kpairbad(r, KEY_ROUNDMIN) ||
+	    kpairbad(r, KEY_ROUNDPCT) ||
+	    kpairbad(r, KEY_ROUNDS) ||
+	    kpairbad(r, KEY_SANDBOX) ||
 	    kpairbad(r, KEY_SHOWHISTORY) ||
 	    kpairbad(r, KEY_SHUFFLE) ||
-	    kpairbad(r, KEY_MAILROUND) ||
 	    kpairbad(r, KEY_TIME) ||
-	    kpairbad(r, KEY_ROUNDS) ||
-	    kpairbad(r, KEY_PROUNDS) ||
-	    kpairbad(r, KEY_ROUNDPCT) ||
-	    kpairbad(r, KEY_ROUNDMIN) ||
-	    kpairbad(r, KEY_PLAYERMAX) ||
-	    kpairbad(r, KEY_INSTR) ||
-	    kpairbad(r, KEY_MINUTES) ||
 	    kpairbad(r, KEY_URI) ||
 		r->fieldmap[KEY_DATE]->parsed.i +
 		r->fieldmap[KEY_TIME]->parsed.i <= (int64_t)time(NULL) ||
@@ -1304,6 +1305,8 @@ senddostartexpr(struct kreq *r)
 		flags |= EXPR_NOSHUFFLE;
 	if (r->fieldmap[KEY_RELATIVE]->parsed.i)
 		flags |= EXPR_RELATIVE;
+	if (r->fieldmap[KEY_SANDBOX]->parsed.i)
+		flags |= EXPR_SANDBOX;
 	
 	/*
 	 * Actually start the experiment.
@@ -1326,8 +1329,8 @@ senddostartexpr(struct kreq *r)
 		 r->fieldmap[KEY_NOLOTTERY]->parsed.i,
 		 r->fieldmap[KEY_QUESTIONNAIRE]->parsed.i,
 		 r->fieldmap[KEY_CONVERSION]->parsed.d,
-		 r->fieldmap[KEY_CURRENCY]->parsed.s,
-		 flags)) {
+		 r->fieldmap[KEY_CURRENCY]->parsed.s, flags,
+		 r->fieldmap[KEY_HITID]->parsed.s)) {
 		http_open(r, KHTTP_409);
 		khttp_body(r);
 		if (INSTR_LOTTERY == inst || 

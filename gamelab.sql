@@ -108,7 +108,7 @@ CREATE TABLE experiment (
 	roundmin INTEGER DEFAULT(0),
 	minutes INTEGER DEFAULT(0),
 	autoadd INTEGER NOT NULL DEFAULT(0),
-	mturk INTEGER NOT NULL DEFAULT(0),
+	hitid TEXT NOT NULL DEFAULT(''),
 	autoaddpreserve INTEGER NOT NULL DEFAULT(0),
 	currency TEXT NOT NULL DEFAULT(''),
 	conversion REAL NOT NULL DEFAULT(1.0),
