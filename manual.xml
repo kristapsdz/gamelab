@@ -399,8 +399,6 @@
 				<p>
 					In order to use <span class="nm">gamelab</span>, you'll need to download, configure, and install
 					it&mdash;just like any piece of software.
-					<strong>Note</strong>: we're still getting <span class="nm">gamelab</span> into ship-shape, so the source
-					can't yet be downloaded&#8211;contact us for a copy!
 					If a system administrator has already installed the server and given you the web address for its
 					laboratory and administrative interfaces, jump down to the <a href="#administration">Administration</a>
 					section.
@@ -473,6 +471,11 @@
 						Each of these systems has its own installation procedure beyond the scope of this document.
 						After you've installed the dependencies, download the source archive and the checksum.
 					</p>
+					<p>
+						You can download the latest <span class="nm">gamelab</span> source code from the <a
+							href="snapshots">snapshots</a> directory.
+						This also contains all previous releases.
+					</p>
 				</section>
 				<section id="compiling">
 					<header>
@@ -480,7 +483,7 @@
 						<h3>Compiling</h3>
 					</header>
 					<p>
-						Move the <span class="nm">gamelab</span> source code into a source directory (we suggest <span
+						Move the <span class="file">gamelab.tgz</span> source code into a source directory (we suggest <span
 							class="file">~/Source</span> or <span class="file">~/src</span> and unpack.
 						First, however, verify the checksum.
 						These instructions are valid for new installations and for upgrades: the source archive will

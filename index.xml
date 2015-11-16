@@ -16,8 +16,8 @@
 					<a title="Contact" href="mailto:kristaps@kcons.eu"><i class="fa fa-envelope-o"></i></a>
 				</span>
 				<span>
-					<a href="manual.html#deploy">Download</a>
-					<a title="Download" href="manual.html#deploy"><i class="fa fa-cloud-download"></i></a>
+					<a href="snapshots">Download</a>
+					<a title="Download" href="snapshots"><i class="fa fa-cloud-download"></i></a>
 				</span>
 				<span>
 					<a href="gamelab.bib">Cite</a>
