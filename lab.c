@@ -64,7 +64,6 @@ enum	page {
 	PAGE_DOANSWER,
 	PAGE_DOAUTOADD,
 	PAGE_DOCHECKROUND,
-	PAGE_DOFINISHMTURK,
 	PAGE_DOINSTR,
 	PAGE_DOLOADEXPR,
 	PAGE_DOLOADQUESTIONS,
@@ -73,7 +72,7 @@ enum	page {
 	PAGE_DOPLAY,
 	PAGE_INDEX,
 	PAGE_MTURK,
-	PAGE_MTURKSURVEY,
+	PAGE_MTURKFINISH,
 	PAGE__MAX
 };
 
@@ -118,7 +117,6 @@ static	unsigned int perms[PAGE__MAX] = {
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOANSWER */
 	PERM_JSON, /* PAGE_DOAUTOADD */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOCHECKROUND */
-	PERM_JSON | PERM_LOGIN, /* PAGE_DOFINISHMTURK */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOINSTR */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOLOADEXPR */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOLOADQUESTIONS */
@@ -127,14 +125,13 @@ static	unsigned int perms[PAGE__MAX] = {
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOPLAY */
 	PERM_HTML | PERM_LOGIN, /* PAGE_INDEX */
 	PERM_HTML, /* PAGE_MTURK */
-	PERM_JSON, /* PAGE_MTURKSURVEY */
+	PERM_JSON | PERM_LOGIN, /* PAGE_MTURKFINISH */
 };
 
 static const char *const pages[PAGE__MAX] = {
 	"doanswer", /* PAGE_DOANSWER */
 	"doautoadd", /* PAGE_DOAUTOADD */
 	"docheckround", /* PAGE_DOCHECKROUND */
-	"dofinishmturk", /* PAGE_DOFINISHMTURK */
 	"doinstr", /* PAGE_DOINSTR */
 	"doloadexpr", /* PAGE_DOLOADEXPR */
 	"doloadquestions", /* PAGE_DOLOADQUESTIONS */
@@ -143,7 +140,7 @@ static const char *const pages[PAGE__MAX] = {
 	"doplay", /* PAGE_DOPLAY */
 	"index", /* PAGE_INDEX */
 	"mturk", /* PAGE_MTURK */
-	"mturksurvey", /* PAGE_MTURKSURVEY */
+	"mturkfinish", /* PAGE_MTURKFINISH */
 };
 
 /*
@@ -260,52 +257,6 @@ send303(struct kreq *r, const char *pg, enum page dest, int st)
 	free(page);
 }
 
-static void
-sendmturksurvey(struct kreq *r)
-{
-	struct expr	*expr;
-	struct player	*player;
-	char		*hash;
-	const char	*id;
-	struct kjsonreq	 req;
-	char		 hitid[22];
-
-	expr = db_expr_get(0);
-	assert(NULL != expr);
-	if (0 == expr->mturk) {
-		http_open(r, KHTTP_409);
-		khttp_body(r);
-		db_expr_free(expr);
-		return;
-	} else if (NULL == r->fieldmap[KEY_WORKERID]) {
-		http_open(r, KHTTP_400);
-		khttp_body(r);
-		db_expr_free(expr);
-		return;
-	} 
-
-	id = r->fieldmap[KEY_WORKERID]->parsed.s;
-	snprintf(hitid, sizeof(hitid), "%llu", 
-		(unsigned long long)arc4random());
-	if (db_player_create(id, &hash, hitid, ""))
-		INFO("MTurk survey player (new): %s", id);
-	else 
-		INFO("MTurk survey player (existing): %s", id);
-	free(hash);
-	player = db_player_valid(id, NULL);
-	assert(NULL != player);
-	http_open(r, KHTTP_200);
-	khttp_body(r);
-	kjson_open(&req, r);
-	kjson_obj_open(&req);
-	kjson_putstringp(&req, keys[KEY_IDENTIFIER].name, id);
-	kjson_putstringp(&req, "password", player->hash);
-	kjson_obj_close(&req);
-	kjson_close(&req);
-	db_expr_free(expr);
-	db_player_free(player);
-}
-
 /*
  * Log in a Mechanial Turk player.
  * This is only for use via HTML (i.e., the mturk interface).
@@ -407,6 +358,23 @@ sendmturk(struct kreq *r)
 	db_expr_free(expr);
 	db_sess_free(sess);
 	db_player_free(player);
+}
+
+/*
+ * This is sent by the front-end to indicate that a player (Mechanical
+ * Turk player, we hope) has played through to the end of the
+ * experiment and has responded back to the Mechanical Turk site saying
+ * that they've finished.
+ * This doesn't do anything: it just sets a flag and ensures that the
+ * "respond back to Mechanical Turk site" doesn't get displayed again.
+ */
+static void
+sendmturkfinish(struct kreq *r, int64_t playerid)
+{
+
+       db_player_mturkdone(playerid);
+       http_open(r, KHTTP_200);
+       khttp_body(r);
 }
 
 /*
@@ -659,15 +627,6 @@ kvalid_choice0(struct kpair *kp)
 	if ( ! kvalid_uint(kp))
 		return(0);
 	return(3 == kp->parsed.i);
-}
-
-static void
-senddofinishmturk(struct kreq *r, int64_t playerid)
-{
-
-	db_player_mturkdone(playerid);
-	http_open(r, KHTTP_200);
-	khttp_body(r);
 }
 
 static void
@@ -1300,9 +1259,6 @@ doreq(struct kreq *r)
 	case (PAGE_DOCHECKROUND):
 		senddocheckround(r);
 		break;
-	case (PAGE_DOFINISHMTURK):
-		senddofinishmturk(r, id);
-		break;
 	case (PAGE_DOINSTR):
 		senddoinstr(r, id);
 		break;
@@ -1324,8 +1280,8 @@ doreq(struct kreq *r)
 	case (PAGE_MTURK):
 		sendmturk(r);
 		break;
-	case (PAGE_MTURKSURVEY):
-		sendmturksurvey(r);
+	case (PAGE_MTURKFINISH):
+		sendmturkfinish(r, id);
 		break;
 	case (PAGE_INDEX):
 		send303(r, HTURI "/playerhome.html", PAGE__MAX, 1);

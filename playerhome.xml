@@ -173,12 +173,6 @@
 								Your bonus is <span id="exprFinishedMturkBonus"></span> <span id="currency"></span>.
 							</p>
 						</div>
-						<div id="exprFinishedMturkSurvey" class="noshow">
-							<p>
-								To indicate completion, please input the following return code on the HIT page:
-								<code id="hitid"></code>.
-							</p>
-						</div>
 						<div id="exprFinishedMturk" class="noshow">
 							<p>
 								To indicate completion, you must click the button to report back to the Amazon Mechanical Turk site.

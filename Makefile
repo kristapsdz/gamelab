@@ -91,8 +91,6 @@ SRCS	 = Makefile \
 	   playerhome.js \
 	   playerlobby.xml \
 	   playerlobby.js \
-	   playermturk.xml \
-	   playermturk.js \
 	   playerlogin.xml \
 	   playerlogin.js \
 	   privacy.xml \
@@ -101,7 +99,6 @@ HTMLS	 = adminlogin.html \
 	   mturkpreview.html \
 	   playerautoadd.html \
 	   playerlobby.html \
-	   playermturk.html \
 	   playerhome.html \
 	   playerlogin.html \
 	   privacy.html
@@ -111,7 +108,6 @@ JSMINS   = adminhome.min.js \
 	   playerhome.min.js \
 	   playerlobby.min.js \
 	   playerlogin.min.js \
-	   playermturk.min.js \
 	   script.min.js
 IMAGES   = eskil.jpg \
 	   jorgen.jpg \

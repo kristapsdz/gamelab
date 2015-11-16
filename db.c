@@ -37,6 +37,12 @@
 #include "extern.h"
 
 #define DB_STEP_CONSTRAINT 0x01
+#define	PLAYER	"player.email,player.state,player.id,player.enabled," \
+		"player.role,player.rseed,player.instr," \
+		"player.finalrank,player.finalscore,player.autoadd," \
+		"player.version,player.joined,player.answer," \
+		"player.hitid,player.assignmentid,player.hash," \
+		"player.mturkdone"
 
 /*
  * The database, its location, and its statement (if any).
@@ -1160,12 +1166,12 @@ db_player_fill(struct player *p, sqlite3_stmt *s)
 	p->answer = sqlite3_column_int64(s, 12);
 	p->hitid = kstrdup((char *)sqlite3_column_text(s, 13));
 	p->assignmentid = kstrdup((char *)sqlite3_column_text(s, 14));
-	p->mturkdone = sqlite3_column_int64(s, 15);
-	p->hash = kstrdup((char *)sqlite3_column_text(s, 16));
+	p->hash = kstrdup((char *)sqlite3_column_text(s, 15));
+	p->mturkdone = sqlite3_column_int64(s, 16);
 }
 
 /*
- * Load a single player by their rowid.
+ * Load a single player by their unique identifier.
  * Return NULL if the player was not found.
  */
 struct player *
@@ -1174,22 +1180,24 @@ db_player_load(int64_t id)
 	sqlite3_stmt	*stmt;
 	struct player	*player;
 
-	stmt = db_stmt("SELECT email,state,id,enabled,"
-		"role,rseed,instr,finalrank,finalscore,autoadd,"
-	        "version,joined,answer,hitid,assignmentid,mturkdone,"
-		"hash FROM player WHERE id=?");
+	stmt = db_stmt("SELECT " PLAYER " FROM player WHERE id=?");
 	db_bind_int(stmt, 1, id);
 	if (SQLITE_ROW != db_step(stmt, 0)) {
 		sqlite3_finalize(stmt);
 		return(NULL);
 	}
-
 	player = kmalloc(sizeof(struct player));
 	db_player_fill(player, stmt);
 	sqlite3_finalize(stmt);
 	return(player);
 }
 
+/*
+ * Sort the players by their aggregate tickets sorted by count.
+ * If "limit" is set to zero, this will return all of the sorted
+ * players.
+ * Otherwise, it will act as a limiter.
+ */
 void
 db_player_load_highest(playerscorefp fp, void *arg, size_t limit)
 {
@@ -1223,17 +1231,20 @@ db_player_load_highest(playerscorefp fp, void *arg, size_t limit)
 	sqlite3_finalize(stmt);
 }
 
+/*
+ * Load all of the players who are currently playing.
+ * This means that they are joined to the experiment and are still
+ * within the maximum number of allotted rounds.
+ */
 void
 db_player_load_playing(const struct expr *expr, playerf fp, void *arg)
 {
 	sqlite3_stmt	*stmt;
 	struct player	 player;
 
-	stmt = db_stmt("SELECT email,state,id,enabled,"
-		"role,rseed,instr,finalrank,finalscore,autoadd, "
-		"version,joined,answer,hitid,assignmentid,mturkdone,hash "
-		"FROM player WHERE CASE WHEN joined >= 0 "
-		"THEN joined <= ? AND ? < JOINED + ? ELSE 1 END");
+	stmt = db_stmt("SELECT " PLAYER " FROM player WHERE "
+		"CASE WHEN joined >= 0 THEN "
+		"joined <= ? AND ? < JOINED + ? ELSE 1 END");
 	db_bind_int(stmt, 1, expr->round);
 	db_bind_int(stmt, 2, expr->round);
 	db_bind_int(stmt, 3, expr->prounds);
@@ -1245,22 +1256,36 @@ db_player_load_playing(const struct expr *expr, playerf fp, void *arg)
 	sqlite3_finalize(stmt);
 }
 
+/*
+ * Load all players registered in the system.
+ * Orders them by e-mail address (identifier).
+ */
 void
 db_player_load_all(playerf fp, void *arg)
 {
 	sqlite3_stmt	*stmt;
 	struct player	 player;
 
-	stmt = db_stmt("SELECT email,state,id,enabled,"
-		"role,rseed,instr,finalrank,finalscore,autoadd, "
-		"version,joined,answer,hitid,assignmentid,mturkdone,hash "
-		"FROM player ORDER BY email ASC");
+	stmt = db_stmt("SELECT " PLAYER " FROM player "
+		"ORDER BY email ASC");
 	while (SQLITE_ROW == db_step(stmt, 0)) {
 		db_player_fill(&player, stmt);
 		(*fp)(&player, arg);
 		db_player_clear(&player);
 	}
 	sqlite3_finalize(stmt);
+}
+
+void
+db_player_mturkdone(int64_t playerid)
+{
+       sqlite3_stmt    *stmt;
+
+       stmt = db_stmt("UPDATE player SET mturkdone=1 WHERE id=?");
+       db_bind_int(stmt, 1, playerid);
+       db_step(stmt, 0);
+       sqlite3_finalize(stmt);
+       INFO("Player %" PRId64 " finished mturk", playerid);
 }
 
 /*
@@ -1600,18 +1625,6 @@ err:
 		mpq_clear(rops[i]);
 	free(rops);
 	return(NULL);
-}
-
-void
-db_player_mturkdone(int64_t playerid)
-{
-	sqlite3_stmt	*stmt;
-
-	stmt = db_stmt("UPDATE player SET mturkdone=1 WHERE id=?");
-	db_bind_int(stmt, 1, playerid);
-	db_step(stmt, 0);
-	sqlite3_finalize(stmt);
-	INFO("Player %" PRId64 " finished mturk", playerid);
 }
 
 /*

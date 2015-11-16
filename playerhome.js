@@ -1000,15 +1000,7 @@ function loadExprSuccess(resp)
 			doClearReplace('exprFinishedMturkBonus', 
 				(res.aggrtickets * res.expr.conversion));
 			doClearReplace('currency', res.expr.currency);
-		} else if (null !== res.player.hitid) {
-			doClearReplace('hitid', res.player.hitid);
-			doUnhide('exprFinishedMturkSurvey');
-			doUnhide('exprFinishedMturkProfit');
-			doClearReplace('exprFinishedMturkBonus', 
-				(res.aggrtickets * res.expr.conversion));
-			doClearReplace('currency', res.expr.currency);
-		}
-
+		} 
 		if (res.expr.round > 0) {
 			doUnhide('historyPlay');
 			doHide('historyNotYet');
@@ -1249,7 +1241,7 @@ function doPlayGameError(err)
 function submitMturkSuccess(resp)
 {
 
-	sendQuery(getURL('@LABURI@/dofinishmturk.json'), 
+	sendQuery(getURL('@LABURI@/mturkfinish.json'), 
 		null, function(){ doHide('exprFinishedMturk');}, null);
 }
 
