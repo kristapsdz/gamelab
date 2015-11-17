@@ -1,0 +1,17 @@
+<article data-sblg-article="1" data-sblg-tags="version">
+	<header>
+		<h1>1.0.24</h1>
+		<address>Kristaps Dzonsons</address>
+		<time datetime="2015-11-16">2015-11-16</time>
+	</header>
+	<aside>
+		<p>
+			Now that the session identifiers are properly embedded, remove support for the Mechanical Turk <q>survey link</q>
+			functionality, which was just a crutch.
+			Moreover, move the Mechanical Turk configuration into the experiment parameters and accept the requested HIT identifier
+			as well as whether the request is to be sandboxed.
+			Also make sure that all Mechanical Turk variables (worker, assignment, and HIT identifiers) are proper uppercase
+			alphanumeric strings.
+		</p>
+	</aside>
+</article>

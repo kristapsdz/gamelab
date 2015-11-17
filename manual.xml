@@ -56,7 +56,6 @@
 						<a href="#mechanicalturk">Mechanical Turk</a>
 						<ul>
 							<li><a href="#mturkexperiment">Experiment Setup</a></li>
-							<li><a href="#mturkhit">HIT Setup</a></li>
 						</ul>
 					</li>
 					<li>
@@ -969,7 +968,6 @@
 				<p>
 					<a href="https://www.mturk.com/mturk/welcome">Mechanical Turk</a> is a system for allowing human workers
 					to participant in Internet-based tasks.
-					<span class="nm">Gamelab</span> can integrate with Mechanical Turk in several different ways.
 					This section assumes a bit of familiarity with the Mechanical Turk system overall.
 				</p>
 				<section id="mturkexperiment">
@@ -978,43 +976,22 @@
 						<h3>Experiment Setup</h3>
 					</header>
 					<p>
-						Setting up a Mechanical Turk experiment is very easy.
-						Simply set the Mechanical Turk option in the <q>Players</q> section of the experiment <a
-							href="#createexperiments">configuration</a>.
-						Mechanical Turk workers will now be able to join the system through a special URL indicated in
-						the Player section after you select the applicable option.
+						Setting up a Mechanical Turk <q>external program</q> experiment is very easy.
+						Simply set your HIT identifier when you start the experiment and whether you want it to be
+						sandboxed (using the <a href="https://requester.mturk.com/developer/sandbox">Developer
+							Sandbox</a>) or production.
+						You'll be given the proper URL for workers.
+						Mechanical Turk workers joining the system will be checked that their HIT identifiers match.
 					</p>
 					<p>
-						When you start the experiment, you'll probably want to use the Mechanical Turk instructions.
-						You should also enable the questionnaire to control for workers' understanding of game-play.
-					</p>
-				</section>
-				<section id="mturkhit">
-					<header>
-						<a href="#"><i class="fa fa-angle-up fa-fw"></i></a>
-						<h3>HIT Setup</h3>
-					</header>
-					<p>
-						There are two kinds of HIT configurations you can use.
-						The first is using a survey link; the second is to use an external link.
-						When using a survey link, you provide the link noted in the Player section when you enable
-						Mechanical Turk participants.
-						Participants must then provide their own worker identifier when arriving at the given page.
-						If you provide the given link as an external link, workers jump directly to the link with their
-						identifiers already filled in by the Mechanical Turk system.
+						You'll probably also want to use the Mechanical Turk instructions, and you should enable the
+						questionnaire to control for workers' understanding of game-play.
 					</p>
 					<p>
-						The difference between these two is how the experiment ends.
-						For the survey link, participants are given a random number they must enter into the Mechanical
-						Turk page to indicate completion.
-						For the external link, participants must click on a form that responds to the Mechanical Turk
-						site to indicate completion.
-					</p>
-					<p>
-						<strong>Note</strong>: a current caveat in the external link process is that participants must
-						allow for <q>third-party cookies</q> in their browser configuration.
-						As this is not the default for some browsers, there might be issues when allowing players to
-						join.
+						<strong>Note</strong>: when Mechanical Turk workers join the system, their session information
+						is embedded in the query string.
+						This is because most browsers disallow third-party cookies by default.
+						So be warned that this is <strong>not</strong> a secure method of operation!
 					</p>
 				</section>
 			</section>

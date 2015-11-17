@@ -37,7 +37,7 @@ STATIC		 =
 
 # You really don't want to change anything below this line.
 
-VERSION	 = 1.0.23
+VERSION	 = 1.0.24
 VMONTH	 = November
 VYEAR	 = 2015
 CFLAGS 	+= -g -W -Wall -Wstrict-prototypes -Wno-unused-parameter -Wwrite-strings -I/usr/local/include
@@ -130,7 +130,8 @@ VERSIONS = version_1_0_1.xml \
 	   version_1_0_20.xml \
 	   version_1_0_21.xml \
 	   version_1_0_22.xml \
-	   version_1_0_23.xml
+	   version_1_0_23.xml \
+	   version_1_0_24.xml
 
 all: admin lab gamers $(HTMLS) $(JSMINS) $(BUILTPS)
 
@@ -206,7 +207,6 @@ index.html: index.xml $(VERSIONS)
 			-e "s!@LABURI@!$(LABURI)!g" \
 			-e "s!@FONTURI@!$(FONTURI)!g" \
 			-e "s!@VERSION@!$(VERSION)!g" \
-			-e "s!@MTURKURI@!$(MTURKURI)!g" \
 			-e "s!@HTURI@!$(HTURI)!g" >$@
 
 
@@ -216,7 +216,6 @@ $(JSMINS): jsmin
 	rm -f $@
 	sed -e "s!@ADMINURI@!$(ADMINURI)!g" \
 		-e "s!@LABURI@!$(LABURI)!g" \
-		-e "s!@MTURKURI@!$(MTURKURI)!g" \
 		-e "s!@HTURI@!$(HTURI)!g" $< | ./jsmin > $@
 	chmod 444 $@
 
@@ -225,7 +224,6 @@ $(JSMINS): jsmin
 		-e "s!@LABURI@!$(LABURI)!g" \
 		-e "s!@FONTURI@!$(FONTURI)!g" \
 		-e "s!@VERSION@!$(VERSION)!g" \
-		-e "s!@MTURKURI@!$(MTURKURI)!g" \
 		-e "s!@HTURI@!$(HTURI)!g" $< >$@
 
 clean:

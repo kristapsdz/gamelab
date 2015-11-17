@@ -382,7 +382,8 @@
 										Hide Mechanical Turk Options</a>.
 								</p>
 								<div>
-									If you enter a HIT identifier below, Mechanical Turk players will be allowed to join your game.
+									If you enter a HIT identifier below, Mechanical Turk players will be allowed to join your game at
+									at <a href="@LABURI@/mturk.html">@LABURI@/mturk.html</a>.
 									Leave this blank if you don't want Mechanical Turk players.
 								</div>
 								<div class="input">
