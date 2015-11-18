@@ -500,7 +500,7 @@ senddogetnewexpr(struct kreq *r)
 	kjson_open(&req, r);
 	kjson_obj_open(&req);
 	kjson_putintp(&req, "adminflags", db_admin_get_flags());
-	json_putexpr(&req, expr);
+	json_putexpr(&req, expr, 1);
 	kjson_obj_close(&req);
 	kjson_close(&req);
 	db_expr_free(expr);
@@ -563,7 +563,7 @@ senddogetexpr(struct kreq *r)
 
 	kjson_open(&req, r);
 	kjson_obj_open(&req);
-	json_putexpr(&req, expr);
+	json_putexpr(&req, expr, 1);
 
 	if (expr->round >= 0)
 		json_puthistory(&req, 1, expr, NULL);
@@ -1392,9 +1392,7 @@ senddostartexpr(struct kreq *r)
 	}
 
 	if (r->fieldmap[KEY_AWSACCESSKEY]->valsz &&
-	    r->fieldmap[KEY_AWSSECRETKEY]->valsz &&
-	    r->fieldmap[KEY_AWSNAME]->valsz &&
-	    r->fieldmap[KEY_AWSDESC]->valsz) {
+	    r->fieldmap[KEY_AWSSECRETKEY]->valsz) {
 		workers = NULL == r->fieldmap[KEY_WORKERS] ?
 			0 : r->fieldmap[KEY_WORKERS]->parsed.i;
 		minutes = r->fieldmap[KEY_MINUTES]->parsed.i;

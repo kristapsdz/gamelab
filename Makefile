@@ -31,7 +31,7 @@ STATIC		 =
 #HTDOCS		 = $(PREFIX)/htdocs
 #HTURI		 = $(URIPREFIX)
 #LABURI		 = $(URIPREFIX)/cgi-bin/lab
-#LIBS		 = -lintl -liconv -lm
+#LIBS		 = -lintl -liconv -lm 
 #RDATADIR	 = $(RELPREFIX)/data
 #STATIC		 = -static
 
@@ -149,10 +149,10 @@ gamers: gamers.c
 	$(CC) $(CFLAGS) `curl-config --cflags` -o $@ gamers.c `curl-config --libs` -ljson-c -lm
 
 admin: admin.o $(OBJS)
-	$(CC) $(STATIC) -L/usr/local/lib -o $@ admin.o $(OBJS) -lsqlite3 -lkcgi -lkcgijson -lz -lgmp `curl-config --libs` $(LIBS)
+	$(CC) $(STATIC) -L/usr/local/lib -o $@ admin.o $(OBJS) -lsqlite3 -lkcgi -lkcgijson -lz -lgmp -lexpat `curl-config --libs` $(LIBS)
 
 lab: lab.o $(OBJS)
-	$(CC) $(STATIC) -L/usr/local/lib -o $@ lab.o $(OBJS) -lsqlite3 -lkcgi -lkcgijson -lz -lgmp `curl-config --libs` $(LIBS)
+	$(CC) $(STATIC) -L/usr/local/lib -o $@ lab.o $(OBJS) -lsqlite3 -lkcgi -lkcgijson -lz -lgmp -lexpat `curl-config --libs` $(LIBS)
 
 admin.o lab.o $(OBJS): extern.h
 

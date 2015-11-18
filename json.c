@@ -242,7 +242,7 @@ json_putplayer(struct kjsonreq *r, const struct player *p)
 }
 
 void
-json_putexpr(struct kjsonreq *r, const struct expr *expr)
+json_putexpr(struct kjsonreq *r, const struct expr *expr, int admin)
 {
 	double	 	 frac;
 	time_t	 	 tt;
@@ -293,7 +293,11 @@ json_putexpr(struct kjsonreq *r, const struct expr *expr)
 	kjson_putintp(r, "sandbox", EXPR_SANDBOX & expr->flags);
 	kjson_putintp(r, "nolottery", expr->nolottery);
 	kjson_putdoublep(r, "conversion", expr->conversion);
-	kjson_putstringp(r, "hitid", expr->hitid);
+	if (admin) {
+		kjson_putstringp(r, "hitid", expr->hitid);
+		kjson_putstringp(r, "awsaccesskey", expr->awsaccesskey);
+		kjson_putstringp(r, "awssecretkey", expr->awssecretkey);
+	}
 	kjson_putintp(r, "minutes", expr->minutes);
 	kjson_putstringp(r, "loginURI", expr->loginuri);
 	kjson_putdoublep(r, "progress", frac);

@@ -894,8 +894,9 @@ function loadExprSuccess(resp)
 		doHide('statusExprHasLobby');
 
 	doHide('mturkbox');
+	doHide('mturkokbox');
 	if (expr.hitid) {
-		doUnhide('mturkbox');
+		doUnhide('mturkokbox');
 		doClearReplace('hitid', expr.hitid);
 		doHide('mturksandbox');
 		doHide('mturknosandbox');
@@ -903,6 +904,9 @@ function loadExprSuccess(resp)
 			doUnhide('mturksandbox');
 		else
 			doUnhide('mturknosandbox');
+	} else if (expr.awsaccesskey && expr.awssecretkey) {
+		doUnhide('mturkbox');
+		doClearReplace('awsaccesskey', expr.awsaccesskey);
 	}
 
 	if (expr.roundpid > 0) {

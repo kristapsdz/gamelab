@@ -971,7 +971,7 @@ again:
 	 * other than the experiment data itself.
 	 */
 	if (expr->round < 0) {
-		json_putexpr(&req, expr);
+		json_putexpr(&req, expr, 0);
 		kjson_putnullp(&req, "win");
 		kjson_putnullp(&req, "history");
 		json_putplayer(&req, player);
@@ -1013,7 +1013,7 @@ again:
 		player = db_player_load(playerid);
 	}
 
-	json_putexpr(&req, expr);
+	json_putexpr(&req, expr, 0);
 
 	if (ESTATE_POSTWIN == expr->state) {
 		kjson_objp_open(&req, "win");

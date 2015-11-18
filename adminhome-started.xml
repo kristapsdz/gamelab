@@ -40,12 +40,15 @@
 						If each player role has at least <span id="statusExprRoundpct"></span>% plays, the round
 						will advance (with <span id="statusExprRoundmin"></span> minutes of grace time).
 					</span>
-					<span id="mturkbox">
-						This is a Mechanical Turk experiment with HIT identifier
-						<code id="hitid"></code> in
-						<span id="mturksandbox">sandbox</span>
-						<span id="mturknosandbox">production (non-sandbox)</span> mode.
-					</span>
+				</p>
+				<p id="mturkbox">
+					Your Mechanical Turk request (access key <code id="awsaccesskey">asdf</code>) is still being processed.
+				</p>
+				<p id="mturkokbox">
+					This is a Mechanical Turk experiment with HIT identifier
+					<code id="hitid"></code> in
+					<span id="mturksandbox">sandbox</span>
+					<span id="mturknosandbox">production (non-sandbox)</span> mode.
 				</p>
 				<p id="statusExprHasLobby">
 					Players waiting in the lobby: <span id="statusExprLobbysize"></span>.

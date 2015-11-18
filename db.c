@@ -1875,7 +1875,7 @@ db_expr_start(int64_t date, int64_t roundpct, int64_t roundmin,
 	int64_t playermax, const char *instr, const char *uri,
 	const char *historyfile, int64_t nolottery, int64_t ques,
 	double conversion, int64_t flags,
-	const char *hitid, const char *awssecretkey)
+	const char *awsaccesskey, const char *awssecretkey)
 {
 	sqlite3_stmt	*stmt, *stmt2;
 	int64_t		 id;
@@ -1904,7 +1904,8 @@ db_expr_start(int64_t date, int64_t roundpct, int64_t roundmin,
 		"conversion=?,"
 		"autoadd=CASE WHEN autoaddpreserve=1 "
 			"THEN autoadd ELSE 0 END,"
-		"roundmin=?,flags=?,hitid=?");
+		"roundmin=?,flags=?,awsaccesskey=?,"
+		"awssecretkey=?");
 	db_bind_int(stmt, 1, date);
 	db_bind_int(stmt, 2, rounds);
 	db_bind_int(stmt, 3, minutes);
@@ -1921,7 +1922,8 @@ db_expr_start(int64_t date, int64_t roundpct, int64_t roundmin,
 	db_bind_double(stmt, 14, conversion);
 	db_bind_int(stmt, 15, roundmin);
 	db_bind_int(stmt, 16, flags);
-	db_bind_text(stmt, 17, hitid);
+	db_bind_text(stmt, 17, awsaccesskey);
+	db_bind_text(stmt, 18, awssecretkey);
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);
 

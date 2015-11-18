@@ -458,7 +458,8 @@
 						<li><a href="https://gmplib.org">GMP</a> (rational number library),</li>
 						<li><a href="https://sqlite.org">SQLite</a> (database), and</li>
 						<li><a href="http://libbsd.freedesktop.org/wiki/">libbsd</a> (Linux compatibility, if applicable),</li>
-						<li><a href="http://curl.haxx.se/libcurl/">libCURL</a> (e-mailing), and</li>
+						<li><a href="http://curl.haxx.se/libcurl/">libCURL</a> (e-mailing),</li>
+						<li><a href="http://www.libexpat.org/">libexpat (parsing Mechanical Turk responses), and</li>
 						<li><a href="https://github.com/json-c/json-c/wiki">json-c</a> (testing system).</li>
 					</ul>
 					<p>
