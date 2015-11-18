@@ -1874,8 +1874,8 @@ db_expr_start(int64_t date, int64_t roundpct, int64_t roundmin,
 	int64_t rounds, int64_t prounds, int64_t minutes, 
 	int64_t playermax, const char *instr, const char *uri,
 	const char *historyfile, int64_t nolottery, int64_t ques,
-	double conversion, const char *currency, int64_t flags,
-	const char *hitid)
+	double conversion, int64_t flags,
+	const char *hitid, const char *awssecretkey)
 {
 	sqlite3_stmt	*stmt, *stmt2;
 	int64_t		 id;
@@ -1901,7 +1901,7 @@ db_expr_start(int64_t date, int64_t roundpct, int64_t roundmin,
 		"loginuri=?,instr=?,state=?,"
 		"roundpct=?,prounds=?,playermax=?,"
 		"prounds=?,history=?,nolottery=?,questionnaire=?,"
-		"conversion=?,currency=?,"
+		"conversion=?,"
 		"autoadd=CASE WHEN autoaddpreserve=1 "
 			"THEN autoadd ELSE 0 END,"
 		"roundmin=?,flags=?,hitid=?");
@@ -1919,10 +1919,9 @@ db_expr_start(int64_t date, int64_t roundpct, int64_t roundmin,
 	db_bind_int(stmt, 12, nolottery);
 	db_bind_int(stmt, 13, ques);
 	db_bind_double(stmt, 14, conversion);
-	db_bind_text(stmt, 15, currency);
-	db_bind_int(stmt, 16, roundmin);
-	db_bind_int(stmt, 17, flags);
-	db_bind_text(stmt, 18, hitid);
+	db_bind_int(stmt, 15, roundmin);
+	db_bind_int(stmt, 16, flags);
+	db_bind_text(stmt, 17, hitid);
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);
 
@@ -2803,8 +2802,8 @@ db_expr_get(int only_started)
 		"autoadd,round,roundbegan,roundpct,"
 		"roundmin,prounds,playermax,autoaddpreserve,"
 		"history,nolottery,questionnaire,hitid,"
-		"conversion,currency,roundpid,flags "
-		"FROM experiment");
+		"conversion,roundpid,flags,"
+		"awsaccesskey,awssecretkey FROM experiment");
 	rc = db_step(stmt, 0);
 	assert(SQLITE_ROW == rc);
 	if (only_started && ESTATE_NEW == sqlite3_column_int64(stmt, 4)) {
@@ -2833,9 +2832,10 @@ db_expr_get(int only_started)
 	expr->questionnaire = sqlite3_column_int64(stmt, 18);
 	expr->hitid = kstrdup((char *)sqlite3_column_text(stmt, 19));
 	expr->conversion = sqlite3_column_double(stmt, 20);
-	expr->currency = kstrdup((char *)sqlite3_column_text(stmt, 21));
-	expr->roundpid = sqlite3_column_int64(stmt, 22);
-	expr->flags = sqlite3_column_int64(stmt, 23);
+	expr->roundpid = sqlite3_column_int64(stmt, 21);
+	expr->flags = sqlite3_column_int64(stmt, 22);
+	expr->awsaccesskey = kstrdup((char *)sqlite3_column_text(stmt, 23));
+	expr->awssecretkey = kstrdup((char *)sqlite3_column_text(stmt, 24));
 	sqlite3_finalize(stmt);
 	return(expr);
 }
@@ -2847,9 +2847,10 @@ db_expr_free(struct expr *expr)
 		return;
 	free(expr->loginuri);
 	free(expr->hitid);
-	free(expr->currency);
 	free(expr->instr);
 	free(expr->history);
+	free(expr->awsaccesskey);
+	free(expr->awssecretkey);
 	free(expr);
 }
 
@@ -2902,12 +2903,13 @@ db_expr_wipe(void)
 		"joined=-1,answer=0,assignmentid='',hitid='',"
 		"mturkdone=0");
 	db_exec("UPDATE experiment SET "
-		"currency='',conversion=1,"
+		"conversion=1,"
 		"autoadd=0,hitid='',autoaddpreserve=0,"
 		"state=0,total=0,round=-1,rounds=0,"
 		"prounds=0,roundbegan=0,roundpct=0.0,minutes=0,"
 		"roundmin=0,nolottery=0,questionnaire=0,"
-		"roundpid=0,flags=0");
+		"roundpid=0,flags=0,"
+		"awsaccesskey='',awssecretkey=''");
 	stmt = db_stmt("SELECT id FROM player");
 	stmt2 = db_stmt("UPDATE player SET rseed=? WHERE id=?");
 	/* 
@@ -3021,6 +3023,21 @@ db_backup(const char *zfile)
 
 	rc = sqlite3_prepare_v2(pf, 
 		"UPDATE smtp SET pass=''", 
+		-1, &stmt, NULL);
+
+	if (SQLITE_OK != rc) {
+		WARN("sqlite3_prepare_v2: %s", sqlite3_errmsg(pf));
+		sqlite3_finalize(stmt);
+		goto err;
+	} else if (SQLITE_DONE != sqlite3_step(stmt)) {
+		WARN("sqlite3_prepare_v2: %s", sqlite3_errmsg(pf));
+		sqlite3_finalize(stmt);
+		goto err;
+	}
+	sqlite3_finalize(stmt);
+
+	rc = sqlite3_prepare_v2(pf, 
+		"UPDATE experiment SET awssecretkey=''", 
 		-1, &stmt, NULL);
 
 	if (SQLITE_OK != rc) {

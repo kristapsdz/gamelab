@@ -41,7 +41,7 @@ VERSION	 = 1.0.24
 VMONTH	 = November
 VYEAR	 = 2015
 CFLAGS 	+= -g -W -Wall -Wstrict-prototypes -Wno-unused-parameter -Wwrite-strings -I/usr/local/include
-CFLAGS	+= -DDATADIR=\"$(RDATADIR)\" -DHTURI=\"$(HTURI)\"
+CFLAGS	+= -DDATADIR=\"$(RDATADIR)\" -DHTURI=\"$(HTURI)\" -DLABURI=\"$(LABURI)\"
 INSTRS 	 = instructions-lottery.xml \
 	   instructions-nolottery.xml \
 	   instructions-mturk.xml
@@ -62,10 +62,13 @@ STATICS	 = adminhome.css \
 	   playerlogin.css \
 	   style.css
 OBJS	 = db.o \
+	   hmac.o \
 	   json.o \
 	   log.o \
 	   mail.o \
-	   mpq.o
+	   mpq.o \
+	   mturk.o \
+	   sha1.o
 SRCS	 = Makefile \
 	   admin.c \
 	   adminhome.js \
@@ -76,10 +79,12 @@ SRCS	 = Makefile \
 	   db.c \
 	   extern.h \
 	   gamelab.sql \
+	   hmac.c \
 	   json.c \
 	   lab.c \
 	   mail.c \
 	   mpq.c \
+	   mturk.c \
 	   mturkpreview.xml \
 	   playerautoadd.xml \
 	   playerautoadd.js \
@@ -90,7 +95,8 @@ SRCS	 = Makefile \
 	   playerlogin.xml \
 	   playerlogin.js \
 	   privacy.xml \
-	   script.js
+	   script.js \
+	   sha1.h
 HTMLS	 = adminlogin.html \
 	   mturkpreview.html \
 	   playerautoadd.html \
@@ -131,7 +137,8 @@ VERSIONS = version_1_0_1.xml \
 	   version_1_0_21.xml \
 	   version_1_0_22.xml \
 	   version_1_0_23.xml \
-	   version_1_0_24.xml
+	   version_1_0_24.xml \
+	   version_1_0_25.xml 
 
 all: admin lab gamers $(HTMLS) $(JSMINS) $(BUILTPS)
 

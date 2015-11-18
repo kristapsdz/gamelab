@@ -45,13 +45,14 @@ struct	expr {
 	int64_t		 roundmin; /* if percent-based, min minutes */
 	int64_t		 minutes; /* minutes per game play */
 	double		 conversion; /* points -> currency */
-	char		*currency; /* payoff currency */
 	char		*loginuri; /* player login (email click) */
 	char		*instr; /* instruction markup */
 	char		*history; /* "fake" JSON history */
 	int64_t		 total; /* total winnings (>ESTATE_STARTED) */
 	int64_t		 autoadd; /* auto-adding players */
 	char		*hitid; /* mechanical turk id (or '') */
+	char		*awsaccesskey; 
+	char		*awssecretkey; 
 	int64_t		 autoaddpreserve; /* keep autoadd on start */
 	int64_t		 round; /* round (<0 initial, then >=0) */
 	int64_t		 nolottery; /* don't show lottery info */
@@ -187,7 +188,27 @@ struct	winner {
 	int64_t		 rank; /* which dice-throw this was */
 };
 
+#define SHA1_BLOCK_LENGTH               64
+#define SHA1_DIGEST_LENGTH              20
+
+typedef struct {
+        u_int32_t       state[5];
+        u_int64_t       count;
+        unsigned char   buffer[SHA1_BLOCK_LENGTH];
+} SHA1_CTX;
+  
 __BEGIN_DECLS
+
+void 		  SHA1Init(SHA1_CTX *);
+void 		  SHA1Transform(u_int32_t[5], const unsigned char[SHA1_BLOCK_LENGTH]);
+void 		  SHA1Update(SHA1_CTX *context, const unsigned char *, unsigned int);
+void 		  SHA1Final(unsigned char[SHA1_DIGEST_LENGTH], SHA1_CTX *);
+
+void		  hmac_sha1(const unsigned char *, int,
+			const unsigned char *, int, unsigned char *);
+
+void		  mturk(const char *, const char *, const char *,
+			const char *, int64_t, int64_t, int, double);
 
 typedef void	(*gamef)(const struct game *, void *);
 typedef void	(*gameroundf)(const struct game *, int64_t, void *);
@@ -227,8 +248,8 @@ void		 db_expr_setmailer(int64_t, int64_t);
 int		 db_expr_start(int64_t, int64_t, int64_t, int64_t, 
 			int64_t, int64_t, int64_t, const char *, 
 			const char *, const char *, int64_t, 
-			int64_t, double, const char *, int64_t,
-			const char *);
+			int64_t, double, int64_t,
+			const char *, const char *);
 void		 db_expr_wipe(void);
 
 struct game	*db_game_alloc(const char *,

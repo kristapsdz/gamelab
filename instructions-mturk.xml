@@ -70,7 +70,7 @@ Other players' payoffs are calculated in the same fashion.
 At the end of the task your total payoffs will be calculated by summing
 your payoffs from all games in all rounds in which you have
 participated. 
-Your payoff will be converted to @@gamelab-currency@@ at a 1 payoff
+Your payoff will be converted to USD at a 1 payoff
 point = @@gamelab-conversion@@ rate.
 </p>
 <h3>History of play</h3>

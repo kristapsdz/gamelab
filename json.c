@@ -36,7 +36,6 @@
 enum	tkey {
 	TKEY_ADMIN_EMAIL,
 	TKEY_CONVERSION,
-	TKEY_CURRENCY,
 	TKEY_GAMES,
 	TKEY_ROUND_MINTIME_HOURS,
 	TKEY_ROUND_MINTIME_MINUTES,
@@ -52,7 +51,6 @@ enum	tkey {
 static	const char *const tkeys[TKEY__MAX] = {
 	"gamelab-admin-email", /* TKEY_ADMIN_EMAIL */
 	"gamelab-conversion", /* TKEY_CONVERSION */
-	"gamelab-currency", /* TKEY_CURRENCY */
 	"gamelab-games", /* TKEY_GAMES */
 	"gamelab-round-mintime-hours", /* TKEY_ROUND_MINTIME_HOURS */
 	"gamelab-round-mintime-minutes", /* TKEY_ROUND_MINTIME_MINUTES */
@@ -85,9 +83,6 @@ json_instructions(size_t key, void *arg)
 	switch (key) {
 	case (TKEY_ADMIN_EMAIL):
 		kjson_string_puts(c->r, c->mail);
-		break;
-	case (TKEY_CURRENCY):
-		kjson_string_puts(c->r, c->expr->currency);
 		break;
 	case (TKEY_CONVERSION):
 		kjson_string_putdouble(c->r, 
@@ -298,7 +293,6 @@ json_putexpr(struct kjsonreq *r, const struct expr *expr)
 	kjson_putintp(r, "sandbox", EXPR_SANDBOX & expr->flags);
 	kjson_putintp(r, "nolottery", expr->nolottery);
 	kjson_putdoublep(r, "conversion", expr->conversion);
-	kjson_putstringp(r, "currency", expr->currency);
 	kjson_putstringp(r, "hitid", expr->hitid);
 	kjson_putintp(r, "minutes", expr->minutes);
 	kjson_putstringp(r, "loginURI", expr->loginuri);

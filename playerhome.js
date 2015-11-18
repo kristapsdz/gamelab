@@ -999,7 +999,6 @@ function loadExprSuccess(resp)
 			doUnhide('exprFinishedMturkProfit');
 			doClearReplace('exprFinishedMturkBonus', 
 				(res.aggrtickets * res.expr.conversion));
-			doClearReplace('currency', res.expr.currency);
 			document.getElementById('mturkform').action = res.expr.sandbox ?
 				'https://workersandbox.mturk.com/mturk/externalSubmit' :
 				'https://www.mturk.com/mturk/externalSubmit';
@@ -1040,7 +1039,6 @@ function loadExprSuccess(resp)
 			doUnhide('exprFinishedMturkProfit');
 			doClearReplace('exprFinishedMturkBonus', 
 				(res.player.finalscore * res.expr.conversion));
-			doClearReplace('currency', res.expr.currency);
 			document.getElementById('mturkform').action = res.expr.sandbox ?
 				'https://workersandbox.mturk.com/mturk/externalSubmit' :
 				'https://www.mturk.com/mturk/externalSubmit';
@@ -1050,7 +1048,6 @@ function loadExprSuccess(resp)
 			doUnhide('exprFinishedMturkProfit');
 			doClearReplace('exprFinishedMturkBonus', 
 				(res.player.finalscore * res.expr.conversion));
-			doClearReplace('currency', res.expr.currency);
 		}
 		doClearReplace('exprFinishedScore', res.aggrlottery.toFixed(2));
 		doClearReplace('exprFinishedTicketsMax', res.expr.maxtickets);

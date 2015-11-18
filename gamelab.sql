@@ -110,7 +110,6 @@ CREATE TABLE experiment (
 	autoadd INTEGER NOT NULL DEFAULT(0),
 	hitid TEXT NOT NULL DEFAULT(''),
 	autoaddpreserve INTEGER NOT NULL DEFAULT(0),
-	currency TEXT NOT NULL DEFAULT(''),
 	conversion REAL NOT NULL DEFAULT(1.0),
 	history TEXT NOT NULL DEFAULT(''),
 	nolottery INTEGER NOT NULL DEFAULT(0),
@@ -119,6 +118,8 @@ CREATE TABLE experiment (
 	instr TEXT DEFAULT(''),
 	total INTEGER DEFAULT(0),
 	flags INTEGER DEFAULT(0),
+	awsaccesskey TEXT NOT NULL DEFAULT(''),
+	awssecretkey TEXT NOT NULL DEFAULT(''),
 	id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL
 );
 

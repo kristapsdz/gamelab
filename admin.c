@@ -89,8 +89,12 @@ enum	cntt {
 enum	key {
 	KEY_AUTOADD,
 	KEY_AUTOADDPRESERVE,
+	KEY_AWSACCESSKEY,
+	KEY_AWSDESC,
+	KEY_AWSNAME,
+	KEY_AWSREWARD,
+	KEY_AWSSECRETKEY,
 	KEY_CONVERSION,
-	KEY_CURRENCY,
 	KEY_DATE,
 	KEY_TIME,
 	KEY_ROUNDMIN,
@@ -103,7 +107,6 @@ enum	key {
 	KEY_EMAIL2,
 	KEY_EMAIL3,
 	KEY_GAMEID,
-	KEY_HITID,
 	KEY_HISTORYFILE,
 	KEY_INSTR,
 	KEY_INSTRFILE,
@@ -132,6 +135,7 @@ enum	key {
 	KEY_USER,
 	KEY_WINNERS,
 	KEY_WINSEED,
+	KEY_WORKERS,
 	KEY__MAX
 };
 
@@ -232,8 +236,12 @@ static int kvalid_time(struct kpair *);
 static const struct kvalid keys[KEY__MAX] = {
 	{ kvalid_int, "autoadd" }, /* KEY_AUTOADD */
 	{ kvalid_int, "autoaddpreserve" }, /* KEY_AUTOADDPRESERVE*/
+	{ kvalid_string, "awsaccesskey" }, /* KEY_AWSACCESSKEY */
+	{ kvalid_string, "awsdesc" }, /* KEY_AWSDESC */
+	{ kvalid_string, "awsname" }, /* KEY_AWSNAME */
+	{ kvalid_double, "awsreward" }, /* KEY_AWSREWARD */
+	{ kvalid_string, "awssecretkey" }, /* KEY_AWSSECRETKEY */
 	{ kvalid_udouble, "conversion" }, /* KEY_CONVERSION */
-	{ kvalid_stringne, "currency" }, /* KEY_CURRENCY */
 	{ kvalid_date, "date" }, /* KEY_DATE */
 	{ kvalid_time, "time" }, /* KEY_TIME */
 	{ kvalid_uint, "roundmin" }, /* KEY_ROUNDMIN */
@@ -246,7 +254,6 @@ static const struct kvalid keys[KEY__MAX] = {
 	{ kvalid_email, "email2" }, /* KEY_EMAIL2 */
 	{ kvalid_email, "email3" }, /* KEY_EMAIL3 */
 	{ kvalid_int, "gid" }, /* KEY_GAMEID */
-	{ kvalid_string, "hitid" }, /* KEY_HITID */
 	{ kvalid_stringne, "historyfile" }, /* KEY_HISTORYFILE */
 	{ kvalid_stringne, "instr" }, /* KEY_INSTR */
 	{ kvalid_stringne, "instrFile" }, /* KEY_INSTRFILE */
@@ -275,6 +282,7 @@ static const struct kvalid keys[KEY__MAX] = {
 	{ kvalid_stringne, "user" }, /* KEY_USER */
 	{ kvalid_uint, "winners" }, /* KEY_WINNERS */
 	{ kvalid_int, "winseed" }, /* KEY_WINSEED */
+	{ kvalid_uint, "workers" }, /* KEY_WORKERS */
 };
 
 /*
@@ -1205,18 +1213,23 @@ static void
 senddostartexpr(struct kreq *r)
 {
 	pid_t		 pid;
-	char		*loginuri, *uri, *map;
+	char		*loginuri, *uri, *map, *akey, *skey,
+			*name, *desc;
 	const char	*instdat;
 	enum instrs	 inst;
 	int		 fd;
-	int64_t		 flags;
+	double		 reward;
+	int64_t		 flags, workers, minutes;
 	struct stat	 st;
 	size_t		 sz;
 
-	if (kpairbad(r, KEY_CONVERSION) ||
-	    kpairbad(r, KEY_CURRENCY) ||
+	if (kpairbad(r, KEY_AWSACCESSKEY) ||
+	    kpairbad(r, KEY_AWSDESC) ||
+	    kpairbad(r, KEY_AWSNAME) ||
+	    kpairbad(r, KEY_AWSREWARD) ||
+	    kpairbad(r, KEY_AWSSECRETKEY) ||
+	    kpairbad(r, KEY_CONVERSION) ||
 	    kpairbad(r, KEY_DATE) ||
-	    kpairbad(r, KEY_HITID) ||
 	    kpairbad(r, KEY_INSTR) ||
 	    kpairbad(r, KEY_MAILROUND) ||
 	    kpairbad(r, KEY_MINUTES) ||
@@ -1329,8 +1342,9 @@ senddostartexpr(struct kreq *r)
 		 r->fieldmap[KEY_NOLOTTERY]->parsed.i,
 		 r->fieldmap[KEY_QUESTIONNAIRE]->parsed.i,
 		 r->fieldmap[KEY_CONVERSION]->parsed.d,
-		 r->fieldmap[KEY_CURRENCY]->parsed.s, flags,
-		 r->fieldmap[KEY_HITID]->parsed.s)) {
+		 flags,
+		 r->fieldmap[KEY_AWSACCESSKEY]->parsed.s,
+		 r->fieldmap[KEY_AWSSECRETKEY]->parsed.s)) {
 		http_open(r, KHTTP_409);
 		khttp_body(r);
 		if (INSTR_LOTTERY == inst || 
@@ -1354,15 +1368,13 @@ senddostartexpr(struct kreq *r)
 	kasprintf(&uri, "%s://%s" HTURI 
 		"/playerlogin.html", kschemes[r->scheme], r->host);
 
-	/* Get ready for child process work. */
-	db_close();
-
 	/*
 	 * Begin by preparing the round mailer.
 	 * This will fire periodically to mail out notices that the
 	 * round has advanced.
 	 */
 	if (r->fieldmap[KEY_MAILROUND]->parsed.i) {
+		db_close();
 		if (-1 == (pid = fork())) {
 			perror(NULL);
 			return;
@@ -1379,10 +1391,50 @@ senddostartexpr(struct kreq *r)
 			waitpid(pid, NULL, 0);
 	}
 
+	if (r->fieldmap[KEY_AWSACCESSKEY]->valsz &&
+	    r->fieldmap[KEY_AWSSECRETKEY]->valsz &&
+	    r->fieldmap[KEY_AWSNAME]->valsz &&
+	    r->fieldmap[KEY_AWSDESC]->valsz) {
+		workers = NULL == r->fieldmap[KEY_WORKERS] ?
+			0 : r->fieldmap[KEY_WORKERS]->parsed.i;
+		minutes = r->fieldmap[KEY_MINUTES]->parsed.i;
+		reward = r->fieldmap[KEY_AWSREWARD]->parsed.d;
+		if (reward < 0.01)
+			reward = 0.01;
+		db_close();
+		if (-1 == (pid = fork())) {
+			perror(NULL);
+			return;
+		} else if (0 == pid) {
+			akey = kstrdup(r->fieldmap
+				[KEY_AWSACCESSKEY]->parsed.s);
+			skey = kstrdup(r->fieldmap
+				[KEY_AWSSECRETKEY]->parsed.s);
+			name = kstrdup(r->fieldmap
+				[KEY_AWSNAME]->parsed.s);
+			desc = kstrdup(r->fieldmap
+				[KEY_AWSDESC]->parsed.s);
+			khttp_child_free(r);
+			if (daemon(1, 1) < 0)
+				perror(NULL);
+			else
+				mturk(akey, skey, name, desc, workers, 
+					minutes, flags & EXPR_SANDBOX, 
+					reward);
+			free(akey);
+			free(name);
+			free(desc);
+			free(skey);
+			exit(EXIT_SUCCESS);
+		} else
+			waitpid(pid, NULL, 0);
+	}
+
 	/*
 	 * Now mail out to each of the players to inform them of being
 	 * added to the experiment.
 	 */
+	db_close();
 	if (-1 == (pid = fork())) {
 		perror(NULL);
 		return;

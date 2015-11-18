@@ -382,17 +382,47 @@
 										Hide Mechanical Turk Options</a>.
 								</p>
 								<div>
-									If you enter a HIT identifier below, Mechanical Turk players will be allowed to join your game at
-									at <a href="@LABURI@/mturk.html">@LABURI@/mturk.html</a>.
-									Leave this blank if you don't want Mechanical Turk players.
+									If you enter <strong>all</strong> of the fields below, a HIT will
+									automatically be created with the specified <i class="fa fa-group"></i>
+									number of workers (minimum of two).
+									Please provide a meaningful <i class="fa fa-pencil-square-o"></i>
+									experiment name and <i class="fa fa-pencil-square"></i> description.
 								</div>
 								<div class="input">
 									<i class="fa fa-fw fa-amazon"></i>
-									<input type="text" id="hitid" name="hitid" placeholder="HIT Identifier" />
+									<input type="text" id="awsaccesskey" name="awsaccesskey" placeholder="AWS Access Key ID" />
+								</div>
+								<div class="input">
+									<i class="fa fa-fw fa-lock"></i>
+									<input type="text" id="awssecretkey" name="awssecretkey" placeholder="AWS Secret Access Key" />
+								</div>
+								<div class="input">
+									<i class="fa fa-fw fa-pencil-square-o"></i>
+									<input type="text" id="awsname" name="awsname" value="Gamelab Experiment" />
+								</div>
+								<div class="input">
+									<i class="fa fa-fw fa-pencil-square"></i>
+									<textarea name="awsdesc">This is a generic gamelab experiment.</textarea>
+								</div>
+								<div class="input">
+									<i class="fa fa-fw fa-group"></i>
+									<input type="number" id="workers" name="workers" value="2" min="2" />
 								</div>
 								<div class="input input-check">
 									<i onclick="toggler('sandbox', 'sandboxToggle');" id="sandboxToggle" class="fa fa-fw fa-toggle-off"></i>
 									<span onclick="toggler('sandbox', 'sandboxToggle');">Sandbox Mode</span>
+								</div>
+								<div>
+									Set <i class="fa fa-exchange"></i> to the conversion rate from points to USD and
+									<i class="fa fa-money"></i> to the reward (minimum 0.01) for workers.
+								</div>
+								<div class="input">
+									<i class="fa fa-fw fa-exchange"></i>
+									<input required="required" type="number" id="conversion" name="conversion" step="any" min="0.0" value="1.0" />
+								</div>
+								<div class="input">
+									<i class="fa fa-fw fa-money"></i>
+									<input required="required" type="number" name="awsreward" step="0.01" min="0.01" value="1.0" />
 								</div>
 								<input type="hidden" id="sandbox" name="sandbox" value="0" />
 							</section>
@@ -453,20 +483,6 @@
 											</div>
 										</div>
 									</div>
-								</div>
-								<div>
-									Set <i class="fa fa-money"></i> to the current (e.g., EUR, USD, etc.)
-									and <i class="fa fa-exchange"></i> to the conversion rate from points to
-									currency.
-									These are not shown to participants.
-								</div>
-								<div class="input">
-									<i class="fa fa-fw fa-money"></i>
-									<input required="required" type="text" id="currency" name="currency" value="US dollars" />
-								</div>
-								<div class="input">
-									<i class="fa fa-fw fa-exchange"></i>
-									<input required="required" type="number" id="conversion" name="conversion" step="any" min="0.0" value="1.0" />
 								</div>
 								<div>
 									Set 

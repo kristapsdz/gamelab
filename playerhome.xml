@@ -170,7 +170,7 @@
 						<div id="exprFinishedMturkProfit" class="noshow">
 							<p>
 								You have now finished your Mechanical Turk HIT.
-								Your bonus is <span id="exprFinishedMturkBonus"></span> <span id="currency"></span>.
+								Your bonus is <span id="exprFinishedMturkBonus"></span> USD.
 							</p>
 						</div>
 						<div id="exprFinishedMturk" class="noshow">
