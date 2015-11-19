@@ -11,7 +11,7 @@ header h1		{ font-size: 64pt;
 header div		{ color: #ff5a09; 
 			  margin-left: 7%;
 		   	  margin-right: 7%;
-			  font-size: 14pt; }
+			  font-size: 12pt; }
 #logoh1			{ padding-top: 1%;
 			  margin-left: 7%;
 			  margin-right: 7%; }
@@ -72,10 +72,8 @@ nav[data-sblg-nav] li > div:first-child
 			{ color: #dfdfdf; 
 			  margin-bottom: 4pt;
 			  border-bottom: thin groove #bc2806; }
-@media only screen and (max-width: 480px), only screen and (max-device-width: 480px) {
+@media only screen and (max-width: 760px), only screen and (max-device-width: 760px) {
 header			{ padding-top: 1ex; }
-header span a:first-child
-			{ display: none; }
 header h1		{ font-size: 32pt; 
 			  margin-top: 1ex; 
 			  margin-bottom: 0; }
@@ -92,4 +90,5 @@ nav[data-sblg-nav]	{ font-size: 12pt; }
 #team			{ text-align: center; 
 			  margin-bottom: 0.5em; 
 			  margin-top: 1em; }
+.bigview		{ display: none; }
 }

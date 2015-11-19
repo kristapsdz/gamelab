@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+		<meta charset="utf-8" /> 
+		<title>gamelab :: quickstart</title>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" type="text/css" />
+		<link rel="stylesheet" href="manual.css" type="text/css" />
+	</head>
+	<body>
+		<header>
+			<a href="index.html"><img src="logo.png" alt="Gamelab Logo" /></a>
+			<h1><a href="index.html">gamelab</a></h1>
+		</header>
+		<nav>
+			<div><span class="bigview">Version</span> @VERSION@</div>
+			<div>
+				<a title="Contact" href="mailto:kristaps@kcons.eu">
+					<span class="bigview">Contact</span>
+					<i class="fa fa-envelope-o"></i>
+				</a>
+			</div>
+			<span>
+				<a title="Source Code" href="snapshots">
+					<span class="bigview">Download</span>
+					<i class="fa fa-cloud-download"></i>
+				</a>
+			</span>
+			<div>
+				<a title="BibTeX Citation" href="gamelab.bib">
+					<span class="bigview">Cite</span>
+					<i class="fa fa-bookmark"></i>
+				</a>
+			</div>
+		</nav>
+		<article>
+			<p>
+				This document is a brief introduction to deploying <span class="nm">gamelab</span> experiments.
+				It assumes you're using <a href="http://gametheorylab.org">gametheorylab.org</a>, which offers experiment
+				hosting.
+				Start by logging into your experimenter account: the site administrator will have given it to you.
+			</p>
+			<ol>
+				<li>
+					<h3>Set your e-mail server.</h3>
+					<p>
+						Click the <q>E-Mail Server</q> dropdown pane and follow the instructions.
+						This is the same configuration you use for your personal e-mail: it lets <span
+							class="nm">gamelab</span> send e-mails in your name.
+					</p>
+				</li>
+				<li>
+					<h3>Add your games.</h3>
+					<p>
+						Click the <q>Games</q> and enter your rationally-valued payoffs.
+						Include as many actions as you wish; however, more than four or five will clutter mobile
+						participants' screens.
+					</p>
+				</li>
+				<li>
+					<h3>Add your participants.</h3>
+					<p>
+						If you want pre-assigned participants, enter their e-mail addresses in the <q>Participants</q>
+						input field.
+						They will be e-mailed when the experiment begins.
+						If you want to run with an unknown number of participants (say, in a laboratory or a seminar),
+						choose the <q>Captive</q> option.
+						These players are never e-mailed.
+						If you want participants to continually be able to join the experiment after it begins, tick the
+						<q>Preserve modes</q> box.
+					</p>
+				</li>
+				<li>
+					<h3>Determine a running time.</h3>
+					<p>
+						Open the <q>Experiment Parameters</q> tab and start with your running time.
+						You'll need to set a start date and time (in GMT), the maximum time for each round, and the
+						number of rounds.
+						A good rule of thumb is proximity: if all of your players are close by and focussed (say,
+						in a laboratory or classroom), experiments usually progress rapidly.
+						As you fan out into e-mailed participants, they'll go more slowly to accomodate for diverse
+						schedules.
+						It's generally best to set an overly-high number of rounds, then cut off the experiment if it
+						exceeds the maximum time you've alloted for it.
+						You may want to bring down the <q>percentage-play</q> (when the round automatically advances
+						given the number of participants in each player role) as your participant pool grows, else lazy
+						participants will drag down your game!
+					</p>
+				</li>
+				<li>
+					<h3>Winnings.</h3>
+					<p>
+						By default, <span class="nm">gamelab</span> uses a lottery to reward participants.
+						If you don't want a lottery, then select <q>Advanced Options</q>, set the instructions to <q>No
+							Lottery</q>, then tick the <q>Do not show lottery</q> button.
+					</p>
+				</li>
+			</ol>
+			<p>
+				That's it!
+				Hit the <q>Start Experiment</q> button and you're on your way.
+			</p>
+		</article>
+		<footer>
+			<div>
+				&copy; 2015, <a href="http://www.kcons.eu"><i>k</i>-Consulting</a>
+			</div>
+			<div>
+				Powered by <a href="http://kristaps.bsd.lv/sblg">sblg</a> on <a href="http://www.openbsd.org">OpenBSD</a>
+			</div>
+		</footer>
+	</body>
+</html>

@@ -10,6 +10,7 @@
 			the number of workers.
 			Deprecate currency (AWS uses only USD).
 			Allow for both sandbox and production mode.
+			Add a <a href="quickstart.html">quickstart</a> guide and the version <a href="history.html">history</a>.
 		</p>
 	</aside>
 </article>

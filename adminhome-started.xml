@@ -34,7 +34,7 @@
 		<article class="noshow" id="statusExprLoaded">
 			<section>
 				<p>
-					Your experiment has <span id="statusExprPPmax"></span> rounds per player, with each round taking
+					Your experiment has <span id="statusExprPPmax"></span> rounds per participant, with each round taking
 					<span id="statusExprMins"></span> minutes.
 					<span id="statusExprRoundpcting">
 						If each player role has at least <span id="statusExprRoundpct"></span>% plays, the round
@@ -70,7 +70,7 @@
 					<span id="mturknosandbox">production (non-sandbox)</span> mode.
 				</p>
 				<p id="statusExprHasLobby">
-					Players waiting in the lobby: <span id="statusExprLobbysize"></span>.
+					Participants waiting in the lobby: <span id="statusExprLobbysize"></span>.
 				</p>
 				<div id="statusExprProg">
 					<div class="statuslistbox" id="statusHighestBox">
@@ -104,7 +104,7 @@
 							<div>
 								<div><i class="fa fa-exclamation-circle"></i></div>
 								<div>
-									There are zero players in one of the player roles: no payoffs can be
+									There are zero participants in one of the player roles: no payoffs can be
 									computed in this round.
 								</div>
 							</div>
@@ -256,17 +256,17 @@
 				</section>
 				<section class="rolled">
 					<h3 onclick="unroll(this.firstChild, this.parentNode);"><i class="fa fa-fw fa-chevron-circle-right"></i> 
-						<span>Experiment Players</span>
+						<span>Experiment Participants</span>
 					</h3>
 					<div>
-						Players in your experiment.
-						Click on a player to see their status.
-						Enable or disable a player by flipping the toggle icon.
-						Players may be in the <i class="fa fa-bars"></i> row role or <i class="fa fa-columns"></i>
+						Participants in your experiment.
+						Click on a participant to see their status.
+						Enable or disable a participant by flipping the toggle icon.
+						Participants may be in the <i class="fa fa-bars"></i> player row role or <i class="fa fa-columns"></i>
 						column role.
 						However, they may also be in the <i class="fa fa-spinner"></i> lobby, in which case they are not
 						yet assigned a role.
-						Players also may be <i class="fa fa-thumb-tack"></i> captive or
+						Participants also may be <i class="fa fa-thumb-tack"></i> captive or
 						<i class="fa fa-amazon"></i> Mechanical Turk workers.
 					</div>
 					<div>
@@ -298,10 +298,10 @@
 						</form>
 					</div>
 					<div>
-						Reset all players' passwords by clicking the button.
-						This will not contact the players: it will only reset the password.
-						Reconfiguring involves setting the password on newly-added players (and e-mailing them, if a
-						e-mail server has been specified) or players whose prior configuration failed due to a bad
+						Reset all participants' passwords by clicking the button.
+						This will not contact the participants: it will only reset the password.
+						Reconfiguring involves setting the password on newly-added participants (and e-mailing them, if a
+						e-mail server has been specified) or participants whose prior configuration failed due to a bad
 						e-mail server.
 					</div>
 					<fieldset>
@@ -315,15 +315,15 @@
 						</div>
 					</fieldset>
 					<div>
-						Add players to the game using this form.
-						Players consist of e-mail addresses separated by white-space (newlines, tabs, spaces, whatever).
-						When you're finished adding all players, you must reconfigure.
+						Add participants to the game using this form.
+						Participants consist of e-mail addresses separated by white-space (newlines, tabs, spaces, whatever).
+						When you're finished adding all participants, you must reconfigure.
 					</div>
 					<form action="@ADMINURI@/doaddplayers.json" method="post" id="addPlayers" onsubmit="return(addPlayers(this));">
 						<fieldset>
 							<div class="input">
 								<i class="fa fa-fw fa-users"></i>
-								<textarea name="players" placeholder="Space-separated player e-mail addresses..."></textarea>
+								<textarea name="players" placeholder="Space-separated participant e-mail addresses..."></textarea>
 							</div>
 							<div class="input input-submit">
 								<i class="fa fa-fw fa-check"></i>
@@ -333,15 +333,15 @@
 						<input type="hidden" id="autoadd2" name="autoadd" value="0" />
 					</form>
 					<div>
-						If you set the <q>Allow Captive Players</q> toggle, then players may add themselves.
-						Captive players will not be e-mailed when the experiment is started, nor will they be remembered
+						If you set the <q>Allow Captive Participants</q> toggle, then participants may add themselves.
+						Captive participants will not be e-mailed when the experiment is started, nor will they be remembered
 						when the experiment is wiped.
 					</div>
 					<form action="@ADMINURI@/doaddplayers.json" method="post" id="addPlayers2" onsubmit="return(addPlayers2(this));">
 						<fieldset>
 							<div class="input input-check">
 								<i onclick="toggler('autoadd', 'autoaddToggle');" id="autoaddToggle" class="fa fa-fw fa-toggle-off"></i>
-								<span onclick="toggler('autoadd', 'autoaddToggle');">Allow Captive Players</span>
+								<span onclick="toggler('autoadd', 'autoaddToggle');">Allow Captive Participants</span>
 							</div>
 							<div class="input input-submit">
 								<i class="fa fa-fw fa-check"></i>
@@ -352,7 +352,7 @@
 					</form>
 					<div id="captiveGame">
 						<strong>Note</strong>: you have opted for a captive experiment.
-						To enter the captive portal, your players will need to access <a
+						To enter the captive portal, your participants will need to access <a
 							href="@HTURI@/playerautoadd.html">@HTURI@/playerautoadd.html</a> in order to log in.
 					</div>
 				</section>
@@ -465,7 +465,7 @@
 						<span>E-Mail Server</span>
 					</h3>
 					<div>
-						In order to send e-mails to players, you need to configure a valid e-mail sending
+						In order to send e-mails to participants, you need to configure a valid e-mail sending
 						service.
 						If you mess up, you can always fix this information after the game starts and re-try e-mails
 						that failed to send.

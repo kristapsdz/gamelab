@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+		<meta charset="utf-8" /> 
+		<title>gamelab :: history</title>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" type="text/css" />
+		<link rel="stylesheet" href="manual.css" type="text/css" />
+	</head>
+	<body>
+		<header>
+			<a href="index.html"><img src="logo.png" alt="Gamelab Logo" /></a>
+			<h1><a href="index.html">gamelab</a></h1>
+		</header>
+		<nav>
+			<div><span class="bigview">Version</span> @VERSION@</div>
+			<div>
+				<a title="Contact" href="mailto:kristaps@kcons.eu">
+					<span class="bigview">Contact</span>
+					<i class="fa fa-envelope-o"></i>
+				</a>
+			</div>
+			<span>
+				<a title="Source Code" href="snapshots">
+					<span class="bigview">Download</span>
+					<i class="fa fa-cloud-download"></i>
+				</a>
+			</span>
+			<div>
+				<a title="BibTeX Citation" href="gamelab.bib">
+					<span class="bigview">Cite</span>
+					<i class="fa fa-bookmark"></i>
+				</a>
+			</div>
+		</nav>
+		<article>
+			<nav data-sblg-nav="1" data-sblg-navcontent="1">
+				<div>
+					<time datetime="${sblg-date}">${sblg-date}</time>:
+					v<span class="version">${sblg-title}</span>
+				</div>
+				<div>${sblg-aside}</div>
+			</nav>
+		</article>
+		<footer>
+			<div>
+				&#169; 2015, <a href="http://www.kcons.eu"><i>k</i>-Consulting</a>
+			</div>
+			<div>
+				Powered by <a href="http://kristaps.bsd.lv/sblg">sblg</a> on <a href="http://www.openbsd.org">OpenBSD</a>
+			</div>
+		</footer>
+	</body>
+</html>

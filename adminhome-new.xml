@@ -105,7 +105,7 @@
 						<i id="checkSmtpLoad2" class="fa fa-spinner"></i>
 					</h3>
 					<div>
-						In order to send e-mails to players, you need to configure a valid e-mail sending
+						In order to send e-mails to participants, you need to configure a valid e-mail sending
 						service.
 						If you mess up, you can always fix this information after the game starts and re-try e-mails
 						that failed to send.
@@ -207,8 +207,8 @@
 					</div>
 					<div>
 						You may add games by specifying a name and payoffs.
-						The name is never shown to players.
-						Payoffs must follow the usual top-left to bottom-right order, one payoff per player (row player first).
+						The name is never shown to participants.
+						Payoffs must follow the usual top-left to bottom-right order, one payoff per player role (row player first).
 					</div>
 					<div class="error noshow" id="addGameErrSystem">
 						An unexpected system error occurred.
@@ -246,13 +246,13 @@
 				</section>
 				<section class="rolled" id="addPlayersSection">
 					<h3 onclick="unroll(this.firstChild, this.parentNode);"><i class="fa fa-fw fa-chevron-circle-right"></i> 
-						<span>5. Players</span>
+						<span>5. Participants</span>
 						<i id="checkPlayersLoad2" class="fa fa-spinner"></i>
 					</h3>
 					<div>
-						Players in your experiment.
-						To delete a player, just click the <i class="fa fa-remove"></i> symbol alongside.
-						Players marked with <i class="fa fa-thumb-tack"></i> are captive.
+						Participants in your experiment.
+						To delete a participant, just click the <i class="fa fa-remove"></i> symbol alongside.
+						Participants marked with <i class="fa fa-thumb-tack"></i> are captive.
 					</div>
 					<div>
 						<ul id="loadNewPlayers">
@@ -260,14 +260,14 @@
 						</ul>
 					</div>
 					<div>
-						Add players to the game using this form.
-						Players consist of e-mail addresses separated by white-space (newlines, tabs, spaces, whatever).
+						Add participants to the game using this form.
+						Participants consist of e-mail addresses separated by white-space (newlines, tabs, spaces, whatever).
 					</div>
 					<form action="@ADMINURI@/doaddplayers.json" method="post" id="addPlayers" onsubmit="return(addNewPlayers(this));">
 						<fieldset>
 							<div class="input">
 								<i class="fa fa-fw fa-users"></i>
-								<textarea name="players" placeholder="Space-separated player e-mail addresses..."></textarea>
+								<textarea name="players" placeholder="Space-separated participant e-mail addresses..."></textarea>
 							</div>
 							<div class="input input-submit">
 								<i class="fa fa-fw fa-check"></i>
@@ -278,17 +278,17 @@
 						<input type="hidden" id="autoaddpreserve2" name="autoaddpreserve" value="0" />
 					</form>
 					<div>
-						If you set the <q>Allow Captive Players</q> toggle, then players may add themselves.
-						Captive players will not be e-mailed when the experiment is started, nor will they be remembered
+						If you set the <q>Allow Captive Participants</q> toggle, then participants may add themselves.
+						Captive participants will not be e-mailed when the experiment is started, nor will they be remembered
 						when the experiment is wiped.
-						If checked, <q>E-mail round advancement</q> will mail currently-playing non-captive players a
+						If checked, <q>E-mail round advancement</q> will mail currently-playing non-captive participants a
 						note whenever the round advances.
 					</div>
 					<form action="@ADMINURI@/doaddplayers.json" method="post" id="addPlayers2" onsubmit="return(addNewPlayers2(this));">
 						<fieldset>
 							<div class="input input-check">
 								<i onclick="toggler('autoadd', 'autoaddToggle');" id="autoaddToggle" class="fa fa-fw fa-toggle-off"></i>
-								<span onclick="toggler('autoadd', 'autoaddToggle');">Allow captive players</span>
+								<span onclick="toggler('autoadd', 'autoaddToggle');">Allow captive participants</span>
 							</div>
 							<div class="input input-check">
 								<i onclick="toggler('autoaddpreserve', 'autoaddTogglePreserve');" id="autoaddTogglePreserve" class="fa fa-fw fa-toggle-off"></i>
@@ -304,11 +304,11 @@
 					</form>
 					<div id="captiveGame">
 						<strong>Note</strong>: you have opted for a captive experiment.
-						To enter the captive portal, your players will need to access <a
+						To enter the captive portal, your participants will need to access <a
 							href="@HTURI@/playerautoadd.html">@HTURI@/playerautoadd.html</a> in order to log in.
 						They can do this <strong>at any time after now</strong>.
 						Once you start the experiment, captive mode will be disabled, but you can enable it again if you
-						wish to continue adding players.
+						wish to continue adding participants.
 					</div>
 				</section>
 				<section class="rolled" id="startExprSection">
@@ -321,7 +321,7 @@
 						Enter the <i class="fa fa-calendar"></i> start date and <i class="fa fa-clock-o"></i> time in
 						GMT (clamps to now), the <i class="fa fa-gear"></i> number of rounds (minimum 1), <i class="fa
 							fa-history"></i> minutes per round (minimum 1), and <i class="fa fa-pie-chart"></i> the percent of
-						players per player role who, upon playing, will cause the round to advance (0 not to do so).
+						participants per player role who, upon playing, will cause the round to advance (0 not to do so).
 					</div>
 					<div class="error">
 						<div class="noshow" id="startExprErrSystem">
@@ -448,7 +448,7 @@
 								</p>
 								<div>
 									Enter the <i class="fa fa-link"></i> address for logging in, which is
-									sent in players' welcome email.
+									sent in participants' welcome email.
 								</div>
 								<div class="input">
 									<i class="fa fa-fw fa-link"></i>
@@ -456,7 +456,7 @@
 								</div>
 								<div>
 									Set your <i class="fa fa-code"></i>
-									instructions that will be shown to players, which can consist of an uploaded HTML5 fragment.
+									instructions that will be shown to participants, which can consist of an uploaded HTML5 fragment.
 								</div>
 								<div class="input">
 									<i class="fa fa-fw fa-code"></i>
@@ -496,11 +496,11 @@
 								<div>
 									Set 
 									<i class="fa
-										fa-gears"></i> rounds per player (zero to be all rounds), <i
+										fa-gears"></i> rounds per participant (zero to be all rounds), <i
 										class="fa fa-history fa-flip-horizontal"></i> minimum minutes for
-									the percentage to take affect so as to allow players to have a chance at
+									the percentage to take affect so as to allow participants to have a chance at
 									playing, and <i class="fa fa-group"></i> maximum number of simulataneous
-									players per player role (0, the default, for no limit).
+									participants per player role (0, the default, for no limit).
 								</div>
 								<div class="input">
 									<i class="fa fa-fw fa-gears"></i>
@@ -517,7 +517,7 @@
 								<div>
 									Upload a <i class="fa fa-fw fa-file-code-o"></i> history of play (a JSON
 									file as created with by exporting the history) to be prepended to the
-									history shown to players.
+									history shown to participants.
 								</div>
 								<div class="input">
 									<i class="fa fa-fw fa-file-code-o"></i>
@@ -526,11 +526,11 @@
 								<div>
 									Finally, set the toggle for <q>Do not show lottery</q> to suppress
 									information shown to users about the lottery system.
-									<q>Show questionnaire</q> toggle to require that players submit answers
+									<q>Show questionnaire</q> toggle to require that participants submit answers
 									to some verification questions before playing; or
 									<q>E-mail round advancement</q> to e-mail non-captive participants when
 									the round advances.
-									If you don't want to transmit (or show) experiment history to players,
+									If you don't want to transmit (or show) experiment history to participants,
 									select <q>Do not show history</q>.
 									Lastly, set <q>Do not shuffle games/actions</q> to present games and
 									game bimatrices consistently across participants.

@@ -139,6 +139,10 @@ VERSIONS = version_1_0_1.xml \
 	   version_1_0_23.xml \
 	   version_1_0_24.xml \
 	   version_1_0_25.xml 
+BUILTMLS = history.html \
+	   index.html \
+	   manual.html \
+	   quickstart.html
 
 all: admin lab gamers $(HTMLS) $(JSMINS) $(BUILTPS)
 
@@ -156,7 +160,7 @@ lab: lab.o $(OBJS)
 
 admin.o lab.o $(OBJS): extern.h
 
-www: index.html manual.html gamelab.tgz gamelab.tgz.sha512 gamelab.bib 
+www: $(BUILTMLS) gamelab.tgz gamelab.tgz.sha512 gamelab.bib 
 
 gamelab.bib: gamelab.in.bib
 	sed -e "s!@VERSION@!$(VERSION)!g" \
@@ -198,7 +202,7 @@ gamelab.tgz.sha512: gamelab.tgz
 installwww: www
 	mkdir -p $(PREFIX)
 	mkdir -p $(PREFIX)/snapshots
-	install -m 0444 $(IMAGES) index.html gamelab.bib manual.html index.css manual.css logo.png $(PREFIX)
+	install -m 0444 $(IMAGES) $(BUILTMLS) gamelab.bib index.css manual.css logo.png $(PREFIX)
 	install -m 0444 gamelab.tgz $(PREFIX)/snapshots
 	install -m 0444 gamelab.tgz.sha512 $(PREFIX)/snapshots
 	install -m 0444 gamelab.tgz $(PREFIX)/snapshots/gamelab-$(VERSION).tgz
@@ -208,6 +212,14 @@ gamelab.db: gamelab.sql
 	rm -f $@
 	sqlite3 $@ < gamelab.sql
 
+history.html: history.xml $(VERSIONS)
+	sblg -t history.xml -o- $(VERSIONS) | \
+		sed -e "s!@ADMINURI@!$(ADMINURI)!g" \
+			-e "s!@LABURI@!$(LABURI)!g" \
+			-e "s!@FONTURI@!$(FONTURI)!g" \
+			-e "s!@VERSION@!$(VERSION)!g" \
+			-e "s!@HTURI@!$(HTURI)!g" >$@
+
 index.html: index.xml $(VERSIONS)
 	sblg -t index.xml -o- $(VERSIONS) | \
 		sed -e "s!@ADMINURI@!$(ADMINURI)!g" \
@@ -215,7 +227,6 @@ index.html: index.xml $(VERSIONS)
 			-e "s!@FONTURI@!$(FONTURI)!g" \
 			-e "s!@VERSION@!$(VERSION)!g" \
 			-e "s!@HTURI@!$(HTURI)!g" >$@
-
 
 $(JSMINS): jsmin
 
@@ -235,6 +246,6 @@ $(JSMINS): jsmin
 
 clean:
 	rm -f admin admin.o gamelab.db lab lab.o $(OBJS) jsmin gamers
-	rm -f $(HTMLS) $(JSMINS) $(BUILTPS) 
-	rm -f index.html manual.html gamelab.tgz gamelab.tgz.sha512 gamelab.bib
+	rm -f $(HTMLS) $(JSMINS) $(BUILTPS) $(BUILTMLS)
+	rm -f gamelab.tgz gamelab.tgz.sha512 gamelab.bib
 	rm -rf *.dSYM

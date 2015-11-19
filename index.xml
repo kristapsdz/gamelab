@@ -12,16 +12,34 @@
 			<div>
 				<span>Version @VERSION@</span>
 				<span>
-					<a href="mailto:kristaps@kcons.eu">Contact</a>
-					<a title="Contact" href="mailto:kristaps@kcons.eu"><i class="fa fa-envelope-o"></i></a>
+					<a title="Contact" href="mailto:kristaps@kcons.eu">
+						<span class="bigview">Contact</span>
+						<i class="fa fa-envelope-o"></i>
+					</a>
 				</span>
 				<span>
-					<a href="snapshots">Download</a>
-					<a title="Download" href="snapshots"><i class="fa fa-cloud-download"></i></a>
+					<a title="Download" href="snapshots">
+						<span class="bigview">Download</span>
+						<i class="fa fa-cloud-download"></i>
+					</a>
 				</span>
 				<span>
-					<a href="gamelab.bib">Cite</a>
-					<a title="BibTeX Citation" href="gamelab.bib"><i class="fa fa-bookmark"></i></a>
+					<a title="BibTeX Citation" href="gamelab.bib">
+						<span class="bigview">Cite</span>
+						<i class="fa fa-bookmark"></i>
+					</a>
+				</span>
+				<span>
+					<a title="Manual" href="manual.html">
+						<span class="bigview">Manual</span>
+						<i class="fa fa-file-text"></i>
+					</a>
+				</span>
+				<span>
+					<a title="Quick-start" href="quickstart.html">
+						<span class="bigview">Quickstart</span>
+						<i class="fa fa-file-text-o"></i>
+					</a>
 				</span>
 			</div>
 			<div id="logoh1">
@@ -61,7 +79,7 @@
 				<p>
 					If you're interested in deploying a <span class="nm">gamelab</span> server of your own, consult the <a
 						href="manual.html">manual</a> on how to download, install, and administer experiments.
-					If you'd rather have managed experiments, please contact Kristaps to arrange for hosting.
+					If you'd rather have managed experiments, you can use <a href="http://gametheorylab.org">gametheorylab.org</a>.
 					Otherwise, if you're interested in teaming up, or just want to share your experiences, contact
 					J&#x00f6;rgen or Eskil.
 					In the spirit of academic sharing, <span class="nm">gamelab</span> is <a rel="license"
@@ -75,6 +93,9 @@
 					</div>
 					<div>${sblg-aside}</div>
 				</nav>
+				<div>
+					<a href="history.html"><i class="fa fa-history"></i> History</a>
+				</div>
 			</section>
 		</article>
 		<footer>

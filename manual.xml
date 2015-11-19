@@ -3,7 +3,7 @@
 	<head>
 		<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
 		<meta charset="utf-8" /> 
-		<title>gamelab</title>
+		<title>gamelab :: manual</title>
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" type="text/css" />
 		<link rel="stylesheet" href="manual.css" type="text/css" />
 	</head>
@@ -77,18 +77,22 @@
 			</div>
 			<div><span class="bigview">Version</span> @VERSION@</div>
 			<div>
-				<a href="mailto:kristaps@kcons.eu">Contact</a>
-				<a title="Contact" href="mailto:kristaps@kcons.eu"><i class="fa fa-envelope-o"></i></a>
+				<a title="Contact" href="mailto:kristaps@kcons.eu">
+					<span class="bigview">Contact</span>
+					<i class="fa fa-envelope-o"></i>
+				</a>
 			</div>
 			<span>
-				<span>Source</span>
-				<a title="Source Code" href="snapshots/gamelab.tgz"><i class="fa fa-gears"></i></a>
-				<a title="Source Checksum" href="snapshots/gamelab.tgz.sha512"><i class="fa fa-lock"></i></a>
-				<a title="Source Archive" href="snapshots"><i class="fa fa-archive"></i></a>
+				<a title="Source Code" href="snapshots">
+					<span class="bigview">Download</span>
+					<i class="fa fa-cloud-download"></i>
+				</a>
 			</span>
 			<div>
-				<a href="gamelab.bib">Cite</a>
-				<a title="BibTeX Citation" href="gamelab.bib"><i class="fa fa-bookmark"></i></a>
+				<a title="BibTeX Citation" href="gamelab.bib">
+					<span class="bigview">Cite</span>
+					<i class="fa fa-bookmark"></i>
+				</a>
 			</div>
 		</nav>
 		<article>
