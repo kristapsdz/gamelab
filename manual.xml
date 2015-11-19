@@ -982,6 +982,7 @@
 				<p>
 					<a href="https://www.mturk.com/mturk/welcome">Mechanical Turk</a> is a system for allowing human workers
 					to participant in Internet-based tasks.
+					It is part of the <a href="https://aws.amazon.com/">Amazon Web Services</a> product constellation.
 					This section assumes a bit of familiarity with the Mechanical Turk system overall.
 				</p>
 				<section id="mturkexperiment">
@@ -990,16 +991,26 @@
 						<h3>Experiment Setup</h3>
 					</header>
 					<p>
-						Setting up a Mechanical Turk <q>external program</q> experiment is very easy.
-						Simply set your HIT identifier when you start the experiment and whether you want it to be
-						sandboxed (using the <a href="https://requester.mturk.com/developer/sandbox">Developer
-							Sandbox</a>) or production.
-						You'll be given the proper URL for workers.
-						Mechanical Turk workers joining the system will be checked that their HIT identifiers match.
+						Setting up a Mechanical Turk experiment is very easy.
+						First, have your AWS access key identifier and secret key handy.
+						(These are both uppercase alphanumeric strings.)
+						Fill these in when configuring your experiment, then set the number of workers
+						(corresponding to the <q>max assignments</q> in the <a
+							href="https://docs.aws.amazon.com/AWSMechTurk/latest/AWSMturkAPI/ApiReference_CreateHITOperation.html">API
+							reference</a>),
+						the reward amount (<q>reward</q> in the API), and 
+						currency conversion (used when computing bonuses).
+						You can use either the <a href="https://requester.mturk.com/developer/sandbox">Developer
+							Sandbox</a> or production mode&#8212;I recommend starting with the first.
 					</p>
 					<p>
 						You'll probably also want to use the Mechanical Turk instructions, and you should enable the
 						questionnaire to control for workers' understanding of game-play.
+					</p>
+					<p>
+						When you start your experiment, the request will be sent to either the sandbox or production
+						server.
+						If there are errors, you'll be notified in the administrative panel.
 					</p>
 					<p>
 						<strong>Note</strong>: when Mechanical Turk workers join the system, their session information
