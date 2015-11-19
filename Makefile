@@ -96,7 +96,7 @@ SRCS	 = Makefile \
 	   playerlogin.js \
 	   privacy.xml \
 	   script.js \
-	   sha1.h
+	   sha1.c
 HTMLS	 = adminlogin.html \
 	   mturkpreview.html \
 	   playerautoadd.html \

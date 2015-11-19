@@ -6,8 +6,10 @@
 	</header>
 	<aside>
 		<p>
-			Have HIT be automatically created.
+			Finally have HIT be automatically created given its name, description, your AWS access and secret key credentials, and
+			the number of workers.
 			Deprecate currency (AWS uses only USD).
+			Allow for both sandbox and production mode.
 		</p>
 	</aside>
 </article>

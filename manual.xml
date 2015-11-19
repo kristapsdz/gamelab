@@ -34,6 +34,7 @@
 							<li><a href="#backend">Server Backend</a></li>
 							<li><a href="#numformat">Number Format</a></li>
 							<li><a href="#randomness">Randomness</a></li>
+							<li><a href="#security">Security</a></li>
 						</ul>
 					</li>
 					<li>
@@ -79,12 +80,12 @@
 				<a href="mailto:kristaps@kcons.eu">Contact</a>
 				<a title="Contact" href="mailto:kristaps@kcons.eu"><i class="fa fa-envelope-o"></i></a>
 			</div>
-			<!-- span>
+			<span>
 				<span>Source</span>
 				<a title="Source Code" href="snapshots/gamelab.tgz"><i class="fa fa-gears"></i></a>
 				<a title="Source Checksum" href="snapshots/gamelab.tgz.sha512"><i class="fa fa-lock"></i></a>
 				<a title="Source Archive" href="snapshots"><i class="fa fa-archive"></i></a>
-			</span -->
+			</span>
 			<div>
 				<a href="gamelab.bib">Cite</a>
 				<a title="BibTeX Citation" href="gamelab.bib"><i class="fa fa-bookmark"></i></a>
@@ -119,13 +120,13 @@
 					Once the experimenter deploys the experiment, participants can log in and play each game once per round.
 					When the round advances, participants earn points by computing the payoff from their submitted strategies
 					against the average mixture submited by participants playing the opponent player role.
-					After the last round, participants' points award lottery tickets, and winners are drawn by selecting lottery
-					tickets.
+					After the last round, participants' points award lottery tickets, and winners (if winners are part of
+					the configuration) are drawn by selecting lottery tickets.
 				</p>
 				<p>
 					<span class="nm">Gamelab</span> has many configurable parameters, for example, round advancement based
 					on number of participants who have played; computing or not computing lotteries; <a
-						href="#mechanicalturk">Mechanical Turk</a> integration; captive
+						href="#mechanicalturk">Amazon Mechanical Turk</a> integration; captive
 					<q>laboratory-based</q> participants who cannot log out or back in; and so on.
 				</p>
 				<section id="participants">
@@ -139,14 +140,14 @@
 						An experiments can have as many participants as the server (or the experimenter!) can handle.
 					</p>
 					<p>
-						Participants are assigned by the experimenter or assign themselves in a <q>captive</q> 
-						configuration.
+						Participants are assigned by the experimenter, assign themselves in a <q>captive</q> 
+						configuration, or join from <a href="#mechanicalturk">Mechanical Turk</a> console.
 						In the first case, participants are e-mailed a password and login credentials when the
 						experimenter begins the experiment.
 						(If no e-mail server has been configured, they are not e-mailed.)
 						These participants can log in and log out over the course of the experiment.
-						In the latter cases, participants are not e-mailed, and are assumed to be <q>captive</q> for the
-						duration of the experiment.
+						In the latter cases, participants are not e-mailed, and are assumed to be <q>captive</q> (i.e.,
+						they cannot log out or back in) for the duration of the experiment.
 					</p>
 					<p>
 						Participants may be added (or add themselves) before an experiment begins, so that participation
@@ -320,6 +321,8 @@
 						<span class="nm">Gamelab</span> cookies themselves don't store any identifiable material: they
 						store only the server session identifier and a random number to prevent sharing of session
 						identifiers.
+						The system will also operate with session information embedded in URLs, but this is only
+						enabled for <a href="#mechanicalturk">Mechanical Turk</a> play.
 					</p>
 				</section>
 				<section id="backend">
@@ -330,19 +333,15 @@
 					<p>
 						The backend of <span class="nm">gamelab</span> is a <a href="http://learnbchs.org">BCHS</a>
 						system consisting of two compiled CGI programs: one for the administrator, one for participants.
-						These are small ISO C applications linking to <a
-							href="http://kristaps.bsd.lv/kcgi">kcgi</a>, <a
-							href="http://www.sqlite.org">sqlite3</a>, <a href="http://gmplib.org">GMP</a>, and <a
-							href="http://curl.haxx.se/libcurl/">libCURL</a>.
-						All of these are open source libraries.
-						Consult the <a href="#deploy">Deployment</a> section for how to install these applications.
+						These are small ISO C applications linking to a number of open source libraries.
+						Consult the <a href="#deploy">Deployment</a> section for how to install these libraries.
 					</p>
 					<p>
-						<span class="nm">Gamelab</span> has been run on OpenBSD with httpd and the historical Apache and
-						Mac OS X with Apache2.
+						<span class="nm">Gamelab</span> has been run on OpenBSD with httpd and the historical Apache,
+						Mac OS X with Apache2, and Linux with Apache.
 						Administrators are not encouraged to use Apache2 since it disallows long-running child processes
 						of the CGI scripts.
-						Such scripts are used in several circumstances.
+						Such processes are used in several circumstances.
 					</p>
 				</section>
 				<section id="numformat">
@@ -383,6 +382,26 @@
 						randomness, as well as the general security and reliability, of BSD systems.
 						We strongly encourage BSD as a platform of choice, especially <a
 							href="http://www.openbsd.org">OpenBSD</a>, which is the main development platform.
+					</p>
+				</section>
+				<section id="security">
+					<header>
+						<a href="#"><i class="fa fa-angle-up fa-fw"></i></a>
+						<h3>Security</h3>
+					</header>
+					<p>
+						<span class="nm">Gamelab</span> is designed with security in mind, but inherits most of its
+						security from the operating system.
+						In the recommended <a href="http://www.openbsd.org">OpenBSD</a> deployment configuration, <span
+							class="nm">gamelab</span> binaries are statically compiled and run within a file-system
+						jail.
+						The library used to communicate with the web server, <a
+							href="http://kristaps.bsd.lv/kcgi">kcgi</a>, is heavily invested in security.
+					</p>
+					<p>
+						The <q>logical</q> security of the application itself is proportionate to the data security.
+						Passwords are stored in clear-text because participants cannot actually change the passwords:
+						they are opaque tokens.
 					</p>
 				</section>
 			</section>

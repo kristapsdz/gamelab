@@ -41,16 +41,13 @@
 						will advance (with <span id="statusExprRoundmin"></span> minutes of grace time).
 					</span>
 				</p>
-				<div id="mturkerrbox" class="canclose">
-					<a href="#" class="close" onclick="doHideNode(this.parentNode); return false;">
-						<span class="fa-stack fa-lg">
-							<i class="fa fa-circle fa-stack-2x"></i>
-							<i class="fa fa-times fa-stack-1x fa-inverse"></i>
-						</span>
-					</a>
+				<div id="mturkerrbox" class="warning">
 					<div>
-						Your Mechanical Turk HIT request failed.
-						Error code: <code id="awserror"></code>.
+						<div><i class="fa fa-exclamation-circle"></i></div>
+						<div>
+							Your Mechanical Turk HIT request failed.
+							Error code: <q id="awserror"></q>.
+						</div>
 					</div>
 				</div>
 				<div id="mturkbox" class="canclose">
