@@ -297,6 +297,7 @@ json_putexpr(struct kjsonreq *r, const struct expr *expr, int admin)
 		kjson_putstringp(r, "hitid", expr->hitid);
 		kjson_putstringp(r, "awsaccesskey", expr->awsaccesskey);
 		kjson_putstringp(r, "awssecretkey", expr->awssecretkey);
+		kjson_putstringp(r, "awserror", expr->awserror);
 	}
 	kjson_putintp(r, "minutes", expr->minutes);
 	kjson_putstringp(r, "loginURI", expr->loginuri);

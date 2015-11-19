@@ -894,6 +894,7 @@ function loadExprSuccess(resp)
 		doHide('statusExprHasLobby');
 
 	doHide('mturkbox');
+	doHide('mturkerrbox');
 	doHide('mturkokbox');
 	if (expr.hitid) {
 		doUnhide('mturkokbox');
@@ -905,8 +906,13 @@ function loadExprSuccess(resp)
 		else
 			doUnhide('mturknosandbox');
 	} else if (expr.awsaccesskey && expr.awssecretkey) {
-		doUnhide('mturkbox');
-		doClearReplace('awsaccesskey', expr.awsaccesskey);
+		if (expr.awserror) {
+			doUnhide('mturkerrbox');
+			doClearReplace('awserror', expr.awserror);
+		} else {
+			doUnhide('mturkbox');
+			doClearReplace('awsaccesskey', expr.awsaccesskey);
+		} 
 	}
 
 	if (expr.roundpid > 0) {

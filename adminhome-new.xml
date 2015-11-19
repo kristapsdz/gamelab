@@ -136,7 +136,12 @@
 						</fieldset>
 					</div>
 					<div id="testSmtpResults" class="canclose noshow">
-						<a href="#" class="close" onclick="doHideNode(this.parentNode); return false;"><i class="fa fa-minus-square"></i></a>
+						<a href="#" class="close" onclick="doHideNode(this.parentNode); return false;">
+							<span class="fa-stack fa-lg">
+								<i class="fa fa-circle fa-stack-2x"></i>
+								<i class="fa fa-times fa-stack-1x fa-inverse"></i>
+							</span>
+						</a>
 						<p>
 							A test e-mail has been sent to <span id="testSmtpResultsMail"></span>.
 							If you do not receive it in a little while, please fix your mail settings.
@@ -314,16 +319,16 @@
 						Commit your experiment parameters and start here.
 						Once you start your experiment, you can't reconfigure.
 						Enter the <i class="fa fa-calendar"></i> start date and <i class="fa fa-clock-o"></i> time in
-						GMT, the <i class="fa fa-gear"></i> number of rounds, <i class="fa fa-history"></i> minutes per
-						round, and <i class="fa fa-pie-chart"></i> the percent of players per player role who, upon
-						playing, will cause the round to advance (zero not to do so).
+						GMT (clamps to now), the <i class="fa fa-gear"></i> number of rounds (minimum 1), <i class="fa
+							fa-history"></i> minutes per round (minimum 1), and <i class="fa fa-pie-chart"></i> the percent of
+						players per player role who, upon playing, will cause the round to advance (0 not to do so).
 					</div>
 					<div class="error">
 						<div class="noshow" id="startExprErrSystem">
 							An unexpected error occurred.
 						</div>
 						<div class="noshow" id="startExprErrForm">
-							Can't start: start date in the past or no games.
+							Can't start: no games listed.
 						</div>
 						<div class="noshow" id="startExprErrState">
 							Experiment already started!
@@ -382,11 +387,9 @@
 										Hide Mechanical Turk Options</a>.
 								</p>
 								<div>
-									If you enter <strong>all</strong> of the fields below, a HIT will
+									If you enter <strong>both</strong> of the fields below, a HIT will
 									automatically be created with the specified <i class="fa fa-group"></i>
-									number of workers (minimum of two).
-									Please provide a meaningful <i class="fa fa-pencil-square-o"></i>
-									experiment name and <i class="fa fa-pencil-square"></i> description.
+									number of workers (minimum of 2).
 								</div>
 								<div class="input">
 									<i class="fa fa-fw fa-amazon"></i>
@@ -397,6 +400,16 @@
 									<input type="text" id="awssecretkey" name="awssecretkey" placeholder="AWS Secret Access Key" />
 								</div>
 								<div class="input">
+									<i class="fa fa-fw fa-group"></i>
+									<input type="number" id="workers" name="workers" value="2" min="2" />
+								</div>
+								<div>
+									Next, provide a meaningful <i class="fa fa-pencil-square-o"></i>
+									experiment name and <i class="fa fa-pencil-square"></i> description.
+									If you leave these blank, they will default to simply <q>gamelab</q>.
+									(And you really don't want that.)
+								</div>
+								<div class="input">
 									<i class="fa fa-fw fa-pencil-square-o"></i>
 									<input type="text" id="awsname" name="awsname" value="Gamelab Experiment" />
 								</div>
@@ -404,17 +417,13 @@
 									<i class="fa fa-fw fa-pencil-square"></i>
 									<textarea name="awsdesc">This is a generic gamelab experiment.</textarea>
 								</div>
-								<div class="input">
-									<i class="fa fa-fw fa-group"></i>
-									<input type="number" id="workers" name="workers" value="2" min="2" />
-								</div>
 								<div class="input input-check">
-									<i onclick="toggler('sandbox', 'sandboxToggle');" id="sandboxToggle" class="fa fa-fw fa-toggle-off"></i>
+									<i onclick="toggler('sandbox', 'sandboxToggle');" id="sandboxToggle" class="fa fa-fw fa-toggle-on"></i>
 									<span onclick="toggler('sandbox', 'sandboxToggle');">Sandbox Mode</span>
 								</div>
 								<div>
 									Set <i class="fa fa-exchange"></i> to the conversion rate from points to USD and
-									<i class="fa fa-money"></i> to the reward (minimum 0.01) for workers.
+									<i class="fa fa-money"></i> to the reward (minimum clamped to 0.01) for workers.
 								</div>
 								<div class="input">
 									<i class="fa fa-fw fa-exchange"></i>
@@ -424,7 +433,7 @@
 									<i class="fa fa-fw fa-money"></i>
 									<input required="required" type="number" name="awsreward" step="0.01" min="0.01" value="1.0" />
 								</div>
-								<input type="hidden" id="sandbox" name="sandbox" value="0" />
+								<input type="hidden" id="sandbox" name="sandbox" value="1" />
 							</section>
 							<section class="advanced" id="advanced">
 								<div>

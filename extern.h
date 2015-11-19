@@ -53,6 +53,7 @@ struct	expr {
 	char		*hitid; /* mechanical turk id (or '') */
 	char		*awsaccesskey; 
 	char		*awssecretkey; 
+	char		*awserror; 
 	int64_t		 autoaddpreserve; /* keep autoadd on start */
 	int64_t		 round; /* round (<0 initial, then >=0) */
 	int64_t		 nolottery; /* don't show lottery info */
@@ -240,6 +241,7 @@ void		 db_expr_finish(struct expr **, size_t);
 void		 db_expr_free(struct expr *);
 struct expr	*db_expr_get(int);
 size_t		 db_expr_lobbysize(void);
+void		 db_expr_mturk(const char *, const char *);
 size_t		 db_expr_round_count(const struct expr *, 
 			int64_t, int64_t);
 void		 db_expr_setautoadd(int64_t, int64_t);

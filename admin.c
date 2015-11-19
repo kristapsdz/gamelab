@@ -1246,9 +1246,7 @@ senddostartexpr(struct kreq *r)
 	    kpairbad(r, KEY_SHUFFLE) ||
 	    kpairbad(r, KEY_TIME) ||
 	    kpairbad(r, KEY_URI) ||
-		r->fieldmap[KEY_DATE]->parsed.i +
-		r->fieldmap[KEY_TIME]->parsed.i <= (int64_t)time(NULL) ||
-		db_game_count_all() < 1) {
+	    db_game_count_all() < 1) {
 		http_open(r, KHTTP_400);
 		khttp_body(r);
 		return;

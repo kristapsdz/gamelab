@@ -158,9 +158,10 @@ progress			{ width: 100%; }
 .canclose fieldset		{ margin: 0; 
 				  border-spacing: 0; }
 .canclose a			{ position: absolute;
+				  font-size: 7pt;
 				  color: #333;
-				  top: 2px;
-				  left: 2px; }
+				  top: -1ex;
+				  left: -1ex; }
 .canclose a:hover		{ color: #000; }
 
 /*

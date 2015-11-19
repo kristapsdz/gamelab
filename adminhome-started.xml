@@ -41,9 +41,31 @@
 						will advance (with <span id="statusExprRoundmin"></span> minutes of grace time).
 					</span>
 				</p>
-				<p id="mturkbox">
-					Your Mechanical Turk request (access key <code id="awsaccesskey">asdf</code>) is still being processed.
-				</p>
+				<div id="mturkerrbox" class="canclose">
+					<a href="#" class="close" onclick="doHideNode(this.parentNode); return false;">
+						<span class="fa-stack fa-lg">
+							<i class="fa fa-circle fa-stack-2x"></i>
+							<i class="fa fa-times fa-stack-1x fa-inverse"></i>
+						</span>
+					</a>
+					<div>
+						Your Mechanical Turk HIT request failed.
+						Error code: <code id="awserror"></code>.
+					</div>
+				</div>
+				<div id="mturkbox" class="canclose">
+					<a href="#" class="close" onclick="doHideNode(this.parentNode); return false;">
+						<span class="fa-stack fa-lg">
+							<i class="fa fa-circle fa-stack-2x"></i>
+							<i class="fa fa-times fa-stack-1x fa-inverse"></i>
+						</span>
+					</a>
+					<div>
+						Your Mechanical Turk HIT request (AWS access key <code id="awsaccesskey">asdf</code>) is still
+						being processed.  
+						Please refresh this window to see the results.
+					</div>
+				</div>
 				<p id="mturkokbox">
 					This is a Mechanical Turk experiment with HIT identifier
 					<code id="hitid"></code> in
@@ -213,7 +235,12 @@
 							href="http://www.kcons.eu/gamelab/snapshots/gamelab-@VERSION@.tgz">@VERSION@</a>.
 					</p>
 					<div id="wipeExprResults" class="noshow canclose">
-						<a href="#" class="close" onclick="doHideNode(this.parentNode); return false;"><i class="fa fa-minus-square"></i></a>
+						<a href="#" class="close" onclick="doHideNode(this.parentNode); return false;">
+							<span class="fa-stack fa-lg">
+								<i class="fa fa-circle fa-stack-2x"></i>
+								<i class="fa fa-times fa-stack-1x fa-inverse"></i>
+							</span>
+						</a>
 						<p>
 							The database is being backed up and wiped.
 							Please wait a little bit, then reload.
@@ -251,7 +278,12 @@
 						</ul>
 					</div>
 					<div id="playerInfo" class="canclose noshow">
-						<a href="#" class="close" onclick="doHideNode(this.parentNode); return false;"><i class="fa fa-minus-square"></i></a>
+						<a href="#" class="close" onclick="doHideNode(this.parentNode); return false;">
+							<span class="fa-stack fa-lg">
+								<i class="fa fa-circle fa-stack-2x"></i>
+								<i class="fa fa-times fa-stack-1x fa-inverse"></i>
+							</span>
+						</a>
 						<p>
 							<span id="playerInfoEmail"></span>: 
 							<span id="playerInfoStatus"></span>, 
@@ -467,7 +499,12 @@
 						</fieldset>
 					</div>
 					<div id="testSmtpResults" class="noshow canclose">
-						<a href="#" class="close" onclick="doHideNode(this.parentNode); return false;"><i class="fa fa-minus-square"></i></a>
+						<a href="#" class="close" onclick="doHideNode(this.parentNode); return false;">
+							<span class="fa-stack fa-lg">
+								<i class="fa fa-circle fa-stack-2x"></i>
+								<i class="fa fa-times fa-stack-1x fa-inverse"></i>
+							</span>
+						</a>
 						<p>
 							A test e-mail has been sent to <span id="testSmtpResultsMail"></span>.
 							If you do not receive it in a little while, please fix your mail settings.

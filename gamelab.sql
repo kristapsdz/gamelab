@@ -120,6 +120,7 @@ CREATE TABLE experiment (
 	flags INTEGER DEFAULT(0),
 	awsaccesskey TEXT NOT NULL DEFAULT(''),
 	awssecretkey TEXT NOT NULL DEFAULT(''),
+	awserror TEXT NOT NULL DEFAULT(''),
 	id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL
 );
 

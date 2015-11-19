@@ -1880,6 +1880,7 @@ db_expr_start(int64_t date, int64_t roundpct, int64_t roundmin,
 	sqlite3_stmt	*stmt, *stmt2;
 	int64_t		 id;
 	size_t		 i;
+	time_t		 t;
 	int64_t		 players[2];
 
 	db_trans_begin(0);
@@ -1892,9 +1893,10 @@ db_expr_start(int64_t date, int64_t roundpct, int64_t roundmin,
 		roundpct = 0;
 	if (roundpct > 100)
 		roundpct = 100;
-
 	if (0 == prounds)
 		prounds = rounds;
+	if (date < (t = time(NULL)))
+		date = t;
 
 	stmt = db_stmt("UPDATE experiment SET "
 		"start=?,rounds=?,minutes=?,"
@@ -2717,6 +2719,24 @@ aggregate:
 }
 
 void
+db_expr_mturk(const char *hitid, const char *error)
+{
+	sqlite3_stmt	*stmt;
+
+	if (NULL != hitid) {
+		stmt = db_stmt("UPDATE experiment SET hitid=?");
+		db_bind_text(stmt, 1, hitid);
+	} else if (NULL != error) {
+		stmt = db_stmt("UPDATE experiment SET awserror=?");
+		db_bind_text(stmt, 1, error);
+	} else
+		return;
+
+	db_step(stmt, 0);
+	sqlite3_finalize(stmt);
+}
+
+void
 db_interval_free(struct interval *intv)
 {
 	size_t	 i, j;
@@ -2805,7 +2825,8 @@ db_expr_get(int only_started)
 		"roundmin,prounds,playermax,autoaddpreserve,"
 		"history,nolottery,questionnaire,hitid,"
 		"conversion,roundpid,flags,"
-		"awsaccesskey,awssecretkey FROM experiment");
+		"awsaccesskey,awssecretkey,awserror "
+		"FROM experiment");
 	rc = db_step(stmt, 0);
 	assert(SQLITE_ROW == rc);
 	if (only_started && ESTATE_NEW == sqlite3_column_int64(stmt, 4)) {
@@ -2838,6 +2859,7 @@ db_expr_get(int only_started)
 	expr->flags = sqlite3_column_int64(stmt, 22);
 	expr->awsaccesskey = kstrdup((char *)sqlite3_column_text(stmt, 23));
 	expr->awssecretkey = kstrdup((char *)sqlite3_column_text(stmt, 24));
+	expr->awserror = kstrdup((char *)sqlite3_column_text(stmt, 25));
 	sqlite3_finalize(stmt);
 	return(expr);
 }
@@ -2853,6 +2875,7 @@ db_expr_free(struct expr *expr)
 	free(expr->history);
 	free(expr->awsaccesskey);
 	free(expr->awssecretkey);
+	free(expr->awserror);
 	free(expr);
 }
 
@@ -2911,7 +2934,7 @@ db_expr_wipe(void)
 		"prounds=0,roundbegan=0,roundpct=0.0,minutes=0,"
 		"roundmin=0,nolottery=0,questionnaire=0,"
 		"roundpid=0,flags=0,"
-		"awsaccesskey='',awssecretkey=''");
+		"awsaccesskey='',awssecretkey='',awserror=''");
 	stmt = db_stmt("SELECT id FROM player");
 	stmt2 = db_stmt("UPDATE player SET rseed=? WHERE id=?");
 	/* 
