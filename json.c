@@ -37,6 +37,7 @@ enum	tkey {
 	TKEY_ADMIN_EMAIL,
 	TKEY_CONVERSION,
 	TKEY_GAMES,
+	TKEY_LOTTERY,
 	TKEY_ROUND_MINTIME_HOURS,
 	TKEY_ROUND_MINTIME_MINUTES,
 	TKEY_ROUND_PERCENT,
@@ -52,6 +53,7 @@ static	const char *const tkeys[TKEY__MAX] = {
 	"gamelab-admin-email", /* TKEY_ADMIN_EMAIL */
 	"gamelab-conversion", /* TKEY_CONVERSION */
 	"gamelab-games", /* TKEY_GAMES */
+	"gamelab-lottery", /* TKEY_LOTTERY */
 	"gamelab-round-mintime-hours", /* TKEY_ROUND_MINTIME_HOURS */
 	"gamelab-round-mintime-minutes", /* TKEY_ROUND_MINTIME_MINUTES */
 	"gamelab-round-percent", /* TKEY_ROUND_PERCENT */
@@ -90,6 +92,9 @@ json_instructions(size_t key, void *arg)
 		break;
 	case (TKEY_GAMES):
 		kjson_string_putint(c->r, c->games);
+		break;
+	case (TKEY_LOTTERY):
+		kjson_string_puts(c->r, c->expr->lottery);
 		break;
 	case (TKEY_ROUND_MINTIME_HOURS):
 		kjson_string_putdouble(c->r, 
@@ -291,7 +296,7 @@ json_putexpr(struct kjsonreq *r, const struct expr *expr, int admin)
 	kjson_putintp(r, "noshuffle", EXPR_NOSHUFFLE & expr->flags);
 	kjson_putintp(r, "absoluteround", ! (EXPR_RELATIVE & expr->flags));
 	kjson_putintp(r, "sandbox", EXPR_SANDBOX & expr->flags);
-	kjson_putintp(r, "nolottery", expr->nolottery);
+	kjson_putstringp(r, "lottery", expr->lottery);
 	kjson_putdoublep(r, "conversion", expr->conversion);
 	if (admin) {
 		kjson_putstringp(r, "hitid", expr->hitid);

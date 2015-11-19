@@ -110,9 +110,9 @@ enum	key {
 	KEY_HISTORYFILE,
 	KEY_INSTR,
 	KEY_INSTRFILE,
+	KEY_LOTTERY,
 	KEY_MAILROUND,
 	KEY_NAME,
-	KEY_NOLOTTERY,
 	KEY_P1,
 	KEY_P2,
 	KEY_PASSWORD,
@@ -257,9 +257,9 @@ static const struct kvalid keys[KEY__MAX] = {
 	{ kvalid_stringne, "historyfile" }, /* KEY_HISTORYFILE */
 	{ kvalid_stringne, "instr" }, /* KEY_INSTR */
 	{ kvalid_stringne, "instrFile" }, /* KEY_INSTRFILE */
+	{ kvalid_string, "lottery" }, /* KEY_LOTTERY */
 	{ kvalid_int, "mailround" }, /* KEY_MAILROUND */
 	{ kvalid_stringne, "name" }, /* KEY_NAME */
-	{ kvalid_int, "nolottery" }, /* KEY_NOLOTTERY */
 	{ kvalid_int, "p1" }, /* KEY_P1 */
 	{ kvalid_int, "p2" }, /* KEY_P2 */
 	{ kvalid_stringne, "password" }, /* KEY_PASSWORD */
@@ -1231,9 +1231,9 @@ senddostartexpr(struct kreq *r)
 	    kpairbad(r, KEY_CONVERSION) ||
 	    kpairbad(r, KEY_DATE) ||
 	    kpairbad(r, KEY_INSTR) ||
+	    kpairbad(r, KEY_LOTTERY) ||
 	    kpairbad(r, KEY_MAILROUND) ||
 	    kpairbad(r, KEY_MINUTES) ||
-	    kpairbad(r, KEY_NOLOTTERY) ||
 	    kpairbad(r, KEY_PLAYERMAX) ||
 	    kpairbad(r, KEY_PROUNDS) ||
 	    kpairbad(r, KEY_QUESTIONNAIRE) ||
@@ -1337,7 +1337,7 @@ senddostartexpr(struct kreq *r)
 		 r->fieldmap[KEY_URI]->parsed.s,
 		 NULL == r->fieldmap[KEY_HISTORYFILE] ?
 		 NULL : r->fieldmap[KEY_HISTORYFILE]->parsed.s,
-		 r->fieldmap[KEY_NOLOTTERY]->parsed.i,
+		 r->fieldmap[KEY_LOTTERY]->parsed.s,
 		 r->fieldmap[KEY_QUESTIONNAIRE]->parsed.i,
 		 r->fieldmap[KEY_CONVERSION]->parsed.d,
 		 flags,

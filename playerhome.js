@@ -1056,10 +1056,10 @@ function loadExprSuccess(resp)
 		v = res.player.finalrank + res.player.finalscore;
 		doClearReplace('exprFinishedFinalRankEnd', v);
 		doClearReplace('exprCountdown', 'finished');
-		if (res.expr.nolottery) {
-			doHide('exprLottery');
-		} else {
+		if (res.expr.lottery) {
 			doUnhide('exprLottery');
+		} else {
+			doHide('exprLottery');
 		}
 
 		if (null === res.win) {

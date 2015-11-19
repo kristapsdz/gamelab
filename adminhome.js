@@ -974,7 +974,7 @@ function loadExprSuccess(resp)
 					  res.winners[i].winscore)));
 				chld.appendChild(span);
 			}
-		} else if ( ! expr.nolottery) {
+		} else if (expr.lottery) {
 			doHide('statusExprFinishedWinnersBox');
 			doUnhide('statusExprFinishedWin');
 		} else {

@@ -1873,7 +1873,7 @@ int
 db_expr_start(int64_t date, int64_t roundpct, int64_t roundmin, 
 	int64_t rounds, int64_t prounds, int64_t minutes, 
 	int64_t playermax, const char *instr, const char *uri,
-	const char *historyfile, int64_t nolottery, int64_t ques,
+	const char *historyfile, const char *lottery, int64_t ques,
 	double conversion, int64_t flags,
 	const char *awsaccesskey, const char *awssecretkey)
 {
@@ -1902,7 +1902,7 @@ db_expr_start(int64_t date, int64_t roundpct, int64_t roundmin,
 		"start=?,rounds=?,minutes=?,"
 		"loginuri=?,instr=?,state=?,"
 		"roundpct=?,prounds=?,playermax=?,"
-		"prounds=?,history=?,nolottery=?,questionnaire=?,"
+		"prounds=?,history=?,lottery=?,questionnaire=?,"
 		"conversion=?,"
 		"autoadd=CASE WHEN autoaddpreserve=1 "
 			"THEN autoadd ELSE 0 END,"
@@ -1919,7 +1919,7 @@ db_expr_start(int64_t date, int64_t roundpct, int64_t roundmin,
 	db_bind_int(stmt, 9, playermax);
 	db_bind_int(stmt, 10, prounds);
 	db_bind_text(stmt, 11, NULL == historyfile ? "" : historyfile);
-	db_bind_int(stmt, 12, nolottery);
+	db_bind_text(stmt, 12, lottery);
 	db_bind_int(stmt, 13, ques);
 	db_bind_double(stmt, 14, conversion);
 	db_bind_int(stmt, 15, roundmin);
@@ -2823,7 +2823,7 @@ db_expr_get(int only_started)
 		"loginuri,state,instr,state,total,"
 		"autoadd,round,roundbegan,roundpct,"
 		"roundmin,prounds,playermax,autoaddpreserve,"
-		"history,nolottery,questionnaire,hitid,"
+		"history,lottery,questionnaire,hitid,"
 		"conversion,roundpid,flags,"
 		"awsaccesskey,awssecretkey,awserror "
 		"FROM experiment");
@@ -2851,7 +2851,7 @@ db_expr_get(int only_started)
 	expr->playermax = sqlite3_column_int64(stmt, 14);
 	expr->autoaddpreserve = sqlite3_column_int64(stmt, 15);
 	expr->history = kstrdup((char *)sqlite3_column_text(stmt, 16));
-	expr->nolottery = sqlite3_column_int64(stmt, 17);
+	expr->lottery = kstrdup((char *)sqlite3_column_text(stmt, 17));
 	expr->questionnaire = sqlite3_column_int64(stmt, 18);
 	expr->hitid = kstrdup((char *)sqlite3_column_text(stmt, 19));
 	expr->conversion = sqlite3_column_double(stmt, 20);
@@ -2876,6 +2876,7 @@ db_expr_free(struct expr *expr)
 	free(expr->awsaccesskey);
 	free(expr->awssecretkey);
 	free(expr->awserror);
+	free(expr->lottery);
 	free(expr);
 }
 
@@ -2932,7 +2933,7 @@ db_expr_wipe(void)
 		"autoadd=0,hitid='',autoaddpreserve=0,"
 		"state=0,total=0,round=-1,rounds=0,"
 		"prounds=0,roundbegan=0,roundpct=0.0,minutes=0,"
-		"roundmin=0,nolottery=0,questionnaire=0,"
+		"roundmin=0,lottery='',questionnaire=0,"
 		"roundpid=0,flags=0,"
 		"awsaccesskey='',awssecretkey='',awserror=''");
 	stmt = db_stmt("SELECT id FROM player");

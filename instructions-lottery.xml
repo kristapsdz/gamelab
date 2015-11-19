@@ -14,7 +14,7 @@
 </p>
 <p>
     In each game you can earn tickets for a lottery that will take place after the final round. The number of tickets you earn
-    depends on both your own and others' decisions in the games. The prize of the lottery is 10 000 SEK.
+    depends on both your own and others' decisions in the games. The prize of the lottery is @@gamelab-lottery@@.
 </p>
 <p>
     Each round will last for at least @@gamelab-round-mintime-minutes@@

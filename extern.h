@@ -51,12 +51,12 @@ struct	expr {
 	int64_t		 total; /* total winnings (>ESTATE_STARTED) */
 	int64_t		 autoadd; /* auto-adding players */
 	char		*hitid; /* mechanical turk id (or '') */
-	char		*awsaccesskey; 
-	char		*awssecretkey; 
-	char		*awserror; 
+	char		*awsaccesskey; /* AWS access key */
+	char		*awssecretkey; /* AWS secret key */
+	char		*awserror; /* if AWS contact had errors */
 	int64_t		 autoaddpreserve; /* keep autoadd on start */
 	int64_t		 round; /* round (<0 initial, then >=0) */
-	int64_t		 nolottery; /* don't show lottery info */
+	char		*lottery; /* lottery amount (empty is none) */
 	int64_t		 questionnaire; /* require questions */
 #define	EXPR_NOHISTORY 	 0x01 /* don't show history */
 #define	EXPR_NOSHUFFLE	 0x02 /* don't shuffle games/rows */
@@ -249,7 +249,7 @@ void		 db_expr_setinstr(const char *);
 void		 db_expr_setmailer(int64_t, int64_t);
 int		 db_expr_start(int64_t, int64_t, int64_t, int64_t, 
 			int64_t, int64_t, int64_t, const char *, 
-			const char *, const char *, int64_t, 
+			const char *, const char *, const char *, 
 			int64_t, double, int64_t,
 			const char *, const char *);
 void		 db_expr_wipe(void);

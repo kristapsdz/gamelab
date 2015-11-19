@@ -41,26 +41,30 @@
 						will advance (with <span id="statusExprRoundmin"></span> minutes of grace time).
 					</span>
 				</p>
-				<div id="mturkerrbox" class="warning">
-					<div>
-						<div><i class="fa fa-exclamation-circle"></i></div>
+				<div id="mturkerrbox">
+					<div class="warning">
 						<div>
-							Your Mechanical Turk HIT request failed.
-							Error code: <q id="awserror"></q>.
+							<div><i class="fa fa-exclamation-circle"></i></div>
+							<div>
+								Your Mechanical Turk HIT request failed.
+								Error code: <q id="awserror"></q>.
+							</div>
 						</div>
 					</div>
 				</div>
-				<div id="mturkbox" class="canclose">
-					<a href="#" class="close" onclick="doHideNode(this.parentNode); return false;">
-						<span class="fa-stack fa-lg">
-							<i class="fa fa-circle fa-stack-2x"></i>
-							<i class="fa fa-times fa-stack-1x fa-inverse"></i>
-						</span>
-					</a>
-					<div>
-						Your Mechanical Turk HIT request (AWS access key <code id="awsaccesskey">asdf</code>) is still
-						being processed.  
-						Please refresh this window to see the results.
+				<div id="mturkbox">
+					<div class="canclose">
+						<a href="#" class="close" onclick="doHideNode(this.parentNode); return false;">
+							<span class="fa-stack fa-lg">
+								<i class="fa fa-circle fa-stack-2x"></i>
+								<i class="fa fa-times fa-stack-1x fa-inverse"></i>
+							</span>
+						</a>
+						<div>
+							Your Mechanical Turk HIT request (AWS access key <code id="awsaccesskey">asdf</code>) is still
+							being processed.  
+							Please refresh this window to see the results.
+						</div>
 					</div>
 				</div>
 				<p id="mturkokbox">

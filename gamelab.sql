@@ -112,7 +112,7 @@ CREATE TABLE experiment (
 	autoaddpreserve INTEGER NOT NULL DEFAULT(0),
 	conversion REAL NOT NULL DEFAULT(1.0),
 	history TEXT NOT NULL DEFAULT(''),
-	nolottery INTEGER NOT NULL DEFAULT(0),
+	lottery TEXT NOT NULL DEFAULT(''),
 	questionnaire INTEGER NOT NULL DEFAULT(0),
 	loginuri TEXT DEFAULT(''),
 	instr TEXT DEFAULT(''),
