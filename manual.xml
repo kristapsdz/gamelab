@@ -478,7 +478,7 @@
 						<li><a href="https://sqlite.org">SQLite</a> (database), and</li>
 						<li><a href="http://libbsd.freedesktop.org/wiki/">libbsd</a> (Linux compatibility, if applicable),</li>
 						<li><a href="http://curl.haxx.se/libcurl/">libCURL</a> (e-mailing),</li>
-						<li><a href="http://www.libexpat.org/">libexpat (parsing Mechanical Turk responses), and</li>
+						<li><a href="http://www.libexpat.org/">libexpat</a> (parsing Mechanical Turk responses), and</li>
 						<li><a href="https://github.com/json-c/json-c/wiki">json-c</a> (testing system).</li>
 					</ul>
 					<p>
@@ -612,12 +612,6 @@
 								href="https://fortawesome.github.io/Font-Awesome/">Fort Awesome</a> icon set.
 							This allows administrators to deploy LAN-only experiments, as otherwise they'd need to
 							contact the given server for font icons.
-						</dd>
-						<dt><code>MTURKURI</code></dt>
-						<dd>
-							The URL for the <a href="#mechanicalturk">Mechanical Turk</a> interface.
-							This option will be moved into the main <span class="nm">gamelab</span> system in future
-							releases.
 						</dd>
 					</dl>
 					<p>
