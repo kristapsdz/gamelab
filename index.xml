@@ -93,7 +93,7 @@
 					</div>
 					<div>${sblg-aside}</div>
 				</nav>
-				<div>
+				<div class="history">
 					<a href="history.html"><i class="fa fa-history"></i> History</a>
 				</div>
 			</section>

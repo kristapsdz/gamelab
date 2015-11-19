@@ -72,6 +72,7 @@ nav[data-sblg-nav] li > div:first-child
 			{ color: #dfdfdf; 
 			  margin-bottom: 4pt;
 			  border-bottom: thin groove #bc2806; }
+.history		{ font-size: 11pt; }
 @media only screen and (max-width: 760px), only screen and (max-device-width: 760px) {
 header			{ padding-top: 1ex; }
 header h1		{ font-size: 32pt; 
