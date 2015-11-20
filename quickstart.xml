@@ -93,12 +93,17 @@
 						By default, <span class="nm">gamelab</span> uses a lottery to reward participants.
 						If you don't want a lottery, then select <q>Advanced Options</q>, set the instructions to <q>No
 							Lottery</q>, then tick the <q>Do not show lottery</q> button.
+						You can then reward players yourself, or don't reward them at all.
 					</p>
 				</li>
 			</ol>
 			<p>
 				That's it!
 				Hit the <q>Start Experiment</q> button and you're on your way.
+				If you want to finish your experiment prior to the full number of rounds, just select the <q>Advance to Last
+					Round</q> button in the experiment control at any time.
+				This will safely end your experiment, though some participants may be unhappy that they haven't had a chance to
+				play through!
 			</p>
 		</article>
 		<footer>

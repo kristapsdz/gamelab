@@ -91,6 +91,7 @@ enum	key {
 	KEY_AUTOADDPRESERVE,
 	KEY_AWSACCESSKEY,
 	KEY_AWSDESC,
+	KEY_AWSKEYWORDS,
 	KEY_AWSNAME,
 	KEY_AWSREWARD,
 	KEY_AWSSECRETKEY,
@@ -238,6 +239,7 @@ static const struct kvalid keys[KEY__MAX] = {
 	{ kvalid_int, "autoaddpreserve" }, /* KEY_AUTOADDPRESERVE*/
 	{ kvalid_string, "awsaccesskey" }, /* KEY_AWSACCESSKEY */
 	{ kvalid_string, "awsdesc" }, /* KEY_AWSDESC */
+	{ kvalid_string, "awskeywords" }, /* KEY_AWSKEYWORDS */
 	{ kvalid_string, "awsname" }, /* KEY_AWSNAME */
 	{ kvalid_double, "awsreward" }, /* KEY_AWSREWARD */
 	{ kvalid_string, "awssecretkey" }, /* KEY_AWSSECRETKEY */
@@ -1214,7 +1216,7 @@ senddostartexpr(struct kreq *r)
 {
 	pid_t		 pid;
 	char		*loginuri, *uri, *map, *akey, *skey,
-			*name, *desc;
+			*name, *desc, *keys;
 	const char	*instdat;
 	enum instrs	 inst;
 	int		 fd;
@@ -1225,6 +1227,7 @@ senddostartexpr(struct kreq *r)
 
 	if (kpairbad(r, KEY_AWSACCESSKEY) ||
 	    kpairbad(r, KEY_AWSDESC) ||
+	    kpairbad(r, KEY_AWSKEYWORDS) ||
 	    kpairbad(r, KEY_AWSNAME) ||
 	    kpairbad(r, KEY_AWSREWARD) ||
 	    kpairbad(r, KEY_AWSSECRETKEY) ||
@@ -1410,17 +1413,21 @@ senddostartexpr(struct kreq *r)
 				[KEY_AWSNAME]->parsed.s);
 			desc = kstrdup(r->fieldmap
 				[KEY_AWSDESC]->parsed.s);
+			keys = kstrdup(r->fieldmap
+				[KEY_AWSKEYWORDS]->parsed.s);
 			khttp_child_free(r);
 			if (daemon(1, 1) < 0)
 				perror(NULL);
 			else
-				mturk(akey, skey, name, desc, workers, 
-					minutes, flags & EXPR_SANDBOX, 
-					reward);
+				mturk_create(akey, skey, name, desc, 
+					workers, minutes, 
+					flags & EXPR_SANDBOX, reward, 
+					keys);
 			free(akey);
 			free(name);
 			free(desc);
 			free(skey);
+			free(keys);
 			exit(EXIT_SUCCESS);
 		} else
 			waitpid(pid, NULL, 0);

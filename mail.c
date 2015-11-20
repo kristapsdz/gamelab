@@ -196,65 +196,6 @@ mail_puts(const char *s, struct mail *m)
 	mail_write(s, strlen(s), m);
 }
 
-static const char cb64[] =
-	"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-	"abcdefghijklmnopqrstuvwxyz0123456789+/";
-
-static void
-encodeblock(unsigned char *in, unsigned char *out, int len)
-{
-
-	out[0] = (unsigned char) cb64[ (int)(in[0] >> 2) ];
-	out[1] = (unsigned char) 
-		cb64[ (int)(((in[0] & 0x03) << 4) | 
-			((in[1] & 0xf0) >> 4)) ];
-	out[2] = (unsigned char) 
-		(len > 1 ? cb64[ (int)(((in[1] & 0x0f) << 2) | 
-		        ((in[2] & 0xc0) >> 6)) ] : '=');
-	out[3] = (unsigned char) 
-		(len > 2 ? cb64[ (int)(in[2] & 0x3f) ] : '=');
-}
-
-static int 
-encode(FILE *infile, int linesize, struct mail *m)
-{
-	unsigned char in[3];
-	unsigned char out[4];
-	int i, len, blocksout = 0;
-	int retcode = 0;
-
-	*in = (unsigned char) 0;
-	*out = (unsigned char) 0;
-
-	while( feof( infile ) == 0 ) {
-		len = 0;
-		for( i = 0; i < 3; i++ ) {
-			in[i] = (unsigned char) getc( infile );
-
-			if( feof( infile ) == 0 ) {
-				len++;
-			}
-			else {
-				in[i] = (unsigned char) 0;
-			}
-		}
-		if( len > 0 ) {
-			encodeblock( in, out, len );
-			for( i = 0; i < 4; i++ ) {
-				mail_write( (char *)&out[i], 1, m);
-			}
-			blocksout++;
-		}
-		if( blocksout >= (linesize/4) || feof( infile ) != 0 ) {
-			if( blocksout > 0 ) {
-				mail_write( "\r\n", 2, m);
-			}
-			blocksout = 0;
-		}
-	}
-	return( retcode );
-}
-
 static void
 mail_putfile(const char *s, struct mail *m)
 {
@@ -265,7 +206,7 @@ mail_putfile(const char *s, struct mail *m)
 		return;
 	}
 
-	encode(f, 72, m);
+	base64file(f, 72, mail_write, m);
 	fclose(f);
 }
 

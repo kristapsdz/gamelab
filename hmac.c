@@ -11,6 +11,7 @@
 #include <sys/param.h>
 
 #include <stdint.h>
+#include <stdio.h>
 #include <string.h>
 
 #include <kcgi.h>

@@ -192,6 +192,9 @@ struct	winner {
 #define SHA1_BLOCK_LENGTH               64
 #define SHA1_DIGEST_LENGTH              20
 
+/*
+ * Used for constructing the HMAC-SHA1 for Mechanical Turk enquiries.
+ */
 typedef struct {
         u_int32_t       state[5];
         u_int64_t       count;
@@ -201,15 +204,25 @@ typedef struct {
 __BEGIN_DECLS
 
 void 		  SHA1Init(SHA1_CTX *);
-void 		  SHA1Transform(u_int32_t[5], const unsigned char[SHA1_BLOCK_LENGTH]);
-void 		  SHA1Update(SHA1_CTX *context, const unsigned char *, unsigned int);
-void 		  SHA1Final(unsigned char[SHA1_DIGEST_LENGTH], SHA1_CTX *);
+void 		  SHA1Transform(u_int32_t[5], 
+			const unsigned char[SHA1_BLOCK_LENGTH]);
+void 		  SHA1Update(SHA1_CTX *context, 
+			const unsigned char *, unsigned int);
+void 		  SHA1Final(unsigned char[SHA1_DIGEST_LENGTH], 
+			SHA1_CTX *);
 
 void		  hmac_sha1(const unsigned char *, int,
 			const unsigned char *, int, unsigned char *);
 
-void		  mturk(const char *, const char *, const char *,
-			const char *, int64_t, int64_t, int, double);
+void		  mturk_create(const char *, const char *, const char *,
+			const char *, int64_t, int64_t, int, double,
+			const char *);
+
+void		  base64file(FILE *, size_t, 
+			int (*)(const char *, size_t, void *), 
+			void *);
+size_t		  base64len(size_t);
+size_t		  base64buf(char *, const char *, size_t);
 
 typedef void	(*gamef)(const struct game *, void *);
 typedef void	(*gameroundf)(const struct game *, int64_t, void *);

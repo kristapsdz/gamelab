@@ -104,6 +104,7 @@
 			</p>
 			<p>
 				This is the user's manual for <span class="nm">gamelab</span>.
+				(There's also a <a href="quickstart.html">quickstart</a> guide.)
 				Its purpose is to <a href="#intro">introduce</a> the system, then describe how to <a href="#deploy">deploy</a>
 				it and how to <a href="#administration">run experiments</a>.
 			</p>
@@ -303,11 +304,17 @@
 					<p>
 						The <q>user interface</q> to <span class="nm">gamelab</span> is via a web browser.
 						In general, the user interface involves an HTML5 web-page styled with CSS.
+						Both HTML and CSS have been carefully validated using the 
+						<a href="https://validator.w3.org/">W3C Markup Validation Service</a> and
+						<a href="https://jigsaw.w3.org/css-validator/">CSS Validation Service</a>, respectively.
 						These web-page uses JavaScript to request data from the <span class="nm">gamelab</span> server
 						via a series of JSON objects.
 						The JavaScript used by <span class="nm">gamelab</span> is fairly recent, so it's unlikely that
 						older browser will work properly.
-						Check that your browser supports <code>ClassList</code> and <code>FormData</code>.
+						(It has, however, been checked over with <a href="http://jshint.com/">JSHint</a> and other
+						related services.)
+						Check that your browser supports <code>ClassList</code>, <code>FormData</code>, and of course
+						<code>XMLHttpRequest</code> (<q>AJAX</q>).
 					</p>
 					<p>
 						Graphs play a significant role in <span class="nm">gamelab</span>.
@@ -399,13 +406,22 @@
 						In the recommended <a href="http://www.openbsd.org">OpenBSD</a> deployment configuration, <span
 							class="nm">gamelab</span> binaries are statically compiled and run within a file-system
 						jail.
-						The library used to communicate with the web server, <a
+						You can effect the same conditions on any well-configured web server configuration, however.
+						On any supported system, the library used to communicate with the web server, <a
 							href="http://kristaps.bsd.lv/kcgi">kcgi</a>, is heavily invested in security.
 					</p>
 					<p>
 						The <q>logical</q> security of the application itself is proportionate to the data security.
 						Passwords are stored in clear-text because participants cannot actually change the passwords:
-						they are opaque tokens.
+						they are opaque tokens (<q>cookies</q>).
+						The only security-sensitive information on the server is the e-mail server password and the AWS
+						secret key if provided for <a href="#mechanicalturk">Mechanical Turk</a> configurations.
+					</p>
+					<p>
+						To protect against misbehaving linked libraries that can access the network, the <span
+							class="nm">gamelab</span> executables do enforce a strict process separation when
+						invoking any e-mail or network-access functions.
+						The rational-number and database libraries are used within the main processing context, however.
 					</p>
 				</section>
 			</section>
@@ -428,6 +444,8 @@
 				<p>
 					If at any time you have problems during an installation, or you encounter confusing language, please
 					e-mail <a href="mailto:kristaps@kcons.eu">Kristaps</a> with the issue.
+					If you'd rather use a pre-installed environment, please visit <a
+						href="https://gametheorylab.org">gametheorylab.org</a>.
 				</p>
 				<section id="environment">
 					<header>
@@ -640,98 +658,80 @@
 						To update an existing installation (assuming the database hasn't changed&mdash;the release notes
 						for each version will tell you), use <kbd>make updatecgi</kbd> or <kbd>sudo make updatecgi</kbd>.
 						I <strong>do not</strong> recommend this, as it's easy to miss a small database change.
+						<span class="nm">Gamelab</span> does not provide any facility for modifying the database
+						in-flight.
 					</p>
 					<p>
-						Both of these steps will install the following.
+						Both of these steps will install the following files.
 					</p>
-					<dl>
-						<dt><span class="file">admin</span></dt>
-						<dt><span class="file">admin.cgi</span></dt>
-						<dd>
-							The administrative CGI executable installed into <a
+					<ul>
+						<li>
+							Administrative CGI executables are installed into <a
 								href="#cgibin"><code>CGIBIN</code></a>.
 							These files are identical but for the suffix.
 							These must resolve to <a href="#adminuri"><code>ADMINURI</code></a>.
-						</dd>
-						<dt><span class="file">lab</span></dt>
-						<dt><span class="file">lab.cgi</span></dt>
-						<dd>
-							The laboratory CGI executable installed into <a href="#cgibin"><code>CGIBIN</code></a>.
+						</li>
+						<li>
+							Laboratory CGI executables are installed into <a href="#cgibin"><code>CGIBIN</code></a>.
 							These files are identical but for the suffix.
 							These must resolve to <a href="#laburi"><code>LABURI</code></a>.
-						</dd>
-						<dt><span class="file">adminhome.css</span></dt>
-						<dt><span class="file">adminhome.min.js</span></dt>
-						<dt><span class="file">adminlogin.html</span></dt>
-						<dt><span class="file">instructions-lottery.xml.txt</span></dt>
-						<dt><span class="file">instructions-mturk.xml.txt</span></dt>
-						<dt><span class="file">instructions-nolottery.xml.txt</span></dt>
-						<dt><span class="file">playerautoadd.html</span></dt>
-						<dt><span class="file">playerautoadd.min.js</span></dt>
-						<dt><span class="file">playerhome.css</span></dt>
-						<dt><span class="file">playerhome.min.js</span></dt>
-						<dt><span class="file">playerhome.html</span></dt>
-						<dt><span class="file">playerlobby.css</span></dt>
-						<dt><span class="file">playerlobby.html</span></dt>
-						<dt><span class="file">playerlobby.min.js</span></dt>
-						<dt><span class="file">playerlogin.html</span></dt>
-						<dt><span class="file">privacy.html</span></dt>
-						<dt><span class="file">style.css</span></dt>
-						<dt><span class="file">script.min.js</span></dt>
-						<dd>
-							These statically-served, read-only files are installed into <a
+						</li>
+						<li>
+							Statically-served, read-only, web-server accessible files are installed into <a
 								href="#htdocs"><code>HTDOCS</code></a>.
-						</dd>
-						<dt><span class="file">adminhome-new.html</span></dt>
-						<dt><span class="file">adminhome-started.html</span></dt>
-						<dt><span class="file">instructions-lottery.xml</span></dt>
-						<dt><span class="file">instructions-mturk.xml</span></dt>
-						<dt><span class="file">instructions-nolottery.xml</span></dt>
-						<dt><span class="file">mail-addplayer.eml</span></dt>
-						<dt><span class="file">mail-backupfail.eml</span></dt>
-						<dt><span class="file">mail-backupsuccess.eml</span></dt>
-						<dt><span class="file">mail-roundadvance.eml</span></dt>
-						<dt><span class="file">mail-roundfirst.eml</span></dt>
-						<dt><span class="file">mail-test.eml</span></dt>
-						<dd>
-							These read-only files are installed into <a href="#datadir"><code>DATADIR</code></a>.
+						</li>
+						<li>
+							Read-only data files are installed into <a href="#datadir"><code>DATADIR</code></a>.
 							They are used by the CGI processes to serve content to data requests.
-						</dd>
-					</dl>
+							For example, there are a number of e-mail templates that are used by <span
+								class="nm">gamelab</span> to programmatically send mails.
+						</li>
+					</ul>
 					<p>
 						If you run <kbd>make installcgi</kbd> (instead of <kbd>make updatecgi</kbd>), the following will also
 						be installed.
 					</p>
-					<dl>
-						<dt><span class="file">gamelab.db</span></dt>
-						<dd>
+					<ul>
+						<li>
 							The writable database file itself, installed into <a
 								href="#datadir"><code>DATADIR</code></a>.
 							This is initialised to the defaults described in the <a
 								href="#administration">Administration</a> section.
-						</dd>
-					</dl>
+						</li>
+					</ul>
 					<p>
-						<strong>Note</strong>: the SQLite database system usually needs access to a <a
-							href="https://www.sqlite.org/c3ref/temp_directory.html">temporary directory</a> for
-						journalling (it uses <a href="https://www.sqlite.org/wal.html">write-ahead logging</a>) and so
-						forth.
-						If you're running in a file-system jail (e.g., OpenBSD), you'll need to make sure this
-						directory exists in the root of the jai.
-						On default installations, this consists of a <span class="file">tmp</span> directory in the
-						document root, e.g., <span class="file">/var/www/tmp</span>, with world-writable permissions.
-						You will also need the <span class="file">/dev/null</span> device in the jail.
+						There are a number of file-system requirements to which you must be mindful.
 					</p>
-					<p>
-						<strong>Note</strong>: if you're running in a file-system jail, the security measures of <a
-							href="http://kristaps.bsd.lv/kcgi">kcgi</a> on OpenBSD (or any <a
-							href="http://www.openbsd.org/cgi-bin/man.cgi/OpenBSD-current/man4/systrace.4">systrace(4)</a>
-						system) require a systrace device in the <span class="file">dev</span> directory of the document
-						root, e.g., <span class="file">/var/www/dev</span>.
-						Moreover, the file-system of this directory must not be <code>nodev</code> in its mount options
-						(see <a
-							href="http://www.openbsd.org/cgi-bin/man.cgi/OpenBSD-current/man8/mount.8">mount(8)</a>).
-					</p>
+					<ul>
+						<li>
+							The SQLite database system usually needs writable access to a <a
+								href="https://www.sqlite.org/c3ref/temp_directory.html">temporary directory</a>.
+							If you're running in a file-system jail (e.g., OpenBSD), you'll need to make sure the
+							temporary directory exists in the root of the jai.  On default installations, this
+							consists of a <span class="file">tmp</span> directory in the document root, e.g., <span
+								class="file">/var/www/tmp</span>, with writable permissions.
+						</li>
+						<li>
+							The database directory itself needs file-creation permissions to allow for journalling
+							(it uses <a href="https://www.sqlite.org/wal.html">write-ahead logging</a>).
+						</li>
+						<li>
+							You will need the <span class="file">/dev/null</span> device in your file-system.  The
+							file-system of the device directory must not be <code>nodev</code> in its mount options
+							(see <a
+								href="http://www.openbsd.org/cgi-bin/man.cgi/OpenBSD-current/man8/mount.8">mount(8)</a>).
+						</li>
+						<li>
+							If you're running in a file-system jail, the security measures of <a
+								href="http://kristaps.bsd.lv/kcgi">kcgi</a> on OpenBSD with <a
+								href="http://www.openbsd.org/cgi-bin/man.cgi/OpenBSD-current/man4/systrace.4">systrace(4)</a>
+							(i.e., OpenBSD &lt;5.9) require a systrace device in the <span class="file">dev</span>
+							directory of the document root, e.g., <span class="file">/var/www/dev</span>.  Moreover,
+							the file-system of this directory must not be <code>nodev</code> in its mount options
+							(see <a
+								href="http://www.openbsd.org/cgi-bin/man.cgi/OpenBSD-current/man8/mount.8">mount(8)</a>).
+						</li>
+					</ul>
 					<p>
 						Once you've deployed your system, you can test it by going to the administration site.
 					</p>
@@ -857,10 +857,10 @@
 							red;">coloured</span>.
 					</p>
 					<p>
-						Next, specify a set of players identified by e-mail address in the <q>Players</q> section.
+						Next, specify a set of participants identified by e-mail address in the <q>Participants</q> section.
 						Identifiers may be separated by white-space (newlines, tabs, spaces).
 						You'll see valid identifiers noted after submitting the form.
-						If you specify <q>Allow captive players</q>, participants can register themselves by
+						If you specify <q>Allow captive participants</q>, participants can register themselves by
 						accessing the <span class="file">playerautoadd.html</span> URL <strong>from the moment
 							you submit the form</strong>, so you may see participants appear as they add
 						themselves.
@@ -868,20 +868,19 @@
 						never e-mailed (their identifiers are free-form, not e-mail addresses), nor are they
 						retained if the database is wiped.
 						Captive mode is disabled when you start an experiment: 
-						this is a security measure so that players can't join after you've started.
-						You can opt to allow players to continually join by specifying that captive mode should
+						this is a security measure so that participants can't join after you've started.
+						You can opt to allow participants to continually join by specifying that captive mode should
 						be preserved when the experiment begins.
-						You can also specify <a href="#mechanicalturk">Mechanical Turk</a> participants.
 					</p>
 					<p>
-						Once you've added your games and your players, you're ready for the experiment configuration as
+						Once you've added your games and your participants, you're ready for the experiment configuration as
 						assigned in <q>Experiment Parameters</q>.
 						Start with the simple options (don't click on <q>Show Advanced Options</q> yet.)
 						Begin with the time and date when the experiment begins, the
-						number of rounds, duration of each round, and a fraction of players that will cause the round to
+						number of rounds, duration of each round, and a fraction of participants that will cause the round to
 						advance before the maximum time has elapsed.
 						(You can set this to zero to force the maximum time to elapse before the round advances.)
-						For example, if set to 50%, then 50% or more players playing all games in both roles will cause
+						For example, if set to 50%, then 50% or more participants playing all games in both roles will cause
 						the round to advance regardless the amount of time left.
 						If there are zero participants in either player role, then it's as if nobody plays, making the
 						round run until the maximum time elapses.
@@ -889,6 +888,8 @@
 					</p>
 					<p>
 						The advanced options allow for finer control&mdash;be careful in using these!
+						See the <a href="#mechanicalturk">Mechanical Turk</a> section for adding Mechanical Turk workers
+						to your experiment.
 					</p>
 					<p>
 						The login URL is used when sending non-captive participants the welcome e-mail.
@@ -904,22 +905,16 @@
 						Review the existing instructions on how to customise.
 					</p>
 					<p>
-						Currency is only used in formatting instructions and in computing bonuses as used in <a
-							href="#mechanicalturk">Mechanical Turk</a> experiments.
-						For this, you must specify a currency (any currency will do, and may consist of arbitrary UTF-8
-						markings for the currency symbols) as well as a conversion from tickets into currency.
-					</p>
-					<p>
 						You can customise round advancement in several ways.
 						The first is limiting the total number of rounds per participant.
 						Thus, if one specifies 10 total rounds and 5 rounds per participant, each participant will play
 						at most five rounds.
-						This is useful for running with captive players that can join and participant over an extended
+						This is useful for running with captive participants that can join and participant over an extended
 						period of play time.
 						The minimum-time (in minutes) establishes a <q>grace time</q> for play.
 						This is especially useful when &lt;100% of participants play before the round automatically
-						advances to prevent <q>fast players</q> from having an unfair advantage.
-						Lastly, the maximum limit per round bounds the number of simultaneous players.
+						advances to prevent <q>fast participants</q> from having an unfair advantage.
+						Lastly, the maximum limit per round bounds the number of simultaneous participants.
 					</p>
 					<p>
 						There are a number of option toggles in the last subsection.
@@ -931,9 +926,9 @@
 						<strong>Note</strong>: if you specify a questionnaire, participants will not automatically be
 						<q>joined</q> to the experiment when it begins.
 						In other words, until they finish the experiment, they will not be included in the count of
-						current players when looking at the fraction of completed game-plays per round.
+						current participants when looking at the fraction of completed game-plays per round.
 						They join the round following the current one upon finishing the questionnaire.
-						Lastly, you may specify that round advancement will trigger an e-mail to the players.
+						Lastly, you may specify that round advancement will trigger an e-mail to the participants.
 					</p>
 				</section>
 				<section id="runningexperiments">
@@ -945,17 +940,17 @@
 						Once you've deployed your experiment, you must now administer it.
 						For the time being, there's very little in the way of <span class="nm">gamelab</span>
 						administration.
-						You can enable and disable players, reset player passwords, and reconfigure your administrator
-						credentials.
+						You can enable and disable participants, reset participant passwords, and reconfigure your
+						experimenter credentials.
 						You can also review some statistics on the current experiment status.
 					</p>
 					<p>
-						If a player forgets her password, you can reset it by clicking on the player's email address and
-						selecting the <q>Reset Password</q> option.
-						(Captive players are <strong>not</strong> affected.)
-						You can reset all non-captive players' passwords with the <q>Reset All Passwords</q> option.
-						If a player is misbehaving, you can disable her login by toggling the button next to her e-mail
-						address.
+						If a participant forgets her password, you can reset it by clicking on the participant's email
+						address and selecting the <q>Reset Password</q> option.
+						(Captive participants are <strong>not</strong> affected.)
+						You can reset all non-captive participants' passwords with the <q>Reset All Passwords</q> option.
+						If a participant is misbehaving, you can disable her login by toggling the button next to her
+						e-mail address.
 						Once toggled, she'll no longer be able to log in.
 						If she's already logged in, she'll be logged out; no plays are accepted.
 					</p>
@@ -965,16 +960,16 @@
 							Mails</q>.
 					</p>
 					<p>
-						When an experiment has finished and you haven't disabled the lottery, you can compute its
+						When an experiment has finished and you have provided a lottery amount, you can compute its
 						lottery by specifying a seed for the random number generator and a number of lottery winners.
 					</p>
 					<p>
 						Once the winner has been chosen and notified, and the game wound down, you can wipe and start
 						afresh by selecting the <q>Wipe Experiment</q> option.
 						This will first back up the database (e-mailing it to you in the process), then wipe all by the
-						administrator credentials, listed games, and player identities (though not their play, of
+						experimenter credentials, listed games, and participant identities (though not their play, of
 						course).
-						Note that captive players are not retained if the database is wiped.
+						Note that captive participants are not retained if the database is wiped.
 					</p>
 				</section>
 			</section>
@@ -997,7 +992,6 @@
 					<p>
 						Setting up a Mechanical Turk experiment is very easy.
 						First, have your AWS access key identifier and secret key handy.
-						(These are both uppercase alphanumeric strings.)
 						Fill these in when configuring your experiment, then set the number of workers
 						(corresponding to the <q>max assignments</q> in the <a
 							href="https://docs.aws.amazon.com/AWSMechTurk/latest/AWSMturkAPI/ApiReference_CreateHITOperation.html">API
@@ -1006,6 +1000,10 @@
 						currency conversion (used when computing bonuses).
 						You can use either the <a href="https://requester.mturk.com/developer/sandbox">Developer
 							Sandbox</a> or production mode&#8212;I recommend starting with the first.
+						You can also enter a name and a description, which will be shown to potential workers, as well
+						as the keywords which are used when searching for HITs.
+						By default, <span class="nm">gamelab</span> requests workers with an approvate rating &gt;95%,
+						more than 500 approved HITs, and who are located in the US.
 					</p>
 					<p>
 						You'll probably also want to use the Mechanical Turk instructions, and you should enable the
@@ -1014,6 +1012,8 @@
 					<p>
 						When you start your experiment, the request will be sent to either the sandbox or production
 						server.
+						We <strong>strongly</strong> suggest that you use the sandbox server a few times to make sure
+						that your HIT posts as you wish it to.
 						If there are errors, you'll be notified in the administrative panel.
 					</p>
 					<p>

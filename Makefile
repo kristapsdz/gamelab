@@ -2,38 +2,38 @@
 
 # Mac OSX testing.
 # This is useful when running in a userdir.
-#ADMINURI	 = /~kristaps/admin.cgi
-#CGIBIN		 = $(PREFIX)
-#CFLAGS		+= -Wno-deprecated-declarations
-#DATADIR		 = $(PREFIX)
-##DSYMUTIL	 = sudo dsymutil
-#FONTURI		 = /~kristaps/font-awesome-4.4.0/css/font-awesome.min.css
-#HTDOCS		 = $(PREFIX)
-#HTURI		 = /~kristaps
-#LABURI		 = /~kristaps/lab.cgi
-#LIBS		 = 
-#PREFIX		 = /Users/kristaps/Sites
-#RDATADIR	 = $(PREFIX)
-#STATIC		 = 
+ADMINURI	 = /~kristaps/admin.cgi
+CGIBIN		 = $(PREFIX)
+CFLAGS		+= -Wno-deprecated-declarations
+DATADIR		 = $(PREFIX)
+#DSYMUTIL	 = sudo dsymutil
+FONTURI		 = /~kristaps/font-awesome-4.4.0/css/font-awesome.min.css
+HTDOCS		 = $(PREFIX)
+HTURI		 = /~kristaps
+LABURI		 = /~kristaps/lab.cgi
+LIBS		 = 
+PREFIX		 = /Users/kristaps/Sites
+RDATADIR	 = $(PREFIX)
+STATIC		 = 
 
 # Linux testing.
 # LIBS		 = -lbsd -lm
 
 # OpenBSD production.
-PREFIX		?= /var/www/gamelab
-URIPREFIX	?= /gamelab
-RELPREFIX	?= /gamelab
-ADMINURI	 = $(URIPREFIX)/cgi-bin/admin
-CGIBIN		 = $(PREFIX)/cgi-bin
-CFLAGS		+= -DLOGTIME=1
-DATADIR	 	 = $(PREFIX)/data
-FONTURI		 = //maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css
-HTDOCS		 = $(PREFIX)/htdocs
-HTURI		 = $(URIPREFIX)
-LABURI		 = $(URIPREFIX)/cgi-bin/lab
-LIBS		 = -lintl -liconv -lm
-RDATADIR	 = $(RELPREFIX)/data
-STATIC		 = -static
+#PREFIX		?= /var/www/gamelab
+#URIPREFIX	?= /gamelab
+#RELPREFIX	?= /gamelab
+#ADMINURI	 = $(URIPREFIX)/cgi-bin/admin
+#CGIBIN		 = $(PREFIX)/cgi-bin
+#CFLAGS		+= -DLOGTIME=1
+#DATADIR	 	 = $(PREFIX)/data
+#FONTURI		 = //maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css
+#HTDOCS		 = $(PREFIX)/htdocs
+#HTURI		 = $(URIPREFIX)
+#LABURI		 = $(URIPREFIX)/cgi-bin/lab
+#LIBS		 = -lintl -liconv -lm
+#RDATADIR	 = $(RELPREFIX)/data
+#STATIC		 = -static
 
 # You really don't want to change anything below this line.
 
@@ -61,7 +61,8 @@ STATICS	 = adminhome.css \
 	   playerlobby.css \
 	   playerlogin.css \
 	   style.css
-OBJS	 = db.o \
+OBJS	 = base64.o \
+	   db.o \
 	   hmac.o \
 	   json.o \
 	   log.o \
@@ -76,12 +77,14 @@ SRCS	 = Makefile \
 	   adminhome-started.xml \
 	   adminlogin.js \
 	   adminlogin.xml \
+	   base64.c \
 	   db.c \
 	   extern.h \
 	   gamelab.sql \
 	   hmac.c \
 	   json.c \
 	   lab.c \
+	   log.c \
 	   mail.c \
 	   mpq.c \
 	   mturk.c \
@@ -138,7 +141,8 @@ VERSIONS = version_1_0_1.xml \
 	   version_1_0_22.xml \
 	   version_1_0_23.xml \
 	   version_1_0_24.xml \
-	   version_1_0_25.xml 
+	   version_1_0_25.xml \
+	   version_1_1_1.xml 
 BUILTMLS = history.html \
 	   index.html \
 	   manual.html \

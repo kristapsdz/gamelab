@@ -406,8 +406,9 @@
 								<div>
 									Next, provide a meaningful <i class="fa fa-pencil-square-o"></i>
 									experiment name and <i class="fa fa-pencil-square"></i> description.
-									If you leave these blank, they will default to simply <q>gamelab</q>.
-									(And you really don't want that.)
+									If you leave these blank, I'll use some boring defaults.
+									(You do want workers, yes?  Be descriptive!)
+									Lastly, enter some <i class="fa fa-ellipsis-h"></i> keywords</a>.
 								</div>
 								<div class="input">
 									<i class="fa fa-fw fa-pencil-square-o"></i>
@@ -416,6 +417,10 @@
 								<div class="input">
 									<i class="fa fa-fw fa-pencil-square"></i>
 									<textarea name="awsdesc">This is a generic gamelab experiment.</textarea>
+								</div>
+								<div class="input">
+									<i class="fa fa-fw fa-ellipsis-h"></i>
+									<textarea name="awskeywords" placeholder="Comma-separated keywords"></textarea>
 								</div>
 								<div class="input input-check">
 									<i onclick="toggler('sandbox', 'sandboxToggle');" id="sandboxToggle" class="fa fa-fw fa-toggle-on"></i>

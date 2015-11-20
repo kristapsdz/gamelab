@@ -140,7 +140,7 @@ function loadNewPlayersSuccess(resp)
 		li = document.createElement('li');
 		e.appendChild(li);
 		li.setAttribute('class', 'error');
-		li.appendChild(document.createTextNode('No players.'));
+		li.appendChild(document.createTextNode('No participants.'));
 		doClassFail('checkPlayersLoad2');
 		return;
 	}
@@ -266,7 +266,7 @@ function loadPlayersSuccess(resp)
 	if (0 == players.length) {
 		li = document.createElement('li');
 		li.setAttribute('class', 'error');
-		li.appendChild(document.createTextNode('No players.'));
+		li.appendChild(document.createTextNode('No participants.'));
 		e.appendChild(li);
 		return;
 	}
@@ -1174,7 +1174,11 @@ function wipeCleanExpr()
 
 	sendQuery('@ADMINURI@/dowipequiet.json', 
 		function() { doHide('wipeExprResults'); doClearReplace('wipeCleanExprButton', 'Wiping...'); },
-		function() { doClearReplace('wipeCleanExprButton', 'Hard-Wipe Experiment'); doUnhide('wipeExprResults'); },
+		function() { 
+			doClearReplace('wipeCleanExprButton', 'Hard-Wipe Experiment'); 
+			doUnhide('wipeExprResults'); 
+			setTimeout(function(){window.location.reload(true)}, 1000);
+		},
 		null);
 }
 
@@ -1183,7 +1187,11 @@ function wipeExpr()
 
 	sendQuery('@ADMINURI@/dowipe.json', 
 		function() { doHide('wipeExprResults'); doClearReplace('wipeExprButton', 'Wiping...'); },
-		function() { doClearReplace('wipeExprButton', 'Wipe Experiment'); doUnhide('wipeExprResults'); },
+		function() { 
+			doClearReplace('wipeExprButton', 'Wipe Experiment'); 
+			doUnhide('wipeExprResults'); 
+			setTimeout(function(){window.location.reload(true)}, 1000);
+		},
 		null);
 }
 

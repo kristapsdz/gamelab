@@ -25,8 +25,12 @@ body > nav > *:last-child
 			  white-space: nowrap;
 			  border-bottom-left-radius: 1ex;
 			  border-bottom-right-radius: 1ex;
+			  line-height: 125%;
 			  background-color: #393939;
 			  display: none; }
+#nav ul			{ padding-left: 1em; }
+#nav a			{ opacity: 0.8; }
+#nav a:hover		{ opacity: 1.0; }
 article			{ padding: 1em 4% 1em 4%; 
 			  color: #222;
 			  background-color: #eee; }

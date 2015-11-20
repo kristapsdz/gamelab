@@ -35,31 +35,61 @@
 #define	SCHEMA	"http://mechanicalturk.amazonaws.com/" \
 		"AWSMechanicalTurkDataSchemas/2006-07-14/" \
 		"ExternalQuestion.xsd"
+#define	SERVICE "AWSMechanicalTurkRequester"
+#define EXTQUES	"<ExternalQuestion xmlns=\"" SCHEMA "\">" \
+		  "<ExternalURL>" \
+		    "https://" LABURI "/mturk.html" \
+		  "</ExternalURL>" \
+		  "<FrameHeight>400</FrameHeight>" \
+		"</ExternalQuestion>"
+#define REALURL	"mechanicalturk.amazonaws.com"
+#define	SANDURL "mechanicalturk.sandbox.amazonaws.com"
+#define	DEFNAME	"Gamelab Experiment"
+#define DEFDESC "This is a gamelab experiment"
+#define	MINPAY	0.01
+#define	MINWORK	2
+#define	MINMINS	1
 
+/*
+ * These are all the operations that we support.
+ */
 enum 	awstype {
 	AWS_CREATE_HIT,
 	AWS__MAX
 };
 
+/*
+ * Parse state, that is, what [ancestor] node we're processing.
+ */
 enum	awsstate {
-	AWSSTATE_ERROR,
-	AWSSTATE_HITID,
+	AWSSTATE_ERRORS, /* errors */
+	AWSSTATE_HITID, /* hitId */
 	AWSSTATE__MAX
 };
 
+/*
+ * Describes a parsed response from the AWS server.
+ */
 struct	aws {
-	enum awstype	 type;
-	char		*errorCodes;
-	char		*hitId;
+	enum awstype	 type; /* type of response */
+	char		*errorCodes; /* non-NULL means errors */
+	char		*hitId; /* not-null ok AWS_CREATE_HIT */
 };
 
+/*
+ * Parse status. 
+ */
 struct	state {
-	int	 	 ok;
-	struct aws	 aws;
-	enum awsstate	 state;
-	int		 useb;
-	char		*b;
-	size_t		 bsz;
+	int	 	 ok; /* parse syntax ok */
+	struct aws	 aws; /* parsing aws object */
+	enum awsstate	 state; /* state of parse */
+	int		 useb; /* collecting text? */
+	char		*b; /* text collector */
+	size_t		 bsz; /* size of collected buffer */
+};
+
+static	const char *const awstypes[AWS__MAX] = {
+	"CreateHIT" /* AWS_CREATE_HIT */
 };
 
 static void
@@ -89,7 +119,7 @@ node_close(void *arg, const XML_Char *s)
 	if (0 == strcasecmp(s, "errors")) {
 		st->state = AWSSTATE__MAX;
 	} else if (0 == strcasecmp(s, "message")) {
-		if (AWSSTATE_ERROR == st->state) {
+		if (AWSSTATE_ERRORS == st->state) {
 			free(st->aws.errorCodes);
 			st->aws.errorCodes = st->b;
 		}
@@ -118,9 +148,9 @@ node_open(void *arg, const XML_Char *s, const XML_Char **atts)
 	if (0 == strcasecmp(s, "createhitresponse")) {
 		st->aws.type = AWS_CREATE_HIT;
 	} else if (0 == strcasecmp(s, "errors")) {
-		st->state = AWSSTATE_ERROR;
+		st->state = AWSSTATE_ERRORS;
 	} else if (0 == strcasecmp(s, "message")) {
-		if (AWSSTATE_ERROR == st->state)
+		if (AWSSTATE_ERRORS == st->state)
 			st->useb = 1;
 	} else if (0 == strcasecmp(s, "hitid")) {
 		st->state = AWSSTATE_HITID;
@@ -136,7 +166,10 @@ node_parse(void *contents, size_t len, size_t nm, void *arg)
 	struct state 	*st;
 	int		 erc;
 
-	INFO("Mechanical Turk: %.*s", (int)(len * nm), (const char *)contents);
+	/* XXX: remove me. */
+	INFO("Mechanical Turk: %.*s", 
+		(int)(len * nm), 
+		(const char *)contents);
 
 	st = XML_GetUserData(parser);
 	assert(NULL != st);
@@ -156,89 +189,121 @@ node_parse(void *contents, size_t len, size_t nm, void *arg)
   	return(rsz);
 }
 
+static void
+state_free(struct state *st)
+{
+
+	free(st->b);
+	free(st->aws.errorCodes);
+	free(st->aws.hitId);
+}
+
+static XML_Parser
+state_alloc(struct state *st)
+{
+	XML_Parser	 p;
+
+	memset(st, 0, sizeof(struct state));
+	st->ok = 1;
+	st->aws.type = AWS__MAX;
+	if (NULL != (p = XML_ParserCreate(NULL))) {
+		XML_SetUserData(p, st);
+		XML_SetElementHandler(p, node_open, node_close);
+		XML_SetCharacterDataHandler(p, node_text);
+	} else
+		perror(NULL);
+
+	return(p);
+}
+
+static char *
+mturk_init(const char *key, enum awstype type, 
+	char *tstamp, size_t tstampsz)
+{
+	time_t	 	 tt;
+	struct tm	*gmt;
+	char		*sigprop, *pdigest, *enc;
+	unsigned char	 digest[SHA1_DIGEST_LENGTH];
+
+	/* Construct what we'll use for our signature. */
+	tt = time(NULL);
+	gmt = gmtime(&tt);
+	strftime(tstamp, tstampsz, "%Y-%m-%dT%TZ", gmt);
+	kasprintf(&sigprop, SERVICE "%s%s", awstypes[type], tstamp);
+
+	/* Construct HMAC-SHA1 digest in base64. */
+	hmac_sha1((unsigned char *)sigprop, strlen(sigprop), 
+		  (unsigned char *)key, strlen(key), digest);
+	pdigest = kmalloc(base64len(SHA1_DIGEST_LENGTH));
+	base64buf(pdigest, (const char *)digest, SHA1_DIGEST_LENGTH);
+
+	/* URL-encode result and return. */
+	enc = kutil_urlencode(pdigest);
+	free(sigprop);
+	free(pdigest);
+	return(enc);
+}
+
 void
-mturk(const char *aws, const char *key, const char *name, 
+mturk_create(const char *aws, const char *key, const char *name, 
 	const char *desc, int64_t workers, int64_t minutes, 
-	int sandbox, double reward)
+	int sandbox, double reward, const char *keywords)
 {
 	CURL		*c;
 	CURLcode	 res;
 	XML_Parser 	 parser;
-	time_t		 tt;
 	int		 erc;
-	struct tm	*gmt;
-	size_t		 i;
-	char		 tstamp[64], digest[20], pdigest[20 * 2 + 1];
+	char		 t[64];
 	struct state	 st;
-	char		*url, *encques, *sigprop, *encname, *encdesc;
+	char		*url, *encques, *encname, *encdesc,
+			*pdigest, *encdate, *post, *enckeys;
 
-	/* Clamp input values. */
-	if (workers < 2)
-		workers = 2;
-	if (reward < 0.01)
-		reward = 0.01;
-	if (minutes < 1)
-		minutes = 1;
+	/* 
+	 * Clamp input values and sanitise everything going to the
+	 * server.
+	 * We need to provide a minimum amount of sanity because gamelab
+	 * itself might be discouraged by shit submissions.
+	 */
+	if (workers < MINWORK)
+		workers = MINWORK;
+	if (reward < MINPAY)
+		reward = MINPAY;
+	if (minutes < MINMINS)
+		minutes = MINMINS;
 	if ('\0' == *desc)
-		desc = "gamelab";
+		desc = DEFDESC;
 	if ('\0' == *name)
-		name = "gamelab";
+		name = DEFNAME;
 
 	assert(NULL != aws && '\0' != *aws &&
 	       NULL != key && '\0' != *key);
 
-	/* Initialise our response parser. */
-	memset(&st, 0, sizeof(struct state));
-	st.ok = 1;
-	st.aws.type = AWS__MAX;
-	if (NULL == (parser = XML_ParserCreate(NULL))) {
-		perror(NULL);
+	if (NULL == (parser = state_alloc(&st)))
 		return;
-	}
-	XML_SetUserData(parser, &st);
-	XML_SetElementHandler(parser, node_open, node_close);
-	XML_SetCharacterDataHandler(parser, node_text);
-
-	/* Initialise the CURL object. */
 	if (NULL == (c = curl_easy_init())) {
 		perror(NULL);
 		XML_ParserFree(parser);
 		return;
 	}
-	
-	/* Input for AWS signature. */
-	tt = time(NULL);
-	gmt = gmtime(&tt);
-	strftime(tstamp, sizeof(tstamp), "%Y-%m-%dT%TZ", gmt);
-	kasprintf(&sigprop, "%s%s%s", 
-		"AWSMechanicalTurkRequester",
-		"CreateHIT", tstamp);
 
-	/* Construct signature HMAC-SHA1 digest. */
-	hmac_sha1((unsigned char *)sigprop, strlen(sigprop), 
-		  (unsigned char *)key, strlen(key), 
-		  (unsigned char *)digest);
-
-	/* Convert digest to hex string. */
-	for (i = 0; i < sizeof(digest); i++)
-		snprintf(&pdigest[i * 2], 3, "%02X", digest[i]);
-
-	/* URL-encode all unknown inputs. */
+	/* URL-encode all inputs. */
+	pdigest = mturk_init(key, AWS_CREATE_HIT, t, sizeof(t));
+	encdate = kutil_urlencode(t);
 	encname = kutil_urlencode(name);
 	encdesc = kutil_urlencode(desc);
-	encques = kutil_urlencode
-		("<ExternalQuestion xmlns=\"" SCHEMA "\">"
-			"<ExternalURL>"
-				"https://" LABURI "/mturk.html"
-			"</ExternalURL>"
-			"<FrameHeight>400</FrameHeight>"
-		 "</ExternalQuestion>");
+	enckeys = kutil_urlencode(keywords);
+	encques = kutil_urlencode(EXTQUES);
 
-	/* Actually construct the full URL. */
-	kasprintf(&url, "https://%s"
-		"?Service=AWSMechanicalTurkRequester"
+	/* 
+	 * Actually construct the URL and post fields.
+	 * We use the user-supplied information except for the currency
+	 * code (AWS only allows USD anyway) and the qualifications.
+	 */
+	kasprintf(&url, "https://%s", sandbox ? SANDURL : REALURL);
+	kasprintf(&post, 
+		"Service=" SERVICE
 		"&AWSAccessKeyId=%s"
-		"&Operation=CreateHIT"
+		"&Operation=%s"
 		"&Signature=%s"
 		"&Timestamp=%s"
 		"&Title=%s"
@@ -246,12 +311,25 @@ mturk(const char *aws, const char *key, const char *name,
 		"&Reward.1.Amount=%.2f"
 		"&Reward.1.CurrencyCode=USD"
 		"&Question=%s"
-		"&LifetimeInSeconds=%" PRId64,
-		sandbox ? 
-		 "mechanicalturk.sandbox.amazonaws.com" :
-		 "mechanicalturk.amazonaws.com",
-		aws, pdigest, tstamp, encname, 
-		encdesc, reward, encques, minutes * 60);
+		"&AssignmentDurationInSeconds=%" PRId64
+		"&LifetimeInSeconds=%" PRId64
+		"&Keywords=%s"
+		"&qualification.1:000000000000000000L0"
+		"&qualification.comparator.1:GreaterThan"
+		"&qualification.value.1:95"
+		"&qualification.private.1:false"
+		"&qualification.2:00000000000000000040"
+		"&qualification.comparator.2:GreaterThan"
+		"&qualification.value.2:500"
+		"&qualification.private.2:false"
+		"&qualification.3:00000000000000000071"
+		"&qualification.comparator.3:EqualTo"
+		"&qualification.locale.3:US"
+		"&qualification.private.3:false",
+		aws, awstypes[AWS_CREATE_HIT],
+		pdigest, encdate, encname, 
+		encdesc, reward, encques, minutes * 60, 
+		minutes * 60, enckeys);
 
 	/* Initialise CURL object. */
 	curl_easy_setopt(c, CURLOPT_URL, url);
@@ -259,14 +337,10 @@ mturk(const char *aws, const char *key, const char *name,
 	curl_easy_setopt(c, CURLOPT_SSL_VERIFYPEER, 0L);
 	curl_easy_setopt(c, CURLOPT_WRITEFUNCTION, node_parse);
 	curl_easy_setopt(c, CURLOPT_WRITEDATA, (void *)parser);
+	curl_easy_setopt(c, CURLOPT_POST, 1L);
+	curl_easy_setopt(c, CURLOPT_POSTFIELDS, post);
 
-	INFO("Preparing mturk enquiry: %s",
-		sandbox ? 
-		 "mechanicalturk.sandbox.amazonaws.com" :
-		 "mechanicalturk.amazonaws.com");
-	INFO("URL: %s", url);
-	INFO("Hash input: %s", sigprop);
-	INFO("Secret key: %s", key);
+	INFO("Preparing mturk to %s: %s", url, aws);
 
 	if (CURLE_OK != (res = curl_easy_perform(c))) {
 	      WARN("curl_easy_perform failed: %s", 
@@ -280,7 +354,6 @@ mturk(const char *aws, const char *key, const char *name,
 			st.ok = 0;
 		} 
 	}
-
 
 	if (st.ok) {
 		INFO("Mturk enquiry finished: received");
@@ -302,13 +375,11 @@ mturk(const char *aws, const char *key, const char *name,
 	curl_easy_cleanup(c);
 	curl_global_cleanup();
 
-	free(sigprop);
 	free(encques);
 	free(encname);
 	free(encdesc);
 	free(url);
-	free(st.b);
-	free(st.aws.errorCodes);
-	free(st.aws.hitId);
+	free(post);
+	state_free(&st);
 	XML_ParserFree(parser);
 }
