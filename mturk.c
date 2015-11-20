@@ -38,7 +38,7 @@
 #define	SERVICE "AWSMechanicalTurkRequester"
 #define EXTQUES	"<ExternalQuestion xmlns=\"" SCHEMA "\">" \
 		  "<ExternalURL>" \
-		    "https://" LABURI "/mturk.html" \
+		    "https://%s" LABURI "/mturk.html" \
 		  "</ExternalURL>" \
 		  "<FrameHeight>400</FrameHeight>" \
 		"</ExternalQuestion>"
@@ -247,7 +247,8 @@ mturk_init(const char *key, enum awstype type,
 void
 mturk_create(const char *aws, const char *key, const char *name, 
 	const char *desc, int64_t workers, int64_t minutes, 
-	int sandbox, double reward, const char *keywords)
+	int sandbox, double reward, const char *keywords,
+	const char *server)
 {
 	CURL		*c;
 	CURLcode	 res;
@@ -256,7 +257,7 @@ mturk_create(const char *aws, const char *key, const char *name,
 	char		 t[64];
 	struct state	 st;
 	char		*url, *encques, *encname, *encdesc,
-			*pdigest, *encdate, *post, *enckeys;
+			*pdigest, *encdate, *post, *enckeys, *lurl;
 
 	/* 
 	 * Clamp input values and sanitise everything going to the
@@ -286,13 +287,15 @@ mturk_create(const char *aws, const char *key, const char *name,
 		return;
 	}
 
+	kasprintf(&lurl, EXTQUES, server);
+
 	/* URL-encode all inputs. */
 	pdigest = mturk_init(key, AWS_CREATE_HIT, t, sizeof(t));
 	encdate = kutil_urlencode(t);
 	encname = kutil_urlencode(name);
 	encdesc = kutil_urlencode(desc);
 	enckeys = kutil_urlencode(keywords);
-	encques = kutil_urlencode(EXTQUES);
+	encques = kutil_urlencode(lurl);
 
 	/* 
 	 * Actually construct the URL and post fields.
@@ -314,18 +317,18 @@ mturk_create(const char *aws, const char *key, const char *name,
 		"&AssignmentDurationInSeconds=%" PRId64
 		"&LifetimeInSeconds=%" PRId64
 		"&Keywords=%s"
-		"&qualification.1:000000000000000000L0"
-		"&qualification.comparator.1:GreaterThan"
-		"&qualification.value.1:95"
-		"&qualification.private.1:false"
-		"&qualification.2:00000000000000000040"
-		"&qualification.comparator.2:GreaterThan"
-		"&qualification.value.2:500"
-		"&qualification.private.2:false"
-		"&qualification.3:00000000000000000071"
-		"&qualification.comparator.3:EqualTo"
-		"&qualification.locale.3:US"
-		"&qualification.private.3:false",
+		"&qualification.1=000000000000000000L0"
+		"&qualification.comparator.1=GreaterThan"
+		"&qualification.value.1=95"
+		"&qualification.private.1=false"
+		"&qualification.2=00000000000000000040"
+		"&qualification.comparator.2=GreaterThan"
+		"&qualification.value.2=500"
+		"&qualification.private.2=false"
+		"&qualification.3=00000000000000000071"
+		"&qualification.comparator.3=EqualTo"
+		"&qualification.locale.3=US"
+		"&qualification.private.3=false",
 		aws, awstypes[AWS_CREATE_HIT],
 		pdigest, encdate, encname, 
 		encdesc, reward, encques, minutes * 60, 
@@ -380,6 +383,7 @@ mturk_create(const char *aws, const char *key, const char *name,
 	free(encdesc);
 	free(url);
 	free(post);
+	free(lurl);
 	state_free(&st);
 	XML_ParserFree(parser);
 }

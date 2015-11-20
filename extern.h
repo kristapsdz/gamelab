@@ -216,7 +216,7 @@ void		  hmac_sha1(const unsigned char *, int,
 
 void		  mturk_create(const char *, const char *, const char *,
 			const char *, int64_t, int64_t, int, double,
-			const char *);
+			const char *, const char *);
 
 void		  base64file(FILE *, size_t, 
 			int (*)(const char *, size_t, void *), 

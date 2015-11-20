@@ -1216,7 +1216,7 @@ senddostartexpr(struct kreq *r)
 {
 	pid_t		 pid;
 	char		*loginuri, *uri, *map, *akey, *skey,
-			*name, *desc, *keys;
+			*name, *desc, *keys, *server;
 	const char	*instdat;
 	enum instrs	 inst;
 	int		 fd;
@@ -1415,6 +1415,8 @@ senddostartexpr(struct kreq *r)
 				[KEY_AWSDESC]->parsed.s);
 			keys = kstrdup(r->fieldmap
 				[KEY_AWSKEYWORDS]->parsed.s);
+			server = kstrdup(r->host);
+
 			khttp_child_free(r);
 			if (daemon(1, 1) < 0)
 				perror(NULL);
@@ -1422,12 +1424,13 @@ senddostartexpr(struct kreq *r)
 				mturk_create(akey, skey, name, desc, 
 					workers, minutes, 
 					flags & EXPR_SANDBOX, reward, 
-					keys);
+					keys, server);
 			free(akey);
 			free(name);
 			free(desc);
 			free(skey);
 			free(keys);
+			free(server);
 			exit(EXIT_SUCCESS);
 		} else
 			waitpid(pid, NULL, 0);
