@@ -11,6 +11,7 @@
 			The rest happens from the experimenter console when creating the experiment.
 			The <a href="manual.html">manual</a> and <a href="quickstart.html">quickstart guide</a> have also been looked over and
 			checked that they match with the current version of operation.
+			While doing this, un-break the distributed archive by including some forgotten but necessary files.
 		</p>
 	</aside>
 </article>
