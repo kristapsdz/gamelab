@@ -136,6 +136,8 @@ node_parse(void *contents, size_t len, size_t nm, void *arg)
 	struct state 	*st;
 	int		 erc;
 
+	INFO("Mechanical Turk: %.*s", (int)(len * nm), (const char *)contents);
+
 	st = XML_GetUserData(parser);
 	assert(NULL != st);
 	/* Overflow check. */
@@ -219,7 +221,7 @@ mturk(const char *aws, const char *key, const char *name,
 
 	/* Convert digest to hex string. */
 	for (i = 0; i < sizeof(digest); i++)
-		snprintf(&pdigest[i * 2], 3, "%02x", digest[i]);
+		snprintf(&pdigest[i * 2], 3, "%02X", digest[i]);
 
 	/* URL-encode all unknown inputs. */
 	encname = kutil_urlencode(name);
@@ -262,6 +264,9 @@ mturk(const char *aws, const char *key, const char *name,
 		sandbox ? 
 		 "mechanicalturk.sandbox.amazonaws.com" :
 		 "mechanicalturk.amazonaws.com");
+	INFO("URL: %s", url);
+	INFO("Hash input: %s", sigprop);
+	INFO("Secret key: %s", key);
 
 	if (CURLE_OK != (res = curl_easy_perform(c))) {
 	      WARN("curl_easy_perform failed: %s", 
