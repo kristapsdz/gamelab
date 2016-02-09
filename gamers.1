@@ -9,7 +9,7 @@
 .\" Not used in OpenBSD.
 .Sh SYNOPSIS
 .Nm gamers
-.Op Fl cerv
+.Op Fl cefrv
 .Op Fl n Ar players
 .Op Fl w Ar time|min:max
 .Op Fl W Ar max
@@ -31,12 +31,17 @@ The options are as follows:
 Request HTP compression between bots and server.
 .It Fl e
 Play equal weight for each strategy in each game.
+.It Fl f
+Have output be formatted for processing by a plotter.
+All units are fixed to bytes and seconds; and additionally, a UNIX
+timestamp is emitted for correlation with server-side metrics.
 .It Fl r
 Play a random mixture for each strategy in each game (summing to one, of
 course).
 .It Fl v
 Print more information as the system runs.
 This will not disrupt the statistics that follow the game.
+Emit twice for debugging information.
 .It Fl n Ar players
 Use
 .Ar players ,

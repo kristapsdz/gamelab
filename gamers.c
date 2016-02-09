@@ -74,6 +74,7 @@ struct	buf {
  * Statistics managed per round of play.
  */
 struct	rstats {
+	time_t		 stamp;
 	struct stats	 rx; /* read bytes */
 	struct stats	 rtt; /* round-trip time */
 	size_t		 plays; /* successful plays */
@@ -107,6 +108,7 @@ struct	game {
 	time_t		 waitmin; /* stochastic waiting min */
 	time_t		 waitmax; /* stochastic waiting max */
 	struct gamerq	 waiting; /* between connections */
+	int		 fixunit; /* fix units when outputting */
 	int		 equal;
 	int		 random;
 };
@@ -250,10 +252,15 @@ buf_write(struct buf *buf, const char *fmt, ...)
 }
 
 static char *
-fmt_samples(size_t b)
+fmt_samples(const struct game *g, size_t b)
 {
 	static char buf[32];
 	double	 v;
+
+	if (g->fixunit) {
+		snprintf(buf, 32 - 1, "%zu", b);
+		return(buf);
+	}
 
 	v = b;
 	if (b > 1000 * 1000) {
@@ -270,9 +277,14 @@ fmt_samples(size_t b)
 }
 
 static char *
-fmt_sec(double b)
+fmt_sec(const struct game *g, double b)
 {
 	static char buf[32];
+
+	if (g->fixunit) {
+		snprintf(buf, 32 - 1, "%g", b);
+		return(buf);
+	}
 
 	if (b > 1.0) {
 		snprintf(buf, 32 - 1, "%8.3f s ", b);
@@ -288,9 +300,14 @@ fmt_sec(double b)
 }
 
 static char *
-fmt_bytes(double b)
+fmt_bytes(const struct game *g, double b)
 {
 	static char buf[32];
+
+	if (g->fixunit) {
+		snprintf(buf, 32 - 1, "%g", b);
+		return(buf);
+	}
 
 	if (b > 1000.0 * 1000.0 * 1000.0) {
 		b /= 1000.0 * 1000.0 * 1000.0;
@@ -337,19 +354,22 @@ rstats_round(struct game *game, int64_t round)
 		game->roundsz++;
 		game->rounds = p;
 		memset(&game->rounds[r], 0, sizeof(struct rstats));
+		game->rounds[r].stamp = time(NULL);
 		if (r > 0) {
 			rs = &game->rounds[r - 1];
 			gettimeofday(&rs->end, NULL);
 			timersub(&rs->end, &rs->start, &sub);
 			sec = sub.tv_sec + (sub.tv_usec / 1000000.0);
-			printf("Round advance: %zd ", 
-				(ssize_t)game->roundsz - 2);
-			fputs(fmt_sec(sec), stdout);
-			putchar(' ');
-			fputs(fmt_bytes(rs->rx.mean), stdout);
-			putchar('\n');
-		} else 
-			printf("Round advance: %zd\n", 
+			if (game->verbose) {
+				fprintf(stderr, "Round advance: %zd ", 
+					(ssize_t)game->roundsz - 2);
+				fputs(fmt_sec(game, sec), stderr);
+				fputc(' ', stderr);
+				fputs(fmt_bytes(game, rs->rx.mean), stderr);
+				fputc('\n', stderr);
+			}
+		} else if (game->verbose)
+			fprintf(stderr, "Round advance: %zd\n", 
 				(ssize_t)game->roundsz - 2);
 
 		gettimeofday(&game->rounds[r].start, NULL);
@@ -973,7 +993,7 @@ gamer_phase_play(struct gamer *gamer)
 	} 
 
 	assert(gamer->gamecur < gamer->gamemax);
-	if (gamer->game->verbose)
+	if (gamer->game->verbose > 1)
 		fprintf(stderr, "%s: played game %" PRId64 
 			 "(%zu/%zu), round %" PRId64 "\n", 
 			 gamer->email, 
@@ -1104,7 +1124,7 @@ gamer_phase_loadexpr(struct gamer *g)
 		assert(g->lastround < round);
 		g->game->finished++;
 		g->phase = PHASE__MAX;
-		if (g->game->verbose)
+		if (g->game->verbose > 1)
 			fprintf(stderr, "%s: done (experiment "
 				"finished)\n", g->email);
 		rstats_round(g->game, g->lastround);
@@ -1122,7 +1142,7 @@ gamer_phase_loadexpr(struct gamer *g)
 		assert(g->lastround < round);
 		g->game->finished++;
 		g->phase = PHASE__MAX;
-		if (g->game->verbose)
+		if (g->game->verbose > 1)
 			fprintf(stderr, "%s: done (play "
 				"period finished)\n", g->email);
 		rstats_round(g->game, g->lastround);
@@ -1138,7 +1158,7 @@ gamer_phase_loadexpr(struct gamer *g)
 			fputs("game_init_play", stderr);
 			return(0);
 		}
-		if (g->game->verbose)
+		if (g->game->verbose > 1)
 			fprintf(stderr, "%s: entering round %" 
 				PRId64 "\n", g->email, round);
 		return(1);
@@ -1249,12 +1269,13 @@ gamer_phase_login(struct gamer *gamer)
 		return(0);
 	}
 
-	if (gamer->game->verbose)
+	if (gamer->game->verbose > 1)
 		fprintf(stderr, "%s: logged in (session %s, "
 			"cookie %s)\n", gamer->email,
 			gamer->sessid, gamer->sesscookie);
 	if (++gamer->game->loggedin == gamer->game->players) 
-		printf("All players logged in.\n");
+		if (gamer->game->verbose)
+			fputs("All players logged in.\n", stderr);
 	return(1);
 }
 
@@ -1325,13 +1346,16 @@ gamer_phase_register(struct gamer *gamer)
 	}
 
 	/* Lastly, transfer us to the login phase. */
-	if (gamer->game->verbose)
+	if (gamer->game->verbose > 1)
 		fprintf(stderr, "%s: registered: %s\n", 
 			gamer->email, gamer->password);
-	if (++gamer->game->registered == gamer->game->players) 
-		printf("All players registered.\n");
-	else if (gamer->game->registered == 2) 
-		printf("Enough players registered for play.\n");
+	if (++gamer->game->registered == gamer->game->players) {
+		if (gamer->game->verbose)
+			fputs("All players registered.\n", stderr);
+	} else if (gamer->game->registered == 2) {
+		if (gamer->game->verbose)
+			fputs("Enough players registered for play.\n", stderr);
+	}
 	return(1);
 }
 
@@ -1415,13 +1439,16 @@ main(int argc, char *argv[])
 	game.players = 2;
 	TAILQ_INIT(&game.waiting);
 
-	while (-1 != (c = getopt(argc, argv, "cern:vw:W:"))) 
+	while (-1 != (c = getopt(argc, argv, "cefrn:vw:W:"))) 
 		switch (c) {
 		case ('c'):
 			game.compress = 1;
 			break;
 		case ('e'):
 			game.equal = 1;
+			break;
+		case ('f'):
+			game.fixunit = 1;
 			break;
 		case ('r'):
 			game.random = 1;
@@ -1430,7 +1457,7 @@ main(int argc, char *argv[])
 			game.players = atoi(optarg);
 			break;
 		case ('v'):
-			game.verbose = 1;
+			game.verbose++;
 			break;
 		case ('w'):
 			if (NULL != (field = strchr(optarg, ':'))) {
@@ -1574,12 +1601,12 @@ main(int argc, char *argv[])
 			fputs("gamer_init_register", stderr);
 			goto out;
 		}
-		if (game.verbose && initwait)
+		if (game.verbose > 1 && initwait)
 			fprintf(stderr, "%s: trying to "
 				"log in: %lld seconds\n", 
 				ctx[i].email,
 				(long long)(ctx[i].unblock - t));
-		else if (game.verbose)
+		else if (game.verbose > 1)
 			fprintf(stderr, "%s: trying to "
 				"log in\n", ctx[i].email);
 	}
@@ -1729,7 +1756,7 @@ main(int argc, char *argv[])
 				continue;
 			fprintf(stderr, "curl_multi_add_handle: %s\n",
 				curl_multi_strerror(cm));
-			if (game.verbose) 
+			if (game.verbose > 1) 
 				fprintf(stderr, "%s: unblocking "
 					"for comms: %s\n",
 					gp->email, gp->url);
@@ -1739,68 +1766,83 @@ main(int argc, char *argv[])
 		run = postrun;
 	} while (game.finished < game.players);
 
-	puts("");
-	puts("Per-round Metrics");
-	printf("%7s %11s %11s %11s %11s %10s %10s %10s %10s\n", "round", 
-		"rx mean", "rx stddev", 
-		"rtt mean", "rtt stddev", 
-		"samples", "plays", "firstplay", 
-		"lastplay");
+	if ( ! game.fixunit) {
+		puts("");
+		puts("Per-round Metrics");
+		printf("%7s %11s %11s %11s %11s %10s %10s %10s %10s\n", 
+			"round", "rx mean", "rx stddev", "rtt mean", 
+			"rtt stddev", "samples", "plays", "firstplay", 
+			"lastplay");
+	} else
+		puts("# round, rx mean, rx stddev, rtt mean, "
+			"rtt stddev, samples, plays, firstplay, "
+			"lastplay");
+
 	for (i = 0; i < game.roundsz; i++) {
 		printf("%7zd ", i);
-		fputs(fmt_bytes(game.rounds[i].rx.mean), stdout);
+		if (game.fixunit)
+			printf("%lld ", (long long)game.rounds[i].stamp);
+		fputs(fmt_bytes(&game, game.rounds[i].rx.mean), stdout);
 		putchar(' ');
-		fputs(fmt_bytes(stddev(&game.rounds[i].rx)), stdout);
+		fputs(fmt_bytes(&game, stddev(&game.rounds[i].rx)), stdout);
 		putchar(' ');
-		fputs(fmt_sec(game.rounds[i].rtt.mean), stdout);
+		fputs(fmt_sec(&game, game.rounds[i].rtt.mean), stdout);
 		putchar(' ');
-		fputs(fmt_sec(stddev(&game.rounds[i].rtt)), stdout);
+		fputs(fmt_sec(&game, stddev(&game.rounds[i].rtt)), stdout);
 		putchar(' ');
-		fputs(fmt_samples(game.rounds[i].rtt.n), stdout);
+		fputs(fmt_samples(&game, game.rounds[i].rtt.n), stdout);
 		putchar(' ');
-		fputs(fmt_samples(game.rounds[i].plays), stdout);
+		fputs(fmt_samples(&game, game.rounds[i].plays), stdout);
 		putchar(' ');
-		fputs(fmt_samples(game.rounds[i].firstplays), stdout);
+		fputs(fmt_samples(&game, game.rounds[i].firstplays), stdout);
 		putchar(' ');
-		fputs(fmt_samples(game.rounds[i].lastplays), stdout);
+		fputs(fmt_samples(&game, game.rounds[i].lastplays), stdout);
 		putchar('\n');
 	}
-	puts("");
-	puts("Per-page Metrics");
-	printf("%18s %11s %11s %11s %11s %10s\n", "page", 
-		"rx mean", "rx stddev", 
-		"rtt mean", "rtt stddev", 
-		"samples");
+
+	if ( ! game.fixunit) {
+		puts("");
+		puts("Per-page Metrics");
+		printf("%18s %11s %11s %11s %11s %10s\n", 
+			"page", "rx mean", "rx stddev", "rtt mean", 
+			"rtt stddev", "samples");
+	} else 
+		puts(" # page, rx mean, rx stddev, rtt mean, "
+			"rtt stddev, samples");
+
 	for (i = 0; i < PHASE__MAX; i++) {
 		printf("%18s ", urls[i] + urlsz + 1);
-		fputs(fmt_bytes(game.page_rx[i].mean), stdout);
+		fputs(fmt_bytes(&game, game.page_rx[i].mean), stdout);
 		putchar(' ');
-		fputs(fmt_bytes(stddev(&game.page_rx[i])), stdout);
+		fputs(fmt_bytes(&game, stddev(&game.page_rx[i])), stdout);
 		putchar(' ');
-		fputs(fmt_sec(game.page_rtt[i].mean), stdout);
+		fputs(fmt_sec(&game, game.page_rtt[i].mean), stdout);
 		putchar(' ');
-		fputs(fmt_sec(stddev(&game.page_rtt[i])), stdout);
+		fputs(fmt_sec(&game, stddev(&game.page_rtt[i])), stdout);
 		putchar(' ');
-		fputs(fmt_samples(game.page_rtt[i].n), stdout);
+		fputs(fmt_samples(&game, game.page_rtt[i].n), stdout);
 		putchar('\n');
 	}
-	puts("");
-	puts("Total Metrics");
-	printf("%12s %11s %11s %11s %10s\n", 
-		"rx mean", "rx stddev", 
-		"rtt mean", "rtt stddev", 
-		"samples");
-	putchar(' ');
-	fputs(fmt_bytes(game.total_rx.mean), stdout);
-	putchar(' ');
-	fputs(fmt_bytes(stddev(&game.total_rx)), stdout);
-	putchar(' ');
-	fputs(fmt_sec(game.total_rtt.mean), stdout);
-	putchar(' ');
-	fputs(fmt_sec(stddev(&game.total_rtt)), stdout);
-	putchar(' ');
-	fputs(fmt_samples(game.total_rtt.n), stdout);
-	putchar('\n');
+
+	if ( ! game.fixunit) {
+		puts("");
+		puts("Total Metrics");
+		printf("%12s %11s %11s %11s %10s\n", 
+			"rx mean", "rx stddev", 
+			"rtt mean", "rtt stddev", 
+			"samples");
+		putchar(' ');
+		fputs(fmt_bytes(&game, game.total_rx.mean), stdout);
+		putchar(' ');
+		fputs(fmt_bytes(&game, stddev(&game.total_rx)), stdout);
+		putchar(' ');
+		fputs(fmt_sec(&game, game.total_rtt.mean), stdout);
+		putchar(' ');
+		fputs(fmt_sec(&game, stddev(&game.total_rtt)), stdout);
+		putchar(' ');
+		fputs(fmt_samples(&game, game.total_rtt.n), stdout);
+		putchar('\n');
+	}
 
 	rc = 1;
 out:
@@ -1831,7 +1873,7 @@ out:
 	return(rc ? EXIT_SUCCESS : EXIT_FAILURE);
 usage:
 	fprintf(stderr, "usage: %s "
-		"[-cerv] "
+		"[-cefrv] "
 		"[-n players] "
 		"[-w [time|min:max]] "
 		"[-W max] "
