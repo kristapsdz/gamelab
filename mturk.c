@@ -317,6 +317,7 @@ mturk_create(const char *aws, const char *key, const char *name,
 		"&AssignmentDurationInSeconds=%" PRId64
 		"&LifetimeInSeconds=%" PRId64
 		"&Keywords=%s"
+		"&MaxAssignments=%" PRId64
 		"&qualification.1=000000000000000000L0"
 		"&qualification.comparator.1=GreaterThan"
 		"&qualification.value.1=95"
@@ -332,7 +333,7 @@ mturk_create(const char *aws, const char *key, const char *name,
 		aws, awstypes[AWS_CREATE_HIT],
 		pdigest, encdate, encname, 
 		encdesc, reward, encques, minutes * 60, 
-		minutes * 60, enckeys);
+		minutes * 60, enckeys, workers);
 
 	/* Initialise CURL object. */
 	curl_easy_setopt(c, CURLOPT_URL, url);

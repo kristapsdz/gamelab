@@ -1221,7 +1221,7 @@ senddostartexpr(struct kreq *r)
 	enum instrs	 inst;
 	int		 fd;
 	double		 reward;
-	int64_t		 flags, workers, minutes;
+	int64_t		 flags, workers, minutes, rounds;
 	struct stat	 st;
 	size_t		 sz;
 
@@ -1397,6 +1397,7 @@ senddostartexpr(struct kreq *r)
 		workers = NULL == r->fieldmap[KEY_WORKERS] ?
 			0 : r->fieldmap[KEY_WORKERS]->parsed.i;
 		minutes = r->fieldmap[KEY_MINUTES]->parsed.i;
+		rounds = r->fieldmap[KEY_ROUNDS]->parsed.i;
 		reward = r->fieldmap[KEY_AWSREWARD]->parsed.d;
 		if (reward < 0.01)
 			reward = 0.01;
@@ -1422,7 +1423,7 @@ senddostartexpr(struct kreq *r)
 				perror(NULL);
 			else
 				mturk_create(akey, skey, name, desc, 
-					workers, minutes, 
+					workers, minutes * rounds, 
 					flags & EXPR_SANDBOX, reward, 
 					keys, server);
 			free(akey);
