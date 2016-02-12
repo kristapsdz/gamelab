@@ -3082,6 +3082,7 @@ db_backup(const char *zfile)
 	return(1);
 err:
 	sqlite3_close(pf);
-	remove(zfile);
+	if (-1 == remove(zfile))
+		WARN("remove: %s", zfile);
 	return(0);
 }
