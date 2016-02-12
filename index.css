@@ -50,6 +50,7 @@ a			{ text-decoration: none;
 			  color: #ff9000; }
 a:hover			{ color: #ff6000; }
 footer a		{ color: #cc9000; }
+footer div		{ margin-bottom: 2pt; }
 section .nm		{ color: #cc3806; }
 section a		{ color: #dd8000; }
 section a:hover	{ color: #ff9000;

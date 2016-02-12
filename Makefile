@@ -144,7 +144,8 @@ VERSIONS = version_1_0_1.xml \
 	   version_1_0_23.xml \
 	   version_1_0_24.xml \
 	   version_1_0_25.xml \
-	   version_1_1_1.xml 
+	   version_1_1_1.xml \
+	   version_1_1_2.xml 
 BUILTMLS = history.html \
 	   index.html \
 	   manual.html \
