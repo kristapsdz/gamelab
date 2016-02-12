@@ -496,7 +496,8 @@ mail_backup(void)
 		goto out;
 	WARN("Mail error: %s", curl_easy_strerror(res));
 out:
-	chmod(fname, 0);
+	if (-1 == chmod(fname, 0))
+		WARN("chmod: %s", fname);
 	mail_free(&m, curl, recpts);
 }
 
