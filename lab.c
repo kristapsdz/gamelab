@@ -1267,6 +1267,7 @@ doreq(struct kreq *r)
 		return;
 	}
 
+	id = -1;
 	if ((perms[r->page] & PERM_LOGIN) && ! sess_valid(r, &id)) {
 		if (KMIME_TEXT_HTML != r->mime) {
 			http_open(r, KHTTP_403);
