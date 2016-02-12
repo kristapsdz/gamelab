@@ -88,6 +88,12 @@
 					<i class="fa fa-cloud-download"></i>
 				</a>
 			</span>
+			<span>
+				<a title="GitHub" href="https://github.com/kristapsdz/gamelab">
+					<span class="bigview">GitHub</span>
+					<i class="fa fa-github"></i>
+				</a>
+			</span>
 			<div>
 				<a title="BibTeX Citation" href="gamelab.bib">
 					<span class="bigview">Cite</span>
@@ -514,7 +520,8 @@
 					</p>
 					<p>
 						You can download the latest <span class="nm">gamelab</span> source code from the <a
-							href="snapshots">snapshots</a> directory.
+							href="snapshots">snapshots</a> directory, or browse the source on the readonly
+						<a href="https://github.com/kristapsdz/gamelab">GitHub</a> repository.
 						This also contains all previous releases.
 					</p>
 				</section>

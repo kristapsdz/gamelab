@@ -24,6 +24,12 @@
 					</a>
 				</span>
 				<span>
+					<a title="GitHub" href="https://github.com/kristapsdz/gamelab">
+						<span class="bigview">GitHub</span>
+						<i class="fa fa-github"></i>
+					</a>
+				</span>
+				<span>
 					<a title="BibTeX Citation" href="gamelab.bib">
 						<span class="bigview">Cite</span>
 						<i class="fa fa-bookmark"></i>

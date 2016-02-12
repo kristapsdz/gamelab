@@ -93,4 +93,8 @@ nav[data-sblg-nav]	{ font-size: 12pt; }
 			  margin-bottom: 0.5em; 
 			  margin-top: 1em; }
 .bigview		{ display: none; }
+header div > span	{ padding-left: 0.25ex;
+			  padding-right: 0.25ex; }
+header div > span:first-child
+			{ padding-right: 2ex; }
 }
