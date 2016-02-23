@@ -96,13 +96,31 @@ base64buf(char *enc, const char *str, size_t len)
 static void
 encodeblock(unsigned char *in, unsigned char *out, int len)
 {
+	int	 val;
 
-	out[0] = b64[(int)(in[0] >> 2)];
-	out[1] = b64[(int)(((in[0] & 0x03) << 4) | 
-			((in[1] & 0xf0) >> 4))];
-	out[2] = (len > 1 ? b64[(int)(((in[1] & 0x0f) << 2) | 
-		        ((in[2] & 0xc0) >> 6))] : '=');
-	out[3] = (len > 2 ? b64[(int)(in[2] & 0x3f)] : '=');
+	val = (int)(in[0] >> 2);
+	assert(val >= 0 && (size_t)val < sizeof(b64));
+	out[0] = b64[val];
+
+	val = (int)(((in[0] & 0x03) << 4) | 
+		((in[1] & 0xf0) >> 4));
+	assert(val >= 0 && (size_t)val < sizeof(b64));
+	out[1] = b64[val];
+
+	if (len > 1) {
+		val = (int)(((in[1] & 0x0f) << 2) | 
+			((in[2] & 0xc0) >> 6));
+		assert(val >= 0 && (size_t)val < sizeof(b64));
+		out[2] = b64[val];
+	} else
+		out[2] = '=';
+
+	if (len > 2) {
+		val = (int)(in[2] & 0x3f);
+		assert(val >= 0 && (size_t)val < sizeof(b64));
+		out[3] = b64[val];
+	} else
+		out[3] = '=';
 }
 
 void

@@ -211,6 +211,7 @@ buf_append(struct buf *buf, const char *fmt, ...)
 	}
 	offs = buf->bsz - (0 == buf->bsz ? 0 : 1);
 	ret = vsnprintf(buf->b + offs, buf->bmax - offs, fmt, app);
+	va_end(app);
 	va_end(ap);
 	assert(-1 != ret && (size_t)ret + 1 <= buf->bmax - offs);
 	buf->bsz += ret + (0 == buf->bsz ? 1 : 0);
@@ -250,6 +251,7 @@ buf_write(struct buf *buf, const char *fmt, ...)
 		buf->bmax = ret + 1;
 	}
 	ret = vsnprintf(buf->b, buf->bmax, fmt, app);
+	va_end(app);
 	va_end(ap);
 	assert(-1 != ret && (size_t)ret + 1 <= buf->bmax);
 	buf->bsz = ret + 1;

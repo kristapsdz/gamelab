@@ -851,6 +851,7 @@ db_winners(struct expr **expr, size_t winnersz, int64_t seed, size_t count)
 		"FROM player ORDER BY rseed ASC, id ASC");
 	srandom(seed);
 	for (i = 0; i < winnersz; i++) {
+		/* coverity[dont_call] */
 		top = random() % (*expr)->total;
 		INFO("Winning ticket: %" PRId64, top);
 		id = 0;
