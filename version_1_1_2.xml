@@ -2,12 +2,13 @@
 	<header>
 		<h1>1.1.2</h1>
 		<address>Kristaps Dzonsons</address>
-		<time datetime="2016-02-10">2016-02-10</time>
+		<time datetime="2016-02-23">2016-02-23</time>
 	</header>
 	<aside>
 		<p>
 			Integrate with a <a href="https://github.com/kristapsdz/gamelab">GitHub</a> account as a read-only repository.
 			Also run a <a href="https://scan.coverity.com/projects/gamelab">Coverity</a> scan against the software.
+			This found no meaningful bugs, but is a useful addition to regression analysis.
 		</p>
 	</aside>
 </article>

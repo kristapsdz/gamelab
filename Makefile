@@ -37,9 +37,9 @@ STATIC		 =
 
 # You really don't want to change anything below this line.
 
-VERSION	 = 1.1.1
-VMONTH	 = November
-VYEAR	 = 2015
+VERSION	 = 1.1.2
+VMONTH	 = February
+VYEAR	 = 2016
 CFLAGS 	+= -g -W -Wall -Wstrict-prototypes -Wno-unused-parameter -Wwrite-strings -I/usr/local/include
 CFLAGS	+= -DDATADIR=\"$(RDATADIR)\" -DHTURI=\"$(HTURI)\" -DLABURI=\"$(LABURI)\"
 INSTRS 	 = instructions-lottery.xml \
