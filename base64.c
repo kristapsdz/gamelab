@@ -41,29 +41,50 @@ base64len(size_t len)
 size_t 
 base64buf(char *enc, const char *str, size_t len)
 {
-	size_t 	i;
+	size_t 	i, val;
 	char 	*p;
 
 	p = enc;
 
 	for (i = 0; i < len - 2; i += 3) {
-		*p++ = b64[(str[i] >> 2) & 0x3F];
-		*p++ = b64[((str[i] & 0x3) << 4) |
-			((int)(str[i + 1] & 0xF0) >> 4)];
-		*p++ = b64[((str[i + 1] & 0xF) << 2) |
-			((int)(str[i + 2] & 0xC0) >> 6)];
-		*p++ = b64[str[i + 2] & 0x3F];
+		val = (str[i] >> 2) & 0x3F;
+		assert(val < sizeof(b64));
+		*p++ = b64[val];
+
+		val = ((str[i] & 0x3) << 4) | 
+			((int)(str[i + 1] & 0xF0) >> 4);
+		assert(val < sizeof(b64));
+		*p++ = b64[val];
+
+		val = ((str[i + 1] & 0xF) << 2) | 
+			((int)(str[i + 2] & 0xC0) >> 6);
+		assert(val < sizeof(b64));
+		*p++ = b64[val];
+
+		val = str[i + 2] & 0x3F;
+		assert(val < sizeof(b64));
+		*p++ = b64[val];
 	}
 
 	if (i < len) {
-		*p++ = b64[(str[i] >> 2) & 0x3F];
+		val = (str[i] >> 2) & 0x3F;
+		assert(val < sizeof(b64));
+		*p++ = b64[val];
+
 		if (i == (len - 1)) {
-			*p++ = b64[((str[i] & 0x3) << 4)];
+			val = ((str[i] & 0x3) << 4);
+			assert(val < sizeof(b64));
+			*p++ = b64[val];
 			*p++ = '=';
 		} else {
-			*p++ = b64[((str[i] & 0x3) << 4) |
-				((int)(str[i + 1] & 0xF0) >> 4)];
-			*p++ = b64[((str[i + 1] & 0xF) << 2)];
+			val = ((str[i] & 0x3) << 4) |
+				((int)(str[i + 1] & 0xF0) >> 4);
+			assert(val < sizeof(b64));
+			*p++ = b64[val];
+
+			val = ((str[i + 1] & 0xF) << 2);
+			assert(val < sizeof(b64));
+			*p++ = b64[val];
 		}
 		*p++ = '=';
 	}
