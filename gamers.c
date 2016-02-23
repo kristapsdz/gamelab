@@ -196,6 +196,7 @@ buf_append(struct buf *buf, const char *fmt, ...)
 	va_copy(app, ap);
 	if (-1 == (ret = vsnprintf(NULL, 0, fmt, ap))) {
 		perror("vsnprintf");
+		va_end(app);
 		va_end(ap);
 		return(0);
 	}
@@ -203,6 +204,7 @@ buf_append(struct buf *buf, const char *fmt, ...)
 	if (nsz > buf->bmax) {
 		if (NULL == (p = realloc(buf->b, nsz))) {
 			perror(NULL);
+			va_end(app);
 			va_end(ap);
 			return(0);
 		}
@@ -237,6 +239,7 @@ buf_write(struct buf *buf, const char *fmt, ...)
 
 	if (-1 == (ret = vsnprintf(NULL, 0, fmt, ap))) {
 		perror("vsnprintf");
+		va_end(app);
 		va_end(ap);
 		return(0);
 	}
@@ -244,6 +247,7 @@ buf_write(struct buf *buf, const char *fmt, ...)
 		p = realloc(buf->b, (size_t)ret + 1);
 		if (NULL == p) {
 			perror(NULL);
+			va_end(app);
 			va_end(ap);
 			return(0);
 		}
