@@ -318,22 +318,27 @@ mturk_create(const char *aws, const char *key, const char *name,
 		"&LifetimeInSeconds=%" PRId64
 		"&Keywords=%s"
 		"&MaxAssignments=%" PRId64
-		"&qualification.1=000000000000000000L0"
-		"&qualification.comparator.1=GreaterThan"
-		"&qualification.value.1=95"
-		"&qualification.private.1=false"
-		"&qualification.2=00000000000000000040"
-		"&qualification.comparator.2=GreaterThan"
-		"&qualification.value.2=500"
-		"&qualification.private.2=false"
-		"&qualification.3=00000000000000000071"
-		"&qualification.comparator.3=EqualTo"
-		"&qualification.locale.3=US"
-		"&qualification.private.3=false",
-		aws, awstypes[AWS_CREATE_HIT],
-		pdigest, encdate, encname, 
-		encdesc, reward, encques, minutes * 60, 
-		minutes * 60, enckeys, workers);
+		"&QualificationRequirement.1.QualificationTypeId=000000000000000000L0"
+		"&QualificationRequirement.1.Comparator=GreaterThan"
+		"&QualificationRequirement.1.IntegerValue.1=95"
+		"&QualificationRequirement.2.QualificationTypeId=00000000000000000040"
+		"&QualificationRequirement.2.Comparator=GreaterThan"
+		"&QualificationRequirement.2.IntegerValue.1=500"
+		"&QualificationRequirement.3.QualificationTypeId=00000000000000000071"
+		"&QualificationRequirement.3.Comparator=EqualTo"
+		"&QualificationRequirement.3.LocaleValue.1.Country=US",
+		aws,  /* access key ID */
+		awstypes[AWS_CREATE_HIT], /* operation */
+		pdigest, /* request signature */
+		encdate, /* used for signature */
+		encname, /* name of experment (URL encode) */
+		encdesc, /* description (URL encode) */
+		reward,  /* reward for participants */
+		encques,  /* question data */
+		minutes * 60, /* assignment duration */
+		minutes * 60, /* when it's valid */
+		enckeys, /* keywords */
+		workers); /* number of workers */
 
 	/* Initialise CURL object. */
 	curl_easy_setopt(c, CURLOPT_URL, url);
