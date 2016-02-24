@@ -1,0 +1,12 @@
+<article data-sblg-article="1" data-sblg-tags="version">
+	<header>
+		<h1>1.1.3</h1>
+		<address>Kristaps Dzonsons</address>
+		<time datetime="2016-02-24">2016-02-24</time>
+	</header>
+	<aside>
+		<p>
+			Fix the QualificationRequirement portion of the Mechanical Turk request.
+		</p>
+	</aside>
+</article>

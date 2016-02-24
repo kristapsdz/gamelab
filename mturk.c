@@ -166,11 +166,6 @@ node_parse(void *contents, size_t len, size_t nm, void *arg)
 	struct state 	*st;
 	int		 erc;
 
-	/* XXX: remove me. */
-	INFO("Mechanical Turk: %.*s", 
-		(int)(len * nm), 
-		(const char *)contents);
-
 	st = XML_GetUserData(parser);
 	assert(NULL != st);
 	/* Overflow check. */
