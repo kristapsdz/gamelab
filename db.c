@@ -42,7 +42,7 @@
 		"player.finalrank,player.finalscore,player.autoadd," \
 		"player.version,player.joined,player.answer," \
 		"player.hitid,player.assignmentid,player.hash," \
-		"player.mturkdone"
+		"player.mturkdone,player.bonusid"
 
 /*
  * The database, its location, and its statement (if any).
@@ -1169,6 +1169,7 @@ db_player_fill(struct player *p, sqlite3_stmt *s)
 	p->assignmentid = kstrdup((char *)sqlite3_column_text(s, 14));
 	p->hash = kstrdup((char *)sqlite3_column_text(s, 15));
 	p->mturkdone = sqlite3_column_int64(s, 16);
+	p->bonusid = sqlite3_column_int64(s, 17);
 }
 
 /*
@@ -1229,6 +1230,26 @@ db_player_load_highest(playerscorefp fp, void *arg, size_t limit)
 		mpq_clear(aggr);
 	}
 
+	sqlite3_finalize(stmt);
+}
+
+/*
+ * Load all Mechanical Turk players who have finished their sequence of
+ * play and need to receive bonuses.
+ */
+void
+db_player_load_bonuses(playerf fp, void *arg)
+{
+	sqlite3_stmt	*stmt;
+	struct player	 player;
+
+	stmt = db_stmt("SELECT " PLAYER " FROM player "
+		"WHERE mturkdone=1 AND bonusid>0");
+	while (SQLITE_ROW == db_step(stmt, 0)) {
+		db_player_fill(&player, stmt);
+		(*fp)(&player, arg);
+		db_player_clear(&player);
+	}
 	sqlite3_finalize(stmt);
 }
 

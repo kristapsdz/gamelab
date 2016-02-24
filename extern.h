@@ -162,6 +162,7 @@ struct	player {
 	int64_t		 version; /* increment at update */
 	int64_t		 joined; /* round when joined experiment */
 	int64_t		 answer; /* # answered questions */
+	int64_t		 bonusid; /* if !0, mturk's bonus req id */
 	int64_t		 id; /* unique identifier */
 };
 
@@ -295,6 +296,7 @@ void		 db_player_enable(int64_t);
 void		 db_player_free(struct player *);
 struct player	*db_player_load(int64_t);
 void		 db_player_load_all(playerf, void *);
+void		 db_player_load_bonuses(playerf, void *);
 void		 db_player_load_playing(const struct expr *, playerf, void *);
 void		 db_player_load_highest(playerscorefp, void *, size_t);
 int		 db_player_lottery(int64_t, int64_t, 
