@@ -1,6 +1,6 @@
 /*	$Id$ */
 /*
- * Copyright (c) 2014--2015 Kristaps Dzonsons <kristaps@kcons.eu>
+ * Copyright (c) 2014--2016 Kristaps Dzonsons <kristaps@kcons.eu>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -61,7 +61,7 @@ db_close(void)
 	if (NULL == db)
 		return;
 	if (SQLITE_OK != sqlite3_close(db))
-		perror(sqlite3_errmsg(db));
+		WARNX("sqlite3_close: %s", sqlite3_errmsg(db));
 	db = NULL;
 }
 
@@ -86,7 +86,7 @@ db_tryopen(void)
 
 	/* Register exit hook for the destruction of the database. */
 	if (-1 == atexit(db_close)) {
-		perror(NULL);
+		WARN("atexit");
 		exit(EXIT_FAILURE);
 	}
 
@@ -97,11 +97,11 @@ again:
 		db_sleep(attempt++);
 		goto again;
 	} else if (SQLITE_LOCKED == rc) {
-		WARN("sqlite3_step: %s", sqlite3_errmsg(db));
+		WARNX("sqlite3_step: %s", sqlite3_errmsg(db));
 		db_sleep(attempt++);
 		goto again;
 	} else if (SQLITE_PROTOCOL == rc) {
-		WARN("sqlite3_step: %s", sqlite3_errmsg(db));
+		WARNX("sqlite3_step: %s", sqlite3_errmsg(db));
 		db_sleep(attempt++);
 		goto again;
 	} else if (SQLITE_OK == rc) {
@@ -109,7 +109,7 @@ again:
 		return;
 	} 
 
-	WARN("sqlite3_open: %s", sqlite3_errmsg(db));
+	WARNX("sqlite3_open: %s", sqlite3_errmsg(db));
 	exit(EXIT_FAILURE);
 }
 
@@ -127,11 +127,11 @@ again:
 		db_sleep(attempt++);
 		goto again;
 	} else if (SQLITE_LOCKED == rc) {
-		WARN("sqlite3_step: %s", sqlite3_errmsg(db));
+		WARNX("sqlite3_step: %s", sqlite3_errmsg(db));
 		db_sleep(attempt++);
 		goto again;
 	} else if (SQLITE_PROTOCOL == rc) {
-		WARN("sqlite3_step: %s", sqlite3_errmsg(db));
+		WARNX("sqlite3_step: %s", sqlite3_errmsg(db));
 		db_sleep(attempt++);
 		goto again;
 	}
@@ -141,7 +141,7 @@ again:
 	if (SQLITE_CONSTRAINT == rc && DB_STEP_CONSTRAINT & flags)
 		return(rc);
 
-	WARN("sqlite3_step: %s", sqlite3_errmsg(db));
+	WARNX("sqlite3_step: %s", sqlite3_errmsg(db));
 	sqlite3_finalize(stmt);
 	exit(EXIT_FAILURE);
 }
@@ -161,17 +161,17 @@ again:
 		db_sleep(attempt++);
 		goto again;
 	} else if (SQLITE_LOCKED == rc) {
-		WARN("sqlite3_prepare_v2: %s", sqlite3_errmsg(db));
+		WARNX("sqlite3_prepare_v2: %s", sqlite3_errmsg(db));
 		db_sleep(attempt++);
 		goto again;
 	} else if (SQLITE_PROTOCOL == rc) {
-		WARN("sqlite3_prepare_v2: %s", sqlite3_errmsg(db));
+		WARNX("sqlite3_prepare_v2: %s", sqlite3_errmsg(db));
 		db_sleep(attempt++);
 		goto again;
 	} else if (SQLITE_OK == rc)
 		return(stmt);
 
-	WARN("sqlite3_prepare_v2: %s (%s)", sqlite3_errmsg(db), sql);
+	WARNX("sqlite3_prepare_v2: %s (%s)", sqlite3_errmsg(db), sql);
 	sqlite3_finalize(stmt);
 	exit(EXIT_FAILURE);
 }
@@ -184,7 +184,7 @@ db_bind_text(sqlite3_stmt *stmt, size_t pos, const char *val)
 	if (SQLITE_OK == sqlite3_bind_text
 		(stmt, pos, val, -1, SQLITE_STATIC))
 		return;
-	WARN("sqlite3_bind_text: %s", sqlite3_errmsg(db));
+	WARNX("sqlite3_bind_text: %s", sqlite3_errmsg(db));
 	sqlite3_finalize(stmt);
 	exit(EXIT_FAILURE);
 }
@@ -196,7 +196,7 @@ db_bind_double(sqlite3_stmt *stmt, size_t pos, double val)
 	assert(pos > 0);
 	if (SQLITE_OK == sqlite3_bind_double(stmt, pos, val))
 		return;
-	WARN("sqlite3_bind_double: %s", sqlite3_errmsg(db));
+	WARNX("sqlite3_bind_double: %s", sqlite3_errmsg(db));
 	sqlite3_finalize(stmt);
 	exit(EXIT_FAILURE);
 }
@@ -208,7 +208,7 @@ db_bind_int(sqlite3_stmt *stmt, size_t pos, int64_t val)
 	assert(pos > 0);
 	if (SQLITE_OK == sqlite3_bind_int64(stmt, pos, val))
 		return;
-	WARN("sqlite3_bind_int64: %s", sqlite3_errmsg(db));
+	WARNX("sqlite3_bind_int64: %s", sqlite3_errmsg(db));
 	sqlite3_finalize(stmt);
 	exit(EXIT_FAILURE);
 }
@@ -227,17 +227,17 @@ again:
 		db_sleep(attempt++);
 		goto again;
 	} else if (SQLITE_LOCKED == rc) {
-		WARN("sqlite3_exec: %s", sqlite3_errmsg(db));
+		WARNX("sqlite3_exec: %s", sqlite3_errmsg(db));
 		db_sleep(attempt++);
 		goto again;
 	} else if (SQLITE_PROTOCOL == rc) {
-		WARN("sqlite3_exec: %s", sqlite3_errmsg(db));
+		WARNX("sqlite3_exec: %s", sqlite3_errmsg(db));
 		db_sleep(attempt++);
 		goto again;
 	} else if (SQLITE_OK == rc)
 		return;
 
-	WARN("sqlite3_exec: %s (%s)", sqlite3_errmsg(db), sql);
+	WARNX("sqlite3_exec: %s (%s)", sqlite3_errmsg(db), sql);
 	exit(EXIT_FAILURE);
 }
 
@@ -631,7 +631,7 @@ fallthrough:
 		db_expr_free(expr);
 		return(0);
 	} else if (t < expr->roundbegan) {
-		WARN("Round-advance: time warp!");
+		WARNX("Round-advance: time warp!");
 		db_expr_free(expr);
 		return(0);
 	} 
@@ -654,7 +654,7 @@ advance:
 	assert(NULL != expr);
 	if (round < expr->round) {
 		db_trans_rollback();
-		WARN("Round-advance: time warp (commit): "
+		WARNX("Round-advance: time warp (commit): "
 			"computed %" PRId64 " have %"
 			PRId64, expr->round, round);
 	} else if (round == expr->round) {
@@ -862,7 +862,7 @@ db_winners(struct expr **expr, size_t winnersz, int64_t seed, size_t count)
 			if (score < 0) {
 				sqlite3_finalize(stmt);
 				db_trans_rollback();
-				WARN("Win (lottery) request when "
+				WARNX("Win (lottery) request when "
 					"player %" PRId64 " has "
 					"negative tickets", id);
 				free(winners);
@@ -2999,13 +2999,13 @@ db_backup(const char *zfile)
 
 	rc = sqlite3_open(zfile, &pf);
 	if (SQLITE_OK != rc) {
-		WARN("sqlite3_open: %s", sqlite3_errmsg(pf));
+		WARNX("sqlite3_open: %s", sqlite3_errmsg(pf));
 		goto err;
 	}
 
 	pBackup = sqlite3_backup_init(pf, "main", db, "main");
 	if (NULL == pBackup) {
-		WARN("sqlite3_backup_init: %s", sqlite3_errmsg(pf));
+		WARNX("sqlite3_backup_init: %s", sqlite3_errmsg(pf));
 		goto err;
 	}
 
@@ -3025,12 +3025,12 @@ db_backup(const char *zfile)
 		 rc == SQLITE_LOCKED);
 
 	if (SQLITE_DONE != rc) {
-		WARN("sqlite3_backup_step: %s", sqlite3_errmsg(pf));
+		WARNX("sqlite3_backup_step: %s", sqlite3_errmsg(pf));
 		goto err;
 	}
 
 	if (SQLITE_OK != sqlite3_backup_finish(pBackup)) {
-		WARN("sqlite3_backup_finish: %s", sqlite3_errmsg(pf));
+		WARNX("sqlite3_backup_finish: %s", sqlite3_errmsg(pf));
 		goto err;
 	}
 
@@ -3044,11 +3044,11 @@ db_backup(const char *zfile)
 		-1, &stmt, NULL);
 
 	if (SQLITE_OK != rc) {
-		WARN("sqlite3_prepare_v2: %s", sqlite3_errmsg(pf));
+		WARNX("sqlite3_prepare_v2: %s", sqlite3_errmsg(pf));
 		sqlite3_finalize(stmt);
 		goto err;
 	} else if (SQLITE_DONE != sqlite3_step(stmt)) {
-		WARN("sqlite3_prepare_v2: %s", sqlite3_errmsg(pf));
+		WARNX("sqlite3_prepare_v2: %s", sqlite3_errmsg(pf));
 		sqlite3_finalize(stmt);
 		goto err;
 	}
@@ -3059,11 +3059,11 @@ db_backup(const char *zfile)
 		-1, &stmt, NULL);
 
 	if (SQLITE_OK != rc) {
-		WARN("sqlite3_prepare_v2: %s", sqlite3_errmsg(pf));
+		WARNX("sqlite3_prepare_v2: %s", sqlite3_errmsg(pf));
 		sqlite3_finalize(stmt);
 		goto err;
 	} else if (SQLITE_DONE != sqlite3_step(stmt)) {
-		WARN("sqlite3_prepare_v2: %s", sqlite3_errmsg(pf));
+		WARNX("sqlite3_prepare_v2: %s", sqlite3_errmsg(pf));
 		sqlite3_finalize(stmt);
 		goto err;
 	}
@@ -3074,11 +3074,11 @@ db_backup(const char *zfile)
 		-1, &stmt, NULL);
 
 	if (SQLITE_OK != rc) {
-		WARN("sqlite3_prepare_v2: %s", sqlite3_errmsg(pf));
+		WARNX("sqlite3_prepare_v2: %s", sqlite3_errmsg(pf));
 		sqlite3_finalize(stmt);
 		goto err;
 	} else if (SQLITE_DONE != sqlite3_step(stmt)) {
-		WARN("sqlite3_prepare_v2: %s", sqlite3_errmsg(pf));
+		WARNX("sqlite3_prepare_v2: %s", sqlite3_errmsg(pf));
 		sqlite3_finalize(stmt);
 		goto err;
 	}
@@ -3089,11 +3089,11 @@ db_backup(const char *zfile)
 		-1, &stmt, NULL);
 
 	if (SQLITE_OK != rc) {
-		WARN("sqlite3_prepare_v2: %s", sqlite3_errmsg(pf));
+		WARNX("sqlite3_prepare_v2: %s", sqlite3_errmsg(pf));
 		sqlite3_finalize(stmt);
 		goto err;
 	} else if (SQLITE_DONE != sqlite3_step(stmt)) {
-		WARN("sqlite3_prepare_v2: %s", sqlite3_errmsg(pf));
+		WARNX("sqlite3_prepare_v2: %s", sqlite3_errmsg(pf));
 		sqlite3_finalize(stmt);
 		goto err;
 	}

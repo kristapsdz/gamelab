@@ -1,6 +1,6 @@
 /*	$Id$ */
 /*
- * Copyright (c) 2015 Kristaps Dzonsons <kristaps@kcons.eu>
+ * Copyright (c) 2015, 2016 Kristaps Dzonsons <kristaps@kcons.eu>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -15,13 +15,12 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 #include <assert.h>
+#include <errno.h>
 #include <stdarg.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#ifdef LOGTIME
 #include <string.h>
-#endif
 #include <time.h>
 #include <unistd.h>
 
@@ -76,5 +75,30 @@ dbg_warn(const char *file, size_t line, const char *fmt, ...)
 	vfprintf(stderr, fmt, ap);
 	va_end(ap);
 	fputc('\n', stderr);
+	fflush(stderr);
+}
+
+void
+dbg_warnx(const char *file, size_t line, const char *fmt, ...)
+{
+	va_list	 ap;
+	int	 er = errno;
+#ifdef LOGTIME
+	char	 buf[32];
+	time_t	 t;
+	size_t	 sz;
+#endif
+#ifdef	LOGTIME
+	t = time(NULL);
+	ctime_r(&t, buf);
+	sz = strlen(buf);
+	buf[sz - 1] = '\0';
+	fprintf(stderr, "[%s] ", buf);
+#endif
+	fprintf(stderr, "[gamelab-WARN] %s:%zu: ", file, line);
+	va_start(ap, fmt);
+	vfprintf(stderr, fmt, ap);
+	va_end(ap);
+	fprintf(stderr, ": %s\n", strerror(er));
 	fflush(stderr);
 }

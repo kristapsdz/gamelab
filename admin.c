@@ -1,6 +1,6 @@
 /*	$Id$ */
 /*
- * Copyright (c) 2014--2015 Kristaps Dzonsons <kristaps@kcons.eu>
+ * Copyright (c) 2014--2016 Kristaps Dzonsons <kristaps@kcons.eu>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -315,7 +315,7 @@ mailround(const char *uri)
 		expr = db_expr_get(0);
 
 		if (pid != expr->roundpid) {
-			WARN("Round mailer error: "
+			WARNX("Round mailer error: "
 				"invoked with different pid: "
 				"my %u != %" PRId64 " (exiting)", 
 				pid, expr->roundpid);
@@ -358,18 +358,18 @@ doublefork(struct kreq *r)
 
 	db_close();
 	if (-1 == (pid = fork())) {
-		perror(NULL);
+		WARN("fork");
 		return(-1);
 	} else if (pid > 0) {
 		if (-1 == waitpid(pid, NULL, 0)) {
-			perror("waitpid");
+			WARN("waitpid");
 			return(-1);
 		}
 		return(1);
 	}
 	khttp_child_free(r);
 	if (-1 == daemon(1, 1)) {
-		perror(NULL);
+		WARN("daemon");
 		exit(EXIT_SUCCESS);
 	} 
 	return(0);
@@ -1179,10 +1179,11 @@ senddoresetpasswordss(struct kreq *r)
 	db_close();
 
 	if (-1 == (pid = fork())) {
-		perror(NULL);
+		WARN("fork");
 		return;
 	} else if (pid > 0) {
-		waitpid(pid, NULL, 0);
+		if (-1 == waitpid(pid, NULL, 0))
+			WARN("waitpid");
 		free(loginuri);
 		free(uri);
 		return;
@@ -1190,7 +1191,7 @@ senddoresetpasswordss(struct kreq *r)
 
 	khttp_child_free(r);
 	if (daemon(1, 1) < 0) 
-		perror(NULL);
+		WARN("daemon");
 	else
 		mail_players(uri, loginuri);
 
@@ -1224,10 +1225,11 @@ senddoresendmail(struct kreq *r)
 	db_close();
 
 	if (-1 == (pid = fork())) {
-		perror(NULL);
+		WARN("fork");
 		return;
 	} else if (pid > 0) {
-		waitpid(pid, NULL, 0);
+		if (-1 == waitpid(pid, NULL, 0))
+			WARN("waitpid");
 		free(loginuri);
 		free(uri);
 		return;
@@ -1236,7 +1238,7 @@ senddoresendmail(struct kreq *r)
 	khttp_child_free(r);
 
 	if (daemon(1, 1) < 0)
-		perror(NULL);
+		WARN("daemon");
 	else
 		mail_players(uri, loginuri);
 
@@ -1410,19 +1412,19 @@ senddostartexpr(struct kreq *r)
 	if (r->fieldmap[KEY_MAILROUND]->parsed.i) {
 		db_close();
 		if (-1 == (pid = fork())) {
-			perror(NULL);
+			WARN("fork");
 			return;
 		} else if (0 == pid) {
 			khttp_child_free(r);
 			if (daemon(1, 1) < 0)
-				perror(NULL);
+				WARN("daemon");
 			else
 				mailround(uri);
 			free(loginuri);
 			free(uri);
 			exit(EXIT_SUCCESS);
-		} else
-			waitpid(pid, NULL, 0);
+		} else if (-1 == waitpid(pid, NULL, 0))
+			WARN("waitpid");
 	}
 
 	if (r->fieldmap[KEY_AWSACCESSKEY]->valsz &&
@@ -1436,7 +1438,7 @@ senddostartexpr(struct kreq *r)
 			reward = 0.01;
 		db_close();
 		if (-1 == (pid = fork())) {
-			perror(NULL);
+			WARN("fork");
 			return;
 		} else if (0 == pid) {
 			akey = kstrdup(r->fieldmap
@@ -1453,7 +1455,7 @@ senddostartexpr(struct kreq *r)
 
 			khttp_child_free(r);
 			if (daemon(1, 1) < 0)
-				perror(NULL);
+				WARN("daemon");
 			else
 				mturk_create(akey, skey, name, desc, 
 					workers, minutes * rounds, 
@@ -1466,8 +1468,8 @@ senddostartexpr(struct kreq *r)
 			free(keys);
 			free(server);
 			exit(EXIT_SUCCESS);
-		} else
-			waitpid(pid, NULL, 0);
+		} else if (-1 == waitpid(pid, NULL, 0))
+			WARN("waitpid");
 	}
 
 	/*
@@ -1476,10 +1478,11 @@ senddostartexpr(struct kreq *r)
 	 */
 	db_close();
 	if (-1 == (pid = fork())) {
-		perror(NULL);
+		WARN("fork");
 		return;
 	} else if (pid > 0) {
-		waitpid(pid, NULL, 0);
+		if (-1 == waitpid(pid, NULL, 0))
+			WARN("waitpid");
 		free(loginuri);
 		free(uri);
 		return;
@@ -1487,7 +1490,7 @@ senddostartexpr(struct kreq *r)
 
 	khttp_child_free(r);
 	if (daemon(1, 1) < 0) 
-		perror(NULL);
+		WARN("daemon");
 	else
 		mail_players(uri, loginuri);
 

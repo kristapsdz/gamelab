@@ -1337,7 +1337,7 @@ main(void)
 		er = khttp_fcgi_init(&fcgi, keys, KEY__MAX, 
 			pages, PAGE__MAX, PAGE_INDEX);
 		if (KCGI_OK != er) {
-			WARN("khttp_fcgi_init: error %d", er);
+			WARNX("khttp_fcgi_init: error %d", er);
 			return(EXIT_FAILURE);
 		}
 		INFO("FastCGI mode: pid %u", getpid());
@@ -1346,7 +1346,7 @@ main(void)
 			khttp_free(&r);
 		}
 		if (KCGI_HUP != er)
-			WARN("khttp_parse: error %d", er);
+			WARNX("khttp_parse: error %d", er);
 		khttp_fcgi_free(fcgi);
 	} else {
 		er = khttp_parse(&r, keys, KEY__MAX, 
@@ -1355,7 +1355,7 @@ main(void)
 			doreq(&r);
 			khttp_free(&r);
 		} else 
-			WARN("khttp_parse: error %d", er);
+			WARNX("khttp_parse: error %d", er);
 	}
 
 	return(EXIT_SUCCESS);

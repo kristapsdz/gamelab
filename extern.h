@@ -360,11 +360,15 @@ char		*mpq_mpq2str(mpq_t *, size_t);
 
 #define		 INFO(_fmt, ...) \
 		 dbg_info(__FILE__, __LINE__, _fmt, ##__VA_ARGS__)
+#define		 WARNX(_fmt, ...) \
+		 dbg_warnx(__FILE__, __LINE__, _fmt, ##__VA_ARGS__)
 #define		 WARN(_fmt, ...) \
 		 dbg_warn(__FILE__, __LINE__, _fmt, ##__VA_ARGS__)
 void		 dbg_info(const char *, size_t, const char *, ...)
 			__attribute__((format(printf, 3, 4)));
 void		 dbg_warn(const char *, size_t, const char *, ...)
+			__attribute__((format(printf, 3, 4)));
+void		 dbg_warnx(const char *, size_t, const char *, ...)
 			__attribute__((format(printf, 3, 4)));
 
 __END_DECLS

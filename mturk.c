@@ -1,6 +1,6 @@
 /*	$Id$ */
 /*
- * Copyright (c) 2015 Kristaps Dzonsons <kristaps@kcons.eu>
+ * Copyright (c) 2015, 2016 Kristaps Dzonsons <kristaps@kcons.eu>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -176,7 +176,7 @@ node_parse(void *contents, size_t len, size_t nm, void *arg)
 
 	if (0 == XML_Parse(parser, contents, (int)rsz, 0)) {
 		erc = XML_GetErrorCode(parser);
-		WARN("Response buffer length %zu failed "
+		WARNX("Response buffer length %zu failed "
 			"with error code %d: %s", rsz, erc, 
 			XML_ErrorString(erc));
 		st->ok = 0;
@@ -206,7 +206,7 @@ state_alloc(struct state *st)
 		XML_SetElementHandler(p, node_open, node_close);
 		XML_SetCharacterDataHandler(p, node_text);
 	} else
-		perror(NULL);
+		WARNX("XML_ParserCreate");
 
 	return(p);
 }
@@ -277,7 +277,7 @@ mturk_create(const char *aws, const char *key, const char *name,
 	if (NULL == (parser = state_alloc(&st)))
 		return;
 	if (NULL == (c = curl_easy_init())) {
-		perror(NULL);
+		WARNX("curl_easy_init");
 		XML_ParserFree(parser);
 		return;
 	}
@@ -347,12 +347,12 @@ mturk_create(const char *aws, const char *key, const char *name,
 	INFO("Preparing mturk to %s: %s", url, aws);
 
 	if (CURLE_OK != (res = curl_easy_perform(c))) {
-	      WARN("curl_easy_perform failed: %s", 
+	      WARNX("curl_easy_perform failed: %s", 
 		   curl_easy_strerror(res));
 	} else if (st.ok) {
 		if (0 == XML_Parse(parser, NULL, 0, 1)) {
 			erc = XML_GetErrorCode(parser);
-			WARN("Response final buffer failed "
+			WARNX("Response final buffer failed "
 				"with error code %d: %s", erc, 
 				XML_ErrorString(erc));
 			st.ok = 0;
@@ -362,7 +362,7 @@ mturk_create(const char *aws, const char *key, const char *name,
 	if (st.ok) {
 		INFO("Mturk enquiry finished: received");
 		if (NULL != st.aws.errorCodes) {
-			WARN("Mturk enquiry has an error code");
+			WARNX("Mturk enquiry has an error code");
 			db_expr_mturk(NULL, st.aws.errorCodes);
 		} else if (NULL != st.aws.hitId) {
 			INFO("Mturk enquiry success");
@@ -372,7 +372,7 @@ mturk_create(const char *aws, const char *key, const char *name,
 			db_expr_mturk(NULL, "Ambiguous outcome");
 		}
 	} else {
-		WARN("Mturk enquiry finished: bad communication");
+		WARNX("Mturk enquiry finished: bad communication");
 		db_expr_mturk(NULL, "Error in transmission");
 	}
 

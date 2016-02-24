@@ -202,7 +202,7 @@ mail_putfile(const char *s, struct mail *m)
 	FILE	*f;
 
 	if (NULL == (f = fopen(s, "r"))) {
-		perror(s);
+		WARN("fopen: s");
 		return;
 	}
 
@@ -287,7 +287,7 @@ mail_init(struct mail *mail, struct ktemplate *t)
 		INFO("Mail: no SMTP configured");
 		return(NULL);
 	} else if (NULL == (curl = curl_easy_init())) {
-		perror(NULL);
+		WARNX("curl_easy_init");
 		db_smtp_free(smtp);
 		return(NULL);
 	}
@@ -357,7 +357,7 @@ mail_players(const char *uri, const char *loginuri)
 		rc = khttp_templatex(&t, DATADIR 
 			"/mail-addplayer.eml", mail_write, &m);
 		if (0 == rc) {
-			perror("khttp_templatex");
+			WARNX("khttp_templatex");
 			break;
 		}
 
@@ -366,7 +366,7 @@ mail_players(const char *uri, const char *loginuri)
 		curl_easy_setopt(curl, CURLOPT_READDATA, &m.b);
 
 		if (CURLE_OK != (res = curl_easy_perform(curl))) {
-			WARN("Mail error: %s", curl_easy_strerror(res));
+			WARNX("Mail error: %s", curl_easy_strerror(res));
 			db_player_set_state(id, PSTATE_ERROR);
 		} else
 			db_player_set_mailed(id, m.pass);
@@ -396,7 +396,7 @@ mail_test(void)
 		"/mail-test.eml", mail_write, &m);
 
 	if (0 == rc) {
-		perror("khttp_templatex");
+		WARNX("khttp_templatex");
 		goto out;
 	}
 
@@ -406,7 +406,7 @@ mail_test(void)
 
 	if (CURLE_OK == (res = curl_easy_perform(curl)))
 		goto out;
-	WARN("Mail error: %s", curl_easy_strerror(res));
+	WARNX("Mail error: %s", curl_easy_strerror(res));
 out:
 	mail_free(&m, curl, recpts);
 }
@@ -429,7 +429,7 @@ mail_backupfail(const char *fname)
 		"/mail-backupfail.eml", mail_write, &m);
 
 	if (0 == rc) {
-		perror("khttp_templatex");
+		WARNX("khttp_templatex");
 		goto out;
 	}
 
@@ -439,7 +439,7 @@ mail_backupfail(const char *fname)
 
 	if (CURLE_OK == (res = curl_easy_perform(curl)))
 		goto out;
-	WARN("Mail error: %s", curl_easy_strerror(res));
+	WARNX("Mail error: %s", curl_easy_strerror(res));
 out:
 	mail_free(&m, curl, recpts);
 }
@@ -484,7 +484,7 @@ mail_backup(void)
 		"/mail-backupsuccess.eml", mail_write, &m);
 
 	if (0 == rc) {
-		perror("khttp_templatex");
+		WARNX("khttp_templatex");
 		goto out;
 	}
 
@@ -494,7 +494,7 @@ mail_backup(void)
 
 	if (CURLE_OK == (res = curl_easy_perform(curl)))
 		goto out;
-	WARN("Mail error: %s", curl_easy_strerror(res));
+	WARNX("Mail error: %s", curl_easy_strerror(res));
 out:
 	if (-1 == chmod(fname, 0))
 		WARN("chmod: %s", fname);
@@ -553,7 +553,7 @@ mail_roundadvance(const char *uri, int64_t last, int64_t round)
 		mail_write, &m);
 
 	if (0 == rc) {
-		perror("khttp_templatex");
+		WARNX("khttp_templatex");
 		goto out;
 	}
 
@@ -562,7 +562,7 @@ mail_roundadvance(const char *uri, int64_t last, int64_t round)
 
 	if (CURLE_OK == (res = curl_easy_perform(curl)))
 		goto out;
-	WARN("Mail error: %s", curl_easy_strerror(res));
+	WARNX("Mail error: %s", curl_easy_strerror(res));
 out:
 	mail_free(&m, curl, recpts);
 	db_expr_free(expr);

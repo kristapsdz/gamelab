@@ -1449,6 +1449,16 @@
 									Player was auto-added (i.e., auto-added herself).
 									These players are never e-mailed.
 								</dd>
+								<dt id="db-player-bonusid"><var>bonusid</var></dt>
+								<dd>
+									If the player joined from Mechanical Turk, their bonus request identifier.
+									This is initialised to zero for all players.
+									When the administrator submits bonuses, all players with a zero
+									identifier and a set <a
+										href="#db-player-mturkdone"><var>mturkdone</var></a> will have a
+									bonus request.
+									If an error occurs, this bonus identifier will be negative.
+								</dd>
 								<dt id="db-player-email"><var>email</var></dt>
 								<dd>
 									Player e-mail address or identifier, in the event of a captive player.  
