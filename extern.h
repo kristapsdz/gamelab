@@ -162,7 +162,6 @@ struct	player {
 	int64_t		 version; /* increment at update */
 	int64_t		 joined; /* round when joined experiment */
 	int64_t		 answer; /* # answered questions */
-	int64_t		 bonusid; /* if !0, mturk's bonus req id */
 	int64_t		 id; /* unique identifier */
 };
 
@@ -218,6 +217,8 @@ void		  hmac_sha1(const unsigned char *, int,
 void		  mturk_create(const char *, const char *, const char *,
 			const char *, int64_t, int64_t, int, double,
 			const char *, const char *);
+void		  mturk_bonus(const struct expr *, 
+			const struct player *, int64_t);
 
 void		  base64file(FILE *, size_t, 
 			int (*)(const char *, size_t, void *), 
@@ -296,7 +297,7 @@ void		 db_player_enable(int64_t);
 void		 db_player_free(struct player *);
 struct player	*db_player_load(int64_t);
 void		 db_player_load_all(playerf, void *);
-void		 db_player_load_bonuses(playerf, void *);
+struct player	**db_player_load_bonuses(int64_t **, size_t *);
 void		 db_player_load_playing(const struct expr *, playerf, void *);
 void		 db_player_load_highest(playerscorefp, void *, size_t);
 int		 db_player_lottery(int64_t, int64_t, 
@@ -309,6 +310,9 @@ char		*db_player_next_new(int64_t *, char **);
 void		 db_player_questionnaire(int64_t, int64_t);
 struct sess	*db_player_sess_alloc(int64_t, const char *);
 int		 db_player_sess_valid(int64_t *, int64_t, int64_t);
+#if 0
+int64_t		 db_player_set_bonus(int64_t);
+#endif
 int		 db_player_play(const struct player *, int64_t, 
 			int64_t, int64_t, mpq_t *, size_t);
 void		 db_player_reset_all(void);

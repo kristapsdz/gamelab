@@ -141,6 +141,12 @@
 					<div class="statuslistbox">
 						<div class="statuslistcaption">Last Round Highest Earners (<a href="@ADMINURI@/dogethighest.csv">CSV</a>)</div>
 						<ul class="statuslist" id="statusHighest2"></ul>
+						<div id="mturkbonusesButton">
+							<div class="input input-submit">
+								<i class="fa fa-fw fa-amazon"></i>
+								<button type="button" onclick="mturkBonuses();">Mturk Bonuses</button>
+							</div>
+						</div>
 					</div>
 					<div class="statuslistbox" id="statusExprFinishedWinnersBox">
 						<div class="statuslistcaption">Lottery Winner(s)</div>

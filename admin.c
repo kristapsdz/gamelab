@@ -67,6 +67,7 @@ enum	page {
 	PAGE_DOLOADPLAYERS,
 	PAGE_DOLOGIN,
 	PAGE_DOLOGOUT,
+	PAGE_DOMTURKBONUSES,
 	PAGE_DORESENDEMAIL,
 	PAGE_DORESETPASSWORDS,
 	PAGE_DOSETINSTR,
@@ -178,6 +179,7 @@ static	unsigned int perms[PAGE__MAX] = {
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOLOADPLAYERS */
 	PERM_JSON, /* PAGE_DOLOGIN */
 	PERM_HTML | PERM_LOGIN, /* PAGE_DOLOGOUT */
+	PERM_JSON | PERM_LOGIN, /* PAGE_DOMTURKBONUSES */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DORESENDEMAIL */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DORESETPASSWORDS */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOSETINSTR */
@@ -213,6 +215,7 @@ static const char *const pages[PAGE__MAX] = {
 	"doloadplayers", /* PAGE_DOLOADPLAYERS */
 	"dologin", /* PAGE_DOLOGIN */
 	"dologout", /* PAGE_DOLOGOUT */
+	"domturkbonuses", /* PAGE_DOMTURKBONUSES */
 	"doresendemail", /* PAGE_DORESENDEMAIL */
 	"doresetpasswords", /* PAGE_DORESETPASSWORDS */
 	"dosetinstr", /* PAGE_DOSETINSTR */
@@ -566,26 +569,49 @@ senddogethistory(struct kreq *r)
 }
 
 static void
-sendmturkbonus(const struct player *p, void *arg)
+senddomturkbonuses(struct kreq *r)
 {
-}
-
-static void
-sendmturkbonuses(struct kreq *r)
-{
+	struct expr	 *expr;
+	size_t		  i, psz;
+	struct player	**ps;
+	int64_t		 *scores;
 
 	http_open(r, KHTTP_200);
 	khttp_body(r);
+
+	expr = db_expr_get(0);
+	if (expr->round < expr->rounds ||
+		'\0' == *expr->awssecretkey ||
+		'\0' == *expr->awsaccesskey) {
+		WARNX("Ignoring MTurk bonus request: experiment "
+			"not finished or not MTurk-enabled");
+		db_expr_free(expr);
+		return;
+	}
+
+	ps = db_player_load_bonuses(&scores, &psz);
 
 	/*
 	 * We want to send our bonuses behind the scenes: with many
 	 * players, it may take some time as each one is separate.
 	 * Close out our current connection.
 	 */
-	if (doublefork(r) < 0) {
-		db_player_load_bonuses(sendmturkbonus, NULL);
+	if (0 == doublefork(r)) {
+		for (i = 0; i < psz; i++) {
+			mturk_bonus(expr, ps[i], scores[i]);
+			db_player_free(ps[i]);
+		}
+		free(ps);
+		free(scores);
+		db_expr_free(expr);
 		exit(EXIT_SUCCESS);
 	}
+
+	db_expr_free(expr);
+	for (i = 0; i < psz; i++) 
+		db_player_free(ps[i]);
+	free(ps);
+	free(scores);
 }
 
 static void
@@ -773,7 +799,7 @@ senddotestsmtp(struct kreq *r)
 	kjson_close(&req);
 	free(mail);
 
-	if (doublefork(r) < 0) {
+	if (0 == doublefork(r)) {
 		mail_test();
 		exit(EXIT_SUCCESS);
 	}
@@ -978,7 +1004,7 @@ senddobackup(struct kreq *r)
 	khttp_body(r);
 	db_close();
 
-	if (doublefork(r) < 0) {
+	if (0 == doublefork(r)) {
 		mail_backup();
 		exit(EXIT_SUCCESS);
 	}
@@ -1561,7 +1587,7 @@ senddowipe(struct kreq *r, int mail)
 	khttp_body(r);
 	db_close();
 
-	if (doublefork(r) < 0) {
+	if (0 == doublefork(r)) {
 		mail_wipe(mail);
 		exit(EXIT_SUCCESS);
 	}
@@ -1756,6 +1782,9 @@ main(void)
 		break;
 	case (PAGE_DOLOGOUT):
 		senddologout(&r);
+		break;
+	case (PAGE_DOMTURKBONUSES):
+		senddomturkbonuses(&r);
 		break;
 	case (PAGE_DOSTARTEXPR):
 		senddostartexpr(&r);

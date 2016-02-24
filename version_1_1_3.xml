@@ -7,6 +7,12 @@
 	<aside>
 		<p>
 			Fix the QualificationRequirement portion of the Mechanical Turk request.
+			Add the facility to automatically submit <a
+				href="https://docs.aws.amazon.com/AWSMechTurk/latest/AWSMturkAPI/ApiReference_GrantBonusOperation.html">bonuses</a>
+			to Mechanical Turk.
+			This button is revealed after completion of the experiment if and only if the experiment is associated with AWS
+			credentials.  
+			Only Mechanical Turk players are notified of their bonus, of course.
 		</p>
 	</aside>
 </article>

@@ -983,6 +983,10 @@ function loadExprSuccess(resp)
 		}
 		doClearReplace('exprCountdown', 'finished');
 		doStatHighest(doClear('statusHighest2'), res);
+		if (expr.awsaccesskey && expr.awssecretkey)
+			doUnhide('mturkbonusesButton');
+		else
+			doHide('mturkbonusesButton');
 	}  else if (expr.round < 0) {
 		next = expr.start - Math.floor(new Date().getTime() / 1000);
 		doUnhide('statusExprWaiting');
@@ -1167,6 +1171,12 @@ function advanceRound()
 
 	sendQuery('@ADMINURI@/doadvance.json', null, null, 
 		function() { window.location.reload(true); });
+}
+
+function mturkBonuses() 
+{
+
+	sendQuery('@ADMINURI@/domturkbonuses.json', null, null, null);
 }
 
 function wipeCleanExpr() 

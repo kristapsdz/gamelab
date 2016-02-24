@@ -55,6 +55,7 @@
  */
 enum 	awstype {
 	AWS_CREATE_HIT,
+	AWS_GRANT_BONUS,
 	AWS__MAX
 };
 
@@ -89,7 +90,8 @@ struct	state {
 };
 
 static	const char *const awstypes[AWS__MAX] = {
-	"CreateHIT" /* AWS_CREATE_HIT */
+	"CreateHIT", /* AWS_CREATE_HIT */
+	"GrantBonus" /* AWS_GRANT_BONUS */
 };
 
 static void
@@ -147,6 +149,8 @@ node_open(void *arg, const XML_Char *s, const XML_Char **atts)
 
 	if (0 == strcasecmp(s, "createhitresponse")) {
 		st->aws.type = AWS_CREATE_HIT;
+	} else if (0 == strcasecmp(s, "grantbonusresult")) {
+		st->aws.type = AWS_GRANT_BONUS;
 	} else if (0 == strcasecmp(s, "errors")) {
 		st->state = AWSSTATE_ERRORS;
 	} else if (0 == strcasecmp(s, "message")) {
@@ -239,6 +243,111 @@ mturk_init(const char *key, enum awstype type,
 	return(enc);
 }
 
+/*
+ * Submit bonuses to Mechanical Turk players.
+ * The players must have a valid AssignmentID and the experiment must
+ * have its AWS credentials intact.
+ */
+void
+mturk_bonus(const struct expr *expr, 
+	const struct player *p, int64_t score)
+{
+	CURL		*c;
+	CURLcode	 res;
+	XML_Parser 	 parser;
+	char		 t[64];
+	struct state	 st;
+	char		*url, *pdigest, *encdate, *post;
+	double		 reward;
+
+	assert(NULL != expr->awsaccesskey && 
+	       '\0' != *expr->awsaccesskey &&
+	       NULL != expr->awssecretkey && 
+	       '\0' != *expr->awssecretkey &&
+	       NULL != p->assignmentid &&
+	       '\0' != *p->assignmentid);
+
+	if (NULL == (parser = state_alloc(&st)))
+		return;
+	if (NULL == (c = curl_easy_init())) {
+		WARNX("curl_easy_init");
+		XML_ParserFree(parser);
+		return;
+	}
+
+	/* URL-encode necessary inputs. */
+	pdigest = mturk_init
+		(expr->awssecretkey, 
+		 AWS_GRANT_BONUS, t, sizeof(t));
+	encdate = kutil_urlencode(t);
+	reward = score * expr->conversion;
+	if (reward < 0.0)
+		reward = 0.0;
+
+	/* Construct request URL. */
+	kasprintf(&url, "https://%s", 
+		EXPR_SANDBOX & expr->flags ? 
+		SANDURL : REALURL);
+	kasprintf(&post, 
+		"Service=" SERVICE
+		"&AWSAccessKeyId=%s"
+		"&Operation=%s"
+		"&Signature=%s"
+		"&Timestamp=%s"
+		"&WorkerId=%s"
+		"&Reason=Gamelab%%20participation"
+		"&BonusAmount.1.Amount=%g"
+		"&BonusAmount.1.CurrencyCode=US"
+		"&UniqueRequestToken=" PRId64
+		"&AssignmentId=%s",
+		expr->awsaccesskey,  /* access key ID */
+		awstypes[AWS_GRANT_BONUS], /* operation */
+		pdigest, /* request signature */
+		encdate, /* used for signature */
+		p->mail, /* identifier of player */
+		reward, /* >0 amount of reward */
+		p->rseed, /* bonus identifier */
+		p->assignmentid);
+
+	INFO("%s: preparing", url);
+	INFO("%s: posting", post);
+#if 0
+	/* Initialise CURL object. */
+	curl_easy_setopt(c, CURLOPT_URL, url);
+	curl_easy_setopt(c, CURLOPT_USE_SSL, (long)CURLUSESSL_ALL);
+	curl_easy_setopt(c, CURLOPT_SSL_VERIFYPEER, 0L);
+	curl_easy_setopt(c, CURLOPT_WRITEFUNCTION, node_parse);
+	curl_easy_setopt(c, CURLOPT_WRITEDATA, (void *)parser);
+	curl_easy_setopt(c, CURLOPT_POST, 1L);
+	curl_easy_setopt(c, CURLOPT_POSTFIELDS, post);
+
+	if (CURLE_OK != (res = curl_easy_perform(c))) {
+	      WARNX("curl_easy_perform failed: %s", 
+		   curl_easy_strerror(res));
+	} else if (st.ok) {
+		if (0 == XML_Parse(parser, NULL, 0, 1)) {
+			WARNX("XML_Parse: %s", 
+				XML_ErrorString
+				(XML_GetErrorCode(parser)));
+			st.ok = 0;
+		} 
+	}
+
+	if (st.ok)
+		INFO("%s: success", url);
+	else
+		WARNX("%s: error", url);
+
+	curl_easy_cleanup(c);
+	curl_global_cleanup();
+
+#endif
+	free(url);
+	free(post);
+	state_free(&st);
+	XML_ParserFree(parser);
+}
+
 void
 mturk_create(const char *aws, const char *key, const char *name, 
 	const char *desc, int64_t workers, int64_t minutes, 
@@ -313,15 +422,24 @@ mturk_create(const char *aws, const char *key, const char *name,
 		"&LifetimeInSeconds=%" PRId64
 		"&Keywords=%s"
 		"&MaxAssignments=%" PRId64
-		"&QualificationRequirement.1.QualificationTypeId=000000000000000000L0"
-		"&QualificationRequirement.1.Comparator=GreaterThan"
-		"&QualificationRequirement.1.IntegerValue.1=95"
-		"&QualificationRequirement.2.QualificationTypeId=00000000000000000040"
-		"&QualificationRequirement.2.Comparator=GreaterThan"
-		"&QualificationRequirement.2.IntegerValue.1=500"
-		"&QualificationRequirement.3.QualificationTypeId=00000000000000000071"
-		"&QualificationRequirement.3.Comparator=EqualTo"
-		"&QualificationRequirement.3.LocaleValue.1.Country=US",
+		"&QualificationRequirement.1."
+			"QualificationTypeId=000000000000000000L0"
+		"&QualificationRequirement.1."
+			"Comparator=GreaterThan"
+		"&QualificationRequirement.1."
+			"IntegerValue.1=95"
+		"&QualificationRequirement.2."
+			"QualificationTypeId=00000000000000000040"
+		"&QualificationRequirement.2."
+			"Comparator=GreaterThan"
+		"&QualificationRequirement.2."
+			"IntegerValue.1=500"
+		"&QualificationRequirement.3."
+			"QualificationTypeId=00000000000000000071"
+		"&QualificationRequirement.3."
+			"Comparator=EqualTo"
+		"&QualificationRequirement.3."
+			"LocaleValue.1.Country=US",
 		aws,  /* access key ID */
 		awstypes[AWS_CREATE_HIT], /* operation */
 		pdigest, /* request signature */

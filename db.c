@@ -42,7 +42,7 @@
 		"player.finalrank,player.finalscore,player.autoadd," \
 		"player.version,player.joined,player.answer," \
 		"player.hitid,player.assignmentid,player.hash," \
-		"player.mturkdone,player.bonusid"
+		"player.mturkdone"
 
 /*
  * The database, its location, and its statement (if any).
@@ -1148,28 +1148,35 @@ db_player_set_instr(int64_t player, int64_t instr)
 }
 
 static void
-db_player_fill(struct player *p, sqlite3_stmt *s)
+db_player_fill(struct player *p, size_t *pos, sqlite3_stmt *s)
 {
-
+	size_t 	i = 0;
+	
 	memset(p, 0, sizeof(struct player));
-	p->mail = kstrdup((char *)sqlite3_column_text(s, 0));
-	p->state = sqlite3_column_int64(s, 1);
-	p->id = sqlite3_column_int64(s, 2);
-	p->enabled = sqlite3_column_int64(s, 3);
-	p->role = sqlite3_column_int64(s, 4);
-	p->rseed = sqlite3_column_int64(s, 5);
-	p->instr = sqlite3_column_int64(s, 6);
-	p->finalrank = sqlite3_column_int64(s, 7);
-	p->finalscore = sqlite3_column_int64(s, 8);
-	p->autoadd = sqlite3_column_int64(s, 9);
-	p->version = sqlite3_column_int64(s, 10);
-	p->joined = sqlite3_column_int64(s, 11);
-	p->answer = sqlite3_column_int64(s, 12);
-	p->hitid = kstrdup((char *)sqlite3_column_text(s, 13));
-	p->assignmentid = kstrdup((char *)sqlite3_column_text(s, 14));
-	p->hash = kstrdup((char *)sqlite3_column_text(s, 15));
-	p->mturkdone = sqlite3_column_int64(s, 16);
-	p->bonusid = sqlite3_column_int64(s, 17);
+	if (NULL == pos)
+		pos = &i;
+
+	p->mail = kstrdup((char *)
+		sqlite3_column_text(s, (*pos)++));
+	p->state = sqlite3_column_int64(s, (*pos)++);
+	p->id = sqlite3_column_int64(s, (*pos)++);
+	p->enabled = sqlite3_column_int64(s, (*pos)++);
+	p->role = sqlite3_column_int64(s, (*pos)++);
+	p->rseed = sqlite3_column_int64(s, (*pos)++);
+	p->instr = sqlite3_column_int64(s, (*pos)++);
+	p->finalrank = sqlite3_column_int64(s, (*pos)++);
+	p->finalscore = sqlite3_column_int64(s, (*pos)++);
+	p->autoadd = sqlite3_column_int64(s, (*pos)++);
+	p->version = sqlite3_column_int64(s, (*pos)++);
+	p->joined = sqlite3_column_int64(s, (*pos)++);
+	p->answer = sqlite3_column_int64(s, (*pos)++);
+	p->hitid = kstrdup((char *)
+		sqlite3_column_text(s, (*pos)++));
+	p->assignmentid = kstrdup((char *)
+		sqlite3_column_text(s, (*pos)++));
+	p->hash = kstrdup((char *)
+		sqlite3_column_text(s, (*pos)++));
+	p->mturkdone = sqlite3_column_int64(s, (*pos)++);
 }
 
 /*
@@ -1189,7 +1196,7 @@ db_player_load(int64_t id)
 		return(NULL);
 	}
 	player = kmalloc(sizeof(struct player));
-	db_player_fill(player, stmt);
+	db_player_fill(player, NULL, stmt);
 	sqlite3_finalize(stmt);
 	return(player);
 }
@@ -1237,21 +1244,59 @@ db_player_load_highest(playerscorefp fp, void *arg, size_t limit)
  * Load all Mechanical Turk players who have finished their sequence of
  * play and need to receive bonuses.
  */
-void
-db_player_load_bonuses(playerf fp, void *arg)
+struct player **
+db_player_load_bonuses(int64_t **scores, size_t *sz)
 {
-	sqlite3_stmt	*stmt;
-	struct player	 player;
+	sqlite3_stmt	 *stmt;
+	struct player	**player;
+	size_t		  i;
 
-	stmt = db_stmt("SELECT " PLAYER " FROM player "
-		"WHERE mturkdone=1 AND bonusid>0");
+	*sz = 0;
+	stmt = db_stmt("SELECT " PLAYER ",max(lottery.aggrtickets) "
+		"FROM lottery "
+		"INNER JOIN player ON player.id=playerid "
+		"GROUP BY playerid "
+		"WHERE player.assignmentid != \'\'");
+
+	player = NULL;
+	*scores = NULL;
+
 	while (SQLITE_ROW == db_step(stmt, 0)) {
-		db_player_fill(&player, stmt);
-		(*fp)(&player, arg);
-		db_player_clear(&player);
+		player = kreallocarray
+			(player, *sz + 1,
+			 sizeof(struct player *));
+		*scores = kreallocarray
+			(*scores, *sz + 1,
+			 sizeof(int64_t));
+		player[*sz] = kmalloc(sizeof(struct player));
+		i = 0;
+		db_player_fill(player[*sz], &i, stmt);
+		(*scores)[*sz] = sqlite3_column_int64(stmt, i);
+		(*sz)++;
 	}
 	sqlite3_finalize(stmt);
+
+	return(player);
 }
+
+#if 0
+int64_t
+db_player_set_bonus(int64_t id)
+{
+       sqlite3_stmt    *stmt;
+       int64_t		bonus;
+
+       bonus = arc4random();
+
+       stmt = db_stmt("UPDATE player SET bonus=? WHERE id=?");
+       db_bind_int(stmt, 1, bonus);
+       db_bind_int(stmt, 2, id);
+       db_step(stmt, 0);
+       sqlite3_finalize(stmt);
+       INFO("Player %" PRId64 " setting bonus: %" PRId64, id, bonus);
+       return(bonus);
+}
+#endif
 
 /*
  * Load all of the players who are currently playing.
@@ -1271,7 +1316,7 @@ db_player_load_playing(const struct expr *expr, playerf fp, void *arg)
 	db_bind_int(stmt, 2, expr->round);
 	db_bind_int(stmt, 3, expr->prounds);
 	while (SQLITE_ROW == db_step(stmt, 0)) {
-		db_player_fill(&player, stmt);
+		db_player_fill(&player, NULL, stmt);
 		(*fp)(&player, arg);
 		db_player_clear(&player);
 	}
@@ -1291,7 +1336,7 @@ db_player_load_all(playerf fp, void *arg)
 	stmt = db_stmt("SELECT " PLAYER " FROM player "
 		"ORDER BY email ASC");
 	while (SQLITE_ROW == db_step(stmt, 0)) {
-		db_player_fill(&player, stmt);
+		db_player_fill(&player, NULL, stmt);
 		(*fp)(&player, arg);
 		db_player_clear(&player);
 	}
