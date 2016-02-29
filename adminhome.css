@@ -269,6 +269,8 @@ div.input input[type=time]	{ width: 20ex; }
 				  margin-bottom: 0.5em;
 				  border-bottom: thin solid #ccc;
 				  padding-top: 8pt; }
+.seconds, .error		{ color: red;
+				  font-weight: bolder; }
 @media only screen and (max-width: 800px), only screen and (max-device-width: 800px) {
 	article			{ padding-left: 10%; 
 			  	  padding-right: 10%; }

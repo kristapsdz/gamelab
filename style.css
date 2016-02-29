@@ -4,7 +4,10 @@
 html, body			{ margin: 0; }
 a				{ text-decoration: none; 
 				  color: blue; }
-body				{ font-size: 14pt; 
+body				{ font-family: Calibri, Candara, Segoe, 
+				 	 Segoe UI, Optima, Arial, sans-serif;
+			  	  font-size: 12pt;
+				  line-height: 15pt;
 				  background-color: #eee; }
 #loading			{ padding-top: 20%; text-align: center; }
 header				{ background-color: #ccc; 
@@ -37,8 +40,7 @@ span.link			{ cursor: pointer;
 .links >*			{ border-right: thin solid #ccc; 
 				  padding-right: 1ex; }
 .links >*:last-child		{ border-right: none; }
-#nav a				{ font-size: 12pt; 
-			  	  color: #222; }
+#nav a				{ color: #222; }
 #nav				{ padding: 0 2ex; 
 				  position: absolute;
 				  top: 0;
@@ -58,6 +60,8 @@ span.link			{ cursor: pointer;
 #historyNav a			{ color: #333; }
 #historyNav a:hover		{ text-shadow: 1px 1px #ccc; }
 i.fa-warning + span		{ margin-left: 0.5ex; }
+h1, h2, h3			{ font-family: Georgia, Times, Times New Roman, serif; 
+				  font-weight: normal; }
 h1				{ margin: 0; }
 h2				{ font-size: 16pt; 
 				  margin: 0; 
@@ -77,7 +81,7 @@ footer				{ text-align: center;
 				  padding: 1em 0;
 				  border-top: thin solid #bbb;
 				  color: #888;
-				  font-size: smaller; }
+				  font-size: 11pt; }
 #login > footer			{ border-top: none; }
 footer a			{ color: #666; 
 				  padding-right: 0.5ex;
@@ -89,7 +93,6 @@ section section	{ border: thin solid #ddd;
 				  margin: 1em 0; }
 section section >*		{ margin: 1em; }
 section section >h3		{ margin: 0;
-				  font-weight: normal;
 				  padding: 1em;
 				  color: #fff;
 				  background-color: #5555aa; }
@@ -98,7 +101,6 @@ article >section > aside	{ padding: 1ex; }
 article >section > form		{ padding: 1ex; }
 .seconds, .error		{ color: red;
 				  font-weight: bolder; }
-
 aside div			{ margin: 0.75em 0; 
 				  line-height: 120%; }
 /*
@@ -111,15 +113,14 @@ fieldset			{ display: table;
 				  border: 0;
 				  border-spacing: 0 1ex; }
 div.inputheader			{ margin-top: -2pt; 
-				  color: #666;
-				  font-size: 11pt; }
+				  color: #666; }
 div.input			{ display: table-row; }
 div.input >*			{ display: table-cell; 
 				  background-color: #ddd;
 				  padding: 1ex 1ex;
 				  border: none;
 				  border-radius: 0;
-				  font-size: 11pt;
+				  font-size: inherit;
 				  border-left: thin solid #ccc;
 				  border-top: thin solid #ccc;
 				  border-bottom: thin solid #ccc;
@@ -141,7 +142,7 @@ div.input input			{ -webkit-appearance: none;
 				  margin: 0;
 				  width: 99%;
 				  background-color: #fff;
-				  font-size: 13pt;
+				  font-size: inherit;
 				  font-family: inherit;
 				  box-sizing: border-box; }
 div.input input[type=checkbox]	{ -webkit-appearance: checkbox; }
