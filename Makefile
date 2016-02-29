@@ -7,7 +7,7 @@ CGIBIN		 = $(PREFIX)
 CFLAGS		+= -Wno-deprecated-declarations
 DATADIR		 = $(PREFIX)
 #DSYMUTIL	 = sudo dsymutil
-FONTURI		 = /~kristaps/font-awesome-4.4.0/css/font-awesome.min.css
+FONTURI		 = /~kristaps/font-awesome-4.5.0/css/font-awesome.min.css
 HTDOCS		 = $(PREFIX)
 HTURI		 = /~kristaps
 LABURI		 = /~kristaps/lab.cgi
@@ -27,7 +27,7 @@ STATIC		 =
 #CGIBIN		 = $(PREFIX)/cgi-bin
 #CFLAGS		+= -DLOGTIME=1
 #DATADIR	 	 = $(PREFIX)/data
-#FONTURI		 = //maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css
+#FONTURI		 = //maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css
 #HTDOCS		 = $(PREFIX)/htdocs
 #HTURI		 = $(URIPREFIX)
 #LABURI		 = $(URIPREFIX)/cgi-bin/lab

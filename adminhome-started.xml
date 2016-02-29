@@ -13,7 +13,7 @@
 	<body onload="loadGames(); loadPlayers(); loadExpr(); loadSmtp();" onclick="onNavUp();">
 		<header>
 			<a id="navButton" href="#" onclick="return(onNav(event));"><i class="fa fa-navicon"></i></a>
-			<h1>gamelab</h1>
+			<h1>gamelab<span>admin</span></h1>
 			<span>
 				Next round: <span id="exprCountdown"><i class="fa fa-spinner"></i></span>
 			</span>

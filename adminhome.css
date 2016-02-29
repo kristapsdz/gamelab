@@ -6,6 +6,8 @@ body				{ background-color: #eee;
 			  	  font-size: 12pt; }
 h1, h2, h3			{ font-family: Georgia, Times, Times New Roman, serif; 
 				  font-weight: normal; }
+h1 span				{ color: darkred; 
+				  padding-left: 0.1ex; }
 header				{ background-color: #ccc; 
 				  display: table;
 				  position: fixed;
@@ -278,7 +280,7 @@ div.input input[type=time]	{ width: 20ex; }
 @media only screen and (max-width: 480px), only screen and (max-device-width: 480px) {
 	article			{ padding-left: 0.5ex;
 				  padding-right: 0.5ex; }
-	h1			{ font-size: 18pt; } 
+	h1			{ font-size: 16pt; } 
 	article.top		{ padding-top: 3em; }
 	.statusgraph		{ height: 150px; 
 				  margin-left: auto;
@@ -298,4 +300,6 @@ div.input input[type=time]	{ width: 20ex; }
 	div.input input[type=file],
 	div.input input[type=url]	
 				{ width: 100%; }
+	h1 span			{ font-size: 10pt; 
+				  padding-left: 0ex; }
 }

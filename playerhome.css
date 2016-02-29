@@ -4,8 +4,12 @@
 html, body			{ margin: 0; }
 a				{ text-decoration: none; 
 				  color: blue; }
-body				{ font-size: 14pt; 
-				  background-color: #eee; }
+body				{ background-color: #eee; 
+				  font-family: Calibri, Candara, Segoe, 
+				 	 Segoe UI, Optima, Arial, sans-serif;
+			  	  font-size: 12pt; }
+h1, h2, h3			{ font-family: Georgia, Times, Times New Roman, serif; 
+				  font-weight: normal; }
 form 				{ margin-left: auto; 
 				  margin-right: auto; 
 				  max-width: 100%; }
@@ -53,8 +57,7 @@ header a			{ color: #222; }
 				  text-align: left;
 				  top: 100%; 
 				  left: 0;}
-#nav a				{ font-size: 12pt; 
-			  	  color: #222; }
+#nav a				{ color: #222; }
 #nav				{ padding: 0 2ex; 
 				  position: absolute;
 				  top: 0;
@@ -71,9 +74,9 @@ header a			{ color: #222; }
 				  margin: 0; }
 #nav li				{ padding: 0.5ex 0; }
 i.fa-warning + span		{ margin-left: 0.5ex; }
-h1				{ }
+h1				{ font-size: 20pt; }
 h2				{ font-size: 16pt; }
-h3				{ font-size: 15pt; }
+h3				{ font-size: 13pt; }
 select,
 optgroup,
 option				{ font-size: inherit; 
@@ -86,7 +89,7 @@ footer				{ text-align: center;
 				  padding: 1em 0;
 				  border-top: thin solid #bbb;
 				  color: #888;
-				  font-size: smaller; }
+				  font-size: 11pt; }
 footer a			{ color: #666; 
 				  padding-right: 0.5ex;
 				  border-right: thin solid #888; }
@@ -208,7 +211,7 @@ figure				{ margin: 0; }
 .graphs .legend			{ text-align: center; }
 #graphButtons			{ text-align: center; }
 #graphButtons > *		{ display: inline-block; }
-#graphButtons button		{ font-size: 12pt; 
+#graphButtons button		{ font-size: inherit; 
 				  border: thin solid black;
 				  box-shadow: none;
 				  border-radius: 1ex; }
@@ -231,7 +234,7 @@ div.input >*			{ display: table-cell;
 				  padding: 1ex 1ex;
 				  border: none;
 				  border-radius: 0;
-				  font-size: 11pt;
+				  font-size: inherit;
 				  border-left: thin solid #ccc;
 				  border-top: thin solid #ccc;
 				  border-bottom: thin solid #ccc;
@@ -248,7 +251,7 @@ div.input input			{ -webkit-appearance: none;
 				  margin: 0;
 				  width: 99%;
 				  background-color: #fff;
-				  font-size: 13pt;
+				  font-size: inherit;
 				  font-family: inherit;
 				  box-sizing: border-box; }
 div.input-check >*		{ cursor: pointer; }

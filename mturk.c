@@ -40,7 +40,7 @@
 		  "<ExternalURL>" \
 		    "https://%s" LABURI "/mturk.html" \
 		  "</ExternalURL>" \
-		  "<FrameHeight>400</FrameHeight>" \
+		  "<FrameHeight>800</FrameHeight>" \
 		"</ExternalQuestion>"
 #define REALURL	"mechanicalturk.amazonaws.com"
 #define	SANDURL "mechanicalturk.sandbox.amazonaws.com"
