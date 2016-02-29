@@ -153,6 +153,7 @@ action(int d)
         ) {
             putc(theY, stdout);
         }
+	/* FALLTHROUGH */
     case 2:
         theA = theB;
         if (theA == '\'' || theA == '"' || theA == '`') {
@@ -171,6 +172,7 @@ action(int d)
                 }
             }
         }
+	/* FALLTHROUGH */
     case 3:
         theB = next();
         if (theB == '/' && (
