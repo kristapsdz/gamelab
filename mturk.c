@@ -371,6 +371,13 @@ mturk_bonus(const struct expr *expr,
 	char		*url, *pdigest, *encdate, *post;
 	double		 reward;
 
+	if (NULL == p->assignmentid ||
+	    '\0' == *p->assignmentid ||
+	    0 == p->mturkdone) {
+		WARNX("Player %" PRId64 ": not done or not mturk", p->id);
+		return;
+	}
+
 	assert(NULL != expr->awsaccesskey && 
 	       '\0' != *expr->awsaccesskey &&
 	       NULL != expr->awssecretkey && 
