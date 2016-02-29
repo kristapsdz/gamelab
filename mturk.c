@@ -50,6 +50,13 @@
 #define	MINWORK	2
 #define	MINMINS	1
 
+enum	awsqual {
+	AWS_QUAL_LOCALE,
+	AWS_QUAL_HITAPPR,
+	AWS_QUAL_PCTAPPR,
+	AWS_QUAL__MAX
+};
+
 /*
  * These are all the operations that we support.
  */
@@ -92,6 +99,12 @@ struct	state {
 static	const char *const awstypes[AWS__MAX] = {
 	"CreateHIT", /* AWS_CREATE_HIT */
 	"GrantBonus" /* AWS_GRANT_BONUS */
+};
+
+static	const char *const awsquals[AWS_QUAL__MAX] = {
+	"00000000000000000071", /* AWS_QUAL_LOCALE */
+	"00000000000000000040", /* AWS_QUAL_HITAPPR */
+	"000000000000000000L0", /* AWS_QUAL_PCTAPPR */
 };
 
 static void
@@ -311,7 +324,7 @@ mturk_bonus(const struct expr *expr,
 
 	INFO("%s: preparing", url);
 	INFO("%s: posting", post);
-#if 0
+
 	/* Initialise CURL object. */
 	curl_easy_setopt(c, CURLOPT_URL, url);
 	curl_easy_setopt(c, CURLOPT_USE_SSL, (long)CURLUSESSL_ALL);
@@ -341,7 +354,6 @@ mturk_bonus(const struct expr *expr,
 	curl_easy_cleanup(c);
 	curl_global_cleanup();
 
-#endif
 	free(url);
 	free(post);
 	state_free(&st);
@@ -361,8 +373,10 @@ mturk_create(const char *aws, const char *key, const char *name,
 	int		 erc;
 	char		 t[64];
 	struct state	 st;
-	char		*url, *encques, *encname, *encdesc,
-			*pdigest, *encdate, *post, *enckeys, *lurl;
+	size_t		 qual;
+	char		*url, *encques, *encname, *encdesc, *enclocale,
+			*pdigest, *encdate, *post, *enckeys, *lurl,
+			*qlocale, *qhitappr, *qpctappr;
 
 	/* 
 	 * Clamp input values and sanitise everything going to the
@@ -401,7 +415,47 @@ mturk_create(const char *aws, const char *key, const char *name,
 	encdesc = kutil_urlencode(desc);
 	enckeys = kutil_urlencode(keywords);
 	encques = kutil_urlencode(lurl);
+	enclocale = qlocale = qhitappr = qpctappr = NULL;
 
+	/* Our qualifications. */
+	qual = 1;
+	if (NULL != locale && '\0' != *locale) {
+		enclocale = kutil_urlencode(locale);
+		kasprintf(&qlocale,
+			"&QualificationRequirement.%zu."
+				"QualificationTypeId=%s"
+			"&QualificationRequirement.%zu."
+				"Comparator=EqualTo"
+			"&QualificationRequirement.%zu."
+				"LocaleValue.1.Country=%s",
+			qual, awsquals[AWS_QUAL_LOCALE], 
+			qual, qual, enclocale);
+		qual++;
+	}
+	if (hitappr >= 0) {
+		kasprintf(&qhitappr,
+			"&QualificationRequirement.%zu."
+				"QualificationTypeId=%s"
+			"&QualificationRequirement.%zu."
+				"Comparator=GreaterThan"
+			"&QualificationRequirement.%zu."
+				"IntegerValue.1=%" PRId64,
+			qual, awsquals[AWS_QUAL_HITAPPR], 
+			qual, qual, hitappr);
+		qual++;
+	}
+	if (pctappr >= 0) {
+		kasprintf(&qpctappr, 
+			"&QualificationRequirement.%zu."
+				"QualificationTypeId=%s"
+			"&QualificationRequirement.%zu."
+				"Comparator=GreaterThan"
+			"&QualificationRequirement.%zu."
+				"IntegerValue.1=%" PRId64,
+			qual, awsquals[AWS_QUAL_PCTAPPR],
+			qual, qual, pctappr);
+		qual++;
+	}
 	/* 
 	 * Actually construct the URL and post fields.
 	 * We use the user-supplied information except for the currency
@@ -423,24 +477,7 @@ mturk_create(const char *aws, const char *key, const char *name,
 		"&LifetimeInSeconds=%" PRId64
 		"&Keywords=%s"
 		"&MaxAssignments=%" PRId64
-		"&QualificationRequirement.1."
-			"QualificationTypeId=000000000000000000L0"
-		"&QualificationRequirement.1."
-			"Comparator=GreaterThan"
-		"&QualificationRequirement.1."
-			"IntegerValue.1=95"
-		"&QualificationRequirement.2."
-			"QualificationTypeId=00000000000000000040"
-		"&QualificationRequirement.2."
-			"Comparator=GreaterThan"
-		"&QualificationRequirement.2."
-			"IntegerValue.1=500"
-		"&QualificationRequirement.3."
-			"QualificationTypeId=00000000000000000071"
-		"&QualificationRequirement.3."
-			"Comparator=EqualTo"
-		"&QualificationRequirement.3."
-			"LocaleValue.1.Country=US",
+		"%s%s%s",
 		aws,  /* access key ID */
 		awstypes[AWS_CREATE_HIT], /* operation */
 		pdigest, /* request signature */
@@ -452,7 +489,10 @@ mturk_create(const char *aws, const char *key, const char *name,
 		minutes * 60, /* assignment duration */
 		minutes * 60, /* when it's valid */
 		enckeys, /* keywords */
-		workers); /* number of workers */
+		workers, /* number of workers */
+		NULL == qlocale ? "" : qlocale,
+		NULL == qhitappr ? "" : qhitappr,
+		NULL == qpctappr ? "" : qpctappr);
 
 	/* Initialise CURL object. */
 	curl_easy_setopt(c, CURLOPT_URL, url);
@@ -464,7 +504,9 @@ mturk_create(const char *aws, const char *key, const char *name,
 	curl_easy_setopt(c, CURLOPT_POSTFIELDS, post);
 
 	INFO("Preparing mturk to %s: %s", url, aws);
+	INFO("Request: %s", post);
 
+#if 0
 	if (CURLE_OK != (res = curl_easy_perform(c))) {
 	      WARNX("curl_easy_perform failed: %s", 
 		   curl_easy_strerror(res));
@@ -495,12 +537,17 @@ mturk_create(const char *aws, const char *key, const char *name,
 		db_expr_mturk(NULL, "Error in transmission");
 	}
 
+#endif
 	curl_easy_cleanup(c);
 	curl_global_cleanup();
 
+	free(qhitappr);
+	free(qpctappr);
+	free(qlocale);
 	free(encques);
 	free(encname);
 	free(encdesc);
+	free(enclocale);
 	free(url);
 	free(post);
 	free(lurl);
