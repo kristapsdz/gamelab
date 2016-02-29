@@ -292,7 +292,7 @@ function augmentForm(e)
 
 	if (null !== (sessid = getQueryVariable('sessid')) &&
 	    null !== (sesscookie = getQueryVariable('sesscookie'))) {
-		e.set('sessid', sessid);
-		e.set('sesscookie', sesscookie);
+		e.append('sessid', sessid);
+		e.append('sesscookie', sesscookie);
 	}
 }
