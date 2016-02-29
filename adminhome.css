@@ -1,7 +1,11 @@
 html, body			{ margin: 0; }
 a				{ text-decoration: none; }
-body				{ font-size: 14pt; 
-				  background-color: #eee; }
+body				{ background-color: #eee; 
+				  font-family: Calibri, Candara, Segoe, 
+				 	 Segoe UI, Optima, Arial, sans-serif;
+			  	  font-size: 12pt; }
+h1, h2, h3			{ font-family: Georgia, Times, Times New Roman, serif; 
+				  font-weight: normal; }
 header				{ background-color: #ccc; 
 				  display: table;
 				  position: fixed;
@@ -22,8 +26,7 @@ header a			{ color: #222; }
 				  border: none;
 				  top: 100%; 
 				  left: 0;}
-#nav a				{ font-size: 12pt; 
-				  display: block;
+#nav a				{ display: block;
 				  padding: 1ex;
 			  	  color: #222; }
 #nav				{ position: absolute;
@@ -36,15 +39,16 @@ header a			{ color: #222; }
 				  overflow: hidden;
 				  transition: max-height 0.5s ease-in-out;
 				  max-height: 0px; }
-h1				{ margin: 0; }
+h1				{ margin: 0; 
+				  font-size: 20pt; }
+h2				{ font-size: 16pt; }
 h3 				{ cursor: pointer; 
 				  margin: 0;
 				  position: relative;
 				  padding: 6pt;
 				  color: #ccc;
 				  background-color: #555;
-				  font-weight: normal;
-			 	  font-size: 14pt; }
+			 	  font-size: 13pt; }
 #loadPlayers, 
 #loadNewPlayers, 
 #loadGames 			{ display: table; 
@@ -78,7 +82,7 @@ article.top			{ padding-top: 4em;
 ul				{ list-style-type: none; }
 section.rolled,
 section.unrolled		{ border: thin solid #222; 
-				  box-shadow: 0 0 2px #666; 
+				  box-shadow: 0 0 1px #666; 
 			  	  background-color: #e80;
 				  margin-bottom: 8pt; }
 section.rolled > div,
@@ -104,15 +108,13 @@ section.unrolled >*:not(h3) 	{ max-height: 1000em;
 				  color: #444; }
 footer				{ text-align: center; 
 				  padding: 1em 0;
+				  font-size: 11pt;
 				  border-top: thin solid #bbb;
-				  color: #888;
-				  font-size: smaller; }
+				  color: #888; }
 footer a			{ color: #666; 
 				  padding-left: 0.5ex;
 				  border-left: thin solid #888; }
 footer a:hover			{ color: #222; }
-.seconds, .error		{ color: darkred;
-				  font-weight: bolder; }
 #wipeExprCheckboxBox		{ border: thin solid #666;
 				  background-color: #ec3; 
 				  margin-right: 0.5ex;
@@ -130,10 +132,8 @@ footer a:hover			{ color: #222; }
 				  padding: 0; 
 				  margin: 0; }
 .statuslist >* >*		{ display: table-cell; }
-.statuslistcaption		{ font-size: 12pt; 
-				  padding-left: 8pt; }
-.statuslisthead			{ font-size: 12pt; 
-				  color: #666; }
+.statuslistcaption		{ padding-left: 8pt; }
+.statuslisthead			{ color: #666; }
 .statusgraph			{ height: 200px; 
 				  padding: 0;
 				  width: 100%; }
@@ -174,15 +174,14 @@ fieldset			{ display: table;
 				  padding: 0;
 				  border-spacing: 0 1ex;
 				  border: 0; }
-span.inputheader		{ color: #666;
-				  font-size: 11pt; }
+span.inputheader		{ color: #666; }
 div.input			{ display: table-row; }
 div.input >*			{ display: table-cell; 
 				  background-color: #ddd;
 				  padding: 1ex 1ex;
 				  border: none;
 				  border-radius: 0;
-				  font-size: 11pt;
+				  font-size: inherit;
 				  border-left: thin solid #ccc;
 				  border-top: thin solid #ccc;
 				  border-bottom: thin solid #ccc;
@@ -201,7 +200,7 @@ div.input input			{ -webkit-appearance: none;
 				  margin: 0;
 				  width: 99%;
 				  background-color: #fff;
-				  font-size: 13pt;
+				  font-size: inherit;
 				  font-family: inherit;
 				  box-sizing: border-box; }
 div.input input[type=radio]	{ -webkit-appearance: radio; }
@@ -289,7 +288,8 @@ div.input input[type=time]	{ width: 20ex; }
 	.statuslistbox		{ margin: 0.1em 0; }
 	.statuslistcaption	{ padding-left: 0; 
 				  text-align: center; }
-	h3			{ padding: 4pt; }
+	h3			{ padding: 4pt; 
+				  font-size: inherit; }
 	footer			{ font-size: 10pt; }
 	div.input input[type=radio]
 				{ margin-right: 1ex; }
