@@ -6,13 +6,16 @@
 	</header>
 	<aside>
 		<p>
-			Fix the QualificationRequirement portion of the Mechanical Turk request.
+			Fix the QualificationRequirement portion of the Mechanical Turk request and make qualifications be part of the
+			configuration process.
 			Add the facility to automatically submit <a
 				href="https://docs.aws.amazon.com/AWSMechTurk/latest/AWSMturkAPI/ApiReference_GrantBonusOperation.html">bonuses</a>
 			to Mechanical Turk.
 			This button is revealed after completion of the experiment if and only if the experiment is associated with AWS
-			credentials.  
-			Only Mechanical Turk players are notified of their bonus, of course.
+			credentials.
+			(Only Mechanical Turk players are notified of their bonus, of course.)
+			Fix the <q>Finish</q> notification to Mechanical Turk to be through the gamelab system, not the client's browser: this
+			behaviour is usually disallowed as a browser security option.
 		</p>
 	</aside>
 </article>

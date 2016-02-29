@@ -214,18 +214,22 @@ void 		  SHA1Final(unsigned char[SHA1_DIGEST_LENGTH],
 void		  hmac_sha1(const unsigned char *, int,
 			const unsigned char *, int, unsigned char *);
 
+void		  mturk_bonus(const struct expr *, 
+			const struct player *, int64_t);
 void		  mturk_create(const char *, const char *, const char *,
 			const char *, int64_t, int64_t, int, double,
 			const char *, const char *, const char *,
 			int64_t, int64_t);
-void		  mturk_bonus(const struct expr *, 
-			const struct player *, int64_t);
+void		  mturk_finish(const struct expr *, 
+			const struct player *);
 
 void		  base64file(FILE *, size_t, 
 			int (*)(const char *, size_t, void *), 
 			void *);
 size_t		  base64len(size_t);
 size_t		  base64buf(char *, const char *, size_t);
+
+int		  doublefork(struct kreq *);
 
 typedef void	(*gamef)(const struct game *, void *);
 typedef void	(*gameroundf)(const struct game *, int64_t, void *);

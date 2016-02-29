@@ -375,16 +375,41 @@ sendmturk(struct kreq *r)
  * Turk player, we hope) has played through to the end of the
  * experiment and has responded back to the Mechanical Turk site saying
  * that they've finished.
- * This doesn't do anything: it just sets a flag and ensures that the
- * "respond back to Mechanical Turk site" doesn't get displayed again.
+ * We need to submit onward to the Mechanical Turk system.
+ * The documents recommend doing this by way of the client, but modern
+ * browsers won't allow that kind of behaviour.
  */
 static void
 sendmturkfinish(struct kreq *r, int64_t playerid)
 {
+	struct player	*player;
+	struct expr	*expr;
 
-       db_player_mturkdone(playerid);
-       http_open(r, KHTTP_200);
-       khttp_body(r);
+	if (NULL == (expr = db_expr_get(1))) {
+		http_open(r, KHTTP_409);
+		khttp_body(r);
+		return;
+	}
+
+	player = db_player_load(playerid);
+	assert(NULL != player);
+	db_player_mturkdone(playerid);
+	http_open(r, KHTTP_200);
+	khttp_body(r);
+
+	/* 
+	 * There's a race condition of double-submitting, but it's not
+	 * really all that important.
+	 */
+	if (player->mturkdone || 0 == doublefork(r)) {
+		mturk_finish(expr, player);
+		db_expr_free(expr);
+		db_player_free(player);
+		exit(EXIT_SUCCESS);
+	}
+
+	db_expr_free(expr);
+	db_player_free(player);
 }
 
 /*

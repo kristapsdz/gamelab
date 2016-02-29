@@ -44,6 +44,8 @@
 		"</ExternalQuestion>"
 #define REALURL	"mechanicalturk.amazonaws.com"
 #define	SANDURL "mechanicalturk.sandbox.amazonaws.com"
+#define REALFUR	"www.mturk.com"
+#define	SANDFUR "workersandbox.mturk.com"
 #define	DEFNAME	"Gamelab Experiment"
 #define DEFDESC "This is a gamelab experiment"
 #define	MINPAY	0.01
@@ -98,7 +100,7 @@ struct	state {
 
 static	const char *const awstypes[AWS__MAX] = {
 	"CreateHIT", /* AWS_CREATE_HIT */
-	"GrantBonus" /* AWS_GRANT_BONUS */
+	"GrantBonus", /* AWS_GRANT_BONUS */
 };
 
 static	const char *const awsquals[AWS_QUAL__MAX] = {
@@ -107,6 +109,9 @@ static	const char *const awsquals[AWS_QUAL__MAX] = {
 	"000000000000000000L0", /* AWS_QUAL_PCTAPPR */
 };
 
+/*
+ * Append text node from a response to a nil-terminated buffer.
+ */
 static void
 node_text(void *arg, const XML_Char *s, int len)
 {
@@ -122,6 +127,9 @@ node_text(void *arg, const XML_Char *s, int len)
 	st->bsz += len;
 }
 
+/*
+ * Close out a response XML element.
+ */
 static void
 node_close(void *arg, const XML_Char *s)
 {
@@ -151,6 +159,9 @@ node_close(void *arg, const XML_Char *s)
 	}
 }
 
+/*
+ * Open a response XML element.
+ */
 static void
 node_open(void *arg, const XML_Char *s, const XML_Char **atts)
 {
@@ -175,6 +186,20 @@ node_open(void *arg, const XML_Char *s, const XML_Char **atts)
 	}
 }
 
+/*
+ * Simply discard all data in a response.
+ * We could forward into /dev/null, but this is easier.
+ */
+static size_t 
+node_discard(void *contents, size_t len, size_t nm, void *arg)
+{
+
+	return(SIZE_MAX / nm < len ? 0 : nm * len);
+}
+
+/*
+ * Route response stream into an XML parser.
+ */
 static size_t 
 node_parse(void *contents, size_t len, size_t nm, void *arg)
 {
@@ -190,7 +215,6 @@ node_parse(void *contents, size_t len, size_t nm, void *arg)
 		return(0);
 
 	rsz = nm * len;
-
 	if (0 == XML_Parse(parser, contents, (int)rsz, 0)) {
 		erc = XML_GetErrorCode(parser);
 		WARNX("Response buffer length %zu failed "
@@ -201,6 +225,10 @@ node_parse(void *contents, size_t len, size_t nm, void *arg)
   	return(rsz);
 }
 
+/*
+ * Symmetrise state_alloc().
+ * This does NOT free the XML parser.
+ */
 static void
 state_free(struct state *st)
 {
@@ -210,6 +238,10 @@ state_free(struct state *st)
 	free(st->aws.hitId);
 }
 
+/*
+ * Allocate a parser and its handler sruct for XML responses from AWS.
+ * Must call state_free() symmetrically if this returns a non-NULL value.
+ */
 static XML_Parser
 state_alloc(struct state *st)
 {
@@ -228,8 +260,14 @@ state_alloc(struct state *st)
 	return(p);
 }
 
+/*
+ * Create the signature required for all AWS instructions.
+ * "Key" is the AWS secret key, "type" is the submission type, and
+ * "tstamp" is the string representation of the object timestamp.
+ * This returns a heap-allocated signature.
+ */
 static char *
-mturk_init(const char *key, enum awstype type, 
+mturk_sign(const char *key, enum awstype type, 
 	char *tstamp, size_t tstampsz)
 {
 	time_t	 	 tt;
@@ -254,6 +292,66 @@ mturk_init(const char *key, enum awstype type,
 	free(sigprop);
 	free(pdigest);
 	return(enc);
+}
+
+/*
+ * This isn't really a response to AWS, but rather, a response to the
+ * Mechanical Turk site on behalf of the user.
+ * We do this because users often can't POST forms from an iframe (a
+ * security precaution, I guess).
+ * This does nothing if the user isn't an mturk player.
+ */
+void
+mturk_finish(const struct expr *expr, const struct player *p)
+{
+	CURL		*c;
+	CURLcode	 res;
+	char		*url, *post;
+
+	if (NULL == expr->awsaccesskey ||
+	    '\0' == *expr->awsaccesskey ||
+	    NULL == expr->awssecretkey ||
+	    '\0' == *expr->awssecretkey ||
+	    NULL == p->assignmentid ||
+	    '\0' == *p->assignmentid)
+		return;
+
+	if (NULL == (c = curl_easy_init())) {
+		WARNX("curl_easy_init");
+		return;
+	}
+
+	/* Construct request URL. */
+	kasprintf(&url, "https://%s/mturk/externalSubmit", 
+		EXPR_SANDBOX & expr->flags ? 
+		SANDFUR : REALFUR);
+	kasprintf(&post, 
+		"rseed=%" PRId64
+		"&assignmentId=%s", /* XXX: lowcase "a" intended */
+		p->rseed, /* random seed as "answer" */
+		p->assignmentid);
+
+	INFO("Preparing mturk finish to %s", url);
+	INFO("%s: posting", post);
+
+	/* Initialise CURL object. */
+	curl_easy_setopt(c, CURLOPT_URL, url);
+	curl_easy_setopt(c, CURLOPT_USE_SSL, (long)CURLUSESSL_ALL);
+	curl_easy_setopt(c, CURLOPT_SSL_VERIFYPEER, 0L);
+	curl_easy_setopt(c, CURLOPT_WRITEFUNCTION, node_discard);
+	curl_easy_setopt(c, CURLOPT_POST, 1L);
+	curl_easy_setopt(c, CURLOPT_POSTFIELDS, post);
+
+	if (CURLE_OK != (res = curl_easy_perform(c))) {
+	      WARNX("curl_easy_perform failed: %s", 
+		   curl_easy_strerror(res));
+	} 
+
+	curl_easy_cleanup(c);
+	curl_global_cleanup();
+
+	free(url);
+	free(post);
 }
 
 /*
@@ -289,7 +387,7 @@ mturk_bonus(const struct expr *expr,
 	}
 
 	/* URL-encode necessary inputs. */
-	pdigest = mturk_init
+	pdigest = mturk_sign
 		(expr->awssecretkey, 
 		 AWS_GRANT_BONUS, t, sizeof(t));
 	encdate = kutil_urlencode(t);
@@ -322,7 +420,7 @@ mturk_bonus(const struct expr *expr,
 		p->rseed, /* bonus identifier */
 		p->assignmentid);
 
-	INFO("%s: preparing", url);
+	INFO("Preparing mturk bonus to %s", url);
 	INFO("%s: posting", post);
 
 	/* Initialise CURL object. */
@@ -409,7 +507,7 @@ mturk_create(const char *aws, const char *key, const char *name,
 	kasprintf(&lurl, EXTQUES, server);
 
 	/* URL-encode all inputs. */
-	pdigest = mturk_init(key, AWS_CREATE_HIT, t, sizeof(t));
+	pdigest = mturk_sign(key, AWS_CREATE_HIT, t, sizeof(t));
 	encdate = kutil_urlencode(t);
 	encname = kutil_urlencode(name);
 	encdesc = kutil_urlencode(desc);
@@ -456,10 +554,11 @@ mturk_create(const char *aws, const char *key, const char *name,
 			qual, qual, pctappr);
 		qual++;
 	}
+
 	/* 
 	 * Actually construct the URL and post fields.
 	 * We use the user-supplied information except for the currency
-	 * code (AWS only allows USD anyway) and the qualifications.
+	 * code (AWS only allows USD anyway).
 	 */
 	kasprintf(&url, "https://%s", sandbox ? SANDURL : REALURL);
 	kasprintf(&post, 
@@ -503,10 +602,9 @@ mturk_create(const char *aws, const char *key, const char *name,
 	curl_easy_setopt(c, CURLOPT_POST, 1L);
 	curl_easy_setopt(c, CURLOPT_POSTFIELDS, post);
 
-	INFO("Preparing mturk to %s: %s", url, aws);
+	INFO("Preparing mturk creation to %s: %s", url, aws);
 	INFO("Request: %s", post);
 
-#if 0
 	if (CURLE_OK != (res = curl_easy_perform(c))) {
 	      WARNX("curl_easy_perform failed: %s", 
 		   curl_easy_strerror(res));
@@ -537,7 +635,6 @@ mturk_create(const char *aws, const char *key, const char *name,
 		db_expr_mturk(NULL, "Error in transmission");
 	}
 
-#endif
 	curl_easy_cleanup(c);
 	curl_global_cleanup();
 

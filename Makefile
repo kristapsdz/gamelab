@@ -69,7 +69,8 @@ OBJS	 = base64.o \
 	   mail.o \
 	   mpq.o \
 	   mturk.o \
-	   sha1.o
+	   sha1.o \
+	   util.o
 SRCS	 = Makefile \
 	   admin.c \
 	   adminhome.js \
@@ -101,7 +102,8 @@ SRCS	 = Makefile \
 	   playerlogin.js \
 	   privacy.xml \
 	   script.js \
-	   sha1.c
+	   sha1.c \
+	   util.c
 HTMLS	 = adminlogin.html \
 	   mturkpreview.html \
 	   playerautoadd.html \

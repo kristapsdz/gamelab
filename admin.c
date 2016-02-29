@@ -350,41 +350,6 @@ mailround(const char *uri)
 	INFO("Round mailer exiting: %u", pid);
 }
 
-/*
- * The "double-fork" is a well-known technique to start a long-running
- * process.
- * A process is created that invokes daemon(3), which in turk forks
- * internally.
- * This returns -1 if it's in the caller process and something bad
- * happened, 0 if it's in the child "long-running" process, and 1 if
- * it's in the caller process.
- * The "middle" process never returns.
- */
-static int
-doublefork(struct kreq *r)
-{
-	pid_t	 pid;
-
-	db_close();
-	if (-1 == (pid = fork())) {
-		WARN("fork");
-		return(-1);
-	} else if (pid > 0) {
-		if (-1 == waitpid(pid, NULL, 0)) {
-			WARN("waitpid");
-			return(-1);
-		}
-		return(1);
-	}
-	khttp_child_free(r);
-	if (-1 == daemon(1, 1)) {
-		WARN("daemon");
-		exit(EXIT_SUCCESS);
-	} 
-	return(0);
-}
-
-
 static int
 sess_valid(struct kreq *r)
 {
