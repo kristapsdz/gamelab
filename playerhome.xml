@@ -176,6 +176,7 @@
 						<div id="exprFinishedMturk" class="noshow">
 							<p>
 								To indicate completion, you must click the button to report back to the Amazon Mechanical Turk site.
+								You will not receive your bonus unless you click this button.
 							</p>
 							<form id="mturkform" method="post" onsubmit="return(submitMturk(this));">
 								<input type="hidden" id="assignmentId" name="assignmentId" />
