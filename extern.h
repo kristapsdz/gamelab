@@ -216,7 +216,8 @@ void		  hmac_sha1(const unsigned char *, int,
 
 void		  mturk_create(const char *, const char *, const char *,
 			const char *, int64_t, int64_t, int, double,
-			const char *, const char *);
+			const char *, const char *, const char *,
+			int64_t, int64_t);
 void		  mturk_bonus(const struct expr *, 
 			const struct player *, int64_t);
 

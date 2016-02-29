@@ -438,6 +438,26 @@
 									<i class="fa fa-fw fa-money"></i>
 									<input required="required" type="number" name="awsreward" step="0.01" min="0.01" value="1.0" />
 								</div>
+								<div>
+									Worker requirements: set <i class="fa fa-globe"></i> to be <a
+										href="http://www.iso.org/iso/country_codes/iso_3166_code_lists.htm">ISO
+										3166</a> country code (or blank for no restriction); <i
+										class="fa fa-check"></i> to be the minimum number of approved
+									HITs, with -1 meaning no restriction; and <i class="fa fa-percent"></i>
+									to be the percent of approved assignments, with -1 being no restriction.
+								</div>
+								<div class="input">
+									<i class="fa fa-fw fa-globe"></i>
+									<input type="text" id="workerlocale" name="workerlocale" placeholder="Worker locale" />
+								</div>
+								<div class="input">
+									<i class="fa fa-fw fa-check"></i>
+									<input type="number" id="workerhitapprv" name="workerhitapprv" step="1" min="-1" value="-1" />
+								</div>
+								<div class="input">
+									<i class="fa fa-fw fa-percent"></i>
+									<input type="number" id="workerpctapprv" name="workerpctapprv" step="1" max="100" min="-1" value="-1" />
+								</div>
 								<input type="hidden" id="sandbox" name="sandbox" value="1" />
 							</section>
 							<section class="advanced" id="advanced">

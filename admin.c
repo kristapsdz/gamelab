@@ -137,6 +137,9 @@ enum	key {
 	KEY_USER,
 	KEY_WINNERS,
 	KEY_WINSEED,
+	KEY_WORKER_LOCALE,
+	KEY_WORKER_HITAPPRV,
+	KEY_WORKER_PCTAPPRV,
 	KEY_WORKERS,
 	KEY__MAX
 };
@@ -287,6 +290,9 @@ static const struct kvalid keys[KEY__MAX] = {
 	{ kvalid_stringne, "user" }, /* KEY_USER */
 	{ kvalid_uint, "winners" }, /* KEY_WINNERS */
 	{ kvalid_int, "winseed" }, /* KEY_WINSEED */
+	{ kvalid_string, "workerlocale" }, /* KEY_WORKER_LOCALE */
+	{ kvalid_int, "workerhitapprv" }, /* KEY_WORKER_HITAPPRV */
+	{ kvalid_int, "workerpctapprv" }, /* KEY_WORKER_PCTAPPRV */
 	{ kvalid_uint, "workers" }, /* KEY_WORKERS */
 };
 
@@ -1277,12 +1283,13 @@ senddostartexpr(struct kreq *r)
 {
 	pid_t		 pid;
 	char		*loginuri, *uri, *map, *akey, *skey,
-			*name, *desc, *keys, *server;
+			*name, *desc, *keys, *server, *locale;
 	const char	*instdat;
 	enum instrs	 inst;
 	int		 fd;
 	double		 reward;
-	int64_t		 flags, workers, minutes, rounds;
+	int64_t		 flags, workers, minutes, rounds,
+			 hitappr, pctappr;
 	struct stat	 st;
 	size_t		 sz;
 
@@ -1455,30 +1462,62 @@ senddostartexpr(struct kreq *r)
 
 	if (r->fieldmap[KEY_AWSACCESSKEY]->valsz &&
 	    r->fieldmap[KEY_AWSSECRETKEY]->valsz) {
+		/*
+		 * We have a Mechanical Turk setup.
+		 * For this, we grok the values from the administrative
+		 * sub-panel and send the request to AWS, getting our
+		 * HIT identifier (hopefully) in return.
+		 */
 		workers = NULL == r->fieldmap[KEY_WORKERS] ?
 			0 : r->fieldmap[KEY_WORKERS]->parsed.i;
 		minutes = r->fieldmap[KEY_MINUTES]->parsed.i;
 		rounds = r->fieldmap[KEY_ROUNDS]->parsed.i;
 		reward = r->fieldmap[KEY_AWSREWARD]->parsed.d;
+		hitappr = r->fieldmap[KEY_WORKER_HITAPPRV]->parsed.i;
+		pctappr = r->fieldmap[KEY_WORKER_PCTAPPRV]->parsed.i;
+		akey = kstrdup(r->fieldmap
+			[KEY_AWSACCESSKEY]->parsed.s);
+		skey = kstrdup(r->fieldmap
+			[KEY_AWSSECRETKEY]->parsed.s);
+		name = kstrdup(r->fieldmap
+			[KEY_AWSNAME]->parsed.s);
+		desc = kstrdup(r->fieldmap
+			[KEY_AWSDESC]->parsed.s);
+		keys = kstrdup(r->fieldmap
+			[KEY_AWSKEYWORDS]->parsed.s);
+		locale = kstrdup
+			(NULL == r->fieldmap[KEY_WORKER_LOCALE] ? "" :
+			 r->fieldmap[KEY_WORKER_LOCALE]->parsed.s);
+		server = kstrdup(r->host);
+
+		/* 
+		 * Normalise numeric values. 
+		 */
 		if (reward < 0.01)
 			reward = 0.01;
+		if (hitappr < 0)
+			hitappr = -1;
+		if (pctappr < 0)
+			pctappr = -1;
+		if (pctappr > 100)
+			pctappr = 100;
+
+		/* 
+		 * Contacting the Mechanical Turk server happens within
+		 * a protected child, so close out now.
+		 * Since this is a long-running process, we double-fork
+		 * in the usual way and daemonise.
+		 */
 		db_close();
 		if (-1 == (pid = fork())) {
 			WARN("fork");
 			return;
 		} else if (0 == pid) {
-			akey = kstrdup(r->fieldmap
-				[KEY_AWSACCESSKEY]->parsed.s);
-			skey = kstrdup(r->fieldmap
-				[KEY_AWSSECRETKEY]->parsed.s);
-			name = kstrdup(r->fieldmap
-				[KEY_AWSNAME]->parsed.s);
-			desc = kstrdup(r->fieldmap
-				[KEY_AWSDESC]->parsed.s);
-			keys = kstrdup(r->fieldmap
-				[KEY_AWSKEYWORDS]->parsed.s);
-			server = kstrdup(r->host);
-
+			/*
+			 * We're in the child.
+			 * Free the HTTP request resources: we're not
+			 * going to use them any more.
+			 */
 			khttp_child_free(r);
 			if (daemon(1, 1) < 0)
 				WARN("daemon");
@@ -1486,16 +1525,26 @@ senddostartexpr(struct kreq *r)
 				mturk_create(akey, skey, name, desc, 
 					workers, minutes * rounds, 
 					flags & EXPR_SANDBOX, reward, 
-					keys, server);
+					keys, server, locale, hitappr, 
+					pctappr);
 			free(akey);
 			free(name);
 			free(desc);
 			free(skey);
 			free(keys);
 			free(server);
+			free(locale);
 			exit(EXIT_SUCCESS);
 		} else if (-1 == waitpid(pid, NULL, 0))
 			WARN("waitpid");
+
+		free(akey);
+		free(name);
+		free(desc);
+		free(skey);
+		free(keys);
+		free(server);
+		free(locale);
 	}
 
 	/*

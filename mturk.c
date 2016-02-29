@@ -352,7 +352,8 @@ void
 mturk_create(const char *aws, const char *key, const char *name, 
 	const char *desc, int64_t workers, int64_t minutes, 
 	int sandbox, double reward, const char *keywords,
-	const char *server)
+	const char *server, const char *locale, int64_t hitappr,
+	int64_t pctappr)
 {
 	CURL		*c;
 	CURLcode	 res;
