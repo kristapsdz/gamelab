@@ -311,10 +311,16 @@ mturk_finish(const struct expr *expr, const struct player *p)
 	if (NULL == expr->awsaccesskey ||
 	    '\0' == *expr->awsaccesskey ||
 	    NULL == expr->awssecretkey ||
-	    '\0' == *expr->awssecretkey ||
-	    NULL == p->assignmentid ||
-	    '\0' == *p->assignmentid)
+	    '\0' == *expr->awssecretkey) {
+		WARNX("Player %" PRId64 " attempting to finish "
+		      "MTurk with non-MTurk experiment", p->id);
 		return;
+	} else if (NULL == p->assignmentid ||
+	           '\0' == *p->assignmentid) {
+		WARNX("Player %" PRId64 " attempting to finish "
+		      "MTurk when not MTurk player", p->id);
+		return;
+	}
 
 	if (NULL == (c = curl_easy_init())) {
 		WARNX("curl_easy_init");
@@ -331,7 +337,7 @@ mturk_finish(const struct expr *expr, const struct player *p)
 		p->rseed, /* random seed as "answer" */
 		p->assignmentid);
 
-	INFO("Preparing mturk finish to %s", url);
+	INFO("Preparing MTurk finish to %s", url);
 	INFO("%s: posting", post);
 
 	/* Initialise CURL object. */
@@ -349,7 +355,7 @@ mturk_finish(const struct expr *expr, const struct player *p)
 
 	curl_easy_cleanup(c);
 	curl_global_cleanup();
-
+	INFO("%s: success", url);
 	free(url);
 	free(post);
 }
@@ -371,19 +377,20 @@ mturk_bonus(const struct expr *expr,
 	char		*url, *pdigest, *encdate, *post;
 	double		 reward;
 
+	/* Player requirements. */
 	if (NULL == p->assignmentid ||
 	    '\0' == *p->assignmentid ||
 	    0 == p->mturkdone) {
-		WARNX("Player %" PRId64 ": not done or not mturk", p->id);
+		WARNX("Player %" PRId64 ": not "
+			"done or not MTurk", p->id);
 		return;
 	}
 
+	/* We shouldn't get here otherwise. */
 	assert(NULL != expr->awsaccesskey && 
 	       '\0' != *expr->awsaccesskey &&
 	       NULL != expr->awssecretkey && 
-	       '\0' != *expr->awssecretkey &&
-	       NULL != p->assignmentid &&
-	       '\0' != *p->assignmentid);
+	       '\0' != *expr->awssecretkey);
 
 	if (NULL == (parser = state_alloc(&st)))
 		return;
@@ -427,7 +434,7 @@ mturk_bonus(const struct expr *expr,
 		p->rseed, /* bonus identifier */
 		p->assignmentid);
 
-	INFO("Preparing mturk bonus to %s", url);
+	INFO("Preparing MTurk bonus to %s", url);
 	INFO("%s: posting", post);
 
 	/* Initialise CURL object. */
@@ -609,7 +616,7 @@ mturk_create(const char *aws, const char *key, const char *name,
 	curl_easy_setopt(c, CURLOPT_POST, 1L);
 	curl_easy_setopt(c, CURLOPT_POSTFIELDS, post);
 
-	INFO("Preparing mturk creation to %s: %s", url, aws);
+	INFO("Preparing MTurk creation to %s: %s", url, aws);
 	INFO("Request: %s", post);
 
 	if (CURLE_OK != (res = curl_easy_perform(c))) {
@@ -628,17 +635,17 @@ mturk_create(const char *aws, const char *key, const char *name,
 	if (st.ok) {
 		INFO("Mturk enquiry finished: received");
 		if (NULL != st.aws.errorCodes) {
-			WARNX("Mturk enquiry has an error code");
+			WARNX("MTurk enquiry has an error code");
 			db_expr_mturk(NULL, st.aws.errorCodes);
 		} else if (NULL != st.aws.hitId) {
-			INFO("Mturk enquiry success");
+			INFO("MTurk enquiry success");
 			db_expr_mturk(st.aws.hitId, NULL);
 		} else {
-			INFO("Mturk enquiry... not-success?");
+			INFO("MTurk enquiry... not-success?");
 			db_expr_mturk(NULL, "Ambiguous outcome");
 		}
 	} else {
-		WARNX("Mturk enquiry finished: bad communication");
+		WARNX("MTurk enquiry finished: bad communication");
 		db_expr_mturk(NULL, "Error in transmission");
 	}
 

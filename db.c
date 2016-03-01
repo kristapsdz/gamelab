@@ -1256,7 +1256,8 @@ db_player_load_bonuses(int64_t **scores, size_t *sz)
 		"FROM lottery "
 		"INNER JOIN player ON player.id=playerid "
 		"GROUP BY playerid "
-		"WHERE player.assignmentid != \'\'");
+		"WHERE player.assignmentid != \'\' AND "
+		"player.mturkdone=1");
 
 	player = NULL;
 	*scores = NULL;

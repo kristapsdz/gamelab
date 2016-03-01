@@ -397,11 +397,15 @@ sendmturkfinish(struct kreq *r, int64_t playerid)
 	http_open(r, KHTTP_200);
 	khttp_body(r);
 
+	if (player->mturkdone)
+		WARNX("Player %" PRId64 "re-submitting "
+		      "MTurk finish query", playerid);
+
 	/* 
 	 * There's a race condition of double-submitting, but it's not
 	 * really all that important.
 	 */
-	if (player->mturkdone || 0 == doublefork(r)) {
+	if (0 == player->mturkdone && 0 == doublefork(r)) {
 		mturk_finish(expr, player);
 		db_expr_free(expr);
 		db_player_free(player);
