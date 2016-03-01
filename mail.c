@@ -474,7 +474,8 @@ mail_backup(void)
 		mail_backupfail(fname);
 		return;
 	} else if (NULL == (curl = mail_init(&m, &t))) {
-		chmod(fname, 0);
+		/* coverity[check_return] */
+		(void)chmod(fname, 0);
 		return;
 	}
 
