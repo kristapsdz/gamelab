@@ -1542,7 +1542,7 @@
 								The questionnaire is an optional set of questions given to each player.
 								These players must submit a set number of correct answers before joining the game.
 								See <a href="#db-experiment-questionnaire"><var>questionnaire</var></a>.
-								These rows are unique per player-rank.
+								These rows are unique per player-rank: only a player's first answer counts.
 							</p>
 							<dl>
 								<dt id="db-questionnaire-first"><var>first</var></dt>
@@ -1566,6 +1566,7 @@
 									The number of tries, correct or not.
 									This is zero only in the race after initially creating the row and
 									noting an attempt.
+									It should not be used and will be removed.
 								</dd>
 							</dl>
 						</dd>

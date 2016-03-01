@@ -1430,7 +1430,7 @@ gamer_event(struct gamer *gamer)
 int
 main(int argc, char *argv[])
 {
-	int	 	 c, rc, maxfd, run, postrun;
+	int	 	 c, rc, maxfd, postrun;
 	CURLMsg		*msg;
 	struct timeval	 tv;
 	CURLMcode	 cm;
@@ -1622,7 +1622,6 @@ main(int argc, char *argv[])
 				"log in\n", ctx[i].email);
 	}
 
-	run = -1;
 	/*
 	 * Event loop.
 	 * Prime our file descriptors for active connections then poll
@@ -1773,8 +1772,6 @@ main(int argc, char *argv[])
 					gp->email, gp->url);
 			goto out;
 		}
-
-		run = postrun;
 	} while (game.finished < game.players);
 
 	if ( ! game.fixunit) {

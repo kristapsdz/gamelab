@@ -1808,9 +1808,7 @@ void
 db_expr_setmailer(int64_t old, int64_t new)
 {
 	sqlite3_stmt	*stmt;
-	pid_t		 pid;
 
-	pid = getpid();
 	stmt = db_stmt("UPDATE experiment SET "
 		"roundpid=? WHERE roundpid=?");
 	db_bind_int(stmt, 1, new);
@@ -2951,14 +2949,18 @@ void
 db_player_questionnaire(int64_t playerid, int64_t rank)
 {
 	sqlite3_stmt	*stmt;
-	int		 rc;
 
+	/*
+	 * We only allow the first answer to be set.
+	 * The "tries" field is a holdover from an earlier version of
+	 * gamelab and will be removed.
+	 */
 	stmt = db_stmt("INSERT INTO questionnaire "
 		"(playerid,rank,first) VALUES (?,?,?)");
 	db_bind_int(stmt, 1, playerid);
 	db_bind_int(stmt, 2, rank);
 	db_bind_int(stmt, 3, time(NULL));
-	rc = db_step(stmt, DB_STEP_CONSTRAINT);
+	db_step(stmt, DB_STEP_CONSTRAINT);
 	sqlite3_finalize(stmt);
 	
 	stmt = db_stmt("UPDATE questionnaire "
