@@ -187,17 +187,6 @@ node_open(void *arg, const XML_Char *s, const XML_Char **atts)
 }
 
 /*
- * Simply discard all data in a response.
- * We could forward into /dev/null, but this is easier.
- */
-static size_t 
-node_discard(void *contents, size_t len, size_t nm, void *arg)
-{
-
-	return(SIZE_MAX / nm < len ? 0 : nm * len);
-}
-
-/*
  * Route response stream into an XML parser.
  */
 static size_t 
@@ -214,7 +203,10 @@ node_parse(void *contents, size_t len, size_t nm, void *arg)
 	if (0 == st->ok || SIZE_MAX / nm < len) 
 		return(0);
 
+	/* XXX: debugging */
 	rsz = nm * len;
+	INFO("%.*s", (int)rsz, (char *)contents);
+
 	if (0 == XML_Parse(parser, contents, (int)rsz, 0)) {
 		erc = XML_GetErrorCode(parser);
 		WARNX("Response buffer length %zu failed "
@@ -295,72 +287,6 @@ mturk_sign(const char *key, enum awstype type,
 }
 
 /*
- * This isn't really a response to AWS, but rather, a response to the
- * Mechanical Turk site on behalf of the user.
- * We do this because users often can't POST forms from an iframe (a
- * security precaution, I guess).
- * This does nothing if the user isn't an mturk player.
- */
-void
-mturk_finish(const struct expr *expr, const struct player *p)
-{
-	CURL		*c;
-	CURLcode	 res;
-	char		*url, *post;
-
-	if (NULL == expr->awsaccesskey ||
-	    '\0' == *expr->awsaccesskey ||
-	    NULL == expr->awssecretkey ||
-	    '\0' == *expr->awssecretkey) {
-		WARNX("Player %" PRId64 " attempting to finish "
-		      "MTurk with non-MTurk experiment", p->id);
-		return;
-	} else if (NULL == p->assignmentid ||
-	           '\0' == *p->assignmentid) {
-		WARNX("Player %" PRId64 " attempting to finish "
-		      "MTurk when not MTurk player", p->id);
-		return;
-	}
-
-	if (NULL == (c = curl_easy_init())) {
-		WARNX("curl_easy_init");
-		return;
-	}
-
-	/* Construct request URL. */
-	kasprintf(&url, "https://%s/mturk/externalSubmit", 
-		EXPR_SANDBOX & expr->flags ? 
-		SANDFUR : REALFUR);
-	kasprintf(&post, 
-		"rseed=%" PRId64
-		"&assignmentId=%s", /* XXX: lowcase "a" intended */
-		p->rseed, /* random seed as "answer" */
-		p->assignmentid);
-
-	INFO("Preparing MTurk finish to %s", url);
-	INFO("%s: posting", post);
-
-	/* Initialise CURL object. */
-	curl_easy_setopt(c, CURLOPT_URL, url);
-	curl_easy_setopt(c, CURLOPT_USE_SSL, (long)CURLUSESSL_ALL);
-	curl_easy_setopt(c, CURLOPT_SSL_VERIFYPEER, 0L);
-	curl_easy_setopt(c, CURLOPT_WRITEFUNCTION, node_discard);
-	curl_easy_setopt(c, CURLOPT_POST, 1L);
-	curl_easy_setopt(c, CURLOPT_POSTFIELDS, post);
-
-	if (CURLE_OK != (res = curl_easy_perform(c))) {
-	      WARNX("curl_easy_perform failed: %s", 
-		   curl_easy_strerror(res));
-	} 
-
-	curl_easy_cleanup(c);
-	curl_global_cleanup();
-	INFO("%s: success", url);
-	free(url);
-	free(post);
-}
-
-/*
  * Submit bonuses to Mechanical Turk players.
  * The players must have a valid AssignmentID and the experiment must
  * have its AWS credentials intact.
@@ -422,7 +348,7 @@ mturk_bonus(const struct expr *expr,
 		"&WorkerId=%s"
 		"&Reason=Gamelab%%20participation"
 		"&BonusAmount.1.Amount=%g"
-		"&BonusAmount.1.CurrencyCode=US"
+		"&BonusAmount.1.CurrencyCode=USD"
 		"&UniqueRequestToken=%" PRId64
 		"&AssignmentId=%s",
 		expr->awsaccesskey,  /* access key ID */

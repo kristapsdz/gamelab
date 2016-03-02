@@ -1718,8 +1718,8 @@ db_player_mturkvrfy(const char *email, char **pass,
 			sqlite3_column_text(stmt, 0));
 		id = sqlite3_column_int64(stmt, 1);
 		INFO("Player %" PRId64 " re-entering "
-			"with same HIT and assignment ID: %s", 
-			id, email);
+			"with same HIT ID %s and assignment ID: %s", 
+			id, hitid, assid);
 	} else
 		INFO("Player tried re-entering "
 			"with different IDs: %s", email);

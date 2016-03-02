@@ -900,12 +900,24 @@ function loadExprSuccess(resp)
 		res.gameorders = null;
 	}
 
-	if (res.expr.nohistory) {
-		doHide('exprHistoryExplain');
-		doHide('historyButton');
+	if (res.expr.sandbox) {
+		doHide('mturkformreal');
+		doUnhide('mturkformsand');
 	} else {
-		doUnhide('exprHistoryExplain');
-		doUnhide('historyButton');
+		doUnhide('mturkformreal');
+		doHide('mturkformsand');
+	}
+
+	if (null !== res.player.assignmentid) {
+		if (res.expr.nohistory) {
+			doHide('exprHistoryExplain');
+			doHide('historyButton');
+		} else {
+			doUnhide('exprHistoryExplain');
+			doUnhide('historyButton');
+		}
+		doValue('assignmentId', res.player.assignmentid);
+		doValue('assignmentId2', res.player.assignmentid);
 	}
 
 	doClearReplace('nextRound', 'Next round');
@@ -994,7 +1006,6 @@ function loadExprSuccess(resp)
 		doHide('exprDone');
 		doUnhide('exprFinished');
 		if (null !== res.player.assignmentid && ! res.player.mturkdone) {
-			doValue('assignmentId', res.player.assignmentid);
 			doUnhide('exprFinishedMturk');
 			doUnhide('exprFinishedMturkProfit');
 			doClearReplace('exprFinishedMturkBonus', 
@@ -1031,7 +1042,6 @@ function loadExprSuccess(resp)
 		doHide('exprNotAllFinished');
 		doUnhide('exprAllFinished');
 		if (null !== res.player.assignmentid && ! res.player.mturkdone) {
-			doValue('assignmentId', res.player.assignmentid);
 			doUnhide('exprFinishedMturk');
 			doUnhide('exprFinishedMturkProfit');
 			doClearReplace('exprFinishedMturkBonus', 
@@ -1301,15 +1311,13 @@ function playGame(form)
 		doPlayGameSetup, doPlayGameError, doPlayGameSuccess));
 }
 
-function submitMturk(form)
+function submitMturk()
 {
-	var data = new FormData(form);
 
-	augmentForm(data);
-
-	return(sendFormData(form, data,
-		submitMturkSetup, submitMturkSuccess, 
-		submitMturkSuccess));
+	sendQuery(getURL('@LABURI@/mturkfinish.json'),
+		submitMturkSetup, 
+		submitMturkSuccess, 
+		submitMturkSuccess);
 }
 
 function updateInstr(form)

@@ -220,8 +220,6 @@ void		  mturk_create(const char *, const char *, const char *,
 			const char *, int64_t, int64_t, int, double,
 			const char *, const char *, const char *,
 			int64_t, int64_t);
-void		  mturk_finish(const struct expr *, 
-			const struct player *);
 
 void		  base64file(FILE *, size_t, 
 			int (*)(const char *, size_t, void *), 
