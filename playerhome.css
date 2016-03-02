@@ -275,6 +275,24 @@ div.input input[type=number]	{ width: 20ex; }
 div.input input[type=time]	{ width: 20ex; }
 .bigview			{ display: block; }
 .smallview			{ display: none; }
+button.aws			{ font-family: inherit;
+				  font-size: 100%;
+				  padding: 0.5ex 0.25em;
+				  border: 0px none transparent;
+				  background-color: #0078E7;
+				  color: #FFF;
+				  text-decoration: none;
+				  border-radius: 2px; 
+				  line-height: normal;
+				  white-space: nowrap;
+				  vertical-align: middle;
+				  text-align: center;
+				  cursor: pointer;
+				  -moz-user-select: none;
+				  box-sizing: border-box; }
+button.aws:hover		{ background-image: linear-gradient(transparent, rgba(0, 0, 0, 0.05) 40%, rgba(0, 0, 0, 0.1)); }
+button.aws:active		{ box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 0.15) inset, 0px 0px 6px rgba(0, 0, 0, 0.2) inset; }
+button.noshow			{ display: none; }
 @media only screen and (max-width: 800px), only screen and (max-device-width: 800px) {
 	article			{ padding-left: 10%; 
 			  	  padding-right: 10%; }

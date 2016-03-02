@@ -999,9 +999,6 @@ function loadExprSuccess(resp)
 			doUnhide('exprFinishedMturkProfit');
 			doClearReplace('exprFinishedMturkBonus', 
 				(res.aggrtickets * res.expr.conversion));
-			document.getElementById('mturkform').action = res.expr.sandbox ?
-				'https://workersandbox.mturk.com/mturk/externalSubmit' :
-				'https://www.mturk.com/mturk/externalSubmit';
 		} 
 		if (res.expr.round > 0) {
 			doUnhide('historyPlay');
@@ -1039,9 +1036,6 @@ function loadExprSuccess(resp)
 			doUnhide('exprFinishedMturkProfit');
 			doClearReplace('exprFinishedMturkBonus', 
 				(res.player.finalscore * res.expr.conversion));
-			document.getElementById('mturkform').action = res.expr.sandbox ?
-				'https://workersandbox.mturk.com/mturk/externalSubmit' :
-				'https://www.mturk.com/mturk/externalSubmit';
 		} else if (null !== res.player.hitid) {
 			doClearReplace('hitid', res.player.hitid);
 			doUnhide('exprFinishedMturkSurvey');
@@ -1241,11 +1235,20 @@ function doPlayGameError(err)
 	}
 }
 
+function submitMturkSetup(resp)
+{
+
+	doHide('mturkbtn');
+	doUnhide('mturkpbtn');
+	doHide('mturkfbtn');
+}
+
 function submitMturkSuccess(resp)
 {
 
-	sendQuery(getURL('@LABURI@/mturkfinish.json'), 
-		null, function(){ doHide('exprFinishedMturk');}, null);
+	doHide('mturkbtn');
+	doHide('mturkpbtn');
+	doUnhide('mturkfbtn');
 }
 
 function doPlayGameSuccess(resp)
@@ -1305,7 +1308,8 @@ function submitMturk(form)
 	augmentForm(data);
 
 	return(sendFormData(form, data,
-		null, null, submitMturkSuccess));
+		submitMturkSetup, submitMturkSuccess, 
+		submitMturkSuccess));
 }
 
 function updateInstr(form)

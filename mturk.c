@@ -423,7 +423,7 @@ mturk_bonus(const struct expr *expr,
 		"&Reason=Gamelab%%20participation"
 		"&BonusAmount.1.Amount=%g"
 		"&BonusAmount.1.CurrencyCode=US"
-		"&UniqueRequestToken=" PRId64
+		"&UniqueRequestToken=%" PRId64
 		"&AssignmentId=%s",
 		expr->awsaccesskey,  /* access key ID */
 		awstypes[AWS_GRANT_BONUS], /* operation */

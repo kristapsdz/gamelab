@@ -178,10 +178,19 @@
 								To indicate completion, you must click the button to report back to the Amazon Mechanical Turk site.
 								You will not receive your bonus unless you click this button.
 							</p>
-							<form id="mturkform" method="post" onsubmit="return(submitMturk(this));">
-								<input type="hidden" id="assignmentId" name="assignmentId" />
-								<input type="hidden" name="finished" value="1" />
-								<input type="submit" value="Finish" />
+							<form id="mturkform" method="post" action="@LABURI@/mturkfinish.json" onsubmit="return(submitMturk(this));">
+								<button type="submit" class="aws" id="mturkbtn">
+									<i class="fa fa-amazon"></i>
+									Finish
+								</button>
+								<button type="button" class="aws noshow" id="mturkpbtn">
+									<i class="fa fa-spin fa-spinner"></i>
+									Finishing...
+								</button>
+								<button type="button" disabled="disabled" class="aws noshow" id="mturkfbtn">
+									<i class="fa fa-amazon"></i>
+									Finished
+								</button>
 							</form>
 						</div>
 					</section>
