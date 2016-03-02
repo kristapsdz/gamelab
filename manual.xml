@@ -57,6 +57,7 @@
 						<a href="#mechanicalturk">Mechanical Turk</a>
 						<ul>
 							<li><a href="#mturkexperiment">Experiment Setup</a></li>
+							<li><a href="#mturkbonus">Granting Bonuses</a></li>
 						</ul>
 					</li>
 					<li>
@@ -1009,8 +1010,9 @@
 							Sandbox</a> or production mode&#8212;I recommend starting with the first.
 						You can also enter a name and a description, which will be shown to potential workers, as well
 						as the keywords which are used when searching for HITs.
-						By default, <span class="nm">gamelab</span> requests workers with an approvate rating &gt;95%,
-						more than 500 approved HITs, and who are located in the US.
+						Lastly, you can set some worker requirements.
+						You can specify an assignment approval percent, number of accepted HITs, and locale.
+						By default, there are no requirements.
 					</p>
 					<p>
 						You'll probably also want to use the Mechanical Turk instructions, and you should enable the
@@ -1028,6 +1030,26 @@
 						is embedded in the query string.
 						This is because most browsers disallow third-party cookies by default.
 						So be warned that this is <strong>not</strong> a secure method of operation!
+					</p>
+				</section>
+				<section id="mturkbonus">
+					<header>
+						<a href="#"><i class="fa fa-angle-up fa-fw"></i></a>
+						<h3>Granting Bonuses</h3>
+					</header>
+					<p>
+						You can optionally assign bonuses to Mechanical Turk players in your experiment after the experiment has concluded.
+						To do so, you'll need to click the <q>Assign bonus</q> button that appears beneath the high-scorer table on the experimenter page.
+						This button is only shown for Mechanical Turk experiments.
+						It's ok to click this twice: the Mechanical Turk system will keep track of who has been awarded
+						bonuses and not award the same bonus twice.
+					</p>
+					<p>
+						Bonuses are only awarded to Mechanical Turk players who have indicated completion.
+						You can see which players have done so by looking whether they have checkmarks next to their identifiers in the player listing.
+					</p>
+					<p>
+						The bonus assigned is the number of tickets times the conversion rate.
 					</p>
 				</section>
 			</section>
