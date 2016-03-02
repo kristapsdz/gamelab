@@ -38,8 +38,8 @@ STATIC		 = -static -nopie
 
 # You really don't want to change anything below this line.
 
-VERSION	 = 1.1.2
-VMONTH	 = February
+VERSION	 = 1.1.3
+VMONTH	 = March
 VYEAR	 = 2016
 CFLAGS 	+= -g -W -Wall -Wstrict-prototypes -Wno-unused-parameter -Wwrite-strings -I/usr/local/include
 CFLAGS	+= -DDATADIR=\"$(RDATADIR)\" -DHTURI=\"$(HTURI)\" -DLABURI=\"$(LABURI)\"
