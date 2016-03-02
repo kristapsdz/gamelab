@@ -273,6 +273,7 @@ div.input input[type=time]	{ width: 20ex; }
 				  padding-top: 8pt; }
 .seconds, .error		{ color: red;
 				  font-weight: bolder; }
+#mturkbonusesButton		{ margin-top: 4pt; }
 @media only screen and (max-width: 800px), only screen and (max-device-width: 800px) {
 	article			{ padding-left: 10%; 
 			  	  padding-right: 10%; }

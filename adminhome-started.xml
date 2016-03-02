@@ -142,9 +142,17 @@
 						<div class="statuslistcaption">Last Round Highest Earners (<a href="@ADMINURI@/dogethighest.csv">CSV</a>)</div>
 						<ul class="statuslist" id="statusHighest2"></ul>
 						<div id="mturkbonusesButton">
-							<div class="input input-submit">
-								<i class="fa fa-fw fa-amazon"></i>
-								<button type="button" onclick="mturkBonuses();">Mturk Bonuses</button>
+							<div id="mturkbonusbtn">
+								<div class="input input-submit">
+									<i class="fa fa-fw fa-amazon"></i>
+									<button type="button" onclick="mturkBonuses();">Grant MTurk Bonuses</button>
+								</div>
+							</div>
+							<div class="noshow" id="mturkbonuspbtn">
+								<div class="input input-submit">
+									<i class="fa fa-fw fa-amazon"></i>
+									<button type="button">Granting...</button>
+								</div>
 							</div>
 						</div>
 					</div>
@@ -278,6 +286,7 @@
 						yet assigned a role.
 						Participants also may be <i class="fa fa-thumb-tack"></i> captive or
 						<i class="fa fa-amazon"></i> Mechanical Turk workers.
+						(If workers have a <i class="fa fa-check"></i>, they can receive their bonus.)
 					</div>
 					<div>
 						<ul id="loadPlayers">

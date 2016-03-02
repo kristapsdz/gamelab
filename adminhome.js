@@ -341,6 +341,11 @@ function loadPlayersSuccess(resp)
 			icon.className = 'fa fa-amazon';
 			span.appendChild(document.createTextNode(' '));
 			span.appendChild(icon);
+			if (player.mturkdone) {
+				icon = document.createElement('i');
+				icon.className = 'fa fa-check';
+				span.appendChild(icon);
+			}
 		}
 	}
 }
@@ -1173,10 +1178,27 @@ function advanceRound()
 		function() { window.location.reload(true); });
 }
 
+function mturkBonusesSetup()
+{
+
+	doHide('mturkbonusbtn');
+	doUnhide('mturkbonuspbtn');
+}
+
+function mturkBonusesFinish()
+{
+
+	doUnhide('mturkbonusbtn');
+	doHide('mturkbonuspbtn');
+}
+
 function mturkBonuses() 
 {
 
-	sendQuery('@ADMINURI@/domturkbonuses.json', null, null, null);
+	sendQuery('@ADMINURI@/domturkbonuses.json', 
+		mturkBonusesSetup, 
+		mturkBonusesFinish, 
+		mturkBonusesFinish);
 }
 
 function wipeCleanExpr() 
