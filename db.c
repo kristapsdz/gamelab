@@ -311,8 +311,11 @@ db_player_sess_valid(int64_t *playerid, int64_t id, int64_t cookie)
 	int	 	 rc;
 	sqlite3_stmt	*stmt;
 
-	if (0 == cookie)
+	if (0 == cookie) {
+		WARNX("Player login of %"
+			PRId64 " without cookie", id);
 		return(0);
+	}
 
 	stmt = db_stmt
 		("SELECT playerid FROM sess "
@@ -337,8 +340,11 @@ db_admin_sess_valid(int64_t id, int64_t cookie)
 	int	 	 rc;
 	sqlite3_stmt	*stmt;
 
-	if (0 == cookie)
+	if (0 == cookie) {
+		WARNX("Administrator login of %" 
+			PRId64 " without cookie", id);
 		return(0);
+	}
 
 	stmt = db_stmt
 		("SELECT * FROM sess "
