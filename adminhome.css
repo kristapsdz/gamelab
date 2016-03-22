@@ -50,7 +50,7 @@ h3 				{ cursor: pointer;
 				  padding: 6pt;
 				  color: #ccc;
 				  background-color: #555;
-			 	  font-size: 13pt; }
+			 	  font-size: inherit; }
 #loadPlayers, 
 #loadNewPlayers, 
 #loadGames 			{ display: table; 
