@@ -355,9 +355,8 @@ sess_valid(struct kreq *r)
 {
 
 	if (NULL == r->cookiemap[KEY_SESSID] ||
-		NULL == r->cookiemap[KEY_SESSCOOKIE]) 
+	    NULL == r->cookiemap[KEY_SESSCOOKIE])
 		return(0);
-
 	return(db_admin_sess_valid
 		(r->cookiemap[KEY_SESSID]->parsed.i,
 		 r->cookiemap[KEY_SESSCOOKIE]->parsed.i));
