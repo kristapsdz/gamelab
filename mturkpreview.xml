@@ -6,7 +6,7 @@
 		<title>Gamelab :: Mechanical Turk Preview</title>
 		<link rel="stylesheet" href="@FONTURI@" type="text/css" />
 		<style>
-			body, html { font-family: "Times New Roman", serif; font-size: 14pt; }
+			body { font-family: Calibri, Candara, Segoe, Segoe UI, Optima, Arial, sans-serif; font-size: 12pt;
 			figure img { max-width: 500px; width: 100%; }
 			figure { margin: 0; text-align: center; }
 		</style>
