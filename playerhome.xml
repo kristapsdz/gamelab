@@ -178,10 +178,10 @@
 								To indicate completion, you must click the button to report back to the Amazon Mechanical Turk site.
 								You will not receive your bonus unless you click this button.
 							</p>
-							<form id="mturkformreal" method="post" action="https://www.mturk.com/mturk/externalSubmit" onsubmit="submitMturk(); return true;">
+							<form id="mturkformreal" method="post" action="https://www.mturk.com/mturk/externalSubmit">
 								<input type="hidden" name="response" value="1" />
 								<input type="hidden" id="assignmentId" name="assignmentId" />
-								<button type="submit" class="aws" id="mturkbtn">
+								<button type="submit" class="aws" id="mturkbtn" onclick="submitMturk();">
 									<i class="fa fa-amazon"></i>
 									Finish 
 								</button>
@@ -194,10 +194,10 @@
 									Finished
 								</button>
 							</form>
-							<form id="mturkformsand" method="post" action="https://workersandbox.mturk.com/mturk/externalSubmit" onsubmit="submitMturk(); return true;">
+							<form id="mturkformsand" method="post" action="https://workersandbox.mturk.com/mturk/externalSubmit">
 								<input type="hidden" name="response" value="1" />
 								<input type="hidden" id="assignmentId2" name="assignmentId" />
-								<button type="submit" class="aws" id="mturkbtn">
+								<button type="submit" class="aws" id="mturkbtn" onclick="submitMturk();">
 									<i class="fa fa-amazon"></i>
 									Finish (sandbox)
 								</button>
