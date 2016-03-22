@@ -192,15 +192,15 @@ sess_valid(struct kreq *r, int64_t *id)
 {
 	int64_t	sid, scookie;
 
-	if (NULL != r->cookiemap[KEY_SESSID] &&
-	    NULL != r->cookiemap[KEY_SESSCOOKIE]) {
-		sid = r->cookiemap[KEY_SESSID]->parsed.i;
-		scookie = r->cookiemap[KEY_SESSCOOKIE]->parsed.i;
-	} else if (NULL != r->fieldmap[KEY_SESSID] &&
-		   NULL != r->fieldmap[KEY_SESSCOOKIE]) {
+	if (NULL != r->fieldmap[KEY_SESSID] &&
+	    NULL != r->fieldmap[KEY_SESSCOOKIE]) {
 		sid = r->fieldmap[KEY_SESSID]->parsed.i;
 		scookie = r->fieldmap[KEY_SESSCOOKIE]->parsed.i;
-	} else 
+	} else if (NULL != r->cookiemap[KEY_SESSID] &&
+		   NULL != r->cookiemap[KEY_SESSCOOKIE]) {
+		sid = r->cookiemap[KEY_SESSID]->parsed.i;
+		scookie = r->cookiemap[KEY_SESSCOOKIE]->parsed.i;
+	} else
 		return(0);
 
 	return(db_player_sess_valid(id, sid, scookie));
@@ -349,21 +349,24 @@ sendmturk(struct kreq *r)
 	if (needjoin)
 		needjoin = ! db_player_join(player, QUESTIONS);
 
-	http_open(r, KHTTP_303);
+	/*
+	 * Mechanical Turk players have no cookie set at all, as they'll
+	 * just use the query string for credentials.
+	 */
+#if 0
 	khttp_head(r, kresps[KRESP_SET_COOKIE],
 		"%s=%" PRId64 "; path=/; expires=", 
 		keys[KEY_SESSCOOKIE].name, sess->cookie);
 	khttp_head(r, kresps[KRESP_SET_COOKIE],
 		"%s=%" PRId64 "; path=/; expires=", 
 		keys[KEY_SESSID].name, sess->id);
-
+#endif
 	snprintf(addr, sizeof(addr),
 		HTURI "/%s.html?%s=%" PRId64 "&%s=%" PRId64,
 		needjoin ? "playerlobby" : "playerhome",
 		keys[KEY_SESSCOOKIE].name, sess->cookie,
 		keys[KEY_SESSID].name, sess->id);
-
-	send303(r, addr, PAGE__MAX, 0);
+	send303(r, addr, PAGE__MAX, 1);
 
 	db_expr_free(expr);
 	db_sess_free(sess);
