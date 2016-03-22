@@ -122,33 +122,6 @@ JSMINS   = adminhome.min.js \
 IMAGES   = eskil.jpg \
 	   jorgen.jpg \
 	   kristaps.jpg
-VERSIONS = version_1_0_1.xml \
-	   version_1_0_2.xml \
-	   version_1_0_3.xml \
-	   version_1_0_4.xml \
-	   version_1_0_5.xml \
-	   version_1_0_6.xml \
-	   version_1_0_7.xml \
-	   version_1_0_8.xml \
-	   version_1_0_9.xml \
-	   version_1_0_10.xml \
-	   version_1_0_11.xml \
-	   version_1_0_12.xml \
-	   version_1_0_13.xml \
-	   version_1_0_14.xml \
-	   version_1_0_15.xml \
-	   version_1_0_16.xml \
-	   version_1_0_17.xml \
-	   version_1_0_18.xml \
-	   version_1_0_19.xml \
-	   version_1_0_20.xml \
-	   version_1_0_21.xml \
-	   version_1_0_22.xml \
-	   version_1_0_23.xml \
-	   version_1_0_24.xml \
-	   version_1_0_25.xml \
-	   version_1_1_1.xml \
-	   version_1_1_2.xml 
 BUILTMLS = history.html \
 	   index.html \
 	   manual.html \
@@ -222,16 +195,16 @@ gamelab.db: gamelab.sql
 	rm -f $@
 	sqlite3 $@ < gamelab.sql
 
-history.html: history.xml $(VERSIONS)
-	sblg -t history.xml -o- $(VERSIONS) | \
+history.html: history.xml versions.xml
+	sblg -t history.xml -o- versions.xml | \
 		sed -e "s!@ADMINURI@!$(ADMINURI)!g" \
 			-e "s!@LABURI@!$(LABURI)!g" \
 			-e "s!@FONTURI@!$(FONTURI)!g" \
 			-e "s!@VERSION@!$(VERSION)!g" \
 			-e "s!@HTURI@!$(HTURI)!g" >$@
 
-index.html: index.xml $(VERSIONS)
-	sblg -t index.xml -o- $(VERSIONS) | \
+index.html: index.xml versions.xml
+	sblg -t index.xml -o- versions.xml | \
 		sed -e "s!@ADMINURI@!$(ADMINURI)!g" \
 			-e "s!@LABURI@!$(LABURI)!g" \
 			-e "s!@FONTURI@!$(FONTURI)!g" \

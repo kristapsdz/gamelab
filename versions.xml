@@ -1,0 +1,571 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<articles>
+	<article data-sblg-article="1" data-sblg-tags="version">
+		<header>
+			<h1>1.0.7</h1>
+			<address>Kristaps Dzonsons</address>
+			<time datetime="2015-07-08">2015-07-08</time>
+		</header>
+		<aside>
+			<p>
+				Introduce ability for players joining after the experiment has started.
+				To do so, experimenters must specify a per-player maximum number of rounds as well as a per-experiment maximum.
+				Players are added by the experimenter in the usual way.
+				When the new players join after the experiment has begun, they wait in a <q>lobby</q> until a slot is available.
+				Once a slot is available (the participant's new role is dynamically assigned as the role containing fewer players), the
+				participant is automatically assigned to the next round.
+			</p>
+			<p>
+				Remove the unused <code>rank</code> field from the <code>player</code> table.
+			</p>
+			<p>
+				Perform an audit of using <code>sqlite3_column_int</code> instead of <code>sqlite3_column_int64</code>, and make sure
+				that all return values of <code>int64_t</code> are properly checked and cast.
+			</p>
+		</aside>
+	</article>
+
+	<article data-sblg-article="1" data-sblg-tags="version">
+		<header>
+			<h1>1.0.5</h1>
+			<address>Kristaps Dzonsons</address>
+			<time datetime="2015-05-14">2015-05-14</time>
+		</header>
+		<aside>
+			<p>
+				Allow rounds to advance when a given percentage of players per role have played, defaulting to the maximum time of not enough
+				players play in that time.
+				This allows rounds to advance much faster if players play in bursts.
+				Add ability for administrator to manually advance rounds as well.
+			</p>
+		</aside>
+	</article>
+
+	<article data-sblg-article="1" data-sblg-tags="version">
+		<header>
+			<h1>1.0.4</h1>
+			<address>Kristaps Dzonsons</address>
+			<time datetime="2015-05-01">2015-05-01</time>
+		</header>
+		<aside>
+			<p>
+				Renamed <q>auto-added</q> players as <q>captive</q>.
+				Remove logout button for captive players.
+				Remove <q>remember whether to see instructions</q> for captive players.
+				Add cache-control mechanism for player JSON that depends on the current round, relieving the gamelab server of producing the
+				full experiment JSON request with each reload.
+				Added several useful bits of information to the database: client user-agent to each session (and sessions are now retained
+				instead of deleted), creation time for each game-play, and link from game-play to active session (for source correlation).
+				Merged <q>winning instruction</q> text [back] into template itself.
+			</p>
+		</aside>
+	</article>
+
+	<article data-sblg-article="1" data-sblg-tags="version">
+		<header>
+			<h1>1.0.3</h1>
+			<address>Kristaps Dzonsons</address>
+			<time datetime="2015-04-30">2015-04-30</time>
+		</header>
+		<aside>
+			<p>
+				Consolidate round-advancement into a single location, opening the door for more advanced round progression.
+				Restructure the player page with additional graphs, replacing all tabular information.
+			</p>
+		</aside>
+	</article>
+	<article data-sblg-article="1" data-sblg-tags="version">
+		<header>
+			<h1>1.0.2</h1>
+			<address>Kristaps Dzonsons</address>
+			<time datetime="2015-04-22">2015-04-22</time>
+		</header>
+		<aside>
+			<p>
+				Added an <q>auto-add</q> mode where, upon being set by the administrator, participants can register themselves for games.
+				This makes it easier to deploy gamelab in a setting (e.g., laboratory, classroom) where participants' e-mail addresses are not
+				known or where the e-mail verification phase would take too much time.
+				The administrative console has also been overhauled and now allows for saving experiments before deployment.
+				HTTPS access is fully enabled for all components.
+			</p>
+		</aside>
+	</article>
+	<article data-sblg-article="1" data-sblg-tags="version">
+		<header>
+			<h1>1.0.1</h1>
+			<address>Kristaps Dzonsons</address>
+			<time datetime="2015-03-25">2015-03-25</time>
+		</header>
+		<aside>
+			<p>
+				Second [non-public] release of the system.
+				The push behind this release is to reduce the load on the Gamelab server: a lot of HTML and JavaScript which previously had been
+				dynamically served is now statically served.
+				The paths in these files (which were previously filled-in by the server) are now hard-coded during compilation.
+				Also added some informative bits to the login pages regarding browser usage and the login URI to the player e-mails.
+			</p>
+		</aside>
+	</article>
+
+	<article data-sblg-article="1" data-sblg-tags="version">
+		<header>
+			<h1>1.0.6</h1>
+			<address>Kristaps Dzonsons</address>
+			<time datetime="2015-06-13">2015-06-13</time>
+		</header>
+		<aside>
+			<p>
+				Add database field for checking that the experimenter password and e-mail have been re-set.
+				Change icons for the <q>new experiment</q> page to make it easier to understand what has been done and not done.
+				Add more documentation regarding the use of <a href="https://fortawesome.github.io/Font-Awesome/">Font Awesome</a> icons.
+				Add (conditionally-shown) link to <q>captive</q> player homepage on administrator player planel.
+				Add a minimum amount of time for percent-based play: a minimum of time must pass before the round percentage is checked, giving
+				slow players a chance to get their plays in before auto-progression.
+			</p>
+		</aside>
+	</article>
+	<article data-sblg-article="1" data-sblg-tags="version">
+		<header>
+			<h1>1.0.8</h1>
+			<address>Kristaps Dzonsons</address>
+			<time datetime="2015-07-25">2015-07-25</time>
+		</header>
+		<aside>
+			<p>
+				Add the ability to test out game deployments with an automated <q>bot</q> player utility.
+				This utility simulates participants who connect, register, and play through a simulation.
+				The play is maximally disruptive (extremely high-frequency attempts) to establish limits of <span
+					class="nm">gamelab</span> installations.
+				The <q>bot</q> player will be used as a proof-of-concept for fully programmatic play, wherein participants can program a
+				bot to play on their behalf.
+				This feature will be documented and described in later releases of <span class="nm">gamelab</span>.
+			</p>
+			<p>
+				In doing so, fix a very subtle bug in how round advancement occurs with <q>percent-based</q> play.
+				Also, change the database to use <a href="https://www.sqlite.org/wal.html">write-ahead logging</a>, which reduces the
+				amount of lock contention in heavily-loaded experiments.
+			</p>
+			<p>
+				Smaller changes: fixed up the manual with more specific language; simplified the experimenter's <q>Experiment
+					Parameters</q> panel; and fixed the experimenter instructions (their template values we're being filled in).
+				The <q>Save Experiment</q> feature has been temporarily disabled.
+			</p>
+		</aside>
+	</article>
+
+	<article data-sblg-article="1" data-sblg-tags="version">
+		<header>
+			<h1>1.0.9</h1>
+			<address>Kristaps Dzonsons</address>
+			<time datetime="2015-07-31">2015-07-31</time>
+		</header>
+		<aside>
+			<p>
+				Continue to add features to the <q>bot</q> player to discover bottlenecks in <span class="nm">gamelab</span>.
+				Document the JSON API in the <a href="manual.html">manual</a>.
+				Simplify the experimenter interface.
+				Fix round advancement in the event of zero players (a <q>hole</q> where players joind in a burst, then finished playing
+				while rounds remain, then new players join).
+				Allow the experimenter to upload a prior game-play history to supplement the current experiment's displayed history.
+				In using this feature, players are shown the prior experiment's game-play as if it were to have come before the current
+				round.
+				Allow the lottery drawing to be suppressed&#8212;this is useful when playing games where payouts depend upon the number
+				of tickets, not a lottery drawn from them.
+			</p>
+		</aside>
+	</article>
+	<article data-sblg-article="1" data-sblg-tags="version">
+		<header>
+			<h1>1.0.10</h1>
+			<address>Kristaps Dzonsons</address>
+			<time datetime="2015-08-08">2015-08-08</time>
+		</header>
+		<aside>
+			<p>
+				Add the ability for players to have a brief questionnaire when they begin.
+				With this feature, players are put into the lobby before joining the game.
+				They are then required to answer some pre-made questions.
+				When the answer with success, they'll join the game itself.
+				This feature is still experimental: the questions have not been written.
+			</p>
+		</aside>
+	</article>
+	<article data-sblg-article="1" data-sblg-tags="version">
+		<header>
+			<h1>1.0.11</h1>
+			<address>Kristaps Dzonsons</address>
+			<time datetime="2015-08-11">2015-08-11</time>
+		</header>
+		<aside>
+			<p>
+				When logging in (either via JSON, such as with captive players, or via HTML as when using the form page or initial
+				e-mail), have the system detect whether the lobby should be used or the home page.
+				This prevents a needless and at times confusing redirect after hitting the homepage.
+			</p>
+			<p>
+				Lots of aesthetic clean-up for the experimenter: more straight-forward status, cleaner buttons to push, a status graph
+				to see how many participants have played, an a printout of the current top earners (by tickets, not payoff).
+
+				Also clean up the presentation of earnings for players: one style for lottery-less play, another for playing with the lottery.
+				This involved some internal simplification of how lotteries are computed.
+			</p>
+			<p>
+				Stipulate a valid user e-mail address only for participants added over the experimenter console.
+				Otherwise, identifiers can be free-form.
+				This allows captive players to use non-email-based identifiers.
+			</p>
+			<p>
+				Lastly, significantly improve the <q>bot</q> playing utility to handle multiple games and randomised (instead of
+				consistent) strategies.
+			</p>
+		</aside>
+	</article>
+	<article data-sblg-article="1" data-sblg-tags="version">
+		<header>
+			<h1>1.0.12</h1>
+			<address>Kristaps Dzonsons</address>
+			<time datetime="2015-08-13">2015-08-13</time>
+		</header>
+		<aside>
+			<p>
+				Begin adding support for <a href="https://aws.amazon.com/documentation/mturk/">Mechanical Turk</a>.
+				Experiments employing mturk use the same process as before to start a <q>captive</q> experiment.
+				Unlike in normal captive experiments, however, the application makes available a special URL for submitting as an mturk
+				<q>HIT</q>.
+				This URL acts like the captive portal except both registers and logs in participants, immediately pushing them through
+				to the lobby (or directly into the game, if so configured).
+				The fact that players are mturk-registered is logged and displayed when reviewing player status.
+			</p>
+			<p>
+				While here, clean up the lottery-winning (and non-lottery-winning) interface for players.
+				Just polish: nothing exceptional.
+			</p>
+		</aside>
+	</article>
+	<article data-sblg-article="1" data-sblg-tags="version">
+		<header>
+			<h1>1.0.13</h1>
+			<address>Kristaps Dzonsons</address>
+			<time datetime="2015-08-18">2015-08-18</time>
+		</header>
+		<aside>
+			<p>
+				Split out the option to have Mechanical Turk players from that of ordinary captive players.
+				While working on administration, finally clean up instructions.
+				As it is now, experimenters can select from several defaults (lottery, no lottery, and Mechanical Turk) or upload custom
+				instructions.
+				These can still be changed in the usual way.
+			</p>
+			<p>
+				This also marks the first <q>no-wait</q> database implementation: connections will now wait perpetually in order to be
+				serviced instead of timing out.
+				This is part of a broader set of actions to reduce database contention for large (multi-hundred) player games.
+			</p>
+		</aside>
+	</article>
+	<article data-sblg-article="1" data-sblg-tags="version">
+		<header>
+			<h1>1.0.14</h1>
+			<address>Kristaps Dzonsons</address>
+			<time datetime="2015-08-24">2015-08-24</time>
+		</header>
+		<aside>
+			<p>
+				Flesh out the questionnaire, which is an optional sequence wherein players must correctly answer a series of questions
+				before playing.
+				Also record the number of attempts (and starting time) of each questionnaire instance.
+			</p>
+		</aside>
+	</article>
+	<article data-sblg-article="1" data-sblg-tags="version">
+		<header>
+			<h1>1.0.15</h1>
+			<address>Kristaps Dzonsons</address>
+			<time datetime="2015-08-25">2015-08-25</time>
+		</header>
+		<aside>
+			<p>
+				Continue polishing questions so that they have a <q>success</q> post-question phase, the game-choice boxes are properly
+				checked, and some minor formatting issues managed.
+				Remove the history matrix, as this information is already captured in the graphs.
+				A significant bug has been ferreted out and fixed related to counting players for round advancement.
+				This was found by the <q>bots</q>, which now can selectively enable compression to reduce load.
+			</p>
+			<p>
+				Add a new view for administrators: the projected number of participants over the rounds.
+				Also lift the restriction that administrator e-mail information must be set: if the e-mail is not set, emails are not
+				sent.
+				This is reflected in the administrator instructions.
+			</p>
+		</aside>
+	</article>
+	<article data-sblg-article="1" data-sblg-tags="version">
+		<header>
+			<h1>1.0.16</h1>
+			<address>Kristaps Dzonsons</address>
+			<time datetime="2015-08-25">2015-08-25</time>
+		</header>
+		<aside>
+			<p>
+				Squash a bug that caused games to abort after 64 rounds.
+				This was due to some legacy weighted-average calculations that have long since been deprecated, but are still computed.
+				These facilities have now been removed.
+				This was quite an invasive change, so pay careful attention to any payoff irregularities.
+			</p>
+			<p>
+				Have the administrator page check if it should re-load when viewing round-percent experiments.
+				This keeps the administrator page a bit more up-to-date with running games.
+			</p>
+			<p>
+				Finalise the Mechanical Turk instructions, which required adding a conversion rate for points to currency.
+				Finalise the Mechanical Turk preview page as well.
+			</p>
+		</aside>
+	</article>
+	<article data-sblg-article="1" data-sblg-tags="version">
+		<header>
+			<h1>1.0.17</h1>
+			<address>Kristaps Dzonsons</address>
+			<time datetime="2015-09-08">2015-09-08</time>
+		</header>
+		<aside>
+			<p>
+				Allow Mechanical Turk players to log back in with the same HTI identifier.
+				Moreover, don't unset mturk status (on the experimenter side) when experiments begin: mturk players can only log in
+				after the experiment commences anyway, so this is useless.
+				Show experimenters a message when mturk or captive players are enabled consisting of the necessary links.
+			</p>
+			<p>
+				Put graphs of current game into <q>Play</q> tab for easier reference.
+				These are formatted to display all at once, but be smaller and stacked.
+			</p>
+			<p>
+				If an experiment has a grace time, show that grace time instead of the total round time for players.
+				When it expires, use the usual <q>Next round</q> text.
+				This involved actually enabling the minimum-round value, which was being ignored by the server!
+				Next, have the browser check the server, once all games have been played, for round rolling.
+			</p>
+		</aside>
+	</article>
+	<article data-sblg-article="1" data-sblg-tags="version">
+		<header>
+			<h1>1.0.18</h1>
+			<address>Kristaps Dzonsons</address>
+			<time datetime="2015-09-10">2015-09-10</time>
+		</header>
+		<aside>
+			<p>
+				Accomodate for older browsers by appropriate setting element event handlers (e.g., <code>onclick</code>) directly
+				instead of as attributes.
+				While there, add better reload-timeouts for players when still in the pre-play phase.
+			</p>
+			<p>
+				Complete Mechanical Turk integration by recording the assignment identifier and stipulating that Mechanical Turk players
+				report back to the Amazon site conformant with their rules.
+				Hard-code whether we're in the sandbox or not.
+				Eventually this will be relegated to a button when Mechanical Turk is baked more into the system.
+			</p>
+			<p>
+				Fix a bug wherein players who would have played through the end of the experiment (e.g., added in round 1 with a maximum
+				of 10 rounds, but 10 rounds in total) would accidentally be shown a final round.
+			</p>
+		</aside>
+	</article>
+	<article data-sblg-article="1" data-sblg-tags="version">
+		<header>
+			<h1>1.0.19</h1>
+			<address>Kristaps Dzonsons</address>
+			<time datetime="2015-09-15">2015-09-15</time>
+		</header>
+		<aside>
+			<p>
+				Allow for Mechanical Turk players to log in using a survey link instead of the traditional <q>external question</q>.
+				This is because <span class="nm">gamelab</span> requires cookies, and when logged in through Mechanical Turk, these
+				cookies are <q>third-party</q> since they are fetched secondary to the Mechanical Turk interface.
+				Some browsers will ignore these by default, such as Safari, putting an extra burden on players to allow cookies.
+				In the future, we forsee allowing cookie values to be specified in the query string for Mechanical Turk players.
+			</p>
+			<p>
+				Clean up some typos in the questions.
+			</p>
+			<p>
+				Significantly clean up the JavaScript front-end bits after running over them with <a
+					href="http://jshint.com/">jshint</a>.
+				Also fix some timer issues (timeouts not firing) raised during Mechanical Turk tests.
+				Lastly, allow <q>malformed</q> decimal values like .5 instead of 0.5.
+				After some user feedback, add a loud notification that the round has rolled.
+			</p>
+		</aside>
+	</article>
+	<article data-sblg-article="1" data-sblg-tags="version">
+		<header>
+			<h1>1.0.20</h1>
+			<address>Kristaps Dzonsons</address>
+			<time datetime="2015-09-28">2015-09-28</time>
+		</header>
+		<aside>
+			<p>
+				Add ability for e-mailing players when the round rolls, or when the first round begins.
+				This involves a long-running child process.
+				(<strong>Note</strong>: Apache2 has a <q>feature</q> where it waits for all descendents of its CGI process, so if you
+				use this web server, you might see a zombie'd process if you use this feature.)
+				Also add the ability for the experimenter to prematurely end experiments by advancing to the last round.
+			</p>
+		</aside>
+	</article>
+	<article data-sblg-article="1" data-sblg-tags="version">
+		<header>
+			<h1>1.0.21</h1>
+			<address>Kristaps Dzonsons</address>
+			<time datetime="2015-10-13">2015-10-13</time>
+		</header>
+		<aside>
+			<p>
+				Address a number of small issues encountered in live trials: <q>join</q> players after answering the last question
+				instead of when they actually try to play the first round, add administrator notice of running the mailer process,
+				disallow negative accumulated tickets (in the event of negative payoffs) from crashing the system.
+				(This last part will be later fixed even more.)
+				Make the administrative console even clearer.
+				Remove the <var>end</var> variable from the experiment table (unused) and properly reset (upon wiping) the
+				<var>total</var> variable as 0, not 0/1.
+				Fix a presentation bug in showing hypothetical payoffs where the payoffs were fractional and the payoff would show zero
+				instead of the fractional result.
+				Bring the manual up to date with the current system, partially documenting the JSON API in the process.
+			</p>
+			<p>
+				Add the ability for the administrator to disable history altogether.
+				This prevents the history of other players' plays from being transmitted, effectively making games <q>history-free</q>.
+				This is useful for testing the difference in play between information sets.
+			</p>
+			<p>
+				Also hard-code the <a href="https://fortawesome.github.io/Font-Awesome/">Font Awesome</a> at compilation time instead of
+				within source files, allowing administrators to deploy their own icon server instead for LAN environments.
+			</p>
+		</aside>
+	</article>
+	<article data-sblg-article="1" data-sblg-tags="version">
+		<header>
+			<h1>1.0.22</h1>
+			<address>Kristaps Dzonsons</address>
+			<time datetime="2015-10-13">2015-10-13</time>
+		</header>
+		<aside>
+			<p>
+				Allow the administrator to control whether games and actions (rows) should be randomised prior to being shown to
+				participants.
+				Fix where Safari would allow the <q>enter</q> key to submit row weights, where on all other browsers it was specifically disabled.
+				Use the <a
+					href="https://developer.mozilla.org/en-US/docs/Web/API/Notifications_API/Using_the_Notifications_API">Notifications
+					API</a> to note changes to the current round.
+				Switch to using long-lasting cookies instead of session cookies (fewer superfluous logouts).
+				Add administrator flag to show relative rounds (instead of absolute rounds) for players.
+				Cleaned up the captive portal to make it easier for participants to join that way.
+			</p>
+		</aside>
+	</article>
+	<article data-sblg-article="1" data-sblg-tags="version">
+		<header>
+			<h1>1.0.23</h1>
+			<address>Kristaps Dzonsons</address>
+			<time datetime="2015-11-09">2015-11-09</time>
+		</header>
+		<aside>
+			<p>
+				Have the entire system (except the administrative console) automatically handle embedded session identification in the
+				query string.
+				This allows <q>external program</q> Mechanical Turk workers to participate without needing cookies.
+			</p>
+			<p>
+				Clean up the login pages for smartphone and tablet-sized devices.
+			</p>
+		</aside>
+	</article>
+	<article data-sblg-article="1" data-sblg-tags="version">
+		<header>
+			<h1>1.0.24</h1>
+			<address>Kristaps Dzonsons</address>
+			<time datetime="2015-11-16">2015-11-16</time>
+		</header>
+		<aside>
+			<p>
+				Now that the session identifiers are properly embedded, remove support for the Mechanical Turk <q>survey link</q>
+				functionality, which was just a crutch.
+				Moreover, move the Mechanical Turk configuration into the experiment parameters and accept the requested HIT identifier
+				as well as whether the request is to be sandboxed.
+				Also make sure that all Mechanical Turk variables (worker, assignment, and HIT identifiers) are proper uppercase
+				alphanumeric strings.
+			</p>
+		</aside>
+	</article>
+	<article data-sblg-article="1" data-sblg-tags="version">
+		<header>
+			<h1>1.0.25</h1>
+			<address>Kristaps Dzonsons</address>
+			<time datetime="2015-11-16">2015-11-16</time>
+		</header>
+		<aside>
+			<p>
+				Finally have HIT be automatically created given its name, description, your AWS access and secret key credentials, and
+				the number of workers.
+				Deprecate currency (AWS uses only USD).
+				Allow for both sandbox and production mode.
+				Add a <a href="quickstart.html">quickstart</a> guide and the version <a href="history.html">history</a>.
+				Finally, make the lottery amount be a dynamic field when starting the experiment.
+				If unspecified, a lottery is not computed&#8212;much simpler than needing to specify the lottery status and manually
+				editing the instructions file!
+			</p>
+		</aside>
+	</article>
+	<article data-sblg-article="1" data-sblg-tags="version">
+		<header>
+			<h1>1.1.1</h1>
+			<address>Kristaps Dzonsons</address>
+			<time datetime="2015-11-20">2015-11-20</time>
+		</header>
+		<aside>
+			<p>
+				Mechanical Turk submission has been fully integrated into the system, warranting a minor-number bump.
+				To use the Mechanical Turk facility, you'll need only your AWS credentials.
+				The rest happens from the experimenter console when creating the experiment.
+				The <a href="manual.html">manual</a> and <a href="quickstart.html">quickstart guide</a> have also been looked over and
+				checked that they match with the current version of operation.
+				While doing this, un-break the distributed archive by including some forgotten but necessary files.
+			</p>
+		</aside>
+	</article>
+	<article data-sblg-article="1" data-sblg-tags="version">
+		<header>
+			<h1>1.1.2</h1>
+			<address>Kristaps Dzonsons</address>
+			<time datetime="2016-02-23">2016-02-23</time>
+		</header>
+		<aside>
+			<p>
+				Integrate with a <a href="https://github.com/kristapsdz/gamelab">GitHub</a> account as a read-only repository.
+				Also run a <a href="https://scan.coverity.com/projects/gamelab">Coverity</a> scan against the software.
+				This found no meaningful bugs, but is a useful addition to regression analysis.
+			</p>
+		</aside>
+	</article>
+	<article data-sblg-article="1" data-sblg-tags="version">
+		<header>
+			<h1>1.1.3</h1>
+			<address>Kristaps Dzonsons</address>
+			<time datetime="2016-03-01">2016-03-01</time>
+		</header>
+		<aside>
+			<p>
+				Fix the QualificationRequirement portion of the Mechanical Turk request and make qualifications be part of the
+				configuration process.
+				Add the facility to automatically submit <a
+					href="https://docs.aws.amazon.com/AWSMechTurk/latest/AWSMturkAPI/ApiReference_GrantBonusOperation.html">bonuses</a>
+				to Mechanical Turk.
+				This button is revealed after completion of the experiment if and only if the experiment is associated with AWS
+				credentials.
+				(Only Mechanical Turk players are notified of their bonus, of course.)
+				Fix the <q>Finish</q> notification to Mechanical Turk to be through the gamelab system, not the client's browser: this
+				behaviour is usually disallowed as a browser security option.
+			</p>
+		</aside>
+	</article>
+</articles>
