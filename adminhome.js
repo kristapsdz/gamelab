@@ -578,7 +578,7 @@ function doStatHighest(e, res)
 		sub.appendChild(subsub);
 		subsub = document.createElement('span');
 		subsub.appendChild(document.createTextNode
-			(res.highest[i].score * res.expr.conversion));
+			((res.highest[i].score * res.expr.conversion) + ' USD'));
 		sub.appendChild(subsub);
 		subsub = document.createElement('span');
 		subsub.appendChild(document.createTextNode
