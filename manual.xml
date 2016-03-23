@@ -1065,8 +1065,7 @@
 					backing up on the administrative console.
 					This will e-mail a redacted database to the administrator.
 					The redacted bits consist of user and administrator e-mail passwords.
-					The database is in <a href="https://www.sqlite.org/wal.html">WAL</a> mode, so don't open it during an
-					experiment: instead, back it up then manipulate the backup.
+					The database is in <a href="https://www.sqlite.org/wal.html">WAL</a> mode.
 				</p>
 				<section id="databaseschema">
 					<header>
