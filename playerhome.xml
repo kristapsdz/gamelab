@@ -181,7 +181,7 @@
 							<form id="mturkformreal" method="post" action="https://www.mturk.com/mturk/externalSubmit">
 								<input type="hidden" name="response" value="1" />
 								<input type="hidden" id="assignmentId" name="assignmentId" />
-								<button type="submit" class="aws" id="mturkbtn" onclick="submitMturk();">
+								<button type="button" class="aws" id="mturkbtn" onclick="submitMturk(); document.getElementById('mturkformreal').submit();">
 									<i class="fa fa-amazon"></i>
 									Finish 
 								</button>
@@ -197,7 +197,7 @@
 							<form id="mturkformsand" method="post" action="https://workersandbox.mturk.com/mturk/externalSubmit">
 								<input type="hidden" name="response" value="1" />
 								<input type="hidden" id="assignmentId2" name="assignmentId" />
-								<button type="submit" class="aws" id="mturkbtn" onclick="submitMturk();">
+								<button type="button" class="aws" id="mturkbtn" onclick="submitMturk(); document.getElementById('mturkformsand').submit();">
 									<i class="fa fa-amazon"></i>
 									Finish (sandbox)
 								</button>
