@@ -1,6 +1,3 @@
 Short-term:
 
-- if relative rounds and first round, show absolute history
-  (query on id "historyNotYet")
-- remove "your payoff of .... earned you ... tickets" if not in a lottery
-- modify "your bonus is xxx USD to "your payofff of xxxxx earned you xxxx USD at a conversation rate of xxxx per dollar".
+(empty)

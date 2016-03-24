@@ -963,6 +963,8 @@ function loadExprSuccess(resp)
 		null !== res.win ? res.win.winrnum : '0');
 	doClearReplaceClass('gamelab-winrank', 
 		null !== res.win ? (res.win.winner + 1) : '0');
+	doClearReplaceClass('gamelab-conversion',
+		res.expr.conversion);
 
 	if (res.expr.round < 0) {
 		/*

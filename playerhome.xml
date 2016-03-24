@@ -197,9 +197,12 @@
 							<p>
 								You have now finished your Mechanical Turk HIT.
 								Your payoff of 
-								<span class="gamelab-aggrlottery"></span> 
+								<span class="gamelab-aggrlottery"></span>,
+								which rounds to
+								<span class="gamelab-aggrtickets"></span>,
 								earned you a bonus of
-								<span class="gamelab-mturkbonus"></span> USD.
+								<span class="gamelab-mturkbonus"></span> USD
+								(conversion rate <span class="gamelab-conversion"></span>).
 							</p>
 						</div>
 						<div id="exprFinishedMturk" class="noshow">
