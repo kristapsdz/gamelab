@@ -152,6 +152,17 @@ function doClearReplace(name, str)
 	return(e);
 }
 
+function doClearReplaceClass(cls, str)
+{
+	var e, i, sz;
+
+	e = document.getElementsByClassName(cls);
+	for (i = 0, sz = e.length; i < sz; i++) {
+		doClearNode(e[i]);
+		e[i].appendChild(document.createTextNode(str));
+	}
+}
+
 /*
  * Give a number of seconds "v", format the time as a human-readable
  * string (e.g., 1d4h3m).

@@ -994,6 +994,9 @@ again:
 		kjson_putnullp(&req, "win");
 		kjson_putnullp(&req, "history");
 		json_putplayer(&req, player);
+		kjson_putnullp(&req, "curlottery");
+		kjson_putnullp(&req, "aggrlottery");
+		kjson_putnullp(&req, "aggrtickets");
 		goto out;
 	}
 

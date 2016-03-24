@@ -298,29 +298,6 @@ function loadGame()
 	doClearReplace('playGameNum', (resindex + 1));
 	doClearReplace('playGameMax', res.gamesz);
 
-	/* We can show absolute or relative round. */
-	if (res.expr.absoluteround) {
-		doClearReplace('playRoundNum', res.expr.round + 1);
-		doClearReplace('playRoundNum2', res.expr.round + 1);
-		doClearReplace('playRoundMax', res.expr.rounds);
-		doClearReplace('playRoundMax2', res.expr.rounds);
-	} else {
-		doClearReplace('playRoundNum', 
-			(res.expr.round - res.player.joined) + 1);
-		doClearReplace('playRoundNum2', 
-			(res.expr.round - res.player.joined) + 1);
-		doClearReplace('playRoundMax', 
-			(res.player.joined + res.expr.prounds > res.expr.rounds ?
-			 (res.expr.prounds - 
-			 ((res.player.joined + res.expr.prounds) - res.expr.rounds)) :
-			 res.expr.prounds));
-		doClearReplace('playRoundMax2', 
-			(res.player.joined + res.expr.prounds > res.expr.rounds ?
-			 (res.expr.prounds - 
-			 ((res.player.joined + res.expr.prounds) - res.expr.rounds)) :
-			 res.expr.prounds));
-	}
-
 	/*
 	 * It might be that we play our games out of order for some
 	 * reason--I don't know, but it can happen.
@@ -804,12 +781,6 @@ function loadHistory(res)
 	c = res.player.rseed % colours.length;
 	oc = (0 === c % 2) ? c + 1 : c - 1;
 
-	if (null !== res.aggrlottery)
-		doClearReplace('historyLottery', 
-			res.aggrlottery.toFixed(2));
-	else
-		doClearReplace('historyLottery', '0');
-
 	k = 0;
 	if (null !== (e = document.getElementById('historySelectGame')))
 		k = e.selectedIndex;
@@ -958,6 +929,30 @@ function loadExprSuccess(resp)
 
 	doClearReplace('nextRound', 'Next round');
 
+	/*
+	 * Make lots of common substitutions.
+	 */
+	doClearReplaceClass('gamelab-aggrlottery', 
+		null !== res.aggrlottery ?
+		res.aggrlottery.toFixed(2) : '0');
+	doClearReplaceClass('gamelab-aggrtickets', 
+		null !== res.aggrtickets ?
+		res.aggrtickets : '0');
+	doClearReplaceClass('gamelab-mturkbonus', 
+		null !== res.aggrtickets ?
+		(res.aggrtickets * res.expr.conversion) : '0');
+	doClearReplaceClass('gamelab-maxtickets', res.expr.maxtickets);
+	doClearReplaceClass('gamelab-rounds',
+		res.expr.absoluteround ? res.expr.rounds :
+		(res.player.joined + res.expr.prounds > res.expr.rounds ?
+			 (res.expr.prounds - 
+			  ((res.player.joined + res.expr.prounds) - 
+			   res.expr.rounds)) : res.expr.prounds));
+	doClearReplaceClass('gamelab-round',
+		res.expr.absoluteround ? 
+		(res.expr.round + 1) :
+		((res.expr.round - res.player.joined) + 1));
+
 	if (res.expr.round < 0) {
 		/*
 		 * Branch indicating that we haven't yet started: simply
@@ -1044,8 +1039,6 @@ function loadExprSuccess(resp)
 		if (null !== res.player.assignmentid && ! res.player.mturkdone) {
 			doUnhide('exprFinishedMturk');
 			doUnhide('exprFinishedMturkProfit');
-			doClearReplace('exprFinishedMturkBonus', 
-				(res.aggrtickets * res.expr.conversion));
 		} 
 		if (checkShowHistory(res)) {
 			doUnhide('historyPlay');
@@ -1056,8 +1049,13 @@ function loadExprSuccess(resp)
 			doUnhide('historyNotYet');
 		}
 		doUnhide('exprNotAllFinished');
-		doClearReplace('exprNotAllFinishedScore', res.aggrlottery.toFixed(2));
-		doClearReplace('exprNotAllFinishedTickets', res.aggrtickets);
+		if (null !== res.expr.lottery && res.expr.lottery.length) {
+			doUnhide('exprNotAllFinishedLottery');
+			doHide('exprNotAllFinishedNoLottery');
+		} else {
+			doHide('exprNotAllFinishedLottery');
+			doUnhide('exprNotAllFinishedNoLottery');
+		}
 		doHide('exprAllFinished');
 		doClearReplace('exprCountdown', 'finished');
 	} else {
@@ -1080,17 +1078,10 @@ function loadExprSuccess(resp)
 		if (null !== res.player.assignmentid && ! res.player.mturkdone) {
 			doUnhide('exprFinishedMturk');
 			doUnhide('exprFinishedMturkProfit');
-			doClearReplace('exprFinishedMturkBonus', 
-				(res.player.finalscore * res.expr.conversion));
 		} else if (null !== res.player.hitid) {
 			doClearReplace('hitid', res.player.hitid);
-			doUnhide('exprFinishedMturkSurvey');
 			doUnhide('exprFinishedMturkProfit');
-			doClearReplace('exprFinishedMturkBonus', 
-				(res.player.finalscore * res.expr.conversion));
 		}
-		doClearReplace('exprFinishedScore', res.aggrlottery.toFixed(2));
-		doClearReplace('exprFinishedTicketsMax', res.expr.maxtickets);
 		doClearReplace('exprFinishedFinalRank', res.player.finalrank);
 		doClearReplace('exprFinishedTickets', res.player.finalscore);
 		v = res.player.finalrank + res.player.finalscore;
@@ -1098,8 +1089,10 @@ function loadExprSuccess(resp)
 		doClearReplace('exprCountdown', 'finished');
 		if (null !== res.expr.lottery && res.expr.lottery.length) {
 			doUnhide('exprLottery');
+			doHide('exprNoLottery');
 		} else {
 			doHide('exprLottery');
+			doUnhide('exprNoLottery');
 		}
 
 		if (null === res.win) {

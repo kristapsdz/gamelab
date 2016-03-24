@@ -51,7 +51,7 @@
 					<div id="historyPlay" class="noshow">
 						<section>
 							<h3>Total payoffs</h3>
-							<p>Your total payoff from all rounds and games: <span id="historyLottery"></span></p>
+							<p>Your total payoff from all rounds and games: <span class="gamelab-aggrlottery"></span></p>
 						</section>
 						<section>
 							<h3 class="bigview">
@@ -111,7 +111,7 @@
 					</section>
 					<section id="exprDone" class="noshow">
 						<h3>
-							Round <span id="playRoundNum2"></span> of <span id="playRoundMax2"></span>
+							Round <span class="gamelab-round"></span> of <span class="gamelab-rounds"></span>
 						</h3>
 						<p>
 							You've played all the games for this round.
@@ -131,18 +131,23 @@
 							<p>
 								The experiment is finished.
 							</p>
+							<div id="exprNoLottery">
+								<p>
+									Your final payoff is <span class="gamelab-aggrlottery"></span>.
+								</p>
+							</div>
 							<div id="exprLottery">
 								<p>
-									Your payoff of <span id="exprFinishedScore"></span> earned you <span
+									Your payoff of <span class="gamelab-aggrlottery"></span> earned you <span
 										id="exprFinishedTickets"></span> tickets.
 									Your lottery tickets are in the interval 
 									<span id="exprFinishedFinalRank"></span>&ndash;<span id="exprFinishedFinalRankEnd"></span> over a total of
-									total of <span id="exprFinishedTicketsMax"></span> tickets.
+									total of <span class="gamelab-maxtickets"></span> tickets.
 									Results are computed by drawing a random integer within the total number of awarded
 									tickets. 
 								</p>
 								<p id="exprFinishedWinWait">
-									<i class="fa fa-spinner"></i> Waiting for lottery draw...
+									<i class="fa fa-spinner fa-spin"></i> Waiting for lottery draw...
 								</p>
 							</div>
 							<h4 id="exprFinishedWinHead">
@@ -163,14 +168,27 @@
 						<div id="exprNotAllFinished" class="noshow">
 							<p>
 								You have played all rounds.
-								Your payoff of <span id="exprNotAllFinishedScore"></span> earned you <span
-									id="exprNotAllFinishedTickets"></span> tickets.
+							</p>
+						</div>
+						<div id="exprNotAllFinishedNoLottery" class="noshow">
+							<p>
+								Your final payoff is <span class="gamelab-aggrlottery"></span>.
+							</p>
+						</div>
+						<div id="exprNotAllFinishedLottery" class="noshow">
+							<p>
+								Your payoff of <span class="gamelab-aggrlottery"></span> earned you <span
+									class="gamelab-aggrtickets"></span> tickets.
+							</p>
+							<p>
+								<i class="fa fa-spinner fa-spin"></i> Waiting for lottery draw...
 							</p>
 						</div>
 						<div id="exprFinishedMturkProfit" class="noshow">
 							<p>
 								You have now finished your Mechanical Turk HIT.
-								Your bonus is <span id="exprFinishedMturkBonus"></span> USD.
+								Your payoff of <span class="gamelab-aggrlottery"></span> earned you a bonus of
+								<span class="gamelab-mturkbonus"></span> USD.
 							</p>
 						</div>
 						<div id="exprFinishedMturk" class="noshow">
@@ -215,7 +233,7 @@
 					<section id="exprPlay" class="noshow">
 						<h3>
 							Game <span id="playGameNum"></span> of <span id="playGameMax"></span>,
-							round <span id="playRoundNum"></span> of <span id="playRoundMax"></span>
+							round <span class="gamelab-round"></span> of <span class="gamelab-rounds"></span>
 						</h3>
 						<div id="exprHistory">
 							<div class="caption">
