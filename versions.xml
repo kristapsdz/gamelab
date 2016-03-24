@@ -566,6 +566,9 @@
 				Fix the <q>Finish</q> notification to Mechanical Turk to be through the gamelab system, not the client's browser: this
 				behaviour is usually disallowed as a browser security option.
 			</p>
+			<p>
+				Also fix showing the <q>pre-history</q> on the initial round of play.
+			</p>
 		</aside>
 	</article>
 </articles>
