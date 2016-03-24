@@ -3007,7 +3007,7 @@ db_expr_wipe(void)
 	db_exec("UPDATE experiment SET "
 		"conversion=1,"
 		"autoadd=0,hitid='',autoaddpreserve=0,"
-		"state=0,total=0,round=-1,rounds=0,"
+		"state=0,total=0,round=-1,rounds=0,playermax=0,"
 		"prounds=0,roundbegan=0,roundpct=0.0,minutes=0,"
 		"roundmin=0,lottery='',questionnaire=0,"
 		"roundpid=0,flags=0,"
