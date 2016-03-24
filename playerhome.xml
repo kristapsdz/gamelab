@@ -130,11 +130,11 @@
 						<div id="exprAllFinished" class="noshow">
 							<p>
 								The experiment is finished.
-								Your payoff of <span id="exprFinishedScore"></span> earned you <span
-									id="exprFinishedTickets"></span> tickets.
 							</p>
 							<div id="exprLottery">
 								<p>
+									Your payoff of <span id="exprFinishedScore"></span> earned you <span
+										id="exprFinishedTickets"></span> tickets.
 									Your lottery tickets are in the interval 
 									<span id="exprFinishedFinalRank"></span>&ndash;<span id="exprFinishedFinalRankEnd"></span> over a total of
 									total of <span id="exprFinishedTicketsMax"></span> tickets.

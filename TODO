@@ -1,8 +1,6 @@
 Short-term:
 
-Long-term:
-
-- Have the shown graphs on the history use the radio-button trick, not 
-  Javascript.
-
-- Kick players after inactivity.
+- if relative rounds and first round, show absolute history
+  (query on id "historyNotYet")
+- remove "your payoff of .... earned you ... tickets" if not in a lottery
+- modify "your bonus is xxx USD to "your payofff of xxxxx earned you xxxx USD at a conversation rate of xxxx per dollar".
