@@ -99,8 +99,7 @@ section.unrolled >*:not(h3) 	{ max-height: 1000em;
 				  margin-right: 1ex; }
 .table				{ display: table; 
 				  width: 100%;
-				  margin: 1em 0;
-				  border-spacing: 1ex 0.5ex; }
+				  margin: 1em 0; }
 .table >*			{ display: table-row; }
 .table >* >*			{ display: table-cell; }
 .table-left-head		{ text-align: right; 
@@ -273,6 +272,7 @@ div.input input[type=time]	{ width: 20ex; }
 .seconds, .error		{ color: red;
 				  font-weight: bolder; }
 #mturkbonusesButton		{ margin-top: 4pt; }
+#statusExprLoaded > section	{ margin-bottom: 1em; }
 @media only screen and (max-width: 800px), only screen and (max-device-width: 800px) {
 	article			{ padding-left: 10%; 
 			  	  padding-right: 10%; }

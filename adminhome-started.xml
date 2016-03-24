@@ -135,10 +135,20 @@
 							<div class="table-left-head">
 								Round <i>finished</i>
 							</div>
-							<div><progress></progress></div>
+							<div><progress max="1.0" value="1.0"></progress></div>
 						</div>
 					</div>
-					<div class="statuslistbox">
+					<div id="statusNoHighestBox2">
+						<div class="warning">
+							<div>
+								<div><i class="fa fa-exclamation-circle"></i></div>
+								<div>
+									No players have played: no winnings to disburse.
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="statuslistbox" id="statusHighestBox2">
 						<div class="statuslistcaption">Last Round Highest Earners (<a href="@ADMINURI@/dogethighest.csv">CSV</a>)</div>
 						<ul class="statuslist" id="statusHighest2"></ul>
 						<div id="mturkbonusesButton">
@@ -162,7 +172,7 @@
 					</div>
 					<div id="statusExprFinishedWin">
 						<p>
-							First you must compute winnings by entering <i class="fa fa-cubes"></i> a numeric random seed
+							You may compute lottery winners by entering <i class="fa fa-cubes"></i> a numeric random seed
 							used to pick winners and <i class="fa fa-trophy"></i> the number of winners to choose.
 						</p>
 						<div class="error noshow" id="statusExprFinishedWinError">

@@ -987,7 +987,15 @@ function loadExprSuccess(resp)
 			doHide('statusExprFinishedWin');
 		}
 		doClearReplace('exprCountdown', 'finished');
-		doStatHighest(doClear('statusHighest2'), res);
+		if (res.highest.length > 0) {
+			doUnhide('statusHighestBox2');
+			doHide('statusNoHighestBox2');
+			doStatHighest(doClear('statusHighest2'), res);
+		} else {
+			doHide('statusExprFinishedWin');
+			doHide('statusHighestBox2');
+			doUnhide('statusNoHighestBox2');
+		}
 		if (expr.awsaccesskey && expr.awssecretkey)
 			doUnhide('mturkbonusesButton');
 		else
@@ -1024,7 +1032,8 @@ function loadExprSuccess(resp)
 		doValue('statusExprFcolPct', 
 			0 == res.fcolmax ? 0 : res.fcol / res.fcolmax);
 
-		if (0 == res.frowmax || 0 == res.fcolmax) 
+		if (res.expr.round > 0 &&
+		    (0 == res.frowmax || 0 == res.fcolmax))
 			doUnhide('noplayers');
 		else
 			doHide('noplayers');
