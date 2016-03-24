@@ -138,13 +138,18 @@
 							</div>
 							<div id="exprLottery">
 								<p>
-									Your payoff of <span class="gamelab-aggrlottery"></span> earned you <span
-										id="exprFinishedTickets"></span> tickets.
+									Your payoff of 
+									<span class="gamelab-aggrlottery"></span> earned you 
+									<span class="gamelab-finaltickets"></span> 
+									tickets.
 									Your lottery tickets are in the interval 
-									<span id="exprFinishedFinalRank"></span>&ndash;<span id="exprFinishedFinalRankEnd"></span> over a total of
-									total of <span class="gamelab-maxtickets"></span> tickets.
-									Results are computed by drawing a random integer within the total number of awarded
-									tickets. 
+									<span class="gamelab-finalrank"></span>
+									&ndash;
+									<span class="gamelab-finalrankend"></span> 
+									over a total of total of 
+									<span class="gamelab-maxtickets"></span> tickets.
+									Results are computed by drawing a random integer within the total number
+									of awarded tickets. 
 								</p>
 								<p id="exprFinishedWinWait">
 									<i class="fa fa-spinner fa-spin"></i> Waiting for lottery draw...
@@ -154,10 +159,12 @@
 								Lottery
 							</h4>
 							<p id="exprFinishedWinRnums">
-								The draw has been finished with winning number(s) <span id="exprFinishedRnums"></span>.
+								The draw has been finished with winning number(s) 
+								<span class="gamelab-winrnums"></span>.
 							</p>
 							<p id="exprFinishedWin">
-								This means that you have won prize number <span id="exprFinishedWinRank"></span>!
+								This means that you have won prize number 
+								<span class="gamelab-winrank"></span>!
 								You will be contacted by the experimenter shortly.
 							</p>
 							<p id="exprFinishedLose">
@@ -177,28 +184,34 @@
 						</div>
 						<div id="exprNotAllFinishedLottery" class="noshow">
 							<p>
-								Your payoff of <span class="gamelab-aggrlottery"></span> earned you <span
-									class="gamelab-aggrtickets"></span> tickets.
+								Your payoff of 
+								<span class="gamelab-aggrlottery"></span> earned you 
+								<span class="gamelab-aggrtickets"></span> tickets.
 							</p>
 							<p>
-								<i class="fa fa-spinner fa-spin"></i> Waiting for lottery draw...
+								<i class="fa fa-spinner fa-spin"></i> 
+								Waiting for lottery draw...
 							</p>
 						</div>
 						<div id="exprFinishedMturkProfit" class="noshow">
 							<p>
 								You have now finished your Mechanical Turk HIT.
-								Your payoff of <span class="gamelab-aggrlottery"></span> earned you a bonus of
+								Your payoff of 
+								<span class="gamelab-aggrlottery"></span> 
+								earned you a bonus of
 								<span class="gamelab-mturkbonus"></span> USD.
 							</p>
 						</div>
 						<div id="exprFinishedMturk" class="noshow">
 							<p>
-								To indicate completion, you must click the button to report back to the Amazon Mechanical Turk site.
+								To indicate completion, you must click the button to report back to the Amazon
+								Mechanical Turk site, which will close the Mechanical Turk HIT and return you to
+								your dashboard.
 								You will not receive your bonus unless you click this button.
 							</p>
 							<form id="mturkformreal" method="post" action="https://www.mturk.com/mturk/externalSubmit">
 								<input type="hidden" name="response" value="1" />
-								<input type="hidden" id="assignmentId" name="assignmentId" />
+								<input type="hidden" class="gamelab-assignmentid" name="assignmentId" />
 								<button type="button" class="aws" id="mturkbtn" onclick="submitMturk(); document.getElementById('mturkformreal').submit();">
 									<i class="fa fa-amazon"></i>
 									Finish 
@@ -214,7 +227,7 @@
 							</form>
 							<form id="mturkformsand" method="post" action="https://workersandbox.mturk.com/mturk/externalSubmit">
 								<input type="hidden" name="response" value="1" />
-								<input type="hidden" id="assignmentId2" name="assignmentId" />
+								<input type="hidden" class="gamelab-assignmentid" name="assignmentId" />
 								<button type="button" class="aws" id="mturkbtn" onclick="submitMturk(); document.getElementById('mturkformsand').submit();">
 									<i class="fa fa-amazon"></i>
 									Finish (sandbox)

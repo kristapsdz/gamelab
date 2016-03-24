@@ -152,6 +152,30 @@ function doClearReplace(name, str)
 	return(e);
 }
 
+function doValueClass(cls, str)
+{
+	var e, i, sz;
+
+	e = document.getElementsByClassName(cls);
+	for (i = 0, sz = e.length; i < sz; i++)
+		e[i].value = str;
+}
+
+function parseJson(resp)
+{
+	var p;
+
+	try {
+		p = JSON.parse(resp);
+	} catch (error) {
+		console.log('JSON parse fail: ' + error);
+		return(null);
+	}
+
+	return(p);
+
+}
+
 function doClearReplaceClass(cls, str)
 {
 	var e, i, sz;

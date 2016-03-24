@@ -822,15 +822,10 @@ function loadExprSuccess(resp)
 {
 	var i, j, e, c, oc, v, elems, next;
 
-	resindex = 0;
-	res = null;
-
-	try  { 
-		res = JSON.parse(resp);
-	} catch (error) {
-		console.log('JSON parse fail: ' + resp);
+	if (null === (res = parseJson(resp)))
 		return;
-	}
+
+	resindex = 0;
 
 	doHide('loading');
 	doUnhide('loaded');
@@ -923,8 +918,6 @@ function loadExprSuccess(resp)
 			doUnhide('exprHistoryExplain');
 			doUnhide('historyButton');
 		}
-		doValue('assignmentId', res.player.assignmentid);
-		doValue('assignmentId2', res.player.assignmentid);
 	}
 
 	doClearReplace('nextRound', 'Next round');
@@ -932,6 +925,9 @@ function loadExprSuccess(resp)
 	/*
 	 * Make lots of common substitutions.
 	 */
+	doValueClass('gamelab-assignmentid', 
+		null !== res.player.assignmentid ?
+		res.player.assignmentid : '');
 	doClearReplaceClass('gamelab-aggrlottery', 
 		null !== res.aggrlottery ?
 		res.aggrlottery.toFixed(2) : '0');
@@ -952,6 +948,21 @@ function loadExprSuccess(resp)
 		res.expr.absoluteround ? 
 		(res.expr.round + 1) :
 		((res.expr.round - res.player.joined) + 1));
+	doClearReplaceClass('gamelab-finaltickets',
+		res.player.finalscore);
+	doClearReplaceClass('gamelab-finalrank',
+		res.player.finalrank);
+	doClearReplaceClass('gamelab-finalrankend',
+		(res.player.finalrank + res.player.finalscore));
+	v = '';
+	if (null !== res.win) 
+		for (i = 0; i < res.win.winrnums.length; i++)
+			v += (i ? ', ' : '') + res.win.winrnums[i];
+	doClearReplaceClass('gamelab-winrnums', v);
+	doClearReplaceClass('gamelab-winrnum', 
+		null !== res.win ? res.win.winrnum : '0');
+	doClearReplaceClass('gamelab-winrank', 
+		null !== res.win ? (res.win.winner + 1) : '0');
 
 	if (res.expr.round < 0) {
 		/*
@@ -1078,16 +1089,12 @@ function loadExprSuccess(resp)
 		if (null !== res.player.assignmentid && ! res.player.mturkdone) {
 			doUnhide('exprFinishedMturk');
 			doUnhide('exprFinishedMturkProfit');
-		} else if (null !== res.player.hitid) {
+		} else if (null !== res.player.hitid)
 			doClearReplace('hitid', res.player.hitid);
-			doUnhide('exprFinishedMturkProfit');
-		}
-		doClearReplace('exprFinishedFinalRank', res.player.finalrank);
-		doClearReplace('exprFinishedTickets', res.player.finalscore);
-		v = res.player.finalrank + res.player.finalscore;
-		doClearReplace('exprFinishedFinalRankEnd', v);
+
 		doClearReplace('exprCountdown', 'finished');
-		if (null !== res.expr.lottery && res.expr.lottery.length) {
+		if (null !== res.expr.lottery && 
+		    res.expr.lottery.length > 0) {
 			doUnhide('exprLottery');
 			doHide('exprNoLottery');
 		} else {
@@ -1110,12 +1117,6 @@ function loadExprSuccess(resp)
 			doUnhide('exprFinishedLose');
 			doUnhide('exprFinishedWinHead');
 			doUnhide('exprFinishedWinRnums');
-			e = doClear('exprFinishedRnums');
-			for (i = 0; i < res.win.winrnums.length; i++) {
-				if (i > 0)
-					e.appendChild(document.createTextNode(', '));
-				e.appendChild(document.createTextNode(res.win.winrnums[i]));
-			}
 		} else {
 			doUnhide('exprFinishedResults');
 			doHide('exprFinishedWinWait');
@@ -1123,14 +1124,7 @@ function loadExprSuccess(resp)
 			doHide('exprFinishedLose');
 			doUnhide('exprFinishedWinHead');
 			doUnhide('exprFinishedWinRnums');
-			e = doClear('exprFinishedRnums');
-			for (i = 0; i < res.win.winrnums.length; i++) {
-				if (i > 0)
-					e.appendChild(document.createTextNode(', '));
-				e.appendChild(document.createTextNode(res.win.winrnums[i]));
-			}
-			doClearReplace('exprFinishedWinRank', (res.win.winner + 1));
-			doClearReplace('exprFinishedWinRnum', res.win.winrnum);
+			/*doClearReplace('exprFinishedWinRnum', res.win.winrnum);*/
 		}
 	}
 }
@@ -1181,11 +1175,8 @@ function checkRoundEndSuccess(resp)
 {
 	var r, e, next;
 
-	try  { 
-		r = JSON.parse(resp);
-	} catch (error) {
+	if (null === (r = parseJson(resp)))
 		return;
-	}
 
 	if (r.round > res.expr.round) {
 		window.location.reload();
@@ -1200,11 +1191,8 @@ function checkRoundSuccess(resp)
 {
 	var r, e, next;
 
-	try  { 
-		r = JSON.parse(resp);
-	} catch (error) {
+	if (null === (r = parseJson(resp)))
 		return;
-	}
 
 	if (r.round > res.expr.round) {
 		window.location.reload();
