@@ -9,6 +9,9 @@ laboratory.
 This repository is a read-only mirror of gamelab's master CVS repository.
 For all questions regarding gamelab, please consult the
 [manual](http://www.kcons.eu/gamelab/manual.html).
+Unless you have a specific reason to use bleeding-edge code, we strongly
+suggest that you use a release version of gamelab as found on the main
+site.
 
 ## License
 
