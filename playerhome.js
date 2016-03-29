@@ -346,7 +346,7 @@ function loadGame()
 	 * We don't have a history if we're still on the first round,
 	 * otherwise load the graphs for our history.
 	 */
-	if (null !== game.roundup) {
+	if (checkShowHistory(res)) {
 		doUnhide('exprHistory');
 		doClear('historyLineGraphsSmall');
 		doClear('historyBarGraphsSmall');
@@ -357,8 +357,8 @@ function loadGame()
 			res.gameorders[resindex]);
 		doUnhide('historyBarGraphsSmall' + 
 			res.gameorders[resindex]);
-		if (0 !== game.roundup.skip && 
-		    res.expr.round > res.player.joined)
+		if (res.expr.round > res.player.joined &&
+		    0 !== game.roundup.skip)
 			doUnhide('skipExplain');
 		else
 			doHide('skipExplain');
