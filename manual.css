@@ -1,5 +1,6 @@
 body, html		{ margin: 0; }
-body			{ font-size: 14pt; 
+body			{ font-family: Calibri, Candara, Segoe, Segoe UI, Optima, Arial, sans-serif;
+			  font-size: 12pt;
 			  background-color: #393939; 
 		 	  color: #cecece; }
 .nm, .file, .url	{ font-style: italic; }
@@ -8,8 +9,7 @@ a			{ text-decoration: none;
 body > header		{ padding: 4% 4% 1% 4%; }
 body > nav		{ border-top: thin solid #686868;
 			  color: #acacac;
-			  border-bottom: thin solid black;
-			  font-size: 13pt; }
+			  border-bottom: thin solid black; }
 body > nav > *		{ padding: 1ex; 
 			  position: relative;
 			  display: inline-block; }
@@ -44,10 +44,11 @@ body > header img	{ height: 40pt;
 h1			{ margin: 0; 
 			  display: inline-block;
 			  font-size: 32pt;
+			  font-family: Georgia, Times, Times New Roman, serif; 
 			  font-weight: normal; }
 h1 a			{ color: #cecece; }
-h2			{ font-size: 18pt; }
-h3			{ font-size: 14pt; }
+h2			{ font-size: 16pt; }
+h3			{ font-size: 13pt; }
 footer			{ margin-top: 1em;
 			  margin-bottom: 1em;
 			  font-size: 11pt;
@@ -84,13 +85,12 @@ article ol		{ padding-left: 1em;
 nav[data-sblg-nav] ul	{ list-style-type: none; 
 			  padding: 0; }
 @media only screen and (max-width: 480px), only screen and (max-device-width: 480px) {
-body			{ font-size: 12pt; }
 body > nav > span span	{ display: none; }
 body > header img	{ height: 34pt; 
 			  margin-bottom: -6pt; }
 h1			{ margin-bottom: 2pt; }
-h2			{ font-size: 16pt; }
-h3			{ font-size: 14pt; }
+h2			{ font-size: 14pt; }
+h3			{ font-size: 13pt; }
 article header		{ margin-left: 0pt; }
 article nav ul		{ padding-left: 2ex; }
 article dd		{ margin-left: 2ex; }

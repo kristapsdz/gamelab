@@ -1,17 +1,17 @@
 body			{ margin: 0; 
-			  font-family: serif;
+			  font-family: Calibri, Candara, Segoe, Segoe UI, Optima, Arial, sans-serif;
+			  font-size: 12pt;
 			  background-color: #393939; }
 header			{ padding-top: 2em; }
 header h1		{ font-size: 64pt; 
-			  font-family: Georgia, serif;
+			  font-family: Georgia, Times, Times New Roman, serif; 
 			  display: inline-block;
 			  font-weight: normal;
 			  text-shadow: 1px 1px #000;
 			  color: #fff; }
 header div		{ color: #ff5a09; 
 			  margin-left: 7%;
-		   	  margin-right: 7%;
-			  font-size: 12pt; }
+		   	  margin-right: 7%; }
 #moreinfo		{ line-height: 140%; }
 #logoh1			{ padding-top: 1%;
 			  margin-left: 7%;
@@ -38,13 +38,14 @@ article			{ color: #fff;
 		   	  margin-left: 7%;
 		   	  margin-right: 7%;
 			  line-height: 130%;
-			  font-size: 17pt; }
+			  font-size: 16pt; }
 footer			{ margin-top: 3em; 
 		  	  margin-bottom: 2em;
 			  font-size: 11pt;
 			  line-height: 130%;
 			  text-align: center;
 			  color: #6e6e6e; }
+footer img		{ margin-bottom: -10px; }
 .nm			{ color: #ff5a09; }
 a			{ text-decoration: none; 
 			  color: #ff9000; }
