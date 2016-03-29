@@ -2,43 +2,45 @@
 
 # Mac OSX testing.
 # This is useful when running in a userdir.
-#ADMINURI	 = /~kristaps/admin.cgi
-#CGIBIN		 = $(PREFIX)
-#CFLAGS		+= -Wno-deprecated-declarations
-#DATADIR		 = $(PREFIX)
-##DSYMUTIL	 = sudo dsymutil
-#FONTURI		 = /~kristaps/font-awesome-4.5.0/css/font-awesome.min.css
-#HTDOCS		 = $(PREFIX)
-#HTURI		 = /~kristaps
-#LABURI		 = /~kristaps/lab.cgi
-#LIBS		 = 
-#PREFIX		 = /Users/kristaps/Sites
-#RDATADIR	 = $(PREFIX)
-#STATIC		 = 
+ADMINURI	 = /~kristaps/admin.cgi
+CGIBIN		 = $(PREFIX)
+CFLAGS		+= -Wno-deprecated-declarations
+DATADIR		 = $(PREFIX)
+#DSYMUTIL	 = sudo dsymutil
+FONTURI		 = /~kristaps/font-awesome-4.5.0/css/font-awesome.min.css
+HTDOCS		 = $(PREFIX)
+HTURI		 = /~kristaps
+LABURI		 = /~kristaps/lab.cgi
+LIBS		 = 
+PREFIX		 = /Users/kristaps/Sites
+RDATADIR	 = $(PREFIX)
+STATIC		 = 
 
 # Linux testing.
 # LIBS		 = -lbsd -lm
 
 # OpenBSD production.
-PREFIX		?= /var/www/gamelab
-URIPREFIX	?= /gamelab
-RELPREFIX	?= /gamelab
-ADMINURI	 = $(URIPREFIX)/cgi-bin/admin
-CGIBIN		 = $(PREFIX)/cgi-bin
-CFLAGS		+= -DLOGTIME=1
-DATADIR	 	 = $(PREFIX)/data
-FONTURI		 = //maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css
-HTDOCS		 = $(PREFIX)/htdocs
-HTURI		 = $(URIPREFIX)
-LABURI		 = $(URIPREFIX)/cgi-bin/lab
-LIBS		 = -lintl -liconv -lm
-RDATADIR	 = $(RELPREFIX)/data
-STATIC		 = -static -nopie
+#PREFIX		?= /var/www/gamelab
+#URIPREFIX	?= /gamelab
+#RELPREFIX	?= /gamelab
+#ADMINURI	 = $(URIPREFIX)/cgi-bin/admin
+#CGIBIN		 = $(PREFIX)/cgi-bin
+#CFLAGS		+= -DLOGTIME=1
+#DATADIR	 	 = $(PREFIX)/data
+#FONTURI		 = //maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css
+#HTDOCS		 = $(PREFIX)/htdocs
+#HTURI		 = $(URIPREFIX)
+#LABURI		 = $(URIPREFIX)/cgi-bin/lab
+#LIBS		 = -lintl -liconv -lm
+#RDATADIR	 = $(RELPREFIX)/data
+#STATIC		 = -static -nopie
 # OpenBSD 5.8 needs -nopie or the binaries segfault.
 
+#####################################################################
 # You really don't want to change anything below this line.
+#####################################################################
 
-VERSION	 = 1.1.3
+VERSION	 = 1.1.4
 VMONTH	 = March
 VYEAR	 = 2016
 CFLAGS 	+= -g -W -Wall -Wstrict-prototypes -Wno-unused-parameter -Wwrite-strings -I/usr/local/include
