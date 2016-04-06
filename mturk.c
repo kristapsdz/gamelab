@@ -400,10 +400,10 @@ mturk_bonus(const struct expr *expr,
 
 void
 mturk_create(const char *aws, const char *key, const char *name, 
-	const char *desc, int64_t workers, int64_t minutes, 
-	int sandbox, double reward, const char *keywords,
-	const char *server, const char *locale, int64_t hitappr,
-	int64_t pctappr)
+	const char *desc, int64_t workers, int64_t lifetime, 
+	int64_t plifetime, int sandbox, double reward, 
+	const char *keywords, const char *server, 
+	const char *locale, int64_t hitappr, int64_t pctappr)
 {
 	CURL		*c;
 	CURLcode	 res;
@@ -426,8 +426,10 @@ mturk_create(const char *aws, const char *key, const char *name,
 		workers = MINWORK;
 	if (reward < MINPAY)
 		reward = MINPAY;
-	if (minutes < MINMINS)
-		minutes = MINMINS;
+	if (lifetime < MINMINS)
+		lifetime = MINMINS;
+	if (plifetime < MINMINS)
+		plifetime = MINMINS;
 	if ('\0' == *desc)
 		desc = DEFDESC;
 	if ('\0' == *name)
@@ -525,8 +527,8 @@ mturk_create(const char *aws, const char *key, const char *name,
 		encdesc, /* description (URL encode) */
 		reward,  /* reward for participants */
 		encques,  /* question data */
-		minutes * 60, /* assignment duration */
-		minutes * 60, /* when it's valid */
+		plifetime * 60, /* assignment duration */
+		lifetime * 60, /* when it's valid */
 		enckeys, /* keywords */
 		workers, /* number of workers */
 		NULL == qlocale ? "" : qlocale,

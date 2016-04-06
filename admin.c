@@ -1253,7 +1253,7 @@ senddostartexpr(struct kreq *r)
 	int		 fd;
 	double		 reward;
 	int64_t		 flags, workers, minutes, rounds,
-			 hitappr, pctappr;
+			 hitappr, pctappr, prounds;
 	struct stat	 st;
 	size_t		 sz;
 
@@ -1290,7 +1290,8 @@ senddostartexpr(struct kreq *r)
 	/* Determine what kind of instructions to use. */
 	inst = INSTR__MAX;
 	if (0 == strcmp("custom", r->fieldmap[KEY_INSTR]->parsed.s))
-		inst = kpairbad(r, KEY_INSTRFILE) ? 
+		inst = kpairbad
+			(r, KEY_INSTRFILE) ? 
 			INSTR__MAX : INSTR_CUSTOM;
 	if (0 == strcmp("mturk", r->fieldmap[KEY_INSTR]->parsed.s))
 		inst = INSTR_MTURK;
@@ -1436,6 +1437,7 @@ senddostartexpr(struct kreq *r)
 			0 : r->fieldmap[KEY_WORKERS]->parsed.i;
 		minutes = r->fieldmap[KEY_MINUTES]->parsed.i;
 		rounds = r->fieldmap[KEY_ROUNDS]->parsed.i;
+		prounds = r->fieldmap[KEY_PROUNDS]->parsed.i;
 		reward = r->fieldmap[KEY_AWSREWARD]->parsed.d;
 		hitappr = r->fieldmap[KEY_WORKER_HITAPPRV]->parsed.i;
 		pctappr = r->fieldmap[KEY_WORKER_PCTAPPRV]->parsed.i;
@@ -1457,6 +1459,8 @@ senddostartexpr(struct kreq *r)
 		/* 
 		 * Normalise numeric values. 
 		 */
+		if (0 == prounds)
+			prounds = rounds;
 		if (reward < 0.01)
 			reward = 0.01;
 		if (hitappr < 0)
@@ -1486,8 +1490,10 @@ senddostartexpr(struct kreq *r)
 			if (daemon(1, 1) < 0)
 				WARN("daemon");
 			else
-				mturk_create(akey, skey, name, desc, 
-					workers, minutes * rounds, 
+				mturk_create(akey, skey, name, 
+					desc, workers, 
+					minutes * (rounds + 1), 
+					minutes * (prounds + 1), 
 					flags & EXPR_SANDBOX, reward, 
 					keys, server, locale, hitappr, 
 					pctappr);
