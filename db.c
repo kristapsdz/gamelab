@@ -2892,7 +2892,7 @@ db_expr_get(int only_started)
 	int		 rc;
 
 	stmt = db_stmt("SELECT start,rounds,minutes,"
-		"loginuri,state,instr,state,total,"
+		"loginuri,state,instr,total,"
 		"autoadd,round,roundbegan,roundpct,"
 		"roundmin,prounds,playermax,autoaddpreserve,"
 		"history,lottery,questionnaire,hitid,"
@@ -2911,27 +2911,27 @@ db_expr_get(int only_started)
 	expr->rounds = sqlite3_column_int64(stmt, 1);
 	expr->minutes = sqlite3_column_int64(stmt, 2);
 	expr->loginuri = kstrdup((char *)sqlite3_column_text(stmt, 3));
+	expr->state = sqlite3_column_int64(stmt, 4);
 	expr->instr = kstrdup((char *)sqlite3_column_text(stmt, 5));
-	expr->state = (time_t)sqlite3_column_int64(stmt, 6);
-	expr->total = sqlite3_column_int64(stmt, 7);
-	expr->autoadd = sqlite3_column_int64(stmt, 8);
-	expr->round = sqlite3_column_int64(stmt, 9);
-	expr->roundbegan = sqlite3_column_int64(stmt, 10);
-	expr->roundpct = sqlite3_column_double(stmt, 11);
-	expr->roundmin = sqlite3_column_int64(stmt, 12);
-	expr->prounds = sqlite3_column_int64(stmt, 13);
-	expr->playermax = sqlite3_column_int64(stmt, 14);
-	expr->autoaddpreserve = sqlite3_column_int64(stmt, 15);
-	expr->history = kstrdup((char *)sqlite3_column_text(stmt, 16));
-	expr->lottery = kstrdup((char *)sqlite3_column_text(stmt, 17));
-	expr->questionnaire = sqlite3_column_int64(stmt, 18);
-	expr->hitid = kstrdup((char *)sqlite3_column_text(stmt, 19));
-	expr->conversion = sqlite3_column_double(stmt, 20);
-	expr->roundpid = sqlite3_column_int64(stmt, 21);
-	expr->flags = sqlite3_column_int64(stmt, 22);
-	expr->awsaccesskey = kstrdup((char *)sqlite3_column_text(stmt, 23));
-	expr->awssecretkey = kstrdup((char *)sqlite3_column_text(stmt, 24));
-	expr->awserror = kstrdup((char *)sqlite3_column_text(stmt, 25));
+	expr->total = sqlite3_column_int64(stmt, 6);
+	expr->autoadd = sqlite3_column_int64(stmt, 7);
+	expr->round = sqlite3_column_int64(stmt, 8);
+	expr->roundbegan = sqlite3_column_int64(stmt, 9);
+	expr->roundpct = sqlite3_column_double(stmt, 10);
+	expr->roundmin = sqlite3_column_int64(stmt, 11);
+	expr->prounds = sqlite3_column_int64(stmt, 12);
+	expr->playermax = sqlite3_column_int64(stmt, 13);
+	expr->autoaddpreserve = sqlite3_column_int64(stmt, 14);
+	expr->history = kstrdup((char *)sqlite3_column_text(stmt, 15));
+	expr->lottery = kstrdup((char *)sqlite3_column_text(stmt, 16));
+	expr->questionnaire = sqlite3_column_int64(stmt, 17);
+	expr->hitid = kstrdup((char *)sqlite3_column_text(stmt, 18));
+	expr->conversion = sqlite3_column_double(stmt, 19);
+	expr->roundpid = sqlite3_column_int64(stmt, 20);
+	expr->flags = sqlite3_column_int64(stmt, 21);
+	expr->awsaccesskey = kstrdup((char *)sqlite3_column_text(stmt, 22));
+	expr->awssecretkey = kstrdup((char *)sqlite3_column_text(stmt, 23));
+	expr->awserror = kstrdup((char *)sqlite3_column_text(stmt, 24));
 	sqlite3_finalize(stmt);
 	return(expr);
 }
