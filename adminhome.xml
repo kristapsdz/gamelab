@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+		<meta charset="utf-8" /> 
+		<title>Gamelab Administration</title>
+		<link rel="stylesheet" href="@HTURI@/adminhome.css" />
+		<link rel="stylesheet" href="@FONTURI@" />
+		<script src="@HTURI@/script.min.js"></script>
+		<script src="@HTURI@/adminhome.min.js"></script>
+		<script src="@HTURI@/flotr2.min.js"></script>
+	</head>
+	<body onload="loadall();" onclick="onNavUp();">
+		<header>
+			<a id="navButton" href="#" onclick="return(onNav(event));"><i class="fa fa-navicon"></i></a>
+			<h1>gamelab<span>admin</span></h1>
+			<span id="exprCountdownGame">
+				Next round: <span id="exprCountdown"><i class="fa fa-spinner"></i></span>
+			</span>
+			<div id="navParent">
+				<nav id="nav">
+					<a href="@ADMINURI@/dologout.html"><i class="fa fa-sign-out"></i> Logout</a>
+				</nav>
+			</div>
+		</header>
+		<article class="top">
+			<article class="top" id="statusExprLoading">
+				<i class="fa fa-spinner fa-spin"></i>
+				Loading interface...
+			</article>
+		</article>
+		<article class="top" id="statusGraphs">
+			<div class="statusgraph" id="statusExprGraph"></div>
+			<div class="statusgraph" id="playerExprGraph"></div>
+		</article>
+		<article>
+			<section id="exprLoaded">
+				<p>
+					Your experiment has <span id="statusExprPPmax"></span> rounds per participant, with each round taking
+					<span id="statusExprMins"></span> minutes.
+					<span id="statusExprRoundpcting">
+						If each player role has at least <span id="statusExprRoundpct"></span>% plays, the round
+						will advance (with <span id="statusExprRoundmin"></span> minutes of grace time).
+					</span>
+				</p>
+				<div id="mturkerrbox">
+					<div class="warning">
+						<div>
+							<div><i class="fa fa-exclamation-circle"></i></div>
+							<div>
+								Your Mechanical Turk HIT request failed.
+								Error code: <q id="awserror"></q>.
+							</div>
+						</div>
+					</div>
+				</div>
+				<div id="mturkbox">
+					<div class="canclose">
+						<a href="#" class="close" onclick="doHideNode(this.parentNode); return false;">
+							<span class="fa-stack fa-lg">
+								<i class="fa fa-circle fa-stack-2x"></i>
+								<i class="fa fa-times fa-stack-1x fa-inverse"></i>
+							</span>
+						</a>
+						<div>
+							Your Mechanical Turk HIT request (AWS access key <code id="awsaccesskey">asdf</code>) is still
+							being processed.  
+							Please refresh this window to see the results.
+						</div>
+					</div>
+				</div>
+				<p id="mturkokbox">
+					This is a Mechanical Turk experiment with HIT identifier
+					<code id="hitid"></code> in
+					<span id="mturksandbox">sandbox</span>
+					<span id="mturknosandbox">production (non-sandbox)</span> mode.
+				</p>
+				<p id="statusExprHasLobby">
+					Participants waiting in the lobby: <span id="statusExprLobbysize"></span>.
+				</p>
+				<div id="statusExprProg">
+					<div class="statuslistbox" id="statusHighestBox">
+						<div class="statuslistcaption">Last Round Highest Earners (<a href="@ADMINURI@/dogethighest.csv">CSV</a>)</div>
+						<ul class="statuslist" id="statusHighest"></ul>
+					</div>
+					<div class="table">
+						<div>
+							<div class="table-left-head">
+								Round <span id="statusExprPRound"></span>/<span id="statusExprPMax"></span> 
+							</div>
+							<div><progress max="1.0" id="statusExprPBar"></progress></div>
+						</div>
+						<div>
+							<div class="table-left-head">
+								Row plays 
+								<span id="statusExprFrow"></span>/<span id="statusExprFrowMax"></span>
+							</div>
+							<div><progress max="1.0" id="statusExprFrowPct"></progress></div>
+						</div>
+						<div>
+							<div class="table-left-head">
+								Column plays
+								<span id="statusExprFcol"></span>/<span id="statusExprFcolMax"></span>
+							</div>
+							<div><progress max="1.0" id="statusExprFcolPct"></progress></div>
+						</div>
+					</div>
+					<div id="noplayers" class="noshow">
+						<div class="warning">
+							<div>
+								<div><i class="fa fa-exclamation-circle"></i></div>
+								<div>
+									There are zero participants in one of the player roles: no payoffs can be
+									computed in this round.
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<p id="statusMailer">
+					The mailer is <i>running</i>: process ID <span id="statusMailerPid"></span>
+					(process is <span id="statusMailerPidOk">ok</span><i id="statusMailerPidBad">zombied</i>).
+				</p>
+				<div id="statusExprWaiting">
+					<div class="table">
+						<div>
+							<div class="table-left-head">
+								Round <i>pre-game</i>
+							</div>
+							<div><progress></progress></div>
+						</div>
+					</div>
+				</div>
+				<div id="statusExprFinished">
+					<div class="table">
+						<div>
+							<div class="table-left-head">
+								Round <i>finished</i>
+							</div>
+							<div><progress max="1.0" value="1.0"></progress></div>
+						</div>
+					</div>
+					<div id="statusNoHighestBox2">
+						<div class="warning">
+							<div>
+								<div><i class="fa fa-exclamation-circle"></i></div>
+								<div>
+									No players have played: no winnings to disburse.
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="statuslistbox" id="statusHighestBox2">
+						<div class="statuslistcaption">Last Round Highest Earners (<a href="@ADMINURI@/dogethighest.csv">CSV</a>)</div>
+						<ul class="statuslist" id="statusHighest2"></ul>
+						<div id="mturkbonusesButton">
+							<div id="mturkbonusbtn">
+								<div class="input input-submit">
+									<i class="fa fa-fw fa-amazon"></i>
+									<button type="button" onclick="mturkBonuses();">Grant MTurk Bonuses</button>
+								</div>
+							</div>
+							<div class="noshow" id="mturkbonuspbtn">
+								<div class="input input-submit">
+									<i class="fa fa-fw fa-amazon"></i>
+									<button type="button">Granting...</button>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="statuslistbox" id="statusExprFinishedWinnersBox">
+						<div class="statuslistcaption">Lottery Winner(s)</div>
+						<ul class="statuslist" id="statusExprFinishedWinners"></ul>
+					</div>
+					<div id="statusExprFinishedWin">
+						<p>
+							You may compute lottery winners by entering <i class="fa fa-cubes"></i> a numeric random seed
+							used to pick winners and <i class="fa fa-trophy"></i> the number of winners to choose.
+						</p>
+						<div class="error noshow" id="statusExprFinishedWinError">
+							An error occurred: the experiment hasn't begun, hasn't ended, or has zero tickets.
+						</div>
+						<div class="error noshow" id="statusExprFinishedWinForm">
+							Malformed input: try again.
+						</div>
+						<form action="@ADMINURI@/dowinners.json" method="post" onsubmit="return(sendWinners(this));">
+							<fieldset>
+								<div class="input">
+									<i class="fa fa-fw fa-cubes"></i>
+									<input type="text" name="winseed" placeholder="Random Seed" required="required" />
+								</div>
+								<div class="input">
+									<i class="fa fa-fw fa-users"></i>
+									<input type="number" min="1" name="winners" value="1" required="required" />
+								</div>
+								<div class="input input-submit">
+									<i class="fa fa-fw fa-trophy"></i>
+									<input type="submit" id="winnersButton" value="Compute Winners" />
+								</div>
+							</fieldset>
+						</form>
+					</div>
+				</div>
+			</section>
+			<section>
+				<section id="exprControl" class="rolled">
+					<h3 onclick="unroll(this.firstChild, this.parentNode);"><i class="fa fa-fw fa-chevron-circle-right"></i> 
+						<span>Experiment Control</span>
+					</h3>
+					<div>
+						Control the progress of your experiment here.  <strong>Warning</strong>: this may affect the
+						state of your experiment, so be careful!  To perform any action, first
+						<span id="wipeExprCheckboxBox">
+							<input id="wipeExprCheckbox" type="checkbox" onclick="checkWipeButton(this);" />
+							<label for="wipeExprCheckbox">verify</label>
+						</span>
+						that you're serious about doing this.
+					</div>
+					<div>
+						Backing up involves creating a redacted copy of the database on disc.  If e-mail has been
+						configured, the back-up is then e-mailed to the administrator.
+					</div>
+					<fieldset>
+						<div class="input input-submit">
+							<i class="fa fa-fw fa-database"></i>
+							<button type="button" id="backupButton" onclick="backup();" disabled="disabled">Backup Experiment</button>
+						</div>
+					</fieldset>
+					<div>
+						When you wipe, the experiment is backed-up, conditionally e-mailed, then its data wiped (though
+						some components, such as the games, remain).  To hard-wipe is the same as wiping, but the
+						experiment is neither backed up nor e-mailed.
+					</div>
+					<fieldset>
+						<div class="input input-submit">
+							<i class="fa fa-fw fa-recycle"></i>
+							<button type="button" id="wipeExprButton" onclick="wipeExpr();" disabled="disabled">Wipe Experiment</button>
+						</div>
+						<div class="input input-submit">
+							<i class="fa fa-fw fa-refresh"></i>
+							<button type="button" id="wipeCleanExprButton" onclick="wipeCleanExpr();" disabled="disabled">Hard-Wipe Experiment</button>
+						</div>
+					</fieldset>
+					<div>
+						Lastly, you may advance the current round of your experiment or advance to the last round,
+						effectively ending the experiment.  (The current round may not be the round you're
+						reading&#8212;refresh this page to double-check.)
+					</div>
+					<fieldset>
+						<div class="input input-submit">
+							<i class="fa fa-fw fa-arrow-circle-o-right"></i>
+							<button type="button" id="advanceButton" onclick="advanceRound();" disabled="disabled">Advance Round</button>
+						</div>
+						<div class="input input-submit">
+							<i class="fa fa-fw fa-arrow-circle-o-right"></i>
+							<button type="button" id="advanceEndButton" onclick="advanceEndRound();" disabled="disabled">Advance To Last Round</button>
+						</div>
+					</fieldset>
+					<p>
+						You can also fetch a copy of the <a href="@ADMINURI@/dogethistory.json">history JSON</a> or the
+						source for the current version of <span class="nm">gamelab</span>, version <a
+							href="http://www.kcons.eu/gamelab/snapshots/gamelab-@VERSION@.tgz">@VERSION@</a>.
+					</p>
+					<div id="wipeExprResults" class="noshow canclose">
+						<a href="#" class="close" onclick="doHideNode(this.parentNode); return false;">
+							<span class="fa-stack fa-lg">
+								<i class="fa fa-circle fa-stack-2x"></i>
+								<i class="fa fa-times fa-stack-1x fa-inverse"></i>
+							</span>
+						</a>
+						<p>
+							The database is being backed up and wiped.
+							Please wait a little bit, then reload.
+						</p>
+					</div>
+				</section>
+				<section class="rolled" id="changePassSection">
+					<h3 onclick="unroll(this.firstChild, this.parentNode);"><i class="fa fa-fw fa-chevron-circle-right"></i> 
+						<span>Change Password</span>
+						<i id="checkChangePass" class="fa fa-spinner"></i>
+					</h3>
+					<div>
+						Set your password (at least one character) here.
+						You should do this when you first use the system, as the default is too easy.
+						It's up to you to make sure your password is secure.
+						You will be logged out after doing so.
+					</div>
+					<div class="noshow error" id="changePassErrSystem">
+						An unexpected error occurred.
+					</div>
+					<div class="noshow error" id="changePassErrForm">
+						Invalid new or existing password.
+					</div>
+					<form action="@ADMINURI@/dochangepass.json" method="post" id="changePass" onsubmit="return(changePass(this));">
+						<fieldset>
+							<div class="input">
+								<i class="fa fa-fw fa-lock"></i>
+								<input required="required" type="password" name="password1" placeholder="Existing Password"/>
+							</div>
+							<div class="input">
+								<i class="fa fa-fw fa-lock"></i>
+								<input required="required" type="password" name="password2" placeholder="New Password"/>
+							</div>
+							<div class="input">
+								<i class="fa fa-fw fa-lock"></i>
+								<input required="required" type="password" name="password3" placeholder="Repeat New Password"/>
+							</div>
+							<div class="input input-submit">
+								<i class="fa fa-fw fa-check"></i>
+								<input id="changePassSubmit" type="submit" value="Submit" />
+							</div>
+						</fieldset>
+					</form>
+				</section>
+				<section class="rolled" id="changeMailSection">
+					<h3 onclick="unroll(this.firstChild, this.parentNode);"><i class="fa fa-fw fa-chevron-circle-right"></i>
+						<span>Change E-mail</span>
+						<i id="checkChangeEmail" class="fa fa-spinner"></i>
+					</h3>
+					<div>
+						You should set the e-mail address to your address, as the system (or system administrator) will
+						mail you if it has issues.
+						You will be logged out after doing so.
+					</div>
+					<div class="error noshow" id="changeMailErrSystem">
+						An unexpected error occurred.
+					</div>
+					<div class="error noshow" id="changeMailErrForm">
+						Invalid new or existing e-mail address.
+					</div>
+					<form action="@ADMINURI@/dochangemail.json" method="post" id="changeMail" onsubmit="return(changeMail(this));">
+						<fieldset>
+							<div class="input">
+								<i class="fa fa-fw fa-envelope"></i>
+								<input required="required" type="email" name="email1" placeholder="Existing E-mail"/>
+							</div>
+							<div class="input">
+								<i class="fa fa-fw fa-envelope-o"></i>
+								<input required="required" type="email" name="email2" placeholder="New E-mail"/>
+							</div>
+							<div class="input">
+								<i class="fa fa-fw fa-envelope-o"></i>
+								<input required="required" type="email" name="email3" placeholder="Repeat New E-mail"/>
+							</div>
+							<div class="input input-submit">
+								<i class="fa fa-fw fa-check"></i>
+								<input id="changeMailSubmit" type="submit" value="Submit" />
+							</div>
+						</fieldset>
+					</form>
+				</section>
+				<section class="rolled" id="changeSmtpSection">
+					<h3 onclick="unroll(this.firstChild, this.parentNode);"><i class="fa fa-fw fa-chevron-circle-right"></i> 
+						<span>E-Mail Server</span>
+						<i id="checkSmtpLoad2" class="fa fa-spinner"></i>
+					</h3>
+					<div>
+						In order to send e-mails to participants, you need to configure a valid e-mail sending
+						service.
+						If you mess up, you can always fix this information after the game starts and re-try e-mails
+						that failed to send.
+					</div>
+					<div id="checkSmtpResults" class="noshow">
+						<div>
+							The following are your SMTP parameters.
+							Click <q>Send Test</q> to send a test message to the administrator account
+							(<em>not</em> the <q>from address</q>!).
+						</div>
+						<fieldset>
+							<div class="input">
+								<i class="fa fa-fw fa-database"></i>
+								<input disabled="disabled" id="checkSmtpResultsServer" type="text" />
+							</div>
+							<div class="input">
+								<i class="fa fa-fw fa-user"></i>
+								<input disabled="disabled" id="checkSmtpResultsUser" type="text" />
+							</div>
+							<div class="input">
+								<i class="fa fa-fw fa-envelope"></i>
+								<input disabled="disabled" id="checkSmtpResultsFrom" type="text" />
+							</div>
+							<div class="input input-submit">
+								<i class="fa fa-send"></i>
+								<button type="button" class="send" id="checkSmtpButton" onclick="testSmtp();">Send Test</button>
+							</div>
+						</fieldset>
+					</div>
+					<div id="testSmtpResults" class="canclose noshow">
+						<a href="#" class="close" onclick="doHideNode(this.parentNode); return false;">
+							<span class="fa-stack fa-lg">
+								<i class="fa fa-circle fa-stack-2x"></i>
+								<i class="fa fa-times fa-stack-1x fa-inverse"></i>
+							</span>
+						</a>
+						<p>
+							A test e-mail has been sent to <span id="testSmtpResultsMail"></span>.
+							If you do not receive it in a little while, please fix your mail settings.
+						</p>
+					</div>
+					<div>
+						The e-mail address <i class="fa fa-envelope"></i> will appear as the <q>from</q> address
+						on all e-mails the system sends out.
+						Make sure this is a real address so participants can write to you!
+						The server <i class="fa fa-database"></i> is your SMTP server.
+						It must be encrypted (SSL/TLS), and be in the form
+						<q>smtp://the.server.name:port</q>, where the port is usually 25, 465, or 587.
+						(It can be anything, though.)
+						The username <i class="fa fa-user"></i> and password <i class="fa fa-lock"></i> are used
+						to log into your server.
+						<em>Your password is stored on the gamelab server</em>:
+						make sure it's something random and not used elsewhere!
+					</div>
+					<div class="error noshow" id="changeSmtpErrSystem">
+						An unexpected error occurred.
+					</div>
+					<div class="error noshow" id="changeSmtpErrForm">
+						Invalid new or existing parameters.
+					</div>
+					<form action="@ADMINURI@/dochangesmtp.json" method="post" id="changeSmtp" onsubmit="return(changeSmtp(this));">
+						<fieldset>
+							<div class="input">
+								<i class="fa fa-fw fa-envelope"></i>
+								<input required="required" type="email" name="email" placeholder="you@example.com"/>
+							</div>
+							<div class="input">
+								<i class="fa fa-fw fa-database"></i>
+								<input required="required" type="text" name="server" placeholder="smtp://example.com:587"/>
+							</div>
+							<div class="input">
+								<i class="fa fa-fw fa-user"></i>
+								<input required="required" type="text" name="user" placeholder="SMTP User"/>
+							</div>
+							<div class="input">
+								<i class="fa fa-fw fa-lock"></i>
+								<input required="required" type="password" name="password" placeholder="SMTP Password"/>
+							</div>
+							<div class="input input-submit">
+								<i class="fa fa-fw fa-check"></i>
+								<input id="changeSmtpSubmit" type="submit" value="Submit" />
+							</div>
+						</fieldset>
+					</form>
+				</section>
+				<section class="rolled" id="seeGameSection">
+					<h3 onclick="unroll(this.firstChild, this.parentNode);"><i class="fa fa-fw fa-chevron-circle-right"></i> 
+						<span>Experiment Games</span>
+					</h3>
+					<div>
+						<ul id="loadGames2">
+							<li><i class="fa fa-spinner"></i></li>
+						</ul>
+					</div>
+				</section>
+				<section class="rolled" id="addGameSection">
+					<h3 onclick="unroll(this.firstChild, this.parentNode);"><i class="fa fa-fw fa-chevron-circle-right"></i> 
+						<span>Experiment Games</span>
+					       	<i id="checkGameLoad2" class="fa fa-spinner"></i>
+					</h3>
+					<div>
+						The following are your games.
+						To delete a game, click the <i class="fa fa-remove"></i> symbol alongside.
+					</div>
+					<div>
+						<ul id="loadGames">
+							<li><i class="fa fa-spinner"></i></li>
+						</ul>
+					</div>
+					<div>
+						You may add games by specifying a name and payoffs.
+						The name is never shown to participants.
+						Payoffs must follow the usual top-left to bottom-right order, one payoff per player role (row player first).
+					</div>
+					<div class="error noshow" id="addGameErrSystem">
+						An unexpected system error occurred.
+					</div>
+					<div class="error noshow" id="addGameErrForm">
+						Invalid game payoffs, name, or strategy count.
+					</div>
+					<div class="error noshow" id="addGameErrState">
+						Experiment already started!
+					</div>
+					<form action="@ADMINURI@/doaddgame.json" method="post" id="addGame" onsubmit="return(addGame(this));">
+						<fieldset>
+							<div class="input">
+								<i class="fa fa-fw fa-bars"></i>
+								<input required="required" type="number" min="2" step="1" name="p1" value="2"/>
+							</div>
+							<div class="input">
+								<i class="fa fa-fw fa-columns"></i>
+								<input required="required" type="number" min="2" step="1" name="p2" value="2"/>
+							</div>
+							<div class="input">
+								<i class="fa fa-fw"></i>
+								<input required="required" type="text" name="name" placeholder="Game Name"/>
+							</div>
+							<div class="input">
+								<i class="fa fa-fw"></i>
+								<input required="required" type="text" name="payoffs" placeholder="Space-separated values (top-left to bottom-right)"/>
+							</div>
+							<div class="input input-submit">
+								<i class="fa fa-fw fa-check"></i>
+								<input id="addGameSubmit" type="submit" value="Submit" />
+							</div>
+						</fieldset>
+					</form>
+				</section>
+				<section class="rolled" id="seePlayerSection">
+					<h3 onclick="unroll(this.firstChild, this.parentNode);"><i class="fa fa-fw fa-chevron-circle-right"></i> 
+						<span>Experiment Participants</span>
+					</h3>
+					<div>
+						Participants in your experiment.
+						Click on a participant to see their status.
+						Enable or disable a participant by flipping the toggle icon.
+						Participants may be in the <i class="fa fa-bars"></i> player row role or <i class="fa fa-columns"></i>
+						column role.
+						However, they may also be in the <i class="fa fa-spinner"></i> lobby, in which case they are not
+						yet assigned a role.
+						Participants also may be <i class="fa fa-thumb-tack"></i> captive or
+						<i class="fa fa-amazon"></i> Mechanical Turk workers.
+						(If workers have a <i class="fa fa-check"></i>, they can receive their bonus.)
+					</div>
+					<div>
+						<ul id="loadPlayers">
+							<li><i class="fa fa-spinner"></i></li>
+						</ul>
+					</div>
+					<div id="playerInfo" class="canclose noshow">
+						<a href="#" class="close" onclick="doHideNode(this.parentNode); return false;">
+							<span class="fa-stack fa-lg">
+								<i class="fa fa-circle fa-stack-2x"></i>
+								<i class="fa fa-times fa-stack-1x fa-inverse"></i>
+							</span>
+						</a>
+						<p>
+							<span id="playerInfoEmail"></span>: 
+							<span id="playerInfoStatus"></span>, 
+							<span id="playerInfoEnabled"></span>
+							(joined round <span id="playerInfoJoined"></span>, answered <span id="playerInfoAnswer"></span> questions)
+						</p>
+						<form action="@ADMINURI@/doresetpasswords.json" method="post" onsubmit="return(resetPass(this));">
+							<input type="hidden" id="playerInfoId" name="pid" />
+							<fieldset>
+								<div class="input input-submit">
+									<i class="fa fa-send"></i>
+									<input type="submit" id="resetPasswordButton" value="Reset Password" />
+								</div>
+							</fieldset>
+						</form>
+					</div>
+					<div>
+						Reset all participants' passwords by clicking the button.
+						This will not contact the participants: it will only reset the password.
+						Reconfiguring involves setting the password on newly-added participants (and e-mailing them, if a
+						e-mail server has been specified) or participants whose prior configuration failed due to a bad
+						e-mail server.
+					</div>
+					<fieldset>
+						<div class="input input-submit">
+							<i class="fa fa-send"></i>
+							<button type="button" id="resetPasswordsButton" onclick="resetPasswords();">Reset passwords</button>
+						</div>
+						<div class="input input-submit">
+							<i class="fa fa-send"></i>
+							<button type="button" id="recheckSmtpButton" onclick="reTestSmtp();">Reconfigure</button>
+						</div>
+					</fieldset>
+					<div>
+						Add participants to the game using this form.
+						Participants consist of e-mail addresses separated by white-space (newlines, tabs, spaces, whatever).
+						When you're finished adding all participants, you must reconfigure.
+					</div>
+					<form action="@ADMINURI@/doaddplayers.json" method="post" id="addPlayers" onsubmit="return(addPlayers(this));">
+						<fieldset>
+							<div class="input">
+								<i class="fa fa-fw fa-users"></i>
+								<textarea name="players" placeholder="Space-separated participant e-mail addresses..."></textarea>
+							</div>
+							<div class="input input-submit">
+								<i class="fa fa-fw fa-check"></i>
+								<input id="addPlayersSubmit" type="submit" value="Submit" />
+							</div>
+						</fieldset>
+						<input type="hidden" id="autoadd3" name="autoadd" value="0" />
+					</form>
+					<div>
+						If you set the <q>Allow Captive Participants</q> toggle, then participants may add themselves.
+						Captive participants will not be e-mailed when the experiment is started, nor will they be remembered
+						when the experiment is wiped.
+					</div>
+					<form action="@ADMINURI@/doaddplayers.json" method="post" id="addPlayers2" onsubmit="return(addPlayers2(this));">
+						<fieldset>
+							<div class="input input-check">
+								<i onclick="toggler('autoadd2', 'autoadd2Toggle');" id="autoadd2Toggle" class="fa fa-fw fa-toggle-off"></i>
+								<span onclick="toggler('autoadd2', 'autoadd2Toggle');">Allow Captive Participants</span>
+							</div>
+							<div class="input input-submit">
+								<i class="fa fa-fw fa-check"></i>
+								<input id="addPlayersSubmit2" type="submit" value="Submit" />
+							</div>
+							<input type="hidden" id="autoadd2" name="autoadd" value="0" />
+						</fieldset>
+					</form>
+					<div id="captiveGame2">
+						<strong>Note</strong>: you have opted for a captive experiment.
+						To enter the captive portal, your participants will need to access <a
+							href="@HTURI@/playerautoadd.html">@HTURI@/playerautoadd.html</a> in order to log in.
+					</div>
+				</section>
+				<section class="rolled" id="addPlayerSection">
+					<h3 onclick="unroll(this.firstChild, this.parentNode);"><i class="fa fa-fw fa-chevron-circle-right"></i> 
+						<span>Experiment Participants</span>
+						<i id="checkPlayersLoad2" class="fa fa-spinner"></i>
+					</h3>
+					<div>
+						Participants in your experiment.
+						To delete a participant, just click the <i class="fa fa-remove"></i> symbol alongside.
+						Participants marked with <i class="fa fa-thumb-tack"></i> are captive.
+					</div>
+					<div>
+						<ul id="loadNewPlayers">
+							<li><i class="fa fa-spinner"></i></li>
+						</ul>
+					</div>
+					<div>
+						Add participants to the game using this form.
+						Participants consist of e-mail addresses separated by white-space (newlines, tabs, spaces, whatever).
+					</div>
+					<form action="@ADMINURI@/doaddplayers.json" method="post" id="addNewPlayers" onsubmit="return(addNewPlayers(this));">
+						<fieldset>
+							<div class="input">
+								<i class="fa fa-fw fa-users"></i>
+								<textarea name="players" placeholder="Space-separated participant e-mail addresses..."></textarea>
+							</div>
+							<div class="input input-submit">
+								<i class="fa fa-fw fa-check"></i>
+								<input id="addNewPlayersSubmit" type="submit" value="Submit" />
+							</div>
+						</fieldset>
+						<input type="hidden" id="autoadd4" name="autoadd" value="0" />
+						<input type="hidden" id="autoaddpreserve2" name="autoaddpreserve" value="0" />
+					</form>
+					<div>
+						If you set the <q>Allow Captive Participants</q> toggle, then participants may add themselves.
+						Captive participants will not be e-mailed when the experiment is started, nor will they be remembered
+						when the experiment is wiped.
+						If checked, <q>E-mail round advancement</q> will mail currently-playing non-captive participants a
+						note whenever the round advances.
+					</div>
+					<form action="@ADMINURI@/doaddplayers.json" method="post" id="addNewPlayers2" onsubmit="return(addNewPlayers2(this));">
+						<fieldset>
+							<div class="input input-check">
+								<i onclick="toggler('autoadd', 'autoaddToggle');" id="autoaddToggle" class="fa fa-fw fa-toggle-off"></i>
+								<span onclick="toggler('autoadd', 'autoaddToggle');">Allow captive participants</span>
+							</div>
+							<div class="input input-check">
+								<i onclick="toggler('autoaddpreserve', 'autoaddTogglePreserve');" id="autoaddTogglePreserve" class="fa fa-fw fa-toggle-off"></i>
+								<span onclick="toggler('autoaddpreserve', 'autoaddTogglePreserve');">Preserve modes after startup</span>
+							</div>
+							<div class="input input-submit">
+								<i class="fa fa-fw fa-check"></i>
+								<input id="addNewPlayersSubmit2" type="submit" value="Submit" />
+							</div>
+							<input type="hidden" id="autoadd" name="autoadd" value="0" />
+							<input type="hidden" id="autoaddpreserve" name="autoaddpreserve" value="0" />
+						</fieldset>
+					</form>
+					<div id="captiveGame">
+						<strong>Note</strong>: you have opted for a captive experiment.
+						To enter the captive portal, your participants will need to access <a
+							href="@HTURI@/playerautoadd.html">@HTURI@/playerautoadd.html</a> in order to log in.
+						They can do this <strong>at any time after now</strong>.
+						Once you start the experiment, captive mode will be disabled, but you can enable it again if you
+						wish to continue adding participants.
+					</div>
+				</section>
+				<section class="rolled" id="startExprSection">
+					<h3 onclick="unroll(this.firstChild, this.parentNode);"><i class="fa fa-fw fa-chevron-circle-right"></i> 
+						<span>Experiment Parameters</span>
+					</h3>
+					<div>
+						Commit your experiment parameters and start here.
+						Once you start your experiment, you can't reconfigure.
+						Enter the <i class="fa fa-calendar"></i> start date and <i class="fa fa-clock-o"></i> time in
+						GMT (clamps to now), the <i class="fa fa-gear"></i> number of rounds (minimum 1), <i class="fa
+							fa-history"></i> minutes per round (minimum 1), and <i class="fa fa-pie-chart"></i> the percent of
+						participants per player role who, upon playing, will cause the round to advance (0 not to do so).
+					</div>
+					<div class="error">
+						<div class="noshow" id="startExprErrSystem">
+							An unexpected error occurred.
+						</div>
+						<div class="noshow" id="startExprErrForm">
+							Can't start: no games listed.
+						</div>
+						<div class="noshow" id="startExprErrState">
+							Experiment already started!
+						</div>
+					</div>
+					<form action="@ADMINURI@/dostartexpr.json" method="post" id="startExpr" onsubmit="return(startExpr(this));">
+						<fieldset>
+							<span class="inputheader">
+								Current GMT date and time:
+								<script>
+									var now = new Date();
+									document.write
+										(now.getUTCFullYear() + '-' +
+										 ('0' + (now.getUTCMonth()+1)).slice(-2) + '-' +
+										 ('0' + now.getUTCDate()).slice(-2) + ', ' +
+										 ('0' + now.getUTCHours()).slice(-2) + ':' +
+										 ('0' + now.getUTCMinutes()).slice(-2));
+								</script>
+							</span>
+							<div class="input">
+								<i class="fa fa-fw fa-calendar"></i>
+								<input required="required" id="date" type="date" name="date" placeholder="yyyy-mm-dd" />
+							</div>
+							<div class="input">
+								<i class="fa fa-fw fa-clock-o"></i>
+								<input required="required" id="time" type="time" name="time" placeholder="hh:mm GMT" />
+							</div>
+							<span>
+								...or start in 
+								<a href="#" onclick="exprStartTime(60 * 1000); return false;">one minute</a>, 
+								<a href="#" onclick="exprStartTime(60 * 10 * 1000); return false;">ten minutes</a>, 
+								<a href="#" onclick="exprStartTime(60 * 60 * 1000); return false;">one hour</a>, or
+								<a href="#" onclick="exprStartTime(24 * 60 * 60 * 1000); return false;">one day</a> from now.
+							</span>
+							<div class="input">
+								<i class="fa fa-fw fa-gear"></i>
+								<input required="required" type="number" name="rounds" min="1" step="1" value="14" />
+							</div>
+							<div class="input">
+								<i class="fa fa-fw fa-history"></i>
+								<input required="required" type="number" name="minutes" max="1440" min="1" step="1" value="1440" />
+							</div>
+							<div class="input">
+								<i class="fa fa-fw fa-pie-chart"></i>
+								<input required="required" type="number" name="roundpct" max="100" min="0" step="1" value="100" />
+							</div>
+							<section class="advanced" id="mturkadvanced">
+								<div>
+									<i class="fa fa-chevron-circle-down"></i>
+									<a href="#" onclick="document.getElementById('mturkadvanced').className='advanced showadv'; return false;">
+										Show Mechanical Turk Options</a>.
+								</div>
+								<p>
+									<i class="fa fa-chevron-circle-up"></i>
+									<a href="#" onclick="document.getElementById('mturkadvanced').className='advanced'; return false;">
+										Hide Mechanical Turk Options</a>.
+								</p>
+								<div>
+									If you enter <strong>both</strong> of the fields below, a HIT will
+									automatically be created with the specified <i class="fa fa-group"></i>
+									number of workers (minimum of 2).
+								</div>
+								<div class="input">
+									<i class="fa fa-fw fa-amazon"></i>
+									<input type="text" name="awsaccesskey" placeholder="AWS Access Key ID" />
+								</div>
+								<div class="input">
+									<i class="fa fa-fw fa-lock"></i>
+									<input type="text" name="awssecretkey" placeholder="AWS Secret Access Key" />
+								</div>
+								<div class="input">
+									<i class="fa fa-fw fa-group"></i>
+									<input type="number" name="workers" value="2" min="2" />
+								</div>
+								<div>
+									Next, provide a meaningful <i class="fa fa-pencil-square-o"></i>
+									experiment name and <i class="fa fa-pencil-square"></i> description.
+									If you leave these blank, I'll use some boring defaults.
+									(You do want workers, yes?  Be descriptive!)
+									Lastly, enter some <i class="fa fa-ellipsis-h"></i> keywords.
+								</div>
+								<div class="input">
+									<i class="fa fa-fw fa-pencil-square-o"></i>
+									<input type="text" name="awsname" value="Gamelab Experiment" />
+								</div>
+								<div class="input">
+									<i class="fa fa-fw fa-pencil-square"></i>
+									<textarea name="awsdesc">This is a generic gamelab experiment.</textarea>
+								</div>
+								<div class="input">
+									<i class="fa fa-fw fa-ellipsis-h"></i>
+									<textarea name="awskeywords" placeholder="Comma-separated keywords"></textarea>
+								</div>
+								<div class="input input-check">
+									<i onclick="toggler('sandbox', 'sandboxToggle');" id="sandboxToggle" class="fa fa-fw fa-toggle-on"></i>
+									<span onclick="toggler('sandbox', 'sandboxToggle');">Sandbox Mode</span>
+								</div>
+								<div>
+									Set <i class="fa fa-exchange"></i> to the conversion rate from points to USD and
+									<i class="fa fa-money"></i> to the reward (minimum clamped to 0.01) for workers.
+								</div>
+								<div class="input">
+									<i class="fa fa-fw fa-exchange"></i>
+									<input required="required" type="number" name="conversion" step="any" min="0.0" value="1.0" />
+								</div>
+								<div class="input">
+									<i class="fa fa-fw fa-money"></i>
+									<input required="required" type="number" name="awsreward" step="0.01" min="0.01" value="1.0" />
+								</div>
+								<div>
+									Worker requirements: set <i class="fa fa-globe"></i> to be <a
+										href="http://www.iso.org/iso/country_codes/iso_3166_code_lists.htm">ISO
+										3166</a> country code (or blank for no restriction); <i
+										class="fa fa-check"></i> to be the minimum number of approved
+									HITs, with -1 meaning no restriction; and <i class="fa fa-percent"></i>
+									to be the percent of approved assignments, with -1 being no restriction.
+								</div>
+								<div class="input">
+									<i class="fa fa-fw fa-globe"></i>
+									<input type="text" name="workerlocale" placeholder="Worker locale" />
+								</div>
+								<div class="input">
+									<i class="fa fa-fw fa-check"></i>
+									<input type="number" name="workerhitapprv" step="1" min="-1" value="-1" />
+								</div>
+								<div class="input">
+									<i class="fa fa-fw fa-percent"></i>
+									<input type="number" name="workerpctapprv" step="1" max="100" min="-1" value="-1" />
+								</div>
+								<input type="hidden" id="sandbox" name="sandbox" value="1" />
+							</section>
+							<section class="advanced" id="advanced">
+								<div>
+									<i class="fa fa-chevron-circle-down"></i>
+									<a href="#" onclick="document.getElementById('advanced').className='advanced showadv'; return false;">
+										Show Advanced Options</a>.
+								</div>
+								<p>
+									<i class="fa fa-chevron-circle-up"></i>
+									<a href="#" onclick="document.getElementById('advanced').className='advanced'; return false;">
+										Hide Advanced Options</a>.
+								</p>
+								<div>
+									Enter the <i class="fa fa-link"></i> address for logging in, which is
+									sent in participants' welcome email.
+								</div>
+								<div class="input">
+									<i class="fa fa-fw fa-link"></i>
+									<input required="required" id="loginURI" type="url" name="uri" />
+								</div>
+								<div>
+									Set your <i class="fa fa-code"></i>
+									instructions that will be shown to participants, which can consist of an uploaded HTML5 fragment.
+								</div>
+								<div class="input">
+									<i class="fa fa-fw fa-code"></i>
+									<div>
+										<div>
+											<input id="default-lottery" value="lottery" checked="checked" type="radio" name="instr" />
+											<label for="default-lottery">
+												<a href="@HTURI@/instructions-lottery.xml.txt">
+													Lottery
+												</a>
+											</label>
+										</div>
+										<div>
+											<input id="default-nolottery" value="nolottery" type="radio" name="instr" />
+											<label for="default-nolottery">
+												<a href="@HTURI@/instructions-nolottery.xml.txt">
+													No Lottery
+												</a>
+											</label>
+										</div>
+										<div>
+											<input id="default-mturk" value="mturk" type="radio" name="instr" />
+											<label for="default-mturk">
+												<a href="@HTURI@/instructions-mturk.xml.txt">
+													Mechanical Turk
+												</a>
+											</label>
+										</div>
+										<div>
+											<input value="custom" type="radio" name="instr" />
+											<div>
+												<input type="file" name="instrFile" />
+											</div>
+										</div>
+									</div>
+								</div>
+								<div>
+									If you're running a lottery (the default), change its amount here.
+									You can use any currency: the following is a free-form text for the reward amount.
+									If you leave it blank, no lottery will be computed.
+								</div>
+								<div class="input">
+									<i class="fa fa-fw fa-money"></i>
+									<input type="text" name="lottery" value="10 000 SEK" />
+								</div>
+								<div>
+									Set 
+									<i class="fa
+										fa-gears"></i> rounds per participant (zero to be all rounds), <i
+										class="fa fa-history fa-flip-horizontal"></i> minimum minutes for
+									the percentage to take affect so as to allow participants to have a chance at
+									playing, and <i class="fa fa-group"></i> maximum number of simulataneous
+									participants per player role (0, the default, for no limit).
+								</div>
+								<div class="input">
+									<i class="fa fa-fw fa-gears"></i>
+									<input required="required" type="number" name="prounds" min="0" step="1" value="0" />
+								</div>
+								<div class="input">
+									<i class="fa fa-fw fa-history fa-flip-horizontal"></i>
+									<input required="required" type="number" name="roundmin" max="1440" min="0" step="1" value="0" />
+								</div>
+								<div class="input">
+									<i class="fa fa-fw fa-group"></i>
+									<input required="required" type="number" name="playermax" min="0" step="1" value="0" />
+								</div>
+								<div>
+									Upload a <i class="fa fa-fw fa-file-code-o"></i> history of play (a JSON
+									file as created with by exporting the history) to be prepended to the
+									history shown to participants.
+								</div>
+								<div class="input">
+									<i class="fa fa-fw fa-file-code-o"></i>
+									<input type="file" name="historyfile" accept=".json" />
+								</div>
+								<div>
+									Finally, set the toggle for <q>Show questionnaire</q> to require
+									that participants submit answers to some verification questions before
+									playing; or
+									<q>E-mail round advancement</q> to e-mail non-captive participants when
+									the round advances.
+									If you don't want to transmit (or show) experiment history to participants,
+									select <q>Do not show history</q>.
+									Lastly, set <q>Do not shuffle games/actions</q> to present games and
+									game bimatrices consistently across participants.
+								</div>
+								<div class="input input-check">
+									<i onclick="toggler('question', 'questionToggle');" id="questionToggle" class="fa fa-fw fa-toggle-off"></i>
+									<span onclick="toggler('question', 'questionToggle');">Show questionnaire</span>
+								</div>
+								<div class="input input-check">
+									<i onclick="toggler('mailround', 'mailroundToggle');" id="mailroundToggle" class="fa fa-fw fa-toggle-off"></i>
+									<span onclick="toggler('mailround', 'mailroundToggle');">E-mail round advancement</span>
+								</div>
+								<div class="input input-check">
+									<i onclick="toggler('showhistory', 'showhistoryToggle');" id="showhistoryToggle" class="fa fa-fw fa-toggle-off"></i>
+									<span onclick="toggler('showhistory', 'showhistoryToggle');">Do not show history</span>
+								</div>
+								<div class="input input-check">
+									<i onclick="toggler('shuffle', 'shuffleToggle');" id="shuffleToggle" class="fa fa-fw fa-toggle-off"></i>
+									<span onclick="toggler('shuffle', 'shuffleToggle');">Do not shuffle games/actions</span>
+								</div>
+								<div class="input input-check">
+									<i onclick="toggler('relative', 'relativeToggle');" id="relativeToggle" class="fa fa-fw fa-toggle-off"></i>
+									<span onclick="toggler('relative', 'relativeToggle');">Show relative round numbers</span>
+								</div>
+								<input type="hidden" id="question" name="question" value="0" />
+								<input type="hidden" id="mailround" name="mailround" value="0" />
+								<input type="hidden" id="showhistory" name="showhistory" value="0" />
+								<input type="hidden" id="shuffle" name="shuffle" value="0" />
+								<input type="hidden" id="relative" name="relative" value="0" />
+							</section>
+							<div class="input input-submit">
+								<i class="fa fa-check"></i>
+								<input id="startExprSubmit" type="submit" value="Start Experiment" gamelab-submit-pending="Starting..." />
+							</div>
+						</fieldset>
+					</form>
+				</section>
+			</section>
+		</article>
+		<footer>
+			&copy; 2014&#8211;2016
+			<a href="http://www.kcons.eu"><i>k</i>-Consulting</a>
+			<a href="http://www.kcons.eu/gamelab">gamelab @VERSION@</a>
+			<a href="@HTURI@/privacy.html">Privacy</a>
+		</footer>
+	</body>
+</html>
