@@ -1484,6 +1484,8 @@ function loadallSetup()
 
 	doHide('exprLoaded');
 	doUnhide('exprLoading');
+	doClassLoading('checkChangeEmail');
+	doClassLoading('checkChangePass');
 }
 
 function loadall()
