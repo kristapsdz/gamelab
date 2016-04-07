@@ -1,8 +1,10 @@
-html, body			{ margin: 0; }
+html, body			{ margin: 0; 
+				  height: 100%; }
 a				{ text-decoration: none; }
 body				{ background-color: #eee; 
-				  font-family: Calibri, Candara, Segoe, 
-				 	 Segoe UI, Optima, Arial, sans-serif;
+				  font-family: Calibri, Candara, Segoe, Segoe UI, Optima, Arial, sans-serif;
+				  display: flex;
+				  flex-direction: column;
 			  	  font-size: 12pt; }
 h1, h2, h3			{ font-family: Georgia, Times, Times New Roman, serif; 
 				  font-weight: normal; }
@@ -16,6 +18,22 @@ header				{ background-color: #ccc;
 				  top: 0;
 				  width: 100%;
 				  border-bottom: thin solid #aaa; }
+#exprLoaded			{ position: relative; 
+				  background-color: #fff;
+				  padding-bottom: 1em;
+				  padding-top: 3.5em; }
+#exprLoading			{ flex: 1;
+				  background-color: #666;
+				  color: #fff;
+				  width: 100%;
+				  height: 50%; }
+#exprLoading > *		{ display: table; 
+				  margin-left: auto;
+				  margin-right: auto;
+				  height: 100%; }
+#exprLoading > * > *		{ display: table-cell;
+				  vertical-align: middle; }
+#rolls				{ margin-top: 1em; }
 header > *			{ display: table-cell; 
 				  padding: 0.5ex 1ex;
 				  text-align: center;
@@ -74,13 +92,8 @@ h3:hover 			{ background-color: #666; }
 h3 span				{ color: #fff; }
 h3 i:last-child			{ position: absolute;
 				  right: 0.5ex; }
-article				{ background-color: #fff;
-				  padding: 0 20% 0 20%; }
-article + article		{ padding-top: 1em;
-			 	  padding-bottom: 1em; }
-article.top			{ padding-top: 4em; 
-				  padding-bottom: 0;
-				  text-align: center; }
+article				{ padding: 0 20% 0 20%; }
+.top				{ text-align: center; }
 ul				{ list-style-type: none; }
 section.rolled,
 section.unrolled		{ border: thin solid #222; 
@@ -272,7 +285,6 @@ div.input input[type=time]	{ width: 20ex; }
 .seconds, .error		{ color: red;
 				  font-weight: bolder; }
 #mturkbonusesButton		{ margin-top: 4pt; }
-#statusExprLoaded > section	{ margin-bottom: 1em; }
 @media only screen and (max-width: 800px), only screen and (max-device-width: 800px) {
 	article			{ padding-left: 10%; 
 			  	  padding-right: 10%; }
@@ -281,7 +293,7 @@ div.input input[type=time]	{ width: 20ex; }
 	article			{ padding-left: 0.5ex;
 				  padding-right: 0.5ex; }
 	h1			{ font-size: 16pt; } 
-	article.top		{ padding-top: 3em; }
+	#exprLoaded		{ padding-top: 3em; }
 	.statusgraph		{ height: 150px; 
 				  margin-left: auto;
 				  margin-right: auto;

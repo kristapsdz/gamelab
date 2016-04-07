@@ -1,6 +1,13 @@
-"use strict";
+'use strict';
 
 var currentRound = null; /* see checkRound() */
+
+function logout()
+{
+
+	console.log('You have been logged out!');
+	location.href = '@HTURI@/adminlogin.html#loggedout';
+}
 
 function doClassOk(name)
 {
@@ -51,7 +58,7 @@ function doError(err, submitName, errName)
 			doUnhide(errName + 'Form');
 		break;
 	case 403:
-		location.href = '@HTURI@/adminlogin.html#loggedout';
+		logout();
 		break;
 	case 409:
 		if (null != errName)
@@ -125,14 +132,19 @@ function loadNewPlayersSuccess(resp)
 	}
 
 	checkToggle('autoaddToggle', 'autoadd', results.autoadd);
+	checkToggle('autoadd2Toggle', 'autoadd2', results.autoadd);
 	checkToggle('autoaddTogglePreserve', 'autoaddpreserve', results.autoaddpreserve);
-	doValue('autoadd2', results.autoadd);
+	doValue('autoadd4', results.autoadd);
+	doValue('autoadd3', results.autoadd);
 	doValue('autoaddpreserve2', results.autoaddpreserve);
 
-	if (results.autoadd)
+	if (results.autoadd) {
+		doUnhide('captiveGame2');
 		doUnhide('captiveGame');
-	else
+	} else {
 		doHide('captiveGame');
+		doHide('captiveGame2');
+	}
 
 	players = results.players;
 
@@ -251,12 +263,17 @@ function loadPlayersSuccess(resp)
 	}
 
 	checkToggle('autoaddToggle', 'autoadd', results.autoadd);
-	doValue('autoadd2',  results.autoadd);
+	checkToggle('autoadd2Toggle', 'autoadd2', results.autoadd);
+	doValue('autoadd3',  results.autoadd);
+	doValue('autoadd4',  results.autoadd);
 
-	if (results.autoadd)
+	if (results.autoadd) {
 		doUnhide('captiveGame');
-	else
+		doUnhide('captiveGame2');
+	} else {
 		doHide('captiveGame');
+		doHide('captiveGame2');
+	}
 
 	doPlayerGraph(doClear('playerExprGraph'), results);
 
@@ -350,11 +367,11 @@ function loadPlayersSuccess(resp)
 	}
 }
 
-function loadGamesSuccessInner(resp, code) 
+function loadGamesSuccessInner(resp, code, name) 
 {
 	var i, j, k, results, li, e, div, icon, row, col, cell, tbl;
 
-	e = doClearNode(document.getElementById('loadGames'));
+	e = doClearNode(document.getElementById(name));
 
 	try  { 
 		results = JSON.parse(resp);
@@ -750,7 +767,7 @@ function loadNewGames()
 
 	doClassLoading('checkGameLoad2');
 	loadList('@ADMINURI@/doloadgames.json', 'loadGames', 
-		function(resp) { loadGamesSuccessInner(resp, 0); },
+		function(resp) { loadGamesSuccessInner(resp, 0, 'loadGames'); },
 		function(err) { loadError(err, 'loadGames'); });
 }
 
@@ -758,9 +775,9 @@ function loadGames()
 {
 
 	doClassLoading('checkGameLoad2');
-	loadList('@ADMINURI@/doloadgames.json', 'loadGames', 
-		function(resp) { loadGamesSuccessInner(resp, 1); },
-		function(err) { loadError(err, 'loadGames'); });
+	loadList('@ADMINURI@/doloadgames.json', 'loadGames2', 
+		function(resp) { loadGamesSuccessInner(resp, 1, 'loadGames2'); },
+		function(err) { loadError(err, 'loadGames2'); });
 }
 
 /*
@@ -768,24 +785,8 @@ function loadGames()
  * has invoked dogetnewexpr.json on the server.
  * It populates all experiment-specific parts of the page.
  */
-function loadNewExprSuccess(resp) 
+function loadNewExprSuccess(res) 
 {
-	var res, e, expr;
-
-	try  { 
-		res = JSON.parse(resp);
-	} catch (error) {
-		return;
-	}
-
-	expr = res.expr;
-	if (0 != expr.start) 
-		exprStartAbsoluteTime(expr.start);
-	if (0 != expr.rounds)
-		doValue('rounds', expr.rounds);
-	if (0 != expr.minutes)
-		doValue('minutes', expr.minutes);
-	
 	/*
 	 * FIXME.
 	 * Until we have a neater place to put this (e.g., a record of
@@ -830,7 +831,7 @@ function checkRoundSuccess(resp)
 	 * If we're not, then continue polling.
 	 */
 	if (currentRound < res.round)
-		loadExpr();
+		reloadExpr();
 	else
 		setTimeout(checkRound, 10000);
 }
@@ -862,19 +863,26 @@ function timerSloppyCountdown(donefunc, e, value, round)
 	setTimeout(timerSloppyCountdown, 1000, donefunc, e, value, round);
 }
 
-/*
- * This callback is invoked for an alread-started experiment coming from
- * adminhome-started.html after dogetexpr.json has returned success.
- */
-function loadExprSuccess(resp) 
+function reloadExprSuccess(resp) 
 {
-	var res, e, i, j, chld, expr, li, div, href, span, next, data, datas;
+	var res;
 
 	try  { 
 		res = JSON.parse(resp);
 	} catch (error) {
 		return;
 	}
+
+	loadExprSuccess(res);
+}
+
+/*
+ * This callback is invoked for an alread-started experiment coming from
+ * adminhome-started.html after dogetexpr.json has returned success.
+ */
+function loadExprSuccess(res) 
+{
+	var e, i, j, chld, expr, li, div, href, span, next, data, datas;
 
 	doHide('statusExprLoading');
 	doUnhide('statusExprLoaded');
@@ -1006,13 +1014,13 @@ function loadExprSuccess(resp)
 		e = doClear('exprCountdown');
 		formatCountdown(next, e);
 		setTimeout(timerSloppyCountdown, 1000, 
-			 loadExpr, e, expr.start, expr.round);
+			 reloadExpr, e, expr.start, expr.round);
 	} else {
 		next = (expr.roundbegan + (expr.minutes * 60)) -
 			Math.floor(new Date().getTime() / 1000);
 		e = doClear('exprCountdown');
 		formatCountdown(next, e);
-		setTimeout(timerSloppyCountdown, 1000, loadExpr, e, 
+		setTimeout(timerSloppyCountdown, 1000, reloadExpr, e, 
 			expr.roundbegan + (expr.minutes * 60), expr.round);
 		/*
 		 * Send out a poll to check our round advancement.
@@ -1038,11 +1046,14 @@ function loadExprSuccess(resp)
 		else
 			doHide('noplayers');
 
-		/*doStatGraph(doClear('statusExprGraph'), res);*/
 		doHide('statusHighestBox');
-		if (expr.round > 0) {
+		doHide('statusHighestNoBox');
+		if (expr.round > 0 && res.highest.length) {
 			doUnhide('statusHighestBox');
 			doStatHighest(doClear('statusHighest'), res);
+		} else if (expr.round > 0) {
+			doUnhide('statusHighestNoBox');
+			doHide('statusHighestBox');
 		}
 	}
 }
@@ -1050,7 +1061,32 @@ function loadExprSuccess(resp)
 function loadExprSetup()
 {
 
+	doUnhide('startExprSection');
+	doHide('statusGraphs');
+	doHide('statusExprLoading');
+	doHide('exprCountdownGame');
+	doHide('exprControl');
+	doHide('statusExprLoaded');
+	doUnhide('checkGameLoad2');
+	doHide('seeGameSection');
+	doUnhide('addGameSection');
+	doHide('seePlayerSection');
+	doUnhide('addPlayerSection');
+}
+
+function reloadExprSetup()
+{
+
+	doHide('startExprSection');
+	doUnhide('seePlayerSection');
+	doHide('addPlayerSection');
+	doUnhide('seeGameSection');
+	doHide('addGameSection');
+	doHide('checkGameLoad2');
+	doUnhide('exprControl');
+	doUnhide('statusGraphs');
 	doUnhide('statusExprLoading');
+	doUnhide('exprCountdownGame');
 	doHide('statusExprLoaded');
 	doHide('statusExprWaiting');
 	doHide('statusExprFinished');
@@ -1059,20 +1095,11 @@ function loadExprSetup()
 	doClassLoading('checkChangePass');
 }
 
-function loadNewExpr() 
-{
-
-	sendQuery('@ADMINURI@/dogetnewexpr.json', 
-		null, loadNewExprSuccess, null);
-}
-
-function loadExpr() 
+function reloadExpr() 
 {
 
 	sendQuery('@ADMINURI@/dogetexpr.json', 
-		loadExprSetup, 
-		loadExprSuccess, 
-		function() { location.href = '@HTURI@/adminlogin.html#loggedout'; });
+		reloadExprSetup, reloadExprSuccess, logout);
 }
 
 function doStartExprSuccess(resp) 
@@ -1105,18 +1132,18 @@ function addNewPlayers2(form)
 {
 
 	return(sendForm(form, 
-		function() { doSetup('addPlayersSubmit2', null); },
-		function(err) { doError(err, 'addPlayersSubmit2', null); },
-		function () { doSuccess('addPlayersSubmit2', 'addPlayers2'); loadNewPlayers(); }));
+		function() { doSetup('addNewPlayersSubmit2', null); },
+		function(err) { doError(err, 'addNewPlayersSubmit2', null); },
+		function () { doSuccess('addNewPlayersSubmit2', 'addNewPlayers2'); loadNewPlayers(); }));
 }
 
 function addNewPlayers(form)
 {
 
 	return(sendForm(form, 
-		function() { doSetup('addPlayersSubmit', null); },
-		function(err) { doError(err, 'addPlayersSubmit', null); },
-		function () { doSuccess('addPlayersSubmit', 'addPlayers'); loadNewPlayers(); }));
+		function() { doSetup('addNewPlayersSubmit', null); },
+		function(err) { doError(err, 'addNewPlayersSubmit', null); },
+		function () { doSuccess('addNewPlayersSubmit', 'addNewPlayers'); loadNewPlayers(); }));
 }
 
 function addPlayers2(form)
@@ -1294,7 +1321,7 @@ function changeMail(form)
 	return(sendForm(form, 
 		function() { doSetup('changeMailSubmit', 'changeMailErr'); },
 		function(err) { doError(err, 'changeMailSubmit', 'changeMailErr'); },
-		function() { doSuccess('changeMailSubmit', 'changeMail'); loadExpr(); }));
+		function() { doSuccess('changeMailSubmit', 'changeMail'); reloadExpr(); }));
 }
 
 function changePass(form)
@@ -1406,26 +1433,6 @@ function exprStartTime(val)
 }
 
 /*
- * Set the experiment start time to be the given time (in SECONDS).
- */
-function exprStartAbsoluteTime(val)
-{
-	var t, d, now;
-
-	now = new Date();
-	t = document.getElementById('time');
-	d = document.getElementById('date');
-
-	now.setTime(val * 1000);
-
-	d.value = (now.getUTCFullYear() + '-' + 
-		   ('0' + (now.getUTCMonth()+1)).slice(-2) + '-' + 
-		   ('0' + now.getUTCDate()).slice(-2));
-	t.value = (('0' + now.getUTCHours()).slice(-2) + ':' +
-		   ('0' + now.getUTCMinutes()).slice(-2));
-}
-
-/*
  * Replace the "login URL" identified in the experiment start section
  * with the current URL having its admin bits replaced with lab bits.
  */
@@ -1439,4 +1446,46 @@ function seturls()
 	url = url.substring(0, url.lastIndexOf("/"));
 	url = url.replace('admin', 'lab');
 	doValue('loginURI', url + '/dologin.html');
+}
+
+function loadallSuccess(resp)
+{
+	var res;
+	
+	try  { 
+		res = JSON.parse(resp);
+	} catch (error) {
+		return;
+	}
+
+	doUnhide('exprLoaded');
+	doHide('exprLoading');
+
+	if (0 === res.expr.state) {
+		loadNewGames();
+		loadNewPlayers();
+		loadSmtp();
+		seturls();
+		loadExprSetup();
+		loadNewExprSuccess(res);
+	} else {
+		loadGames();
+		loadPlayers();
+		loadSmtp();
+		reloadExprSetup();
+		loadExprSuccess(res);
+	}
+}
+
+function loadallSetup()
+{
+
+	doHide('exprLoaded');
+	doUnhide('exprLoading');
+}
+
+function loadall()
+{
+	sendQuery('@ADMINURI@/dogetexpr.json', 
+		loadallSetup, loadallSuccess, logout);
 }

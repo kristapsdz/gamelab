@@ -15,7 +15,7 @@ function doSuccess()
 	if ('' != window.location.hash)
 		window.location.hash = '';
 	document.getElementById('loggingIn').value = 'Success!  Redirecting...';
-	location.href = '@ADMINURI@/home.html';
+	location.href = '@HTURI@/adminhome.html';
 }
 
 function doSetup() 

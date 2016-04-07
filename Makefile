@@ -54,8 +54,6 @@ MAILS	 = mail-addplayer.eml \
 	   mail-roundadvance.eml \
 	   mail-roundfirst.eml \
 	   mail-test.eml
-BUILTPS	 = adminhome-new.html \
-	   adminhome-started.html
 STATICS	 = adminhome.css \
 	   adminlogin.css \
 	   mturkpreview1.png \
@@ -77,8 +75,7 @@ OBJS	 = base64.o \
 SRCS	 = Makefile \
 	   admin.c \
 	   adminhome.js \
-	   adminhome-new.xml \
-	   adminhome-started.xml \
+	   adminhome.xml \
 	   adminlogin.js \
 	   adminlogin.xml \
 	   base64.c \
@@ -107,7 +104,8 @@ SRCS	 = Makefile \
 	   script.js \
 	   sha1.c \
 	   util.c
-HTMLS	 = adminlogin.html \
+HTMLS	 = adminhome.html \
+	   adminlogin.html \
 	   mturkpreview.html \
 	   playerautoadd.html \
 	   playerlobby.html \
@@ -129,7 +127,7 @@ BUILTMLS = history.html \
 	   manual.html \
 	   quickstart.html
 
-all: admin lab gamers $(HTMLS) $(JSMINS) $(BUILTPS)
+all: admin lab gamers $(HTMLS) $(JSMINS)
 
 jsmin: jsmin.c
 	$(CC) $(CFLAGS) -o $@ jsmin.c
@@ -158,7 +156,7 @@ updatecgi: all
 	mkdir -p $(CGIBIN)
 	install -m 0444 $(STATICS) $(HTMLS) $(JSMINS) flotr2.min.js logo.png logo-dark.png $(HTDOCS)
 	for f in $(INSTRS) ; do install -m 0444 $$f $(HTDOCS)/`basename $$f`.txt ; done
-	install -m 0444 $(INSTRS) $(MAILS) $(BUILTPS) $(DATADIR)
+	install -m 0444 $(INSTRS) $(MAILS) $(DATADIR)
 	install -m 0755 admin $(CGIBIN)/admin.cgi
 	install -m 0755 admin $(CGIBIN)
 	install -m 0755 lab $(CGIBIN)/lab.cgi
@@ -219,7 +217,7 @@ $(JSMINS): jsmin
 	rm -f $@
 	sed -e "s!@ADMINURI@!$(ADMINURI)!g" \
 		-e "s!@LABURI@!$(LABURI)!g" \
-		-e "s!@HTURI@!$(HTURI)!g" $< | ./jsmin > $@
+		-e "s!@HTURI@!$(HTURI)!g" $< > $@
 	chmod 444 $@
 
 .xml.html:
@@ -231,6 +229,6 @@ $(JSMINS): jsmin
 
 clean:
 	rm -f admin admin.o gamelab.db lab lab.o $(OBJS) jsmin gamers
-	rm -f $(HTMLS) $(JSMINS) $(BUILTPS) $(BUILTMLS)
+	rm -f $(HTMLS) $(JSMINS) $(BUILTMLS)
 	rm -f gamelab.tgz gamelab.tgz.sha512 gamelab.bib
 	rm -rf *.dSYM
