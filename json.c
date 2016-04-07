@@ -289,6 +289,7 @@ json_putexpr(struct kjsonreq *r, const struct expr *expr, int admin)
 	free(c.mail);
 	kjson_string_close(r);
 	kjson_putintp(r, "maxtickets", expr->total);
+	kjson_putintp(r, "state", expr->state);
 	kjson_putintp(r, "start", (int64_t)expr->start);
 	kjson_putintp(r, "rounds", expr->rounds);
 	kjson_putintp(r, "prounds", expr->prounds);
