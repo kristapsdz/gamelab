@@ -62,7 +62,6 @@ enum	page {
 	PAGE_DOGETEXPR,
 	PAGE_DOGETHIGHEST,
 	PAGE_DOGETHISTORY,
-	PAGE_DOGETNEWEXPR,
 	PAGE_DOLOADGAMES,
 	PAGE_DOLOADPLAYERS,
 	PAGE_DOLOGIN,
@@ -76,15 +75,8 @@ enum	page {
 	PAGE_DOWINNERS,
 	PAGE_DOWIPE,
 	PAGE_DOWIPEQUIET,
-	PAGE_HOME,
 	PAGE_INDEX,
 	PAGE__MAX
-};
-
-enum	cntt {
-	CNTT_HTML_HOME_NEW,
-	CNTT_HTML_HOME_STARTED,
-	CNTT__MAX
 };
 
 enum	key {
@@ -177,7 +169,6 @@ static	unsigned int perms[PAGE__MAX] = {
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOGETEXPR */
 	PERM_CSV | PERM_LOGIN, /* PAGE_DOGETHIGHEST */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOGETHISTORY */
-	PERM_JSON | PERM_LOGIN, /* PAGE_DOGETNEWEXPR */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOLOADGAMES */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOLOADPLAYERS */
 	PERM_JSON, /* PAGE_DOLOGIN */
@@ -191,7 +182,6 @@ static	unsigned int perms[PAGE__MAX] = {
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOWINNERS */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOWIPE */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOWIPEQUIET */
-	PERM_HTML | PERM_LOGIN, /* PAGE_HOME */
 	PERM_HTML | PERM_LOGIN, /* PAGE_INDEX */
 };
 
@@ -213,7 +203,6 @@ static const char *const pages[PAGE__MAX] = {
 	"dogetexpr", /* PAGE_DOGETEXPR */
 	"dogethighest", /* PAGE_DOGETHIGHEST */
 	"dogethistory", /* PAGE_DOGETHISTORY */
-	"dogetnewexpr", /* PAGE_DOGETNEWEXPR */
 	"doloadgames", /* PAGE_DOLOADGAMES */
 	"doloadplayers", /* PAGE_DOLOADPLAYERS */
 	"dologin", /* PAGE_DOLOGIN */
@@ -227,13 +216,7 @@ static const char *const pages[PAGE__MAX] = {
 	"dowinners", /* PAGE_DOWINNERS */
 	"dowipe", /* PAGE_DOWIPE */
 	"dowipequiet", /* PAGE_DOWIPEQUIET */
-	"home", /* PAGE_HOME */
 	"index", /* PAGE_INDEX */
-};
-
-static const char *const cntts[CNTT__MAX] = {
-	"adminhome-new.html", /* CNTT_HTML_HOME_NEW */
-	"adminhome-started.html", /* CNTT_HTML_HOME_STARTED */
 };
 
 static int kvalid_minutes(struct kpair *);
@@ -434,19 +417,6 @@ send303(struct kreq *r, const char *pg, enum page dest, int st)
 }
 
 static void
-sendcontent(struct kreq *r, enum cntt cntt)
-{
-	char	 fname[PATH_MAX];
-
-	snprintf(fname, sizeof(fname), 
-		DATADIR "/%s", cntts[cntt]);
-
-	http_open(r, KHTTP_200);
-	khttp_body(r);
-	khttp_template(r, NULL, fname);
-}
-
-static void
 sendhighestcsv(const struct player *p, 
 	double poff, int64_t score, void *arg)
 {
@@ -495,25 +465,6 @@ sendwinners(const struct player *p,
 	kjson_putintp(req, "winscore", p->finalscore);
 	kjson_putintp(req, "winnum", winner->rnum);
 	kjson_obj_close(req);
-}
-
-static void
-senddogetnewexpr(struct kreq *r)
-{
-	struct expr	*expr;
-	struct kjsonreq	 req;
-
-	expr = db_expr_get(0);
-	assert(NULL != expr);
-	http_open(r, KHTTP_200);
-	khttp_body(r);
-	kjson_open(&req, r);
-	kjson_obj_open(&req);
-	kjson_putintp(&req, "adminflags", db_admin_get_flags());
-	json_putexpr(&req, expr, 1);
-	kjson_obj_close(&req);
-	kjson_close(&req);
-	db_expr_free(expr);
 }
 
 static void
@@ -606,20 +557,43 @@ senddogetexpr(struct kreq *r)
 	struct hghstor	 hgh;
 	size_t		 gamesz, round;
 
-	memset(&hgh, 0, sizeof(struct hghstor));
-
-	if (NULL == (expr = db_expr_get(1))) {
-		http_open(r, KHTTP_409);
-		khttp_body(r);
-		return;
-	}
-
 	http_open(r, KHTTP_200);
 	khttp_body(r);
 
+	expr = db_expr_get(0);
+	assert(NULL != expr);
+
+	if (ESTATE_NEW == expr->state) {
+		/*
+		 * If the experiment is brand new, we don't need to get
+		 * anything for it.
+		 * FIXME: technically, all we should be sending out is
+		 * the experiment state (expr.state): the rest is bleed.
+		 */
+		kjson_open(&req, r);
+		kjson_obj_open(&req);
+		json_putexpr(&req, expr, 0);
+		kjson_putintp(&req, "adminflags", 
+			db_admin_get_flags());
+		kjson_obj_close(&req);
+		kjson_close(&req);
+		db_expr_free(expr);
+		return;
+	}
+
+	/*
+	 * The experiment has been started and is thus associated with
+	 * all of its data.
+	 * The remainder switches on whether the experiment has started
+	 * the play sequence (expr.round >= 0) or has finished.
+	 */
+	memset(&hgh, 0, sizeof(struct hghstor));
+
 	kjson_open(&req, r);
 	kjson_obj_open(&req);
+
 	json_putexpr(&req, expr, 1);
+	kjson_putintp(&req, "adminflags", db_admin_get_flags());
 
 	if (expr->round >= 0)
 		json_puthistory(&req, 1, expr, NULL);
@@ -1787,9 +1761,6 @@ main(void)
 	case (PAGE_DOGETHISTORY):
 		senddogethistory(&r);
 		break;
-	case (PAGE_DOGETNEWEXPR):
-		senddogetnewexpr(&r);
-		break;
 	case (PAGE_DOLOADGAMES):
 		senddoloadgames(&r);
 		break;
@@ -1828,12 +1799,6 @@ main(void)
 		break;
 	case (PAGE_DOWIPEQUIET):
 		senddowipe(&r, 0);
-		break;
-	case (PAGE_HOME):
-		if ( ! db_expr_checkstate(ESTATE_NEW))
-			sendcontent(&r, CNTT_HTML_HOME_STARTED);
-		else
-			sendcontent(&r, CNTT_HTML_HOME_NEW);
 		break;
 	case (PAGE_INDEX):
 		send303(&r, HTURI "/adminlogin.html", PAGE__MAX, 1);
