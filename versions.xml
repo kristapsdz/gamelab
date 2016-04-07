@@ -593,6 +593,9 @@
 		<aside>
 			<p>
 				Have the assignment time of Mechanical Turk players be set by the player's number of rounds, not the total.
+				Considerably clean up the experimenter interface internals, though there should be no (or very little, beyond
+				polish) visible difference to experimenters.
+				Also focus on using "experimenter" instead of "administrator".
 			</p>
 		</aside>
 	</article>

@@ -47,7 +47,7 @@
 						</ul>
 					</li>
 					<li>
-						<a href="#administration">Administration</a>
+						<a href="#administration">Experimenters</a>
 						<ul>
 							<li><a href="#createexperiments">Creating Experiments</a></li>
 							<li><a href="#runningexperiments">Running Experiments</a></li>
@@ -275,7 +275,7 @@
 						awarded and their lottery ticket allotment.
 					</p>
 					<p>
-						The experimenter may then trigger the lottery from the administration console.
+						The experimenter may then trigger the lottery from the console.
 						(Experiments may also run without a lottery.)
 						This consists of seeding a deterministic random number generator with a given value.
 						Each of these values is mapped into the lottery tickets to choose a winner.
@@ -350,14 +350,14 @@
 					</header>
 					<p>
 						The backend of <span class="nm">gamelab</span> is a <a href="http://learnbchs.org">BCHS</a>
-						system consisting of two compiled CGI programs: one for the administrator, one for participants.
+						system consisting of two compiled CGI programs: one for the experimenter, one for participants.
 						These are small ISO C applications linking to a number of open source libraries.
 						Consult the <a href="#deploy">Deployment</a> section for how to install these libraries.
 					</p>
 					<p>
 						<span class="nm">Gamelab</span> has been run on OpenBSD with httpd and the historical Apache,
 						Mac OS X with Apache2, and Linux with Apache.
-						Administrators are not encouraged to use Apache2 since it disallows long-running child processes
+						System administrators are not encouraged to use Apache2 since it disallows long-running child processes
 						of the CGI scripts.
 						Such processes are used in several circumstances.
 					</p>
@@ -445,7 +445,7 @@
 					In order to use <span class="nm">gamelab</span>, you'll need to download, configure, and install
 					it&mdash;just like any piece of software.
 					If a system administrator has already installed the server and given you the web address for its
-					laboratory and administrative interfaces, jump down to the <a href="#administration">Administration</a>
+					laboratory and experimenter interfaces, jump down to the <a href="#administration">Experimenters</a>
 					section.
 				</p>
 				<p>
@@ -704,7 +704,7 @@
 							The writable database file itself, installed into <a
 								href="#datadir"><code>DATADIR</code></a>.
 							This is initialised to the defaults described in the <a
-								href="#administration">Administration</a> section.
+								href="#administration">Experimenters</a> section.
 						</li>
 					</ul>
 					<p>
@@ -741,17 +741,17 @@
 						</li>
 					</ul>
 					<p>
-						Once you've deployed your system, you can test it by going to the administration site.
+						Once you've deployed your system, you can test it by going to the experimenters site.
 					</p>
 				</section>
 			</section>
 			<section id="administration">
 				<header>
 					<a href="#"><i class="fa fa-angle-up fa-fw"></i></a>
-					<h2>Administration</h2>
+					<h2>Experimenters</h2>
 				</header>
 				<p>
-					In this section, I describe how to administer the <span class="nm">gamelab</span> system.
+					In this section, I describe how to create experiments on the <span class="nm">gamelab</span> system.
 					I assume that you've just installed it following the <a href="#installation">Installation</a> section or
 					that your system administrator has done so.
 				</p>
@@ -772,7 +772,7 @@
 						<h3>Creating Experiments</h3>
 					</header>
 					<p>
-						Begin by accessing the administrator URL with your browser.
+						Begin by accessing the experimenter URL with your browser.
 						This will usually look like <span class="url">http://foo.com/cgi-bin/admin</span>, but it
 						depends on how your system administrator has configured the system.
 						You will be taken to a page prompting for an e-mail and password.
@@ -787,10 +787,10 @@
 						left-hand corner, then selecting <q>Logout</q>.
 					</p>
 					<p>
-						The first thing you should do upon logging in is change the administrator e-mail address and
+						The first thing you should do upon logging in is change the experimenter e-mail address and
 						password using the <q>Change Password</q> and <q>Change E-mail</q> sections of the
-						administratino console.
-						Set the administrator e-mail to be your own e-mail address and the password to something fairly
+						experimenter console.
+						Set the experimenter e-mail to be your own e-mail address and the password to something fairly
 						complicated.
 						You'll be logged out&mdash;and must log back in&mdash;after each step.
 						Make sure that no participants will be able to guess (or know) your credentials!
@@ -946,8 +946,6 @@
 					</header>
 					<p>
 						Once you've deployed your experiment, you must now administer it.
-						For the time being, there's very little in the way of <span class="nm">gamelab</span>
-						administration.
 						You can enable and disable participants, reset participant passwords, and reconfigure your
 						experimenter credentials.
 						You can also review some statistics on the current experiment status.
@@ -1023,7 +1021,7 @@
 						server.
 						We <strong>strongly</strong> suggest that you use the sandbox server a few times to make sure
 						that your HIT posts as you wish it to.
-						If there are errors, you'll be notified in the administrative panel.
+						If there are errors, you'll be notified of them.
 					</p>
 					<p>
 						<strong>Note</strong>: when Mechanical Turk workers join the system, their session information
@@ -1062,9 +1060,9 @@
 					At this time, <span class="nm">gamelab</span> doesn't have any special functionality for
 					analysing played (or in-flight) experiments.
 					You can, however, directly access the <a href="http://sqlite.org">SQLite</a> game database by
-					backing up on the administrative console.
-					This will e-mail a redacted database to the administrator.
-					The redacted bits consist of user and administrator e-mail passwords.
+					backing up on the experimenter console.
+					This will e-mail a redacted database to the experimenter.
+					The redacted bits consist of user and experimenter e-mail passwords.
 					The database is in <a href="https://www.sqlite.org/wal.html">WAL</a> mode.
 				</p>
 				<section id="databaseschema">
@@ -1083,7 +1081,7 @@
 						<dt id="db-admin"><code>admin</code></dt>
 						<dd>
 							<p>
-								Administrator (a.k.a. experimenter) credentials.
+								Experimenter (a.k.a. administrator) credentials.
 								There is always one (and only one) row that exists, initialised to default
 								values.
 							</p>
@@ -1621,7 +1619,7 @@
 								</dd>
 								<dt id="db-sess-useragent"><var>useragent</var></dt>
 								<dd>
-									The user-agent as reported by the player's (or administrator's) browser.
+									The user-agent as reported by the player's (or experimenter's) browser.
 									Remember: these are easy to fake, so they shouldn't be taken as
 									authoritative, but suggestive.
 									Also note that this is set when the player first creates the session
@@ -1722,7 +1720,7 @@
 					constantly.
 				</p>
 				<p>
-					<strong>Note to administrators</strong>:
+					<strong>Note to experimenters</strong>:
 					in order to run a programmable experiment, you cannot use a <a href="#questionnaire">Questionnaire</a>,
 					as questions are free-form.
 					In theory, you could enable the questionnaire and have players play through it, then turn on their bots,
@@ -1774,7 +1772,7 @@
 						Do not flood the system with requests: be considerate!
 						Unless specifically stipulated by the experimenter, you are not rewarded for fast play.
 						Avoid re-connecting with anything less than 30&#8211;60 seconds between attempts, unless specifically
-						allowed by an administrator, or your bot may be banned from the experiment.
+						allowed by an experimenter, or your bot may be banned from the experiment.
 					</p>
 				</section>
 				<section id="resources">
@@ -2009,7 +2007,7 @@
 											<p>
 												An array of prior play for this game, indexed by round.
 												If this is set to an empty-length array, the
-												administrator might be prohibiting the display of
+												experimenter might be prohibiting the display of
 												history, or there may not yet be a history to display
 												given the current round number.
 											</p>

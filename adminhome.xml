@@ -3,7 +3,7 @@
 	<head>
 		<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
 		<meta charset="utf-8" /> 
-		<title>Gamelab Administration</title>
+		<title>Gamelab Experimenter</title>
 		<link rel="stylesheet" href="@HTURI@/adminhome.css" />
 		<link rel="stylesheet" href="@FONTURI@" />
 		<script src="@HTURI@/script.min.js"></script>
@@ -26,7 +26,7 @@
 		<section id="exprLoaded" class="noshow">
 			<header>
 				<a id="navButton" href="#" onclick="return(onNav(event));"><i class="fa fa-navicon"></i></a>
-				<h1>gamelab<span>admin</span></h1>
+				<h1>gamelab<span>control</span></h1>
 				<span id="exprCountdownGame">
 					Next round: <span id="exprCountdown"><i class="fa fa-spinner"></i></span>
 				</span>
@@ -243,7 +243,7 @@
 						</div>
 						<div>
 							Backing up involves creating a redacted copy of the database on disc.  If e-mail has been
-							configured, the back-up is then e-mailed to the administrator.
+							configured, the back-up is then e-mailed to the experimenter.
 						</div>
 						<fieldset>
 							<div class="input input-submit">
@@ -388,7 +388,7 @@
 						<div id="checkSmtpResults" class="noshow">
 							<div>
 								The following are your SMTP parameters.
-								Click <q>Send Test</q> to send a test message to the administrator account
+								Click <q>Send Test</q> to send a test message to the experimenter account
 								(<em>not</em> the <q>from address</q>!).
 							</div>
 							<fieldset>
