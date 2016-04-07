@@ -887,6 +887,8 @@ function loadExprSuccess(res)
 	doHide('statusExprLoading');
 	doUnhide('statusExprLoaded');
 
+	loadNewExprSuccess(res);
+
 	expr = res.expr;
 	currentRound = expr.round;
 
