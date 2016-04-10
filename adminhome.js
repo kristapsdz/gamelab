@@ -787,6 +787,31 @@ function loadGames()
  */
 function loadNewExprSuccess(res) 
 {
+	var	 i, list, sz;
+
+	list = document.getElementsByClassName('expr-shuffle');
+	for (i = 0, sz = list.length; i < sz; i++) 
+		res.expr.noshuffle ?
+			doHideNode(list[i]) :
+			doUnhideNode(list[i]);
+	list = document.getElementsByClassName('expr-noshuffle');
+	for (i = 0, sz = list.length; i < sz; i++) 
+		res.expr.noshuffle ?
+			doUnhdeNode(list[i]) :
+			doHideNode(list[i]);
+
+	list = document.getElementsByClassName('expr-admin');
+	for (i = 0, sz = list.length; i < sz; i++) 
+		doClearReplaceNode(list[i], res.expr.admin);
+
+	list = document.getElementsByClassName('expr-admin-link');
+	for (i = 0, sz = list.length; i < sz; i++) 
+		list[i].href = 'mailto:' + res.expr.admin;
+
+	list = document.getElementsByClassName('expr-admin-input');
+	for (i = 0, sz = list.length; i < sz; i++) 
+		list[i].value = res.expr.admin;
+
 	/*
 	 * FIXME.
 	 * Until we have a neater place to put this (e.g., a record of
@@ -897,10 +922,10 @@ function loadExprSuccess(res)
 	doClearReplace('statusExprPRound', (expr.round + 1));
 	doClearReplace('statusExprPMax', expr.rounds);
 	doClearReplace('statusExprPPmax', expr.prounds);
-	doClearReplace('statusExprMins', expr.minutes);
+	doClearReplace('statusExprMins', humanizeDuration(expr.minutes * 60 * 1000));
 	if (expr.roundpct > 0.0) {
 		doClearReplace('statusExprRoundpct', expr.roundpct);
-		doClearReplace('statusExprRoundmin', expr.roundmin);
+		doClearReplace('statusExprRoundmin', humanizeDuration(expr.roundmin * 60 * 1000));
 	}
 	if (res.lobbysize > 0) {
 		doUnhide('statusExprHasLobby');
@@ -1283,29 +1308,37 @@ function reTestSmtp()
 		null);
 }
 
-function doTestSmtpSuccess(resp)
+function testSmtpSuccess(resp)
 {
-	var results, mail;
 
-	try  { 
-		results = JSON.parse(resp);
-		mail = results.mail;
-	} catch (error) {
-		mail = 'unknown';
-	}
-
-	doClearReplace('checkSmtpButton', 'Send Test');
-	doClearReplace('testSmtpResultsMail', mail);
+	doUnhide('testSmtpBtn');
+	doHide('testSmtpPBtn');
 	doUnhide('testSmtpResults');
+}
+
+function testSmtpError(code)
+{
+
+	doUnhide('testSmtpBtn');
+	doHide('testSmtpPBtn');
+	if (403 === code)
+		logout();
+}
+
+function testSmtpSetup()
+{
+
+	doHide('testSmtpResults');
+	doHide('testSmtpResultsFail');
+	doHide('testSmtpBtn');
+	doUnhide('testSmtpPBtn');
 }
 
 function testSmtp() 
 {
 
 	sendQuery('@ADMINURI@/dotestsmtp.json', 
-		function() { doHide('testSmtpResults'); doClearReplace('checkSmtpButton', 'Mailing test...'); },
-		doTestSmtpSuccess, 
-		null);
+		testSmtpSetup, testSmtpSuccess, testSmtpError);
 }
 
 function changeInstr(form)
@@ -1452,7 +1485,7 @@ function seturls()
 
 function loadallSuccess(resp)
 {
-	var res;
+	var res, list, i;
 	
 	try  { 
 		res = JSON.parse(resp);
@@ -1463,7 +1496,11 @@ function loadallSuccess(resp)
 	doUnhide('exprLoaded');
 	doHide('exprLoading');
 
+	list = document.getElementsByClassName('only-started');
+
 	if (0 === res.expr.state) {
+		for (i = 0; i < list.length; i++)
+			doHideNode(list[i]);
 		loadNewGames();
 		loadNewPlayers();
 		loadSmtp();
@@ -1471,6 +1508,8 @@ function loadallSuccess(resp)
 		loadExprSetup();
 		loadNewExprSuccess(res);
 	} else {
+		for (i = 0; i < list.length; i++)
+			doUnhideNode(list[i]);
 		loadGames();
 		loadPlayers();
 		loadSmtp();

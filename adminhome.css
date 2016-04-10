@@ -22,6 +22,12 @@ header				{ background-color: #ccc;
 				  background-color: #fff;
 				  padding-bottom: 1em;
 				  padding-top: 3.5em; }
+#exprLoaded input[type=radio]	{ display: none; }
+#exprLoaded input[type=radio] + *	
+				{ max-height: 0; 
+				  overflow: hidden; }
+#exprLoaded input[type=radio]:checked + *
+				{ max-height: 1000em; }
 #exprLoading			{ flex: 1;
 				  background-color: #666;
 				  color: #fff;
@@ -34,6 +40,8 @@ header				{ background-color: #ccc;
 #exprLoading > * > *		{ display: table-cell;
 				  vertical-align: middle; }
 #rolls				{ margin-top: 1em; }
+#rolls > section		{ background-color: #efefef; 
+				  padding: 8pt; }
 header > *			{ display: table-cell; 
 				  padding: 0.5ex 1ex;
 				  text-align: center;
@@ -46,11 +54,14 @@ header a			{ color: #222; }
 				  border: none;
 				  top: 100%; 
 				  left: 0;}
-#nav a				{ display: block;
+#nav > *			{ cursor: pointer; 
+				  display: block;
 				  padding: 1ex;
-			  	  color: #222; }
+				  color: #222; }
+#nav > *.noshow			{ display: none; }
 #nav				{ position: absolute;
 				  top: 1px;
+				  text-align: left;
 				  left: 0;
 				  border-bottom-right-radius: 1ex;
 				  border-bottom-left-radius: 1ex;
@@ -62,13 +73,13 @@ header a			{ color: #222; }
 h1				{ margin: 0; 
 				  font-size: 20pt; }
 h2				{ font-size: 14pt; }
-h3 				{ cursor: pointer; 
+h3				{ font-size: inherit; }
+h3.rolled, h3.unrolled		{ cursor: pointer; 
 				  margin: 0;
 				  position: relative;
 				  padding: 6pt;
 				  color: #ccc;
-				  background-color: #555;
-			 	  font-size: inherit; }
+				  background-color: #555; }
 #loadPlayers, 
 #loadNewPlayers, 
 #loadGames 			{ display: table; 
@@ -189,6 +200,7 @@ fieldset			{ display: table;
 				  border: 0; }
 span.inputheader		{ color: #666; }
 div.input			{ display: table-row; }
+div.input.noshow		{ display: none; }
 div.input >*			{ display: table-cell; 
 				  background-color: #ddd;
 				  padding: 1ex 1ex;
@@ -285,6 +297,7 @@ div.input input[type=time]	{ width: 20ex; }
 .seconds, .error		{ color: red;
 				  font-weight: bolder; }
 #mturkbonusesButton		{ margin-top: 4pt; }
+.smallview			{ display: none; }
 @media only screen and (max-width: 800px), only screen and (max-device-width: 800px) {
 	article			{ padding-left: 10%; 
 			  	  padding-right: 10%; }
@@ -310,6 +323,6 @@ div.input input[type=time]	{ width: 20ex; }
 	div.input input[type=file],
 	div.input input[type=url]	
 				{ width: 100%; }
-	h1 span			{ font-size: 10pt; 
-				  padding-left: 0ex; }
+	span.smallview		{ display: inline; }
+	span.bigview		{ display: none; }
 }
