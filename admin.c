@@ -728,21 +728,10 @@ senddochangemail(struct kreq *r)
 static void
 senddotestsmtp(struct kreq *r)
 {
-	char		*mail;
-	struct kjsonreq	 req;
 
-	mail = db_admin_get_mail();
-
+	sleep(2);
 	http_open(r, KHTTP_200);
-
 	khttp_body(r);
-	kjson_open(&req, r);
-	kjson_obj_open(&req);
-	kjson_putstringp(&req, "mail", mail);
-	kjson_obj_close(&req);
-	kjson_close(&req);
-	free(mail);
-
 	if (0 == doublefork(r)) {
 		mail_test();
 		exit(EXIT_SUCCESS);
@@ -1541,7 +1530,8 @@ senddowinners(struct kreq *r)
 	size_t		 gamesz;
 	int		 rc;
 
-	if (kpairbad(r, KEY_WINNERS) || kpairbad(r, KEY_WINSEED)) {
+	if (kpairbad(r, KEY_WINNERS) || 
+	    kpairbad(r, KEY_WINSEED)) {
 		http_open(r, KHTTP_400);
 		khttp_body(r);
 		return;
