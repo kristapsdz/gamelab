@@ -114,6 +114,7 @@ HTMLS	 = adminhome.html \
 	   privacy.html
 JSMINS   = adminhome.min.js \
 	   adminlogin.min.js \
+	   humanize-duration.min.js \
 	   playerautoadd.min.js \
 	   playerhome.min.js \
 	   playerlobby.min.js \
