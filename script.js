@@ -142,14 +142,20 @@ function doClearReplaceMarkup(name, str)
 	return(e);
 }
 
-function doClearReplace(name, str) 
+function doClearReplaceNode(node, str) 
 {
 	var e;
 
-	if (null !== (e = doClearNode(document.getElementById(name))))
+	if (null !== (e = doClearNode(node)))
 		e.appendChild(document.createTextNode(str));
 
 	return(e);
+}
+
+function doClearReplace(name, str) 
+{
+
+	return(doClearReplaceNode(document.getElementById(name), str));
 }
 
 function doValueClass(cls, str)
