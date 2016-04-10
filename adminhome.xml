@@ -11,7 +11,7 @@
 		<script src="@HTURI@/humanize-duration.min.js"></script>
 		<script src="@HTURI@/flotr2.min.js"></script>
 	</head>
-	<body onload="loadall();" onclick="onNavUp();">
+	<body onload="loadall();">
 		<!-- Show this before the login has occurred. -->
 		<section id="exprLoading">
 			<div>
@@ -26,52 +26,57 @@
 		<!-- Now we know we've been logged in. -->
 		<section id="exprLoaded" class="noshow">
 			<header>
-				<a id="navButton" href="#" onclick="return(onNav(event));"><i class="fa fa-navicon"></i></a>
-				<h1>gamelab<span class="bigview">control</span><span class="smallview">ctrl</span></h1>
-				<span id="exprCountdownGame">
-					Next round: <span id="exprCountdown"><i class="fa fa-spinner"></i></span>
-				</span>
-				<div id="navParent">
-					<nav id="nav">
-						<label class="only-started" for="toggle-status">
-							<i class="fa fa-fw fa-bar-chart"></i> 
-							Status
+				<div class="table">
+					<div>
+						<label for="toggle-nav">
+							<input type="checkbox" id="toggle-nav" name="toggle-nav" class="toggler" />
+							<nav>
+								<label class="only-started" for="toggle-status">
+									<i class="fa fa-fw fa-bar-chart"></i> 
+									Status
+								</label>
+								<label class="only-new" for="toggle-status">
+									<i class="fa fa-fw fa-bar-chart"></i> 
+									Configure
+								</label>
+								<label class="only-started" for="toggle-games">
+									<i class="fa fa-fw fa-table"></i> 
+									Games
+								</label>
+								<label for="toggle-mailaddr">
+									<i class="fa fa-fw fa-envelope-o"></i> 
+									E-mail
+									<i id="checkChangeEmail" class="fa fa-spinner"></i>
+								</label>
+								<label for="toggle-smtp">
+									<i class="fa fa-fw fa-database"></i> 
+									SMTP
+									<i id="checkSmtpLoad2" class="fa fa-spinner"></i>
+								</label>
+								<label for="toggle-password">
+									<i class="fa fa-fw fa-lock"></i> 
+									Password
+									<i id="checkChangePass" class="fa fa-spinner"></i>
+								</label>
+								<label class="only-started" for="toggle-players">
+									<i class="fa fa-fw fa-user"></i> 
+									Participants
+								</label>
+								<a href="@ADMINURI@/dologout.html">
+									<i class="fa fa-fw fa-sign-out"></i> 
+									Logout
+								</a>
+							</nav>
+							<i class="fa fa-navicon"></i>
 						</label>
-						<label class="only-new" for="toggle-status">
-							<i class="fa fa-fw fa-bar-chart"></i> 
-							Configure
-						</label>
-						<label class="only-started" for="toggle-games">
-							<i class="fa fa-fw fa-table"></i> 
-							Games
-						</label>
-						<label for="toggle-mailaddr">
-							<i class="fa fa-fw fa-envelope-o"></i> 
-							E-mail
-							<i id="checkChangeEmail" class="fa fa-spinner"></i>
-						</label>
-						<label for="toggle-smtp">
-							<i class="fa fa-fw fa-database"></i> 
-							SMTP
-							<i id="checkSmtpLoad2" class="fa fa-spinner"></i>
-						</label>
-						<label for="toggle-password">
-							<i class="fa fa-fw fa-lock"></i> 
-							Password
-							<i id="checkChangePass" class="fa fa-spinner"></i>
-						</label>
-						<label class="only-started" for="toggle-players">
-							<i class="fa fa-fw fa-user"></i> 
-							Participants
-						</label>
-						<a href="@ADMINURI@/dologout.html">
-							<i class="fa fa-fw fa-sign-out"></i> 
-							Logout
-						</a>
-					</nav>
+						<h1>gamelab<span class="bigview">control</span><span class="smallview">ctrl</span></h1>
+						<span id="exprCountdownGame">
+							Next round: <span id="exprCountdown"><i class="fa fa-spinner"></i></span>
+						</span>
+					</div>
 				</div>
 			</header>
-			<input type="radio" name="view-toggle" id="toggle-games" />
+			<input type="radio" class="toggler" name="view-toggle" id="toggle-games" />
 			<article id="seeGameSection">
 				<h3>
 					Experiment games
@@ -90,7 +95,7 @@
 					</ul>
 				</div>
 			</article>
-			<input type="radio" name="view-toggle" id="toggle-mailaddr" />
+			<input type="radio" class="toggler" name="view-toggle" id="toggle-mailaddr" />
 			<article id="changeMailSection">
 				<h3>
 					Experimenter e-mail address
@@ -156,7 +161,7 @@
 					</div>
 				</fieldset>
 			</article>
-			<input type="radio" name="view-toggle" id="toggle-smtp" />
+			<input type="radio" class="toggler" name="view-toggle" id="toggle-smtp" />
 			<article id="changeSmtpSection">
 				<h3>
 					SMTP server
@@ -252,10 +257,10 @@
 				</div>
 			</article>
 			<!-- The "see player" section for started experiments. -->
-			<input type="radio" name="view-toggle" id="toggle-players" />
+			<input type="radio" class="toggler" name="view-toggle" id="toggle-players" />
 			<article id="seePlayerSection">
 				<h3>
-					Experiment Participants
+					Experiment participants
 				</h3>
 				<div>
 					Participants in your experiment.
@@ -359,7 +364,7 @@
 						href="@HTURI@/playerautoadd.html">@HTURI@/playerautoadd.html</a> in order to log in.
 				</p>
 			</article>
-			<input type="radio" name="view-toggle" id="toggle-password" checked="checked" />
+			<input type="radio" class="toggler" name="view-toggle" id="toggle-password" />
 			<article id="changePassSection">
 				<h3>
 					Password
@@ -412,7 +417,7 @@
 					</fieldset>
 				</form>
 			</article>
-			<input type="radio" name="view-toggle" id="toggle-status" checked="checked" />
+			<input type="radio" class="toggler" name="view-toggle" id="toggle-status" checked="checked" />
 			<section>
 				<article class="top" id="statusGraphs">
 					<div class="statusgraph" id="statusExprGraph"></div>
@@ -690,10 +695,11 @@
 						</section>
 						<section id="addGameSection">
 							<h3>
-								Experiment Games
+								1. Experiment games
 								<i id="checkGameLoad2" class="fa fa-spinner"></i>
 							</h3>
 							<p>
+								To run an experiment, you'll need at least normal-form game.
 								The following are your games.
 								To delete a game, click the <i class="fa fa-remove"></i> symbol alongside.
 							</p>
@@ -703,9 +709,10 @@
 								</ul>
 							</div>
 							<p>
-								You may add games by specifying a name and payoffs.
-								The name is never shown to participants.
-								Payoffs must follow the usual top-left to bottom-right order, one payoff per player role (row player first).
+								You may add games by specifying dimensions (rows, then columns), a name (shown
+								only to you) and payoffs.
+								Payoffs follow the usual top-left to bottom-right order, one payoff per player
+								role (row player first).
 							</p>
 							<div class="error noshow" id="addGameErrSystem">
 								An unexpected system error occurred.
@@ -736,14 +743,14 @@
 									</div>
 									<div class="input input-submit">
 										<i class="fa fa-fw fa-check"></i>
-										<input id="addGameSubmit" type="submit" value="Submit" />
+										<input id="addGameSubmit" type="submit" value="Add game" />
 									</div>
 								</fieldset>
 							</form>
 						</section>
 						<section id="addPlayerSection">
 							<h3>
-								Experiment Participants
+								2. Experiment participants
 								<i id="checkPlayersLoad2" class="fa fa-spinner"></i>
 							</h3>
 							<p>
@@ -810,7 +817,7 @@
 						</section>
 						<section id="startExprSection">
 							<h3>
-								Experiment Parameters
+								3. Experiment parameters
 							</h3>
 							<p>
 								Commit your experiment parameters and start here.
