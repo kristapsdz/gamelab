@@ -335,6 +335,11 @@
 						The path to the icon configuration may be provided during compilation, and defaults to the on-line repository.
 					</p>
 					<p>
+						A copy of
+						<a href="https://github.com/EvanHahn/HumanizeDuration.js">HumanizeDuration.js</a> is also
+						bundled with the system for displaying readable time durations.
+					</p>
+					<p>
 						The user interface also makes use of cookies to store your session materials.
 						<span class="nm">Gamelab</span> cookies themselves don't store any identifiable material: they
 						store only the server session identifier and a random number to prevent sharing of session
