@@ -4,8 +4,8 @@
 		<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
 		<meta charset="utf-8" /> 
 		<title>Gamelab Experimenter</title>
-		<link rel="stylesheet" href="@HTURI@/adminhome.css" />
 		<link rel="stylesheet" href="@FONTURI@" />
+		<link rel="stylesheet" href="@HTURI@/adminhome.css" />
 		<script src="@HTURI@/script.min.js"></script>
 		<script src="@HTURI@/adminhome.min.js"></script>
 		<script src="@HTURI@/humanize-duration.min.js"></script>
@@ -33,9 +33,13 @@
 				</span>
 				<div id="navParent">
 					<nav id="nav">
-						<label for="toggle-status">
+						<label class="only-started" for="toggle-status">
 							<i class="fa fa-fw fa-bar-chart"></i> 
 							Status
+						</label>
+						<label class="only-new" for="toggle-status">
+							<i class="fa fa-fw fa-bar-chart"></i> 
+							Configure
 						</label>
 						<label class="only-started" for="toggle-games">
 							<i class="fa fa-fw fa-table"></i> 
@@ -293,28 +297,31 @@
 						</fieldset>
 					</form>
 				</div>
-				<div>
-					Reset all participants' passwords by clicking the button.
-					This will not contact the participants: it will only reset the password.
-					Reconfiguring involves setting the password on newly-added participants (and e-mailing them, if a
-					e-mail server has been specified) or participants whose prior configuration failed due to a bad
-					e-mail server.
+				<p>
+					Reset all participants' passwords by clicking the button: this will set each participant's password to a
+					random value and mark him or her as having a new password.
+					If you choose to resend, you'll send passwords to participants with new or failed passwords (those that
+					the system was unable to mail out earlier due to a failed SMTP server).
+				</p>
+				<div class="buttons">
+					<div>
+						<div class="input input-submit">
+							<i class="fa fa-refresh"></i>
+							<button type="button" id="resetPasswordsButton" onclick="resetPasswords();">Reset</button>
+						</div>
+					</div>
+					<div>
+						<div class="input input-submit">
+							<i class="fa fa-send"></i>
+							<button type="button" id="recheckSmtpButton" onclick="reTestSmtp();">Resend</button>
+						</div>
+					</div>
 				</div>
-				<fieldset>
-					<div class="input input-submit">
-						<i class="fa fa-send"></i>
-						<button type="button" id="resetPasswordsButton" onclick="resetPasswords();">Reset passwords</button>
-					</div>
-					<div class="input input-submit">
-						<i class="fa fa-send"></i>
-						<button type="button" id="recheckSmtpButton" onclick="reTestSmtp();">Reconfigure</button>
-					</div>
-				</fieldset>
-				<div>
+				<p>
 					Add participants to the game using this form.
 					Participants consist of e-mail addresses separated by white-space (newlines, tabs, spaces, whatever).
 					When you're finished adding all participants, you must reconfigure.
-				</div>
+				</p>
 				<form action="@ADMINURI@/doaddplayers.json" method="post" id="addPlayers" onsubmit="return(addPlayers(this));">
 					<fieldset>
 						<div class="input">
@@ -328,11 +335,11 @@
 					</fieldset>
 					<input type="hidden" id="autoadd3" name="autoadd" value="0" />
 				</form>
-				<div>
+				<p>
 					If you set the <q>Allow Captive Participants</q> toggle, then participants may add themselves.
 					Captive participants will not be e-mailed when the experiment is started, nor will they be remembered
 					when the experiment is wiped.
-				</div>
+				</p>
 				<form action="@ADMINURI@/doaddplayers.json" method="post" id="addPlayers2" onsubmit="return(addPlayers2(this));">
 					<fieldset>
 						<div class="input input-check">
@@ -346,11 +353,11 @@
 						<input type="hidden" id="autoadd2" name="autoadd" value="0" />
 					</fieldset>
 				</form>
-				<div id="captiveGame2">
+				<p id="captiveGame2">
 					<strong>Note</strong>: you have opted for a captive experiment.
 					To enter the captive portal, your participants will need to access <a
 						href="@HTURI@/playerautoadd.html">@HTURI@/playerautoadd.html</a> in order to log in.
-				</div>
+				</p>
 			</article>
 			<input type="radio" name="view-toggle" id="toggle-password" checked="checked" />
 			<article id="changePassSection">
@@ -605,9 +612,9 @@
 					<section id="rolls">
 						<section id="exprControl">
 							<h3>
-								Experiment Control
+								Experiment control
 							</h3>
-							<div>
+							<p>
 								Control the progress of your experiment here.  <strong>Warning</strong>: this may affect the
 								state of your experiment, so be careful!  To perform any action, first
 								<span id="wipeExprCheckboxBox">
@@ -615,84 +622,91 @@
 									<label for="wipeExprCheckbox">verify</label>
 								</span>
 								that you're serious about doing this.
-							</div>
-							<div>
+							</p>
+							<p>
 								Backing up involves creating a redacted copy of the database on disc.  If e-mail has been
 								configured, the back-up is then e-mailed to the experimenter.
-							</div>
+							</p>
 							<fieldset>
 								<div class="input input-submit">
 									<i class="fa fa-fw fa-database"></i>
 									<button type="button" id="backupButton" onclick="backup();" disabled="disabled">Backup Experiment</button>
 								</div>
 							</fieldset>
-							<div>
-								When you wipe, the experiment is backed-up, conditionally e-mailed, then its data wiped (though
-								some components, such as the games, remain).  To hard-wipe is the same as wiping, but the
-								experiment is neither backed up nor e-mailed.
+							<p>
+								When you reset, the experiment is backed-up, conditionally e-mailed, then its data wiped (though
+								some components, such as the games, remain).  
+								To hard-reset is the same as resetting, but the experiment is neither backed up nor e-mailed.
+							</p>
+							<div class="buttons">
+								<div>
+									<div class="input input-submit">
+										<i class="fa fa-fw fa-recycle"></i>
+										<button type="button" id="wipeExprButton" onclick="wipeExpr();" disabled="disabled">Reset</button>
+									</div>
+								</div>
+								<div>
+									<div class="input input-submit">
+										<i class="fa fa-fw fa-refresh"></i>
+										<button type="button" id="wipeCleanExprButton" onclick="wipeCleanExpr();" disabled="disabled">Hard-reset</button>
+									</div>
+								</div>
 							</div>
-							<fieldset>
-								<div class="input input-submit">
-									<i class="fa fa-fw fa-recycle"></i>
-									<button type="button" id="wipeExprButton" onclick="wipeExpr();" disabled="disabled">Wipe Experiment</button>
-								</div>
-								<div class="input input-submit">
-									<i class="fa fa-fw fa-refresh"></i>
-									<button type="button" id="wipeCleanExprButton" onclick="wipeCleanExpr();" disabled="disabled">Hard-Wipe Experiment</button>
-								</div>
-							</fieldset>
-							<div>
+							<p>
 								Lastly, you may advance the current round of your experiment or advance to the last round,
 								effectively ending the experiment.  (The current round may not be the round you're
 								reading&#8212;refresh this page to double-check.)
+							</p>
+							<div class="buttons">
+								<div>
+									<div class="input input-submit">
+										<i class="fa fa-fw fa-arrow-circle-o-right"></i>
+										<button type="button" id="advanceButton" onclick="advanceRound();" disabled="disabled">Advance Round</button>
+									</div>
+								</div>
+								<div>
+									<div class="input input-submit">
+										<i class="fa fa-fw fa-arrow-circle-o-right"></i>
+										<button type="button" id="advanceEndButton" onclick="advanceEndRound();" disabled="disabled">Advance To Last</button>
+									</div>
+								</div>
 							</div>
-							<fieldset>
-								<div class="input input-submit">
-									<i class="fa fa-fw fa-arrow-circle-o-right"></i>
-									<button type="button" id="advanceButton" onclick="advanceRound();" disabled="disabled">Advance Round</button>
-								</div>
-								<div class="input input-submit">
-									<i class="fa fa-fw fa-arrow-circle-o-right"></i>
-									<button type="button" id="advanceEndButton" onclick="advanceEndRound();" disabled="disabled">Advance To Last Round</button>
-								</div>
-							</fieldset>
 							<p>
 								You can also fetch a copy of the <a href="@ADMINURI@/dogethistory.json">history JSON</a> or the
 								source for the current version of <span class="nm">gamelab</span>, version <a
 									href="http://www.kcons.eu/gamelab/snapshots/gamelab-@VERSION@.tgz">@VERSION@</a>.
 							</p>
-							<div id="wipeExprResults" class="noshow canclose">
-								<a href="#" class="close" onclick="doHideNode(this.parentNode); return false;">
-									<span class="fa-stack fa-lg">
-										<i class="fa fa-circle fa-stack-2x"></i>
-										<i class="fa fa-times fa-stack-1x fa-inverse"></i>
-									</span>
-								</a>
-								<p>
-									The database is being backed up and wiped.
-									Please wait a little bit, then reload.
-								</p>
+							<div id="wipeExprResults" class="noshow">
+								<div class="warning">
+									<div>
+										<div><i class="fa fa-exclamation-circle"></i></div>
+										<div>
+											The database is being backed up and wiped.
+											Please wait a little bit, then reload.
+										</div>
+									</div>
+								</div>
 							</div>
 						</section>
-						<section class="rolled" id="addGameSection">
-							<h3 onclick="unroll(this.firstChild, this.parentNode);"><i class="fa fa-fw fa-chevron-circle-right"></i> 
-								<span>Experiment Games</span>
+						<section id="addGameSection">
+							<h3>
+								Experiment Games
 								<i id="checkGameLoad2" class="fa fa-spinner"></i>
 							</h3>
-							<div>
+							<p>
 								The following are your games.
 								To delete a game, click the <i class="fa fa-remove"></i> symbol alongside.
-							</div>
+							</p>
 							<div>
 								<ul id="loadGames">
 									<li><i class="fa fa-spinner"></i></li>
 								</ul>
 							</div>
-							<div>
+							<p>
 								You may add games by specifying a name and payoffs.
 								The name is never shown to participants.
 								Payoffs must follow the usual top-left to bottom-right order, one payoff per player role (row player first).
-							</div>
+							</p>
 							<div class="error noshow" id="addGameErrSystem">
 								An unexpected system error occurred.
 							</div>
@@ -727,25 +741,25 @@
 								</fieldset>
 							</form>
 						</section>
-						<section class="rolled" id="addPlayerSection">
-							<h3 onclick="unroll(this.firstChild, this.parentNode);"><i class="fa fa-fw fa-chevron-circle-right"></i> 
-								<span>Experiment Participants</span>
+						<section id="addPlayerSection">
+							<h3>
+								Experiment Participants
 								<i id="checkPlayersLoad2" class="fa fa-spinner"></i>
 							</h3>
-							<div>
+							<p>
 								Participants in your experiment.
 								To delete a participant, just click the <i class="fa fa-remove"></i> symbol alongside.
 								Participants marked with <i class="fa fa-thumb-tack"></i> are captive.
-							</div>
+							</p>
 							<div>
 								<ul id="loadNewPlayers">
 									<li><i class="fa fa-spinner"></i></li>
 								</ul>
 							</div>
-							<div>
+							<p>
 								Add participants to the game using this form.
 								Participants consist of e-mail addresses separated by white-space (newlines, tabs, spaces, whatever).
-							</div>
+							</p>
 							<form action="@ADMINURI@/doaddplayers.json" method="post" id="addNewPlayers" onsubmit="return(addNewPlayers(this));">
 								<fieldset>
 									<div class="input">
@@ -760,13 +774,13 @@
 								<input type="hidden" id="autoadd4" name="autoadd" value="0" />
 								<input type="hidden" id="autoaddpreserve2" name="autoaddpreserve" value="0" />
 							</form>
-							<div>
+							<p>
 								If you set the <q>Allow Captive Participants</q> toggle, then participants may add themselves.
 								Captive participants will not be e-mailed when the experiment is started, nor will they be remembered
 								when the experiment is wiped.
 								If checked, <q>E-mail round advancement</q> will mail currently-playing non-captive participants a
 								note whenever the round advances.
-							</div>
+							</p>
 							<form action="@ADMINURI@/doaddplayers.json" method="post" id="addNewPlayers2" onsubmit="return(addNewPlayers2(this));">
 								<fieldset>
 									<div class="input input-check">
@@ -785,27 +799,27 @@
 									<input type="hidden" id="autoaddpreserve" name="autoaddpreserve" value="0" />
 								</fieldset>
 							</form>
-							<div id="captiveGame">
+							<p id="captiveGame">
 								<strong>Note</strong>: you have opted for a captive experiment.
 								To enter the captive portal, your participants will need to access <a
 									href="@HTURI@/playerautoadd.html">@HTURI@/playerautoadd.html</a> in order to log in.
 								They can do this <strong>at any time after now</strong>.
 								Once you start the experiment, captive mode will be disabled, but you can enable it again if you
 								wish to continue adding participants.
-							</div>
+							</p>
 						</section>
-						<section class="rolled" id="startExprSection">
-							<h3 onclick="unroll(this.firstChild, this.parentNode);"><i class="fa fa-fw fa-chevron-circle-right"></i> 
-								<span>Experiment Parameters</span>
+						<section id="startExprSection">
+							<h3>
+								Experiment Parameters
 							</h3>
-							<div>
+							<p>
 								Commit your experiment parameters and start here.
 								Once you start your experiment, you can't reconfigure.
 								Enter the <i class="fa fa-calendar"></i> start date and <i class="fa fa-clock-o"></i> time in
 								GMT (clamps to now), the <i class="fa fa-gear"></i> number of rounds (minimum 1), <i class="fa
 									fa-history"></i> minutes per round (minimum 1), and <i class="fa fa-pie-chart"></i> the percent of
 								participants per player role who, upon playing, will cause the round to advance (0 not to do so).
-							</div>
+							</p>
 							<div class="error">
 								<div class="noshow" id="startExprErrSystem">
 									An unexpected error occurred.

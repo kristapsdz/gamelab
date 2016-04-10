@@ -100,9 +100,6 @@ h3.rolled, h3.unrolled		{ cursor: pointer;
 #loadGames .table		{ border-left: thin solid #c60; 
 				  display: inline-table; }
 h3:hover 			{ background-color: #666; }
-h3 span				{ color: #fff; }
-h3 i:last-child			{ position: absolute;
-				  right: 0.5ex; }
 article				{ padding: 0 20% 0 20%; }
 .top				{ text-align: center; }
 ul				{ list-style-type: none; }
@@ -199,9 +196,11 @@ fieldset			{ display: table;
 				  border-spacing: 0 1ex;
 				  border: 0; }
 span.inputheader		{ color: #666; }
-div.input			{ display: table-row; }
-div.input.noshow		{ display: none; }
-div.input >*			{ display: table-cell; 
+.input				{ display: table-row; }
+.buttons > div > .input		{ display: table; }
+.buttons > div			{ display: inline-block; }
+.input.noshow			{ display: none; }
+.input >*			{ display: table-cell; 
 				  background-color: #ddd;
 				  padding: 1ex 1ex;
 				  border: none;
@@ -211,58 +210,58 @@ div.input >*			{ display: table-cell;
 				  border-top: thin solid #ccc;
 				  border-bottom: thin solid #ccc;
 				  vertical-align: middle; }
-div.input-check >*:last-child	{ background-color: #eee; }
-div.input >*:last-child		{ border-right: thin solid #ccc; 
+.input-check >*:last-child	{ background-color: #eee; }
+.input >*:last-child		{ border-right: thin solid #ccc; 
 				  border-bottom-right-radius: 0.5ex;
 				  border-top-right-radius: 0.5ex; }
-div.input >*:first-child	{ border-bottom-left-radius: 0.5ex;
+.input >*:first-child	{ border-bottom-left-radius: 0.5ex;
 				  border-top-left-radius: 0.5ex; }
-div.input i			{ text-align: center; 
+.input i			{ text-align: center; 
 				  width: 1%; }
-div.input button,
-div.input textarea,
-div.input input			{ -webkit-appearance: none;
+.input button,
+.input textarea,
+.input input			{ -webkit-appearance: none;
 				  margin: 0;
 				  width: 99%;
 				  background-color: #fff;
 				  font-size: inherit;
 				  font-family: inherit;
 				  box-sizing: border-box; }
-div.input input[type=radio]	{ -webkit-appearance: radio; }
-div.input > div input		{ width: auto; }
-div.input > div			{ display: table; 
+.input input[type=radio]	{ -webkit-appearance: radio; }
+.input > div input		{ width: auto; }
+.input > div			{ display: table; 
 				  border-spacing: 0;
 				  background-color: #fff; 
 				  width: 95%; }
-div.input > div >*		{ display: table-row; }
-div.input > div >* >*		{ display: table-cell; 
+.input > div >*		{ display: table-row; }
+.input > div >* >*		{ display: table-cell; 
 				  line-height: 200%;
 				  vertical-align: baseline; }
-div.input input[readonly]	{ background-color: #ddd; }
-div.input-check >*		{ cursor: pointer; }
-div.input textarea		{ height: 10ex; }
-div.input textarea.bigtext	{ height: 30ex; }
-div.input-submit >*		{ background-color: #666; 
+.input input[readonly]	{ background-color: #ddd; }
+.input-check >*		{ cursor: pointer; }
+.input textarea		{ height: 10ex; }
+.input textarea.bigtext	{ height: 30ex; }
+.input-submit >*		{ background-color: #666; 
 				  color: #fff; 
 				  padding: 0.75ex;
 				  border-left: thin solid #000;
 				  border-top: thin solid #000;
 				  border-bottom: thin solid #000; }
-div.input-submit button,
-div.input-submit input[type=button],
-div.input-submit input		{ background-color: #333; 
+.input-submit button,
+.input-submit input[type=button],
+.input-submit input		{ background-color: #333; 
 				  text-align: left; }
-div.input-submit >*:last-child	{ border-right: thin solid #000; }
-div.input-submit button:active,
-div.input-submit input:active	{ background-color: #444; }
-div.input-submit button:hover,
-div.input-submit input:hover	{ color: #ddd; }
-div.input button,
-div.input input[type=button],
-div.input input[type=date],
-div.input input[type=submit]	{ width: auto; }
-div.input input[type=number]	{ width: 20ex; }
-div.input input[type=time]	{ width: 20ex; }
+.input-submit >*:last-child	{ border-right: thin solid #000; }
+.input-submit button:active,
+.input-submit input:active	{ background-color: #444; }
+.input-submit button:hover,
+.input-submit input:hover	{ color: #ddd; }
+.input button,
+.input input[type=button],
+.input input[type=date],
+.input input[type=submit]	{ width: auto; }
+.input input[type=number]	{ width: 20ex; }
+.input input[type=time]	{ width: 20ex; }
 .warning			{ display: table; 
 			 	  margin: 0.75em 0; }
 .warning > div			{ display: table-row; }
@@ -286,7 +285,7 @@ div.input input[type=time]	{ width: 20ex; }
 .advanced.showadv > p		{ display: block;
         			  margin-top: 0em; }
 .advanced.showadv > div		{ display: block; }
-.advanced.showadv > div.input	{ display: table-row; }
+.advanced.showadv > .input	{ display: table-row; }
 .advanced.showadv > :first-child 	
 				{ display: none; }
 .advanced.showadv 		{ border-top: thin solid #ccc; 
@@ -318,10 +317,10 @@ div.input input[type=time]	{ width: 20ex; }
 	h3			{ padding: 4pt; 
 				  font-size: inherit; }
 	footer			{ font-size: 10pt; }
-	div.input input[type=radio]
+	.input input[type=radio]
 				{ margin-right: 1ex; }
-	div.input input[type=file],
-	div.input input[type=url]	
+	.input input[type=file],
+	.input input[type=url]	
 				{ width: 100%; }
 	span.smallview		{ display: inline; }
 	span.bigview		{ display: none; }

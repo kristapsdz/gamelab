@@ -1485,7 +1485,7 @@ function seturls()
 
 function loadallSuccess(resp)
 {
-	var res, list, i;
+	var res, liststart, listnew, i;
 	
 	try  { 
 		res = JSON.parse(resp);
@@ -1496,11 +1496,14 @@ function loadallSuccess(resp)
 	doUnhide('exprLoaded');
 	doHide('exprLoading');
 
-	list = document.getElementsByClassName('only-started');
+	liststart = document.getElementsByClassName('only-started');
+	listnew = document.getElementsByClassName('only-new');
 
 	if (0 === res.expr.state) {
-		for (i = 0; i < list.length; i++)
-			doHideNode(list[i]);
+		for (i = 0; i < liststart.length; i++)
+			doHideNode(liststart[i]);
+		for (i = 0; i < listnew.length; i++)
+			doUnhideNode(listnew[i]);
 		loadNewGames();
 		loadNewPlayers();
 		loadSmtp();
@@ -1508,8 +1511,10 @@ function loadallSuccess(resp)
 		loadExprSetup();
 		loadNewExprSuccess(res);
 	} else {
-		for (i = 0; i < list.length; i++)
-			doUnhideNode(list[i]);
+		for (i = 0; i < liststart.length; i++)
+			doUnhideNode(liststart[i]);
+		for (i = 0; i < listnew.length; i++)
+			doHideNode(listnew[i]);
 		loadGames();
 		loadPlayers();
 		loadSmtp();
