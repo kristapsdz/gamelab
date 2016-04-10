@@ -74,53 +74,11 @@ h1				{ margin: 0;
 				  font-size: 20pt; }
 h2				{ font-size: 14pt; }
 h3				{ font-size: inherit; }
-h3.rolled, h3.unrolled		{ cursor: pointer; 
-				  margin: 0;
-				  position: relative;
-				  padding: 6pt;
-				  color: #ccc;
-				  background-color: #555; }
-#loadPlayers, 
-#loadNewPlayers, 
-#loadGames 			{ display: table; 
-				  padding: 0; }
-#loadPlayers li, 
-#loadNewPlayers li, 
-#loadGames li			{ display: table-row; }
-#loadPlayers li >*,
-#loadNewPlayers li >*,
-#loadGames li >*		{ display: table-cell; 
-				  padding: 0.5ex; }
-#loadPlayers li,
-#loadNewPlayers li,
-#loadGames li			{ margin: 0; 
-				  padding: 0; }
-#loadPlayers .table,
-#loadNewPlayers .table,
-#loadGames .table		{ border-left: thin solid #c60; 
-				  display: inline-table; }
-h3:hover 			{ background-color: #666; }
 article				{ padding: 0 20% 0 20%; }
 .top				{ text-align: center; }
 ul				{ list-style-type: none; }
-section.rolled,
-section.unrolled		{ border: thin solid #222; 
-				  box-shadow: 0 0 1px #666; 
-			  	  background-color: #e80;
-				  margin-bottom: 8pt; }
-section.rolled > div,
-section.unrolled > div		{ margin-top: 1em;
-				  margin-bottom: 1em; }
-section.rolled >*:not(h3) 	{ padding: 0; 
-				  max-height: 0; 
-				  margin: 0; 
-				  overflow: hidden; }
-section.unrolled >*:not(h3) 	{ max-height: 1000em; 
-				  margin-left: 1ex; 
-				  margin-right: 1ex; }
 .table				{ display: table; 
-				  width: 100%;
-				  margin: 1em 0; }
+				  border-spacing: 1em 0; }
 .table >*			{ display: table-row; }
 .table >* >*			{ display: table-cell; }
 .table-left-head		{ text-align: right; 
@@ -128,6 +86,10 @@ section.unrolled >*:not(h3) 	{ max-height: 1000em;
 				  white-space: nowrap;
 				  padding-right: 1ex;
 				  color: #444; }
+.table li			{ margin: 0; 
+				  padding: 0; }
+ul.table 			{ list-style-type: none; }
+h3:hover 			{ background-color: #666; }
 footer				{ text-align: center; 
 				  padding: 1em 0;
 				  font-size: 11pt;

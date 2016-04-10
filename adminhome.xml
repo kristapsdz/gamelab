@@ -85,7 +85,7 @@
 					randomised.
 				</p>
 				<div>
-					<ul id="loadGames2">
+					<ul id="loadGames2" class="table">
 						<li><i class="fa fa-spinner"></i></li>
 					</ul>
 				</div>
@@ -270,7 +270,7 @@
 					(If workers have a <i class="fa fa-check"></i>, they can receive their bonus.)
 				</div>
 				<div>
-					<ul id="loadPlayers">
+					<ul id="loadPlayers" class="table">
 						<li><i class="fa fa-spinner"></i></li>
 					</ul>
 				</div>
@@ -698,7 +698,7 @@
 								To delete a game, click the <i class="fa fa-remove"></i> symbol alongside.
 							</p>
 							<div>
-								<ul id="loadGames">
+								<ul id="loadGames" class="table">
 									<li><i class="fa fa-spinner"></i></li>
 								</ul>
 							</div>
@@ -752,7 +752,7 @@
 								Participants marked with <i class="fa fa-thumb-tack"></i> are captive.
 							</p>
 							<div>
-								<ul id="loadNewPlayers">
+								<ul id="loadNewPlayers" class="table">
 									<li><i class="fa fa-spinner"></i></li>
 								</ul>
 							</div>
