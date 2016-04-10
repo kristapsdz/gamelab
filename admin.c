@@ -729,7 +729,6 @@ static void
 senddotestsmtp(struct kreq *r)
 {
 
-	sleep(2);
 	http_open(r, KHTTP_200);
 	khttp_body(r);
 	if (0 == doublefork(r)) {
