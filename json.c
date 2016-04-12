@@ -88,7 +88,7 @@ json_instructions(size_t key, void *arg)
 		break;
 	case (TKEY_CONVERSION):
 		kjson_string_putdouble(c->r, 
-			c->expr->conversion);
+			c->expr->awsconvert);
 		break;
 	case (TKEY_GAMES):
 		kjson_string_putint(c->r, c->games);
@@ -297,14 +297,24 @@ json_putexpr(struct kjsonreq *r, const struct expr *expr, int admin)
 	kjson_putintp(r, "nohistory", EXPR_NOHISTORY & expr->flags);
 	kjson_putintp(r, "noshuffle", EXPR_NOSHUFFLE & expr->flags);
 	kjson_putintp(r, "absoluteround", ! (EXPR_RELATIVE & expr->flags));
-	kjson_putintp(r, "sandbox", EXPR_SANDBOX & expr->flags);
+	kjson_putintp(r, "sandbox", expr->awssandbox);
+	kjson_putintp(r, "awssandbox", expr->awssandbox);
 	kjson_putstringp(r, "lottery", expr->lottery);
-	kjson_putdoublep(r, "conversion", expr->conversion);
+	kjson_putdoublep(r, "conversion", expr->awsconvert);
+	kjson_putdoublep(r, "awsconvert", expr->awsconvert);
+	kjson_putdoublep(r, "awsreward", expr->awsreward);
 	if (admin) {
 		kjson_putstringp(r, "hitid", expr->hitid);
 		kjson_putstringp(r, "awsaccesskey", expr->awsaccesskey);
 		kjson_putstringp(r, "awssecretkey", expr->awssecretkey);
 		kjson_putstringp(r, "awserror", expr->awserror);
+		kjson_putstringp(r, "awsname", expr->awsname);
+		kjson_putstringp(r, "awsdesc", expr->awsdesc);
+		kjson_putstringp(r, "awskeys", expr->awskeys);
+		kjson_putstringp(r, "awslocale", expr->awslocale);
+		kjson_putintp(r, "awsworkers", expr->awsworkers);
+		kjson_putintp(r, "awswhitappr", expr->awswhitappr);
+		kjson_putintp(r, "awswpctappr", expr->awswpctappr);
 	}
 	kjson_putintp(r, "minutes", expr->minutes);
 	kjson_putstringp(r, "loginURI", expr->loginuri);

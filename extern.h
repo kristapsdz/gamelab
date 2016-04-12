@@ -44,16 +44,28 @@ struct	expr {
 	double		 roundpct; /* percent-based round advance */
 	int64_t		 roundmin; /* if percent-based, min minutes */
 	int64_t		 minutes; /* minutes per game play */
-	double		 conversion; /* points -> currency */
 	char		*loginuri; /* player login (email click) */
 	char		*instr; /* instruction markup */
 	char		*history; /* "fake" JSON history */
 	int64_t		 total; /* total winnings (>ESTATE_STARTED) */
 	int64_t		 autoadd; /* auto-adding players */
+
 	char		*hitid; /* mechanical turk id (or '') */
 	char		*awsaccesskey; /* AWS access key */
 	char		*awssecretkey; /* AWS secret key */
 	char		*awserror; /* if AWS contact had errors */
+
+	int64_t		 awsworkers;
+	char		*awsname;
+	char		*awsdesc;
+	char		*awskeys;
+	int64_t		 awssandbox;
+	double		 awsconvert;
+	double		 awsreward;
+	char		*awslocale;
+	int64_t		 awswhitappr;
+	int64_t		 awswpctappr;
+
 	int64_t		 autoaddpreserve; /* keep autoadd on start */
 	int64_t		 round; /* round (<0 initial, then >=0) */
 	char		*lottery; /* lottery amount (empty is none) */
@@ -216,10 +228,7 @@ void		  hmac_sha1(const unsigned char *, int,
 
 void		  mturk_bonus(const struct expr *, 
 			const struct player *, int64_t);
-void		  mturk_create(const char *, const char *, const char *,
-			const char *, int64_t, int64_t, int64_t, int, 
-			double, const char *, const char *, const char *,
-			int64_t, int64_t);
+void		  mturk_create(const struct expr *, const char *);
 
 void		  base64file(FILE *, size_t, 
 			int (*)(const char *, size_t, void *), 
@@ -265,11 +274,14 @@ size_t		 db_expr_round_count(const struct expr *,
 void		 db_expr_setautoadd(int64_t, int64_t);
 void		 db_expr_setinstr(const char *);
 void		 db_expr_setmailer(int64_t, int64_t);
+void		 db_expr_setmturk(const char *, const char *, int64_t,
+			const char *, const char *, const char *,
+			int64_t, double, double, const char *, 
+			int64_t, int64_t);
 int		 db_expr_start(int64_t, int64_t, int64_t, int64_t, 
 			int64_t, int64_t, int64_t, const char *, 
 			const char *, const char *, const char *, 
-			int64_t, double, int64_t,
-			const char *, const char *);
+			int64_t, int64_t);
 void		 db_expr_wipe(void);
 
 struct game	*db_game_alloc(const char *,

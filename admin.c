@@ -70,6 +70,7 @@ enum	page {
 	PAGE_DORESENDEMAIL,
 	PAGE_DORESETPASSWORDS,
 	PAGE_DOSETINSTR,
+	PAGE_DOSETMTURK,
 	PAGE_DOSTARTEXPR,
 	PAGE_DOTESTSMTP,
 	PAGE_DOWINNERS,
@@ -87,8 +88,13 @@ enum	key {
 	KEY_AWSKEYWORDS,
 	KEY_AWSNAME,
 	KEY_AWSREWARD,
+	KEY_AWSSANDBOX,
 	KEY_AWSSECRETKEY,
-	KEY_CONVERSION,
+	KEY_AWSWORKER_LOCALE,
+	KEY_AWSWORKER_HITAPPRV,
+	KEY_AWSWORKER_PCTAPPRV,
+	KEY_AWSWORKERS,
+	KEY_AWSCONVERSION,
 	KEY_DATE,
 	KEY_TIME,
 	KEY_ROUNDMIN,
@@ -119,7 +125,6 @@ enum	key {
 	KEY_PLAYERS,
 	KEY_QUESTIONNAIRE,
 	KEY_RELATIVE,
-	KEY_SANDBOX,
 	KEY_SERVER,
 	KEY_SESSCOOKIE,
 	KEY_SESSID,
@@ -129,10 +134,6 @@ enum	key {
 	KEY_USER,
 	KEY_WINNERS,
 	KEY_WINSEED,
-	KEY_WORKER_LOCALE,
-	KEY_WORKER_HITAPPRV,
-	KEY_WORKER_PCTAPPRV,
-	KEY_WORKERS,
 	KEY__MAX
 };
 
@@ -177,6 +178,7 @@ static	unsigned int perms[PAGE__MAX] = {
 	PERM_JSON | PERM_LOGIN, /* PAGE_DORESENDEMAIL */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DORESETPASSWORDS */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOSETINSTR */
+	PERM_JSON | PERM_LOGIN, /* PAGE_DOSETMTURK */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOSTARTEXPR */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOTESTSMTP */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOWINNERS */
@@ -211,6 +213,7 @@ static const char *const pages[PAGE__MAX] = {
 	"doresendemail", /* PAGE_DORESENDEMAIL */
 	"doresetpasswords", /* PAGE_DORESETPASSWORDS */
 	"dosetinstr", /* PAGE_DOSETINSTR */
+	"dosetmturk", /* PAGE_DOSETMTURK */
 	"dostartexpr", /* PAGE_DOSTARTEXPR */
 	"dotestsmtp", /* PAGE_DOTESTSMTP */
 	"dowinners", /* PAGE_DOWINNERS */
@@ -226,13 +229,18 @@ static int kvalid_time(struct kpair *);
 static const struct kvalid keys[KEY__MAX] = {
 	{ kvalid_int, "autoadd" }, /* KEY_AUTOADD */
 	{ kvalid_int, "autoaddpreserve" }, /* KEY_AUTOADDPRESERVE*/
-	{ kvalid_string, "awsaccesskey" }, /* KEY_AWSACCESSKEY */
+	{ kvalid_stringne, "awsaccesskey" }, /* KEY_AWSACCESSKEY */
 	{ kvalid_string, "awsdesc" }, /* KEY_AWSDESC */
 	{ kvalid_string, "awskeywords" }, /* KEY_AWSKEYWORDS */
-	{ kvalid_string, "awsname" }, /* KEY_AWSNAME */
+	{ kvalid_stringne, "awsname" }, /* KEY_AWSNAME */
 	{ kvalid_double, "awsreward" }, /* KEY_AWSREWARD */
-	{ kvalid_string, "awssecretkey" }, /* KEY_AWSSECRETKEY */
-	{ kvalid_udouble, "conversion" }, /* KEY_CONVERSION */
+	{ NULL, "sandbox" }, /* KEY_AWSSANDBOX */
+	{ kvalid_stringne, "awssecretkey" }, /* KEY_AWSSECRETKEY */
+	{ kvalid_string, "workerlocale" }, /* KEY_AWSWORKER_LOCALE */
+	{ kvalid_int, "workerhitapprv" }, /* KEY_AWSWORKER_HITAPPRV */
+	{ kvalid_int, "workerpctapprv" }, /* KEY_AWSWORKER_PCTAPPRV */
+	{ kvalid_uint, "workers" }, /* KEY_AWSWORKERS */
+	{ kvalid_udouble, "conversion" }, /* KEY_AWSCONVERSION */
 	{ kvalid_date, "date" }, /* KEY_DATE */
 	{ kvalid_time, "time" }, /* KEY_TIME */
 	{ kvalid_uint, "roundmin" }, /* KEY_ROUNDMIN */
@@ -263,7 +271,6 @@ static const struct kvalid keys[KEY__MAX] = {
 	{ kvalid_stringne, "players" }, /* KEY_PLAYERS */
 	{ kvalid_int, "question" }, /* KEY_QUESTIONNAIRE */
 	{ kvalid_int, "relative" }, /* KEY_RELATIVE */
-	{ kvalid_int, "sandbox" }, /* KEY_SANDBOX */
 	{ kvalid_stringne, "server" }, /* KEY_SERVER */
 	{ kvalid_int, "sesscookie" }, /* KEY_SESSCOOKIE */
 	{ kvalid_int, "sessid" }, /* KEY_SESSID */
@@ -273,10 +280,6 @@ static const struct kvalid keys[KEY__MAX] = {
 	{ kvalid_stringne, "user" }, /* KEY_USER */
 	{ kvalid_uint, "winners" }, /* KEY_WINNERS */
 	{ kvalid_int, "winseed" }, /* KEY_WINSEED */
-	{ kvalid_string, "workerlocale" }, /* KEY_WORKER_LOCALE */
-	{ kvalid_int, "workerhitapprv" }, /* KEY_WORKER_HITAPPRV */
-	{ kvalid_int, "workerpctapprv" }, /* KEY_WORKER_PCTAPPRV */
-	{ kvalid_uint, "workers" }, /* KEY_WORKERS */
 };
 
 /*
@@ -432,7 +435,7 @@ sendhighestcsv(const struct player *p,
 	khttp_puts(stor->r, p->mail);
 	khttp_putc(stor->r, ',');
 	snprintf(buf, sizeof(buf), "%g", 
-		score * stor->expr->conversion);
+		score * stor->expr->awsconvert);
 	khttp_puts(stor->r, buf);
 	khttp_putc(stor->r, '\n');
 }
@@ -447,7 +450,7 @@ sendhighest(const struct player *p,
 	kjson_putintp(stor->req, "score", score);
 	kjson_putdoublep(stor->req, "payoff", poff);
 	kjson_putdoublep(stor->req, "payout", 
-		score * stor->expr->conversion);
+		score * stor->expr->awsconvert);
 	json_putplayer(stor->req, p);
 	kjson_obj_close(stor->req);
 }
@@ -572,7 +575,7 @@ senddogetexpr(struct kreq *r)
 		 */
 		kjson_open(&req, r);
 		kjson_obj_open(&req);
-		json_putexpr(&req, expr, 0);
+		json_putexpr(&req, expr, 1);
 		kjson_putintp(&req, "adminflags", 
 			db_admin_get_flags());
 		kjson_obj_close(&req);
@@ -1205,28 +1208,53 @@ senddoresendmail(struct kreq *r)
 }
 
 static void
+senddosetmturk(struct kreq *r)
+{
+
+	if (kpairbad(r, KEY_AWSREWARD) ||
+	    kpairbad(r, KEY_AWSWORKER_HITAPPRV) ||
+	    kpairbad(r, KEY_AWSWORKER_PCTAPPRV) ||
+	    kpairbad(r, KEY_AWSACCESSKEY) ||
+	    kpairbad(r, KEY_AWSSECRETKEY) ||
+	    kpairbad(r, KEY_AWSNAME) ||
+	    kpairbad(r, KEY_AWSDESC) ||
+	    kpairbad(r, KEY_AWSKEYWORDS)) {
+		http_open(r, KHTTP_400);
+		khttp_body(r);
+		return;
+	}
+
+	db_expr_setmturk
+		(r->fieldmap[KEY_AWSACCESSKEY]->parsed.s,
+	 	 r->fieldmap[KEY_AWSSECRETKEY]->parsed.s,
+	 	 r->fieldmap[KEY_AWSWORKERS]->parsed.i,
+	 	 r->fieldmap[KEY_AWSNAME]->parsed.s,
+	 	 r->fieldmap[KEY_AWSDESC]->parsed.s,
+	 	 r->fieldmap[KEY_AWSKEYWORDS]->parsed.s,
+	 	 NULL != r->fieldmap[KEY_AWSSANDBOX],
+	 	 r->fieldmap[KEY_AWSCONVERSION]->parsed.d,
+	 	 r->fieldmap[KEY_AWSREWARD]->parsed.d,
+ 	 	 r->fieldmap[KEY_AWSWORKER_LOCALE]->parsed.s,
+	 	 r->fieldmap[KEY_AWSWORKER_HITAPPRV]->parsed.i,
+	 	 r->fieldmap[KEY_AWSWORKER_PCTAPPRV]->parsed.i);
+	http_open(r, KHTTP_200);
+	khttp_body(r);
+}
+
+static void
 senddostartexpr(struct kreq *r)
 {
 	pid_t		 pid;
-	char		*loginuri, *uri, *map, *akey, *skey,
-			*name, *desc, *keys, *server, *locale;
+	char		*loginuri, *uri, *map, *server;
+	struct expr	*expr;
 	const char	*instdat;
 	enum instrs	 inst;
 	int		 fd;
-	double		 reward;
-	int64_t		 flags, workers, minutes, rounds,
-			 hitappr, pctappr, prounds;
+	int64_t		 flags;
 	struct stat	 st;
 	size_t		 sz;
 
-	if (kpairbad(r, KEY_AWSACCESSKEY) ||
-	    kpairbad(r, KEY_AWSDESC) ||
-	    kpairbad(r, KEY_AWSKEYWORDS) ||
-	    kpairbad(r, KEY_AWSNAME) ||
-	    kpairbad(r, KEY_AWSREWARD) ||
-	    kpairbad(r, KEY_AWSSECRETKEY) ||
-	    kpairbad(r, KEY_CONVERSION) ||
-	    kpairbad(r, KEY_DATE) ||
+	if (kpairbad(r, KEY_DATE) ||
 	    kpairbad(r, KEY_INSTR) ||
 	    kpairbad(r, KEY_LOTTERY) ||
 	    kpairbad(r, KEY_MAILROUND) ||
@@ -1238,7 +1266,6 @@ senddostartexpr(struct kreq *r)
 	    kpairbad(r, KEY_ROUNDMIN) ||
 	    kpairbad(r, KEY_ROUNDPCT) ||
 	    kpairbad(r, KEY_ROUNDS) ||
-	    kpairbad(r, KEY_SANDBOX) ||
 	    kpairbad(r, KEY_SHOWHISTORY) ||
 	    kpairbad(r, KEY_SHUFFLE) ||
 	    kpairbad(r, KEY_TIME) ||
@@ -1314,8 +1341,6 @@ senddostartexpr(struct kreq *r)
 		flags |= EXPR_NOSHUFFLE;
 	if (r->fieldmap[KEY_RELATIVE]->parsed.i)
 		flags |= EXPR_RELATIVE;
-	if (r->fieldmap[KEY_SANDBOX]->parsed.i)
-		flags |= EXPR_SANDBOX;
 	
 	/*
 	 * Actually start the experiment.
@@ -1337,10 +1362,7 @@ senddostartexpr(struct kreq *r)
 		 NULL : r->fieldmap[KEY_HISTORYFILE]->parsed.s,
 		 r->fieldmap[KEY_LOTTERY]->parsed.s,
 		 r->fieldmap[KEY_QUESTIONNAIRE]->parsed.i,
-		 r->fieldmap[KEY_CONVERSION]->parsed.d,
-		 flags,
-		 r->fieldmap[KEY_AWSACCESSKEY]->parsed.s,
-		 r->fieldmap[KEY_AWSSECRETKEY]->parsed.s)) {
+		 flags)) {
 		http_open(r, KHTTP_409);
 		khttp_body(r);
 		if (INSTR_LOTTERY == inst || 
@@ -1387,51 +1409,10 @@ senddostartexpr(struct kreq *r)
 			WARN("waitpid");
 	}
 
-	if (r->fieldmap[KEY_AWSACCESSKEY]->valsz &&
-	    r->fieldmap[KEY_AWSSECRETKEY]->valsz) {
-		/*
-		 * We have a Mechanical Turk setup.
-		 * For this, we grok the values from the administrative
-		 * sub-panel and send the request to AWS, getting our
-		 * HIT identifier (hopefully) in return.
-		 */
-		workers = NULL == r->fieldmap[KEY_WORKERS] ?
-			0 : r->fieldmap[KEY_WORKERS]->parsed.i;
-		minutes = r->fieldmap[KEY_MINUTES]->parsed.i;
-		rounds = r->fieldmap[KEY_ROUNDS]->parsed.i;
-		prounds = r->fieldmap[KEY_PROUNDS]->parsed.i;
-		reward = r->fieldmap[KEY_AWSREWARD]->parsed.d;
-		hitappr = r->fieldmap[KEY_WORKER_HITAPPRV]->parsed.i;
-		pctappr = r->fieldmap[KEY_WORKER_PCTAPPRV]->parsed.i;
-		akey = kstrdup(r->fieldmap
-			[KEY_AWSACCESSKEY]->parsed.s);
-		skey = kstrdup(r->fieldmap
-			[KEY_AWSSECRETKEY]->parsed.s);
-		name = kstrdup(r->fieldmap
-			[KEY_AWSNAME]->parsed.s);
-		desc = kstrdup(r->fieldmap
-			[KEY_AWSDESC]->parsed.s);
-		keys = kstrdup(r->fieldmap
-			[KEY_AWSKEYWORDS]->parsed.s);
-		locale = kstrdup
-			(NULL == r->fieldmap[KEY_WORKER_LOCALE] ? "" :
-			 r->fieldmap[KEY_WORKER_LOCALE]->parsed.s);
-		server = kstrdup(r->host);
-
-		/* 
-		 * Normalise numeric values. 
-		 */
-		if (0 == prounds)
-			prounds = rounds;
-		if (reward < 0.01)
-			reward = 0.01;
-		if (hitappr < 0)
-			hitappr = -1;
-		if (pctappr < 0)
-			pctappr = -1;
-		if (pctappr > 100)
-			pctappr = 100;
-
+	expr = db_expr_get(0);
+	assert(NULL != expr);
+	if ('\0' != *expr->awssecretkey &&
+	    '\0' != *expr->awsaccesskey) {
 		/* 
 		 * Contacting the Mechanical Turk server happens within
 		 * a protected child, so close out now.
@@ -1448,36 +1429,19 @@ senddostartexpr(struct kreq *r)
 			 * Free the HTTP request resources: we're not
 			 * going to use them any more.
 			 */
+			server = kstrdup(r->host);
 			khttp_child_free(r);
 			if (daemon(1, 1) < 0)
 				WARN("daemon");
 			else
-				mturk_create(akey, skey, name, 
-					desc, workers, 
-					minutes * (rounds + 1), 
-					minutes * (prounds + 1), 
-					flags & EXPR_SANDBOX, reward, 
-					keys, server, locale, hitappr, 
-					pctappr);
-			free(akey);
-			free(name);
-			free(desc);
-			free(skey);
-			free(keys);
+				mturk_create(expr, server);
+			db_expr_free(expr);
 			free(server);
-			free(locale);
 			exit(EXIT_SUCCESS);
 		} else if (-1 == waitpid(pid, NULL, 0))
 			WARN("waitpid");
-
-		free(akey);
-		free(name);
-		free(desc);
-		free(skey);
-		free(keys);
-		free(server);
-		free(locale);
 	}
+	db_expr_free(expr);
 
 	/*
 	 * Now mail out to each of the players to inform them of being
@@ -1776,6 +1740,9 @@ main(void)
 		break;
 	case (PAGE_DOSETINSTR):
 		senddosetinstr(&r);
+		break;
+	case (PAGE_DOSETMTURK):
+		senddosetmturk(&r);
 		break;
 	case (PAGE_DOTESTSMTP):
 		senddotestsmtp(&r);

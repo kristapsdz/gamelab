@@ -153,7 +153,6 @@ function loadNewPlayersSuccess(resp)
 		e.appendChild(li);
 		li.setAttribute('class', 'error');
 		li.appendChild(document.createTextNode('No participants.'));
-		doClassFail('checkPlayersLoad2');
 		return;
 	}
 
@@ -182,12 +181,6 @@ function loadNewPlayersSuccess(resp)
 			span.appendChild(icon);
 		}
 		e.appendChild(span);
-	}
-
-	if (count >= 2) {
-		doClassOk('checkPlayersLoad2');
-	} else {
-		doClassFail('checkPlayersLoad2');
 	}
 }
 
@@ -744,7 +737,6 @@ function loadList(url, name, onsuccess, onerror)
 function loadNewPlayers() 
 {
 
-	doClassLoading('checkPlayersLoad2');
 	loadList('@ADMINURI@/doloadplayers.json', 'loadNewPlayers', 
 		loadNewPlayersSuccess, 
 		function(err) { loadError(err, 'loadNewPlayers'); });
@@ -811,6 +803,50 @@ function loadNewExprSuccess(res)
 	list = document.getElementsByClassName('expr-admin-input');
 	for (i = 0, sz = list.length; i < sz; i++) 
 		list[i].value = res.expr.admin;
+
+	list = document.getElementsByClassName('expr-aws-accesskey');
+	for (i = 0, sz = list.length; i < sz; i++) 
+		list[i].value = res.expr.awsaccesskey;
+
+	list = document.getElementsByClassName('expr-aws-workers');
+	for (i = 0, sz = list.length; i < sz; i++) 
+		list[i].value = res.expr.awsworkers;
+
+	list = document.getElementsByClassName('expr-aws-name');
+	for (i = 0, sz = list.length; i < sz; i++) 
+		list[i].value = res.expr.awsname;
+
+	list = document.getElementsByClassName('expr-aws-desc');
+	for (i = 0, sz = list.length; i < sz; i++) 
+		list[i].value = res.expr.awsdesc;
+
+	list = document.getElementsByClassName('expr-aws-keys');
+	for (i = 0, sz = list.length; i < sz; i++) 
+		list[i].value = res.expr.awskeys;
+
+	list = document.getElementsByClassName('expr-aws-convert');
+	for (i = 0, sz = list.length; i < sz; i++) 
+		list[i].value = res.expr.awsconvert;
+
+	list = document.getElementsByClassName('expr-aws-reward');
+	for (i = 0, sz = list.length; i < sz; i++) 
+		list[i].value = res.expr.awsreward;
+
+	list = document.getElementsByClassName('expr-aws-locale');
+	for (i = 0, sz = list.length; i < sz; i++) 
+		list[i].value = res.expr.awslocale;
+
+	list = document.getElementsByClassName('expr-aws-whit');
+	for (i = 0, sz = list.length; i < sz; i++) 
+		list[i].value = res.expr.awswhitappr;
+
+	list = document.getElementsByClassName('expr-aws-wpct');
+	for (i = 0, sz = list.length; i < sz; i++) 
+		list[i].value = res.expr.awswpctappr;
+
+	list = document.getElementsByClassName('expr-aws-sandbox');
+	for (i = 0, sz = list.length; i < sz; i++) 
+		list[i].checked = res.expr.awssandbox ? 'checked' : '';
 
 	/*
 	 * FIXME.
@@ -1171,6 +1207,84 @@ function addNewPlayers(form)
 		function() { doSetup('addNewPlayersSubmit', null); },
 		function(err) { doError(err, 'addNewPlayersSubmit', null); },
 		function () { doSuccess('addNewPlayersSubmit', 'addNewPlayers'); loadNewPlayers(); }));
+}
+
+function setup(name)
+{
+	var pr, list, i, sz, btn, pbtn;
+
+	btn = document.getElementById(name + 'btn');
+	pbtn = document.getElementById(name + 'pbtn');
+
+	if (null !== btn && null !== pbtn) {
+		doHideNode(btn);
+		doUnhideNode(pbtn);
+	} else {
+		console.log('Cannot set buttons: ' + name);
+	}
+
+	if (null === (pr = document.getElementById(name))) {
+		console.log('Cannot find parent: ' + name);
+		return;
+	}
+
+	list = pr.getElementsByClassName('err');
+	for (i = 0, sz = list.length; i < sz; i++) 
+		doHideNode(list[i]);
+
+}
+
+function success(name)
+{
+	var btn, pbtn;
+
+	btn = document.getElementById(name + 'btn');
+	pbtn = document.getElementById(name + 'pbtn');
+
+	if (null !== btn && null !== pbtn) {
+		doUnhideNode(btn);
+		doHideNode(pbtn);
+	} else {
+		console.log('Cannot set buttons: ' + name);
+	}
+}
+
+function error(name, code)
+{
+	var pr, erb, btn, pbtn, list, i, sz;
+
+	if (403 === code) {
+		logout();
+		return;
+	}
+
+	btn = document.getElementById(name + 'btn');
+	pbtn = document.getElementById(name + 'pbtn');
+
+	if (null !== btn && null !== pbtn) {
+		doUnhideNode(btn);
+		doHideNode(pbtn);
+	} else {
+		console.log('Cannot set buttons: ' + name);
+	}
+
+	if (null === (pr = document.getElementById(name))) {
+		console.log('Cannot find parent: ' + name);
+		return;
+	}
+
+	list = pr.getElementsByClassName(name + 'err' + code);
+	for (i = 0, sz = list.length; i < sz; i++) 
+		doUnhideNode(list[i]);
+}
+
+function setMturk(form)
+{
+
+	return(sendForm(form, 
+		function() { setup('setmturk'); },
+		function(code) { error('setmturk', code); },
+		function () { success('setmturk'); }));
 }
 
 function addPlayers2(form)

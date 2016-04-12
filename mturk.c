@@ -48,9 +48,8 @@
 #define	SANDFUR "workersandbox.mturk.com"
 #define	DEFNAME	"Gamelab Experiment"
 #define DEFDESC "This is a gamelab experiment"
-#define	MINPAY	0.01
 #define	MINWORK	2
-#define	MINMINS	1
+#define	MINSECS	60
 
 enum	awsqual {
 	AWS_QUAL_LOCALE,
@@ -331,14 +330,13 @@ mturk_bonus(const struct expr *expr,
 		(expr->awssecretkey, 
 		 AWS_GRANT_BONUS, t, sizeof(t));
 	encdate = kutil_urlencode(t);
-	reward = score * expr->conversion;
+	reward = score * expr->awsconvert;
 	if (reward < 0.0)
 		reward = 0.0;
 
 	/* Construct request URL. */
 	kasprintf(&url, "https://%s", 
-		EXPR_SANDBOX & expr->flags ? 
-		SANDURL : REALURL);
+		expr->awssandbox ? SANDURL : REALURL);
 	kasprintf(&post, 
 		"Service=" SERVICE
 		"&AWSAccessKeyId=%s"
@@ -356,7 +354,7 @@ mturk_bonus(const struct expr *expr,
 		pdigest, /* request signature */
 		encdate, /* used for signature */
 		p->mail, /* identifier of player */
-		reward, /* >0 amount of reward */
+		expr->awsreward, /* >0 amount of reward */
 		p->rseed, /* bonus identifier */
 		p->assignmentid);
 
@@ -399,11 +397,7 @@ mturk_bonus(const struct expr *expr,
 }
 
 void
-mturk_create(const char *aws, const char *key, const char *name, 
-	const char *desc, int64_t workers, int64_t lifetime, 
-	int64_t plifetime, int sandbox, double reward, 
-	const char *keywords, const char *server, 
-	const char *locale, int64_t hitappr, int64_t pctappr)
+mturk_create(const struct expr *expr, const char *server)
 {
 	CURL		*c;
 	CURLcode	 res;
@@ -412,9 +406,13 @@ mturk_create(const char *aws, const char *key, const char *name,
 	char		 t[64];
 	struct state	 st;
 	size_t		 qual;
+	int64_t		 lifetime, plifetime;
 	char		*url, *encques, *encname, *encdesc, *enclocale,
 			*pdigest, *encdate, *post, *enckeys, *lurl,
 			*qlocale, *qhitappr, *qpctappr;
+
+	lifetime = expr->minutes * (expr->rounds + 1) * 60;
+	plifetime = expr->minutes * (expr->prounds + 1) * 60;
 
 	/* 
 	 * Clamp input values and sanitise everything going to the
@@ -422,21 +420,13 @@ mturk_create(const char *aws, const char *key, const char *name,
 	 * We need to provide a minimum amount of sanity because gamelab
 	 * itself might be discouraged by shit submissions.
 	 */
-	if (workers < MINWORK)
-		workers = MINWORK;
-	if (reward < MINPAY)
-		reward = MINPAY;
-	if (lifetime < MINMINS)
-		lifetime = MINMINS;
-	if (plifetime < MINMINS)
-		plifetime = MINMINS;
-	if ('\0' == *desc)
-		desc = DEFDESC;
-	if ('\0' == *name)
-		name = DEFNAME;
+	if (lifetime < MINSECS)
+		lifetime = MINSECS;
+	if (plifetime < MINSECS)
+		plifetime = MINSECS;
 
-	assert(NULL != aws && '\0' != *aws &&
-	       NULL != key && '\0' != *key);
+	assert('\0' != *expr->awssecretkey &&
+	       '\0' != *expr->awsaccesskey);
 
 	if (NULL == (parser = state_alloc(&st)))
 		return;
@@ -449,18 +439,20 @@ mturk_create(const char *aws, const char *key, const char *name,
 	kasprintf(&lurl, EXTQUES, server);
 
 	/* URL-encode all inputs. */
-	pdigest = mturk_sign(key, AWS_CREATE_HIT, t, sizeof(t));
+	pdigest = mturk_sign(expr->awssecretkey, 
+		AWS_CREATE_HIT, t, sizeof(t));
 	encdate = kutil_urlencode(t);
-	encname = kutil_urlencode(name);
-	encdesc = kutil_urlencode(desc);
-	enckeys = kutil_urlencode(keywords);
+	encname = kutil_urlencode(expr->awsname);
+	encdesc = kutil_urlencode(expr->awsdesc);
+	enckeys = kutil_urlencode(expr->awskeys);
 	encques = kutil_urlencode(lurl);
+
 	enclocale = qlocale = qhitappr = qpctappr = NULL;
 
 	/* Our qualifications. */
 	qual = 1;
-	if (NULL != locale && '\0' != *locale) {
-		enclocale = kutil_urlencode(locale);
+	if ('\0' != *expr->awslocale) {
+		enclocale = kutil_urlencode(expr->awslocale);
 		kasprintf(&qlocale,
 			"&QualificationRequirement.%zu."
 				"QualificationTypeId=%s"
@@ -472,7 +464,7 @@ mturk_create(const char *aws, const char *key, const char *name,
 			qual, qual, enclocale);
 		qual++;
 	}
-	if (hitappr >= 0) {
+	if (expr->awswhitappr >= 0) {
 		kasprintf(&qhitappr,
 			"&QualificationRequirement.%zu."
 				"QualificationTypeId=%s"
@@ -481,10 +473,10 @@ mturk_create(const char *aws, const char *key, const char *name,
 			"&QualificationRequirement.%zu."
 				"IntegerValue.1=%" PRId64,
 			qual, awsquals[AWS_QUAL_HITAPPR], 
-			qual, qual, hitappr);
+			qual, qual, expr->awswhitappr);
 		qual++;
 	}
-	if (pctappr >= 0) {
+	if (expr->awswpctappr >= 0) {
 		kasprintf(&qpctappr, 
 			"&QualificationRequirement.%zu."
 				"QualificationTypeId=%s"
@@ -493,7 +485,7 @@ mturk_create(const char *aws, const char *key, const char *name,
 			"&QualificationRequirement.%zu."
 				"IntegerValue.1=%" PRId64,
 			qual, awsquals[AWS_QUAL_PCTAPPR],
-			qual, qual, pctappr);
+			qual, qual, expr->awswpctappr);
 		qual++;
 	}
 
@@ -502,7 +494,8 @@ mturk_create(const char *aws, const char *key, const char *name,
 	 * We use the user-supplied information except for the currency
 	 * code (AWS only allows USD anyway).
 	 */
-	kasprintf(&url, "https://%s", sandbox ? SANDURL : REALURL);
+	kasprintf(&url, "https://%s", 
+		expr->awssandbox ? SANDURL : REALURL);
 	kasprintf(&post, 
 		"Service=" SERVICE
 		"&AWSAccessKeyId=%s"
@@ -519,18 +512,18 @@ mturk_create(const char *aws, const char *key, const char *name,
 		"&Keywords=%s"
 		"&MaxAssignments=%" PRId64
 		"%s%s%s",
-		aws,  /* access key ID */
+		expr->awsaccesskey,  /* access key ID */
 		awstypes[AWS_CREATE_HIT], /* operation */
 		pdigest, /* request signature */
 		encdate, /* used for signature */
 		encname, /* name of experment (URL encode) */
 		encdesc, /* description (URL encode) */
-		reward,  /* reward for participants */
+		expr->awsreward,  /* reward for participants */
 		encques,  /* question data */
-		plifetime * 60, /* assignment duration */
-		lifetime * 60, /* when it's valid */
+		plifetime, /* assignment duration */
+		lifetime, /* when it's valid */
 		enckeys, /* keywords */
-		workers, /* number of workers */
+		expr->awsworkers, /* number of workers */
 		NULL == qlocale ? "" : qlocale,
 		NULL == qhitappr ? "" : qhitappr,
 		NULL == qpctappr ? "" : qpctappr);
@@ -544,7 +537,8 @@ mturk_create(const char *aws, const char *key, const char *name,
 	curl_easy_setopt(c, CURLOPT_POST, 1L);
 	curl_easy_setopt(c, CURLOPT_POSTFIELDS, post);
 
-	INFO("Preparing MTurk creation to %s: %s", url, aws);
+	INFO("Preparing MTurk creation to %s: %s", 
+		url, expr->awsaccesskey);
 	INFO("Request: %s", post);
 
 	if (CURLE_OK != (res = curl_easy_perform(c))) {

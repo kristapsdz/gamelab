@@ -110,7 +110,6 @@ CREATE TABLE experiment (
 	autoadd INTEGER NOT NULL DEFAULT(0),
 	hitid TEXT NOT NULL DEFAULT(''),
 	autoaddpreserve INTEGER NOT NULL DEFAULT(0),
-	conversion REAL NOT NULL DEFAULT(1.0),
 	history TEXT NOT NULL DEFAULT(''),
 	lottery TEXT NOT NULL DEFAULT(''),
 	questionnaire INTEGER NOT NULL DEFAULT(0),
@@ -121,6 +120,16 @@ CREATE TABLE experiment (
 	awsaccesskey TEXT NOT NULL DEFAULT(''),
 	awssecretkey TEXT NOT NULL DEFAULT(''),
 	awserror TEXT NOT NULL DEFAULT(''),
+	awsworkers INTEGER NOT NULL DEFAULT(0),
+	awsname TEXT NOT NULL DEFAULT(''),
+	awsdesc TEXT NOT NULL DEFAULT(''),
+	awskeys TEXT NOT NULL DEFAULT(''),
+	awssandbox INTEGER NOT NULL DEFAULT(0),
+	awsconvert REAL DEFAULT(0),
+	awsreward REAL DEFAULT(0),
+	awslocale TEXT NOT NULL DEFAULT(''),
+	awswhitappr INTEGER NOT NULL DEFAULT(0),
+	awswpctappr INTEGER NOT NULL DEFAULT(0),
 	id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL
 );
 

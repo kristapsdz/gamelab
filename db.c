@@ -1946,8 +1946,7 @@ db_expr_start(int64_t date, int64_t roundpct, int64_t roundmin,
 	int64_t rounds, int64_t prounds, int64_t minutes, 
 	int64_t playermax, const char *instr, const char *uri,
 	const char *historyfile, const char *lottery, int64_t ques,
-	double conversion, int64_t flags,
-	const char *awsaccesskey, const char *awssecretkey)
+	int64_t flags)
 {
 	sqlite3_stmt	*stmt, *stmt2;
 	int64_t		 id;
@@ -1975,11 +1974,9 @@ db_expr_start(int64_t date, int64_t roundpct, int64_t roundmin,
 		"loginuri=?,instr=?,state=?,"
 		"roundpct=?,prounds=?,playermax=?,"
 		"prounds=?,history=?,lottery=?,questionnaire=?,"
-		"conversion=?,"
 		"autoadd=CASE WHEN autoaddpreserve=1 "
 			"THEN autoadd ELSE 0 END,"
-		"roundmin=?,flags=?,awsaccesskey=?,"
-		"awssecretkey=?");
+		"roundmin=?,flags=?");
 	db_bind_int(stmt, 1, date);
 	db_bind_int(stmt, 2, rounds);
 	db_bind_int(stmt, 3, minutes);
@@ -1993,11 +1990,8 @@ db_expr_start(int64_t date, int64_t roundpct, int64_t roundmin,
 	db_bind_text(stmt, 11, NULL == historyfile ? "" : historyfile);
 	db_bind_text(stmt, 12, lottery);
 	db_bind_int(stmt, 13, ques);
-	db_bind_double(stmt, 14, conversion);
-	db_bind_int(stmt, 15, roundmin);
-	db_bind_int(stmt, 16, flags);
-	db_bind_text(stmt, 17, awsaccesskey);
-	db_bind_text(stmt, 18, awssecretkey);
+	db_bind_int(stmt, 14, roundmin);
+	db_bind_int(stmt, 15, flags);
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);
 
@@ -2878,6 +2872,61 @@ db_interval_get(int64_t round)
 	return(intv);
 }
 
+void
+db_expr_setmturk(const char *accesskey,
+	const char *secretkey, int64_t workers,
+	const char *name, const char *desc, const char *keys,
+	int64_t sandbox, double convert, double reward,
+	const char *locale, int64_t whit, int64_t wpct)
+{
+	size_t	 	 i = 1;
+	sqlite3_stmt	*stmt;
+
+	/* Clamp values. */
+	if (reward < 0.01)
+		reward = 0.01;
+	if (whit < 0)
+		whit = -1;
+	if (wpct < 0)
+		wpct = -1;
+	if (wpct > 100)
+		wpct = 100;
+	if (workers < 1)
+		workers = 1;
+
+	stmt = db_stmt("UPDATE experiment SET "
+		"awsaccesskey=?,awssecretkey=?,"
+		"awsworkers=?,awsname=?,awsdesc=?,awskeys=?,"
+		"awssandbox=?,awsconvert=?,awsreward=?,"
+		"awslocale=?,awswhitappr=?,awswpctappr=?");
+	db_bind_text(stmt, i++, accesskey);
+	db_bind_text(stmt, i++, secretkey);
+	db_bind_int(stmt, i++, workers);
+	db_bind_text(stmt, i++, name);
+	db_bind_text(stmt, i++, desc);
+	db_bind_text(stmt, i++, keys);
+	db_bind_int(stmt, i++, sandbox);
+	db_bind_double(stmt, i++, convert);
+	db_bind_double(stmt, i++, reward);
+	db_bind_text(stmt, i++, locale);
+	db_bind_int(stmt, i++, whit);
+	db_bind_int(stmt, i++, wpct);
+	db_step(stmt, 0);
+	sqlite3_finalize(stmt);
+	INFO("Administrator set AWS access key: %s", accesskey);
+	INFO("Administrator set AWS name: %s", name);
+	INFO("Administrator set AWS desc: %s", desc);
+	INFO("Administrator set AWS keys: %s", keys);
+	INFO("Administrator set AWS sandbox: %s", 
+		sandbox ? "true " : "false");
+	INFO("Administrator set AWS conversion: %g", convert);
+	INFO("Administrator set AWS reward: %g", reward);
+	INFO("Administrator set AWS locale: %s", 
+		'\0' == *locale ? "(none)" : locale);
+	INFO("Administrator set AWS worker HIT: %" PRId64, whit);
+	INFO("Administrator set AWS worker accept: %" PRId64, wpct);
+}
+
 /*
  * Get a configured experiment.
  * If "only_started" is specified, This will return NULL if the
@@ -2890,48 +2939,62 @@ db_expr_get(int only_started)
 	sqlite3_stmt	*stmt;
 	struct expr	*expr;
 	int		 rc;
+	size_t		 i = 0;
 
 	stmt = db_stmt("SELECT start,rounds,minutes,"
 		"loginuri,state,instr,total,"
 		"autoadd,round,roundbegan,roundpct,"
 		"roundmin,prounds,playermax,autoaddpreserve,"
 		"history,lottery,questionnaire,hitid,"
-		"conversion,roundpid,flags,"
-		"awsaccesskey,awssecretkey,awserror "
+		"roundpid,flags,awsaccesskey,"
+		"awssecretkey,awserror,awsworkers,awsname,"
+		"awsdesc,awskeys,awssandbox,awsconvert,"
+		"awsreward,awslocale,awswhitappr,awswpctappr "
 		"FROM experiment");
 	rc = db_step(stmt, 0);
 	assert(SQLITE_ROW == rc);
-	if (only_started && ESTATE_NEW == sqlite3_column_int64(stmt, 4)) {
+
+	if (only_started && 
+	    ESTATE_NEW == sqlite3_column_int64(stmt, 4)) {
 		sqlite3_finalize(stmt);
 		return(NULL);
 	}
 
 	expr = kcalloc(1, sizeof(struct expr));
-	expr->start = (time_t)sqlite3_column_int64(stmt, 0);
-	expr->rounds = sqlite3_column_int64(stmt, 1);
-	expr->minutes = sqlite3_column_int64(stmt, 2);
-	expr->loginuri = kstrdup((char *)sqlite3_column_text(stmt, 3));
-	expr->state = sqlite3_column_int64(stmt, 4);
-	expr->instr = kstrdup((char *)sqlite3_column_text(stmt, 5));
-	expr->total = sqlite3_column_int64(stmt, 6);
-	expr->autoadd = sqlite3_column_int64(stmt, 7);
-	expr->round = sqlite3_column_int64(stmt, 8);
-	expr->roundbegan = sqlite3_column_int64(stmt, 9);
-	expr->roundpct = sqlite3_column_double(stmt, 10);
-	expr->roundmin = sqlite3_column_int64(stmt, 11);
-	expr->prounds = sqlite3_column_int64(stmt, 12);
-	expr->playermax = sqlite3_column_int64(stmt, 13);
-	expr->autoaddpreserve = sqlite3_column_int64(stmt, 14);
-	expr->history = kstrdup((char *)sqlite3_column_text(stmt, 15));
-	expr->lottery = kstrdup((char *)sqlite3_column_text(stmt, 16));
-	expr->questionnaire = sqlite3_column_int64(stmt, 17);
-	expr->hitid = kstrdup((char *)sqlite3_column_text(stmt, 18));
-	expr->conversion = sqlite3_column_double(stmt, 19);
-	expr->roundpid = sqlite3_column_int64(stmt, 20);
-	expr->flags = sqlite3_column_int64(stmt, 21);
-	expr->awsaccesskey = kstrdup((char *)sqlite3_column_text(stmt, 22));
-	expr->awssecretkey = kstrdup((char *)sqlite3_column_text(stmt, 23));
-	expr->awserror = kstrdup((char *)sqlite3_column_text(stmt, 24));
+	expr->start = (time_t)sqlite3_column_int64(stmt, i++);
+	expr->rounds = sqlite3_column_int64(stmt, i++);
+	expr->minutes = sqlite3_column_int64(stmt, i++);
+	expr->loginuri = kstrdup((char *)sqlite3_column_text(stmt, i++));
+	expr->state = sqlite3_column_int64(stmt, i++);
+	expr->instr = kstrdup((char *)sqlite3_column_text(stmt, i++));
+	expr->total = sqlite3_column_int64(stmt, i++);
+	expr->autoadd = sqlite3_column_int64(stmt, i++);
+	expr->round = sqlite3_column_int64(stmt, i++);
+	expr->roundbegan = sqlite3_column_int64(stmt, i++);
+	expr->roundpct = sqlite3_column_double(stmt, i++);
+	expr->roundmin = sqlite3_column_int64(stmt, i++);
+	expr->prounds = sqlite3_column_int64(stmt, i++);
+	expr->playermax = sqlite3_column_int64(stmt, i++);
+	expr->autoaddpreserve = sqlite3_column_int64(stmt, i++);
+	expr->history = kstrdup((char *)sqlite3_column_text(stmt, i++));
+	expr->lottery = kstrdup((char *)sqlite3_column_text(stmt, i++));
+	expr->questionnaire = sqlite3_column_int64(stmt, i++);
+	expr->hitid = kstrdup((char *)sqlite3_column_text(stmt, i++));
+	expr->roundpid = sqlite3_column_int64(stmt, i++);
+	expr->flags = sqlite3_column_int64(stmt, i++);
+	expr->awsaccesskey = kstrdup((char *)sqlite3_column_text(stmt, i++));
+	expr->awssecretkey = kstrdup((char *)sqlite3_column_text(stmt, i++));
+	expr->awserror = kstrdup((char *)sqlite3_column_text(stmt, i++));
+	expr->awsworkers = sqlite3_column_int64(stmt, i++);
+	expr->awsname = kstrdup((char *)sqlite3_column_text(stmt, i++));
+	expr->awsdesc = kstrdup((char *)sqlite3_column_text(stmt, i++));
+	expr->awskeys = kstrdup((char *)sqlite3_column_text(stmt, i++));
+	expr->awssandbox = sqlite3_column_int64(stmt, i++);
+	expr->awsconvert = sqlite3_column_double(stmt, i++);
+	expr->awsreward = sqlite3_column_double(stmt, i++);
+	expr->awslocale = kstrdup((char *)sqlite3_column_text(stmt, i++));
+	expr->awswhitappr = sqlite3_column_int64(stmt, i++);
+	expr->awswpctappr = sqlite3_column_int64(stmt, i++);
 	sqlite3_finalize(stmt);
 	return(expr);
 }
@@ -3005,7 +3068,6 @@ db_expr_wipe(void)
 		"joined=-1,answer=0,assignmentid='',hitid='',"
 		"mturkdone=0");
 	db_exec("UPDATE experiment SET "
-		"conversion=1,"
 		"autoadd=0,hitid='',autoaddpreserve=0,"
 		"state=0,total=0,round=-1,rounds=0,playermax=0,"
 		"prounds=0,roundbegan=0,roundpct=0.0,minutes=0,"
