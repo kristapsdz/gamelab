@@ -55,6 +55,7 @@ enum	page {
 	PAGE_DOCHANGESMTP,
 	PAGE_DOCHECKROUND,
 	PAGE_DOCHECKSMTP,
+	PAGE_DOCLEARMTURK,
 	PAGE_DODELETEGAME,
 	PAGE_DODELETEPLAYER,
 	PAGE_DODISABLEPLAYER,
@@ -163,6 +164,7 @@ static	unsigned int perms[PAGE__MAX] = {
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOCHANGESMTP */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOCHECKROUND */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOCHECKSMTP */
+	PERM_JSON | PERM_LOGIN, /* PAGE_DOCLEARMTURK */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DODELETEGAME */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DODELETEPLAYER */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DODISABLEPLAYER */
@@ -198,6 +200,7 @@ static const char *const pages[PAGE__MAX] = {
 	"dochangesmtp", /* PAGE_DOCHANGESMTP */
 	"docheckround", /* PAGE_DOCHECKROUND */
 	"dochecksmtp", /* PAGE_DOCHECKSMTP */
+	"doclearmturk", /* PAGE_DOCLEARMTURK */
 	"dodeletegame", /* PAGE_DODELETEGAME */
 	"dodeleteplayer", /* PAGE_DODELETEPLAYER */
 	"dodisableplayer", /* PAGE_DODISABLEPLAYER */
@@ -760,6 +763,15 @@ senddocheckround(struct kreq *r)
 	kjson_obj_close(&req);
 	kjson_close(&req);
 	db_expr_free(expr);
+}
+
+static void
+senddoclearmturk(struct kreq *r)
+{
+
+	http_open(r, KHTTP_200);
+	khttp_body(r);
+	db_expr_clearmturk();
 }
 
 static void
@@ -1692,6 +1704,9 @@ main(void)
 		break;
 	case (PAGE_DOCHECKSMTP):
 		senddochecksmtp(&r);
+		break;
+	case (PAGE_DOCLEARMTURK):
+		senddoclearmturk(&r);
 		break;
 	case (PAGE_DODELETEGAME):
 		senddodeletegame(&r);
