@@ -765,13 +765,13 @@
 							</div>
 							<section class="advanced" id="players-mail">
 								<div>
-									<i class="fa fa-chevron-circle-down"></i>
+									<i class="fa fa-fw fa-chevron-circle-down"></i>
 									<a href="#" onclick="document.getElementById('players-mail').className='advanced showadv'; return false;">
 										E-mail participant configuration
 									</a>
 								</div>
 								<p>
-									<i class="fa fa-chevron-circle-up"></i>
+									<i class="fa fa-fw fa-chevron-circle-up"></i>
 									<a href="#" onclick="document.getElementById('players-mail').className='advanced'; return false;">
 										E-mail participant configuration
 									</a>
@@ -797,13 +797,13 @@
 							</section>
 							<section class="advanced" id="players-captive">
 								<div>
-									<i class="fa fa-chevron-circle-down"></i>
+									<i class="fa fa-fw fa-chevron-circle-down"></i>
 									<a href="#" onclick="document.getElementById('players-captive').className='advanced showadv'; return false;">
 										Captive participant configuration
 									</a>
 								</div>
 								<p>
-									<i class="fa fa-chevron-circle-up"></i>
+									<i class="fa fa-fw fa-chevron-circle-up"></i>
 									<a href="#" onclick="document.getElementById('players-captive').className='advanced'; return false;">
 										Captive participant configuration
 									</a>
@@ -838,13 +838,13 @@
 							</section>
 							<section class="advanced" id="players-mturk">
 								<div>
-									<i class="fa fa-chevron-circle-down"></i>
+									<i class="fa fa-fw fa-chevron-circle-down"></i>
 									<a href="#" onclick="document.getElementById('players-mturk').className='advanced showadv'; return false;">
 										Mechanical Turk configuration
 									</a>
 								</div>
 								<p>
-									<i class="fa fa-chevron-circle-up"></i>
+									<i class="fa fa-fw fa-chevron-circle-up"></i>
 									<a href="#" onclick="document.getElementById('players-mturk').className='advanced'; return false;">
 										Mechanical Turk configuration
 									</a>

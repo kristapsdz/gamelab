@@ -267,11 +267,8 @@ span.inputheader		{ color: #666; }
 .advanced.showadv > .input	{ display: table-row; }
 .advanced.showadv > :first-child 	
 				{ display: none; }
-.advanced.showadv 		{ border-top: thin solid #ccc; 
-				  margin-top: 0.5em;
-				  margin-bottom: 0.5em;
-				  border-bottom: thin solid #ccc;
-				  padding-top: 8pt; }
+.advanced.showadv 		{ margin-bottom: 0.5em;
+				  border-bottom: thin solid #666; }
 .seconds, .error		{ color: red;
 				  font-weight: bolder; }
 #mturkbonusesButton		{ margin-top: 4pt; }
