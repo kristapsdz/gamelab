@@ -173,6 +173,7 @@ fieldset			{ display: table;
 span.inputheader		{ color: #666; }
 .input				{ display: table-row; }
 .buttons > div > .input		{ display: table; }
+.buttons > div > .input.noshow	{ display: none; }
 .buttons > div			{ display: inline-block; }
 .input.noshow			{ display: none; }
 .input >*			{ display: table-cell; 

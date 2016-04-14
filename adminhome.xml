@@ -343,7 +343,7 @@
 				<p>
 					If you set the <q>Allow Captive Participants</q> toggle, then participants may add themselves.
 					Captive participants will not be e-mailed when the experiment is started, nor will they be remembered
-					when the experiment is wiped.
+					when the experiment is reset.
 				</p>
 				<form action="@ADMINURI@/doaddplayers.json" method="post" id="addPlayers2" onsubmit="return(addPlayers2(this));">
 					<fieldset>
@@ -971,20 +971,26 @@
 												step="1" max="100" min="-1" value="-1" />
 										</div>
 									</fieldset>
-									<fieldset>
-										<div class="input input-submit" id="setmturkbtn">
-											<i class="fa fa-fw fa-save"></i>
-											<input type="submit" value="Save" />
+									<div class="buttons">
+										<div>
+											<div class="input input-submit" id="setmturkbtn">
+												<i class="fa fa-fw fa-save"></i>
+												<input type="submit" value="Save" />
+											</div>
 										</div>
-										<div class="input input-submit noshow" id="setmturkpbtn">
-											<i class="fa fa-fw fa-save"></i>
-											<input type="button" value="Saving..." />
+										<div>
+											<div class="input input-submit noshow" id="setmturkpbtn">
+												<i class="fa fa-fw fa-save"></i>
+												<input type="button" value="Saving..." />
+											</div>
 										</div>
-										<div class="input input-submit">
-											<i class="fa fa-fw fa-refresh"></i>
-											<input type="reset" value="Reset" />
+										<div>
+											<div class="input input-submit">
+												<i class="fa fa-fw fa-refresh"></i>
+												<input type="button" value="Unset" onclick="unsetMturk(); return false;" />
+											</div>
 										</div>
-									</fieldset>
+									</div>
 								</form>
 							</section>
 							<p id="captiveGame">

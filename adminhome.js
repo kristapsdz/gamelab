@@ -789,7 +789,7 @@ function loadNewExprSuccess(res)
 	list = document.getElementsByClassName('expr-noshuffle');
 	for (i = 0, sz = list.length; i < sz; i++) 
 		res.expr.noshuffle ?
-			doUnhdeNode(list[i]) :
+			doUnhideNode(list[i]) :
 			doHideNode(list[i]);
 
 	list = document.getElementsByClassName('expr-admin');
@@ -1278,6 +1278,14 @@ function error(name, code)
 		doUnhideNode(list[i]);
 }
 
+function unsetMturk(form)
+{
+
+
+	sendQuery('@ADMINURI@/doclearmturk.json', null, null, null);
+	document.getElementById('setmturk').reset();
+}
+
 function setMturk(form)
 {
 
@@ -1382,9 +1390,9 @@ function wipeCleanExpr()
 {
 
 	sendQuery('@ADMINURI@/dowipequiet.json', 
-		function() { doHide('wipeExprResults'); doClearReplace('wipeCleanExprButton', 'Wiping...'); },
+		function() { doHide('wipeExprResults'); doClearReplace('wipeCleanExprButton', 'Reseting...'); },
 		function() { 
-			doClearReplace('wipeCleanExprButton', 'Hard-Wipe Experiment'); 
+			doClearReplace('wipeCleanExprButton', 'Hard-reset Experiment'); 
 			doUnhide('wipeExprResults'); 
 			setTimeout(function(){window.location.reload(true)}, 1000);
 		},
