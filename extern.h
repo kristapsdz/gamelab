@@ -73,7 +73,6 @@ struct	expr {
 #define	EXPR_NOHISTORY 	 0x01 /* don't show history */
 #define	EXPR_NOSHUFFLE	 0x02 /* don't shuffle games/rows */
 #define	EXPR_RELATIVE	 0x04 /* show relative rounds */
-#define	EXPR_SANDBOX	 0x08 /* Mechanical Turk sandbox */
 	int64_t		 flags;
 };
 
@@ -274,6 +273,7 @@ size_t		 db_expr_round_count(const struct expr *,
 void		 db_expr_setautoadd(int64_t, int64_t);
 void		 db_expr_setinstr(const char *);
 void		 db_expr_setmailer(int64_t, int64_t);
+void		 db_expr_clearmturk(void);
 void		 db_expr_setmturk(const char *, const char *, int64_t,
 			const char *, const char *, const char *,
 			int64_t, double, double, const char *, 

@@ -1995,6 +1995,24 @@ db_expr_start(int64_t date, int64_t roundpct, int64_t roundmin,
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);
 
+	INFO("Started experiment: %" PRId64 " rounds, "
+		"%" PRId64 " per player (%" PRId64 " simultaneously), "
+		"%" PRId64 " minutes (%" PRId64 " min)", 
+		rounds, prounds, playermax, minutes, roundmin);
+	INFO("Started experiment: %" PRId64 "%%, "
+		"with%s a lottery, with%s questions, "
+		"with%s a pre-history", roundpct, 
+		lottery ? "" : "out",
+		ques ? "" : "out",
+		NULL != historyfile ? "" : "out");
+	INFO("Started experiment: "
+		"%sshow history, "
+		"%sshuffle matrices, "
+		"%sshow relative rounds",
+		EXPR_NOHISTORY & flags ? "don't " : "",
+		EXPR_NOSHUFFLE & flags ? "don't " : "",
+		EXPR_RELATIVE & flags ? "don't " : "");
+
 	if ( ! ques) {
 		/*
 		 * If we're not running a questionnaire, then assign
@@ -2025,10 +2043,11 @@ db_expr_start(int64_t date, int64_t roundpct, int64_t roundmin,
 		}
 		sqlite3_finalize(stmt);
 		sqlite3_finalize(stmt2);
+		INFO("Started experiment: reset "
+			"roles, random seeds, join status");
 	}
 
 	db_trans_commit();
-	INFO("Experiment started");
 	return(1);
 }
 
@@ -2873,6 +2892,31 @@ db_interval_get(int64_t round)
 }
 
 void
+db_expr_clearmturk(void)
+{
+	sqlite3_stmt	*stmt;
+
+	stmt = db_stmt("UPDATE experiment SET "
+		"awsaccesskey='',"
+		"awssecretkey='',"
+		"awsworkers=2,"
+		"awsname='',"
+		"awsdesc='',"
+		"awskeys='',"
+		"awssandbox=1,"
+		"awsconvert=1,"
+		"awsreward=0.01,"
+		"awslocale='',"
+		"awswhitappr=0,"
+		"awswpctappr=0 "
+		"WHERE state=?");
+	db_bind_int(stmt, 1, ESTATE_NEW);
+	db_step(stmt, 0);
+	sqlite3_finalize(stmt);
+	INFO("Administrator unset AWS configuration");
+}
+
+void
 db_expr_setmturk(const char *accesskey,
 	const char *secretkey, int64_t workers,
 	const char *name, const char *desc, const char *keys,
@@ -2898,7 +2942,8 @@ db_expr_setmturk(const char *accesskey,
 		"awsaccesskey=?,awssecretkey=?,"
 		"awsworkers=?,awsname=?,awsdesc=?,awskeys=?,"
 		"awssandbox=?,awsconvert=?,awsreward=?,"
-		"awslocale=?,awswhitappr=?,awswpctappr=?");
+		"awslocale=?,awswhitappr=?,awswpctappr=? "
+		"WHERE state=?");
 	db_bind_text(stmt, i++, accesskey);
 	db_bind_text(stmt, i++, secretkey);
 	db_bind_int(stmt, i++, workers);
@@ -2911,6 +2956,7 @@ db_expr_setmturk(const char *accesskey,
 	db_bind_text(stmt, i++, locale);
 	db_bind_int(stmt, i++, whit);
 	db_bind_int(stmt, i++, wpct);
+	db_bind_int(stmt, i++, ESTATE_NEW);
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);
 	INFO("Administrator set AWS access key: %s", accesskey);
@@ -3072,8 +3118,8 @@ db_expr_wipe(void)
 		"state=0,total=0,round=-1,rounds=0,playermax=0,"
 		"prounds=0,roundbegan=0,roundpct=0.0,minutes=0,"
 		"roundmin=0,lottery='',questionnaire=0,"
-		"roundpid=0,flags=0,"
-		"awsaccesskey='',awssecretkey='',awserror=''");
+		"roundpid=0,flags=0");
+	db_expr_clearmturk();
 	stmt = db_stmt("SELECT id FROM player");
 	stmt2 = db_stmt("UPDATE player SET rseed=? WHERE id=?");
 	/* 
