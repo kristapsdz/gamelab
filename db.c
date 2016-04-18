@@ -2907,8 +2907,8 @@ db_expr_clearmturk(void)
 		"awsconvert=1,"
 		"awsreward=0.01,"
 		"awslocale='',"
-		"awswhitappr=0,"
-		"awswpctappr=0 "
+		"awswhitappr=-1,"
+		"awswpctappr=-1 "
 		"WHERE state=?");
 	db_bind_int(stmt, 1, ESTATE_NEW);
 	db_step(stmt, 0);
