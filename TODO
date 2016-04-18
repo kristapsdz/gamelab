@@ -1,9 +1,10 @@
 Short-term:
 
 - Screenshot for mturkers that has new fonts.
-- Update questionnaire and potentially instructions: wait
-  on this from Eskil.
+- Chrome button off by one pixel.
+  (Questionnaire was fine...?)
 
 Long-term:
 
 - Extensive-form games.
+- n-player games.
