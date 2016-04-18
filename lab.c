@@ -1351,34 +1351,14 @@ main(void)
 {
 	struct kreq	 r;
 	enum kcgi_err	 er;
-	struct kfcgi	*fcgi;
 
-	setlinebuf(stderr);
-
-	if (khttp_fcgi_test()) {
-		er = khttp_fcgi_init(&fcgi, keys, KEY__MAX, 
-			pages, PAGE__MAX, PAGE_INDEX);
-		if (KCGI_OK != er) {
-			WARNX("khttp_fcgi_init: error %d", er);
-			return(EXIT_FAILURE);
-		}
-		INFO("FastCGI mode: pid %u", getpid());
-		while (KCGI_OK == (er = khttp_fcgi_parse(fcgi, &r))) {
-			doreq(&r);
-			khttp_free(&r);
-		}
-		if (KCGI_HUP != er)
-			WARNX("khttp_parse: error %d", er);
-		khttp_fcgi_free(fcgi);
-	} else {
-		er = khttp_parse(&r, keys, KEY__MAX, 
-			pages, PAGE__MAX, PAGE_INDEX);
-		if (KCGI_OK == er) {
-			doreq(&r);
-			khttp_free(&r);
-		} else 
-			WARNX("khttp_parse: error %d", er);
-	}
+	er = khttp_parse(&r, keys, KEY__MAX, 
+		pages, PAGE__MAX, PAGE_INDEX);
+	if (KCGI_OK == er) {
+		doreq(&r);
+		khttp_free(&r);
+	} else 
+		WARNX("khttp_parse: error %d", er);
 
 	return(EXIT_SUCCESS);
 }
