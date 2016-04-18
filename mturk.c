@@ -354,7 +354,7 @@ mturk_bonus(const struct expr *expr,
 		pdigest, /* request signature */
 		encdate, /* used for signature */
 		p->mail, /* identifier of player */
-		expr->awsreward, /* >0 amount of reward */
+		reward, /* >0 amount of reward */
 		p->rseed, /* bonus identifier */
 		p->assignmentid);
 
@@ -411,8 +411,8 @@ mturk_create(const struct expr *expr, const char *server)
 			*pdigest, *encdate, *post, *enckeys, *lurl,
 			*qlocale, *qhitappr, *qpctappr;
 
-	lifetime = expr->minutes * (expr->rounds + 1) * 60;
-	plifetime = expr->minutes * (expr->prounds + 1) * 60;
+	lifetime = expr->minutes * (expr->rounds + 2) * 60;
+	plifetime = expr->minutes * (expr->prounds + 2) * 60;
 
 	/* 
 	 * Clamp input values and sanitise everything going to the
