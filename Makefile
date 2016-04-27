@@ -137,7 +137,7 @@ gamers: gamers.c
 	$(CC) $(CFLAGS) `curl-config --cflags` -o $@ gamers.c `curl-config --libs` -ljson-c -lm
 
 admin: admin.o $(OBJS)
-	$(CC) $(STATIC) -L/usr/local/lib -o $@ admin.o $(OBJS) -lsqlite3 -lkcgi -lkcgijson -lz -lgmp -lexpat `curl-config --libs` $(LIBS)
+	$(CC) $(STATIC) -L/usr/local/lib -o $@ admin.o $(OBJS) -lsqlite3 -lkcgi -lkcgijson -lz -ljson-c -lgmp -lexpat `curl-config --libs` $(LIBS)
 
 lab: lab.o $(OBJS)
 	$(CC) $(STATIC) -L/usr/local/lib -o $@ lab.o $(OBJS) -lsqlite3 -lkcgi -lkcgijson -lz -lgmp -lexpat `curl-config --libs` $(LIBS)

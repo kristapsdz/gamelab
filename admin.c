@@ -30,6 +30,7 @@
 #include <time.h>
 #include <unistd.h>
 
+#include <json-c/json.h>
 #include <gmp.h>
 #include <kcgi.h>
 #include <kcgijson.h>
@@ -225,6 +226,7 @@ static const char *const pages[PAGE__MAX] = {
 	"index", /* PAGE_INDEX */
 };
 
+static int kvalid_history(struct kpair *);
 static int kvalid_minutes(struct kpair *);
 static int kvalid_rounds(struct kpair *);
 static int kvalid_time(struct kpair *);
@@ -256,7 +258,7 @@ static const struct kvalid keys[KEY__MAX] = {
 	{ kvalid_email, "email2" }, /* KEY_EMAIL2 */
 	{ kvalid_email, "email3" }, /* KEY_EMAIL3 */
 	{ kvalid_int, "gid" }, /* KEY_GAMEID */
-	{ kvalid_stringne, "historyfile" }, /* KEY_HISTORYFILE */
+	{ kvalid_history, "historyfile" }, /* KEY_HISTORYFILE */
 	{ kvalid_stringne, "instr" }, /* KEY_INSTR */
 	{ kvalid_stringne, "instrFile" }, /* KEY_INSTRFILE */
 	{ kvalid_string, "lottery" }, /* KEY_LOTTERY */
@@ -1266,6 +1268,15 @@ senddostartexpr(struct kreq *r)
 	struct stat	 st;
 	size_t		 sz;
 
+
+	fprintf(stderr, "%p (%zd), %p (%zu)",
+		r->fieldmap[KEY_HISTORYFILE],
+		NULL != r->fieldmap[KEY_HISTORYFILE] ?
+		r->fieldmap[KEY_HISTORYFILE]->valsz : -1,
+		r->fieldnmap[KEY_HISTORYFILE],
+		NULL != r->fieldnmap[KEY_HISTORYFILE] ?
+		r->fieldnmap[KEY_HISTORYFILE]->valsz : -1);
+
 	if (kpairbad(r, KEY_DATE) ||
 	    kpairbad(r, KEY_INSTR) ||
 	    kpairbad(r, KEY_LOTTERY) ||
@@ -1279,6 +1290,8 @@ senddostartexpr(struct kreq *r)
 	    kpairbad(r, KEY_ROUNDPCT) ||
 	    kpairbad(r, KEY_ROUNDS) ||
 	    kpairbad(r, KEY_SHOWHISTORY) ||
+	    (NULL != r->fieldnmap[KEY_HISTORYFILE] &&
+	     r->fieldnmap[KEY_HISTORYFILE]->valsz) ||
 	    kpairbad(r, KEY_SHUFFLE) ||
 	    kpairbad(r, KEY_TIME) ||
 	    kpairbad(r, KEY_URI) ||
@@ -1549,6 +1562,20 @@ senddowipe(struct kreq *r, int mail)
 		mail_wipe(mail);
 		exit(EXIT_SUCCESS);
 	}
+}
+
+static int
+kvalid_history(struct kpair *kp)
+{
+	struct json_object	*obj;
+
+	if ( ! kvalid_stringne(kp))
+		return(0);
+	obj = json_tokener_parse(kp->parsed.s);
+	if (NULL == obj)
+		return(0);
+	json_object_put(obj);
+	return(1);
 }
 
 static int
