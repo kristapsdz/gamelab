@@ -269,8 +269,7 @@ span.inputheader		{ color: #666; }
 				{ display: none; }
 .advanced.showadv 		{ margin-bottom: 0.5em;
 				  border-bottom: thin solid #666; }
-.seconds, .error		{ color: red;
-				  font-weight: bolder; }
+.seconds, .error		{ color: red; }
 #mturkbonusesButton		{ margin-top: 4pt; }
 .smallview			{ display: none; }
 @media only screen and (max-width: 800px), only screen and (max-device-width: 800px) {

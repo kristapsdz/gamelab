@@ -718,7 +718,14 @@
 								An unexpected system error occurred.
 							</div>
 							<div class="error noshow" id="addGameErrForm">
-								Invalid game payoffs, name, or strategy count.
+								<div class="warning">
+									<div>
+										<div><i class="fa fa-exclamation-circle"></i></div>
+										<div>
+											Invalid game payoffs, name, or strategy count.
+										</div>
+									</div>
+								</div>
 							</div>
 							<div class="error noshow" id="addGameErrState">
 								Experiment already started!
@@ -1019,7 +1026,14 @@
 									An unexpected error occurred.
 								</div>
 								<div class="noshow" id="startExprErrForm">
-									Can't start: no games listed.
+									<div class="warning">
+										<div>
+											<div><i class="fa fa-exclamation-circle"></i></div>
+											<div>
+												Can't start: no games listed or JSON pre-history (if supplied) invalid.
+											</div>
+										</div>
+									</div>
 								</div>
 								<div class="noshow" id="startExprErrState">
 									Experiment already started!
