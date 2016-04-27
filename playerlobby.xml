@@ -11,7 +11,7 @@
 		<script src="@HTURI@/playerlobby.min.js"></script>
 		<script src="@HTURI@/flotr2.min.js"></script>
 	</head>
-	<body onload="doInit();">
+	<body onload="sendQuery('@LABURI@/doloadquestions.json', doInitSetup, doInitSuccess, doInitFailure);">
 		<article>
 			<section>
 				<div id="top">
@@ -38,15 +38,14 @@
 									Before playing, you must answer some questions.
 								</p>
 								<p>
-									In this study you will use this web page to play a number of games. 
-									Before being able to play you have to read through some short
-									instructions and will be asked to answer a few questions to make sure
-									you understand. You can read these instructions again once you have
-									answered all questions.
+									In this task you will use this web page to play a number of games. Before being
+									able to play you have to read through some short instructions and will be asked
+									to answer a few questions to make sure you understand. You can read these
+									instructions again once you have answered all questions.
 								</p>
 								<p>
-									Your chances to win the lottery depend in part on how well you
-									understand these instructions, so read them carefully.
+									Since you can earn a substantial amount as a bonus payment in addition to the
+									task completion fee it is important that you read the instructions carefully.
 								</p>
 								<div class="standalone">
 									<div class="input input-submit">
@@ -60,25 +59,24 @@
 									Answer incorrect.
 									Please try again.
 								</p>
-								<p>	
-									The study is divided into a number of rounds. In each round you and
-									others will make decisions in 5 games. These games are identical in all
-									rounds.
-								</p>
-								<p>	
-									In each game you can earn tickets for a lottery that will take place
-									after the final round. The number of tickets you earn depends on both
-									your own and others' decisions in the games. The prize of the lottery is
-									10 000 SEK.
+								<p>
+									You will participate in 10 rounds. 
+									In each round you and others will make decisions in 5 games. 
+									These games are identical in all rounds.
 								</p>
 								<p>
-									Each round will last for at least 5 hours and will end when either 50%
-									of all participants have played or after 10 hours have passed.
+									In addition to the completion fee you will earn a bonus payment that
+									depends on both your own and others' decisions in the games.
+								</p>
+								<p>
+									Each round will last for at least 3 minutes and will end either when 60%
+									of all participants have played or after 5 minutes have passed.
 								</p>
 								<p>
 									How many games will you play in each round?
 								</p>
-								<form action="@LABURI@/doanswer.json" method="post" onsubmit="return(doPlay(this));">
+								<form action="@LABURI@/doanswer.json" method="post"
+									onsubmit="return(sendForm(this, doSetup, doError, doSuccess));">
 									<input type="hidden" name="aid" value="0" />
 									<fieldset>
 										<div class="input">
@@ -141,8 +139,8 @@
 									<i style="color: #333;" class="fa fa-square"></i>.
 									The column player's payoff is the second number in each cell, shown here in
 									<i style="color: #aaa;" class="fa fa-square"></i>.
-									Each payoff point awards one lottery ticket at the end of the
-									experiment.
+									Your payoff contributes to your bonus payment, with higher payoffs
+									resulting in a higher bonus payment.
 								</p>
 								<div class="poffs">
 									<div>
@@ -162,10 +160,11 @@
 									</div>
 								</div>
 								<p>
-									What is your payoff from the combination of row <strong>a</strong> and
+									What is your payoff from the combinations of row <strong>a</strong> and
 									column <strong>B</strong> in the game table?
 								</p>
-								<form action="@LABURI@/doanswer.json" method="post" onsubmit="return(doPlay(this));">
+								<form action="@LABURI@/doanswer.json" method="post"
+									onsubmit="return(sendForm(this, doSetup, doError, doSuccess));">
 									<input type="hidden" name="aid" value="1" />
 									<fieldset>
 										<div class="input">
@@ -259,7 +258,8 @@
 								<p>
 									What would your payoff be if you played row <strong>b</strong> in the game above?
 								</p>
-								<form action="@LABURI@/doanswer.json" method="post" onsubmit="return(doPlay(this));">
+								<form action="@LABURI@/doanswer.json" method="post"
+									onsubmit="return(sendForm(this, doSetup, doError, doSuccess));">
 									<input type="hidden" name="aid" value="2" />
 									<fieldset>
 										<div class="input">
@@ -346,7 +346,8 @@
 									<strong>1/2</strong> and row <strong>b</strong> with weight
 									<strong>1/2</strong>, what would your payoff be?
 								</p>
-								<form action="@LABURI@/doanswer.json" method="post" onsubmit="return(doPlay(this));">
+								<form action="@LABURI@/doanswer.json" method="post"
+									onsubmit="return(sendForm(this, doSetup, doError, doSuccess));">
 									<input type="hidden" name="aid" value="3" />
 									<fieldset>
 										<div class="input">
@@ -458,7 +459,8 @@
 										</div>
 									</div>
 								</div>
-								<form action="@LABURI@/doanswer.json" method="post" onsubmit="return(doPlay(this));">
+								<form action="@LABURI@/doanswer.json" method="post"
+									onsubmit="return(sendForm(this, doSetup, doErrorPlay, doSuccess));">
 									<input type="hidden" name="aid" value="4" />
 									<fieldset>
 										<div class="input">
@@ -533,7 +535,8 @@
 										</div>
 									</div>
 								</div>
-								<form action="@LABURI@/doanswer.json" method="post" onsubmit="return(doPlay(this));">
+								<form action="@LABURI@/doanswer.json" method="post"
+									onsubmit="return(sendForm(this, doSetup, doErrorPlay, doSuccess));">
 									<input type="hidden" name="aid" value="5" />
 									<fieldset>
 										<div class="input">
@@ -574,15 +577,18 @@
 									Other players' payoffs are calculated in the same fashion.
 								</p>
 								<p>
-									At the end of the study your total payoffs will be calculated by summing
+									At the end of the task your bonus payment will be calculated by summing
 									your payoffs from all games in all rounds in which you have
-									participated. Each payoff point awards one lottery ticket.
+									participated. 
+									Your payoff will be converted to US dollars at a <strong>1</strong>
+									payoff point = $<strong>0.03</strong> rate.
 								</p>
 								<p>
-									If you earn <strong>500</strong> points in total,
-									how m any lottery tickets will you have?
+									If you earn <strong>100</strong> points in total from the
+									<strong>10</strong> rounds, how large will your bonus payment be?
 								</p>
-								<form action="@LABURI@/doanswer.json" method="post" onsubmit="return(doPlay(this));">
+								<form action="@LABURI@/doanswer.json" method="post"
+									onsubmit="return(sendForm(this, doSetup, doError, doSuccess));">
 									<input type="hidden" name="aid" value="6" />
 									<fieldset>
 										<div class="input">
@@ -590,23 +596,23 @@
 											<div class="inputgroup">
 												<div>
 													<input id="choice6a" name="choice6" type="radio" value="0" />
-													<label for="choice6a">100</label>
+													<label for="choice6a">$1</label>
 												</div>
 												<div>
 													<input id="choice6b" name="choice6" type="radio" value="1" />
-													<label for="choice6b">250</label>
+													<label for="choice6b">$2</label>
 												</div>
 												<div>
 													<input id="choice6c" name="choice6" type="radio" value="2" />
-													<label for="choice6c">500</label>
+													<label for="choice6c">$3</label>
 												</div>
 												<div>
 													<input id="choice6d" name="choice6" type="radio" value="3" />
-													<label for="choice6d">750</label>
+													<label for="choice6d">$4</label>
 												</div>
 												<div>
 													<input id="choice6e" name="choice6" type="radio" value="4" />
-													<label for="choice6e">1000</label>
+													<label for="choice6e">$5</label>
 												</div>
 											</div>
 										</div>
@@ -620,8 +626,8 @@
 							</section>
 							<section id="question6-correct" class="noshow">
 								<p>
-									That's right. <strong>500</strong> points times 1 ticket per point is
-									<strong>500</strong> tickets.
+									That's right. <strong>100</strong> points times
+									$<strong>0.03</strong>/point is $<strong>3</strong>.
 								</p>
 								<div class="standalone">
 									<div class="input input-submit">
@@ -655,7 +661,8 @@
 									Based on the graphs above: in the last round, choosing what row with full
 									weight (<strong>1</strong>) would have given you the highest payoff?
 								</p>
-								<form action="@LABURI@/doanswer.json" method="post" onsubmit="return(doPlay(this));">
+								<form action="@LABURI@/doanswer.json" method="post"
+									onsubmit="return(sendForm(this, doSetup, doError, doSuccess));">
 									<input type="hidden" name="aid" value="7" />
 									<fieldset>
 										<div class="input">
@@ -691,7 +698,7 @@
 								<div class="standalone">
 									<div class="input input-submit">
 										<i class="fa fa-fw fa-check"></i>
-										<button onclick="location.href=getURL('@HTURI@/playerhome.html');">Start Playing</button>
+										<button onclick="location.href='@HTURI@/playerhome.html';">Start Playing</button>
 									</div>
 								</div>
 							</section>
@@ -701,9 +708,8 @@
 			</section>
 		</article>
 		<footer>
-			&copy; 2014&#8211;2016
+			&copy; 2014, 2015
 			<a href="http://www.kcons.eu"><i>k</i>-Consulting</a>
-			<a href="http://www.kcons.eu/gamelab">gamelab @VERSION@</a>
 			<a href="@HTURI@/privacy.html">Privacy</a>
 		</footer>
 	</body>
