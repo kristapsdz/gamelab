@@ -110,6 +110,7 @@ enum	key {
 	KEY_EMAIL3,
 	KEY_GAMEID,
 	KEY_HISTORYFILE,
+	KEY_HISTORYTRIM,
 	KEY_INSTR,
 	KEY_INSTRFILE,
 	KEY_LOTTERY,
@@ -259,6 +260,7 @@ static const struct kvalid keys[KEY__MAX] = {
 	{ kvalid_email, "email3" }, /* KEY_EMAIL3 */
 	{ kvalid_int, "gid" }, /* KEY_GAMEID */
 	{ kvalid_history, "historyfile" }, /* KEY_HISTORYFILE */
+	{ NULL, "trimhist" }, /* KEY_HISTORYTRIM */
 	{ kvalid_stringne, "instr" }, /* KEY_INSTR */
 	{ kvalid_stringne, "instrFile" }, /* KEY_INSTRFILE */
 	{ kvalid_string, "lottery" }, /* KEY_LOTTERY */
@@ -1255,6 +1257,65 @@ senddosetmturk(struct kreq *r)
 	khttp_body(r);
 }
 
+static char *
+historytrim(struct kreq *r)
+{
+	struct json_object	*obj, *h, *game, *rs, *ru, *skip;
+	struct array_list	*al;
+	size_t			 i, gsz, rsz;
+	int			 j, hiskip;
+	char			*v;
+	struct game		*gs;
+
+	gs = db_game_load_all_array(&gsz);
+	assert(NULL != gs);
+	obj = json_tokener_parse
+		(r->fieldmap[KEY_HISTORYFILE]->parsed.s);
+	assert(NULL != obj);
+	json_object_object_get_ex(obj, "history", &h);
+	assert(NULL != h);
+	hiskip = 0;
+
+	/* Make sure number of actions match. */
+	for (i = 0; i < gsz; i++) {
+		game = json_object_array_get_idx(h, i);
+		assert(json_type_object == json_object_get_type(obj));
+		json_object_object_get_ex(game, "roundups", &rs);
+		assert(NULL != rs);
+		assert(json_type_array == json_object_get_type(rs));
+		rsz = json_object_array_length(rs);
+		for (j = rsz - 1; j >= 0; j--) {
+			ru = json_object_array_get_idx(rs, j);
+			assert(NULL != ru);
+			json_object_object_get_ex(ru, "skip", &skip);
+			assert(NULL != skip);
+			assert(json_type_int == json_object_get_type(skip));
+			if (0 == json_object_get_int(skip))
+				break;
+		}
+		WARNX("high[%zu] = %d", i, j);
+		if (j + 1 > hiskip)
+			hiskip = j + 1;
+	}
+
+	WARNX("high = %d", hiskip);
+
+	for (i = 0; i < gsz; i++) {
+		game = json_object_array_get_idx(h, i);
+		assert(json_type_object == json_object_get_type(obj));
+		json_object_object_get_ex(game, "roundups", &rs);
+		assert(NULL != rs);
+		assert(json_type_array == json_object_get_type(rs));
+		al = json_object_get_array(rs);
+		al->length = hiskip;
+	}
+
+	v = kstrdup(json_object_to_json_string(obj));
+	json_object_put(obj);
+	db_game_free_array(gs, gsz);
+	return(v);
+}
+
 /*
  * Make sure that, if a history file was uploaded, it matches the
  * current number of games and strategies per game.
@@ -1262,8 +1323,9 @@ senddosetmturk(struct kreq *r)
 static int
 historybad(struct kreq *r)
 {
-	struct json_object	*obj, *h, *game, *p1, *p2;
-	size_t			 i, gsz;
+	struct json_object	*obj, *h, *game, *p1, *p2, *rs, *ru, *skip;
+	size_t			 i, j, gsz, rsz;
+	ssize_t			 grsz = -1;
 	int			 rc = 1;
 	struct game		*gs;
 
@@ -1299,8 +1361,7 @@ historybad(struct kreq *r)
 		if (json_type_object != json_object_get_type(obj)) {
 			WARNX("history: game JSON is not object");
 			goto out;
-		}
-		if ( ! json_object_object_get_ex(game, "p1", &p1)) {
+		} else if ( ! json_object_object_get_ex(game, "p1", &p1)) {
 			WARNX("history: no player 1 strategy size");
 			goto out;
 		} else if (json_type_int != json_object_get_type(p1)) {
@@ -1309,8 +1370,7 @@ historybad(struct kreq *r)
 		} else if ((int)gs[i].p1 != json_object_get_int(p1)) {
 			WARNX("history: player 1 action mismatch");
 			goto out;
-		}
-		if ( ! json_object_object_get_ex(game, "p2", &p2)) {
+		} else if ( ! json_object_object_get_ex(game, "p2", &p2)) {
 			WARNX("history: no player 2 strategy size");
 			goto out;
 		} else if (json_type_int != json_object_get_type(p2)) {
@@ -1319,6 +1379,32 @@ historybad(struct kreq *r)
 		} else if ((int)gs[i].p2 != json_object_get_int(p2)) {
 			WARNX("history: player 2 action mismatch");
 			goto out;
+		} else if ( ! json_object_object_get_ex(game, "roundups", &rs)) {
+			WARNX("history: no roundups");
+			goto out;
+		} else if (json_type_array != json_object_get_type(rs)) {
+			WARNX("history: roundups not JSON array");
+			goto out;
+		}
+		rsz = json_object_array_length(h);
+		if (grsz < 0)
+			grsz = rsz;
+		if ((size_t)grsz != rsz) {
+			WARNX("history: inconsistent roundup count");
+			goto out;
+		}
+		for (j = 0; j < rsz; j++) {
+			ru = json_object_array_get_idx(rs, j);
+			if (json_type_object != json_object_get_type(ru)) {
+				WARNX("history: roundup JSON is not object");
+				goto out;
+			} else if ( ! json_object_object_get_ex(ru, "skip", &skip)) {
+				WARNX("history: no skip");
+				goto out;
+			} else if (json_type_int != json_object_get_type(skip)) {
+				WARNX("history: skip not int");
+				goto out;
+			}
 		}
 	}
 	rc = 0;
@@ -1332,7 +1418,7 @@ static void
 senddostartexpr(struct kreq *r)
 {
 	pid_t		 pid;
-	char		*loginuri, *uri, *map, *server;
+	char		*loginuri, *uri, *map, *server, *json, *start;
 	struct expr	*expr;
 	const char	*instdat;
 	enum instrs	 inst;
@@ -1431,6 +1517,33 @@ senddostartexpr(struct kreq *r)
 		flags |= EXPR_NOSHUFFLE;
 	if (r->fieldmap[KEY_RELATIVE]->parsed.i)
 		flags |= EXPR_RELATIVE;
+
+	json = NULL;
+	if (NULL != r->fieldmap[KEY_HISTORYTRIM] &&
+	    NULL != r->fieldmap[KEY_HISTORYFILE])
+		json = historytrim(r);
+	else if (NULL != r->fieldmap[KEY_HISTORYFILE]) 
+		json = kstrdup(r->fieldmap[KEY_HISTORYFILE]->parsed.s);
+
+	/* Trim outer object scaffolding from JSON file. */
+	if (NULL != json) {
+		start = json;
+		sz = strlen(start);
+		while (isspace((int)*start)) {
+			start++;
+			sz--;
+		}
+		if ('{' == *start) {
+			start++;
+			sz--;
+		}
+		while (sz && isspace((int)start[sz - 1]))
+			sz--;
+		if ('}' == start[sz - 1])
+			sz--;
+		start[sz] = '\0';
+	} else
+		start = NULL;
 	
 	/*
 	 * Actually start the experiment.
@@ -1448,8 +1561,7 @@ senddostartexpr(struct kreq *r)
 		 r->fieldmap[KEY_PLAYERMAX]->parsed.i,
 		 instdat,
 		 r->fieldmap[KEY_URI]->parsed.s,
-		 NULL == r->fieldmap[KEY_HISTORYFILE] ?
-		 NULL : r->fieldmap[KEY_HISTORYFILE]->parsed.s,
+		 start,
 		 r->fieldmap[KEY_LOTTERY]->parsed.s,
 		 r->fieldmap[KEY_QUESTIONNAIRE]->parsed.i,
 		 flags)) {
@@ -1461,6 +1573,7 @@ senddostartexpr(struct kreq *r)
 			munmap(map, sz);
 			close(fd);
 		}
+		free(json);
 		return;
 	} else if (INSTR_LOTTERY == inst || 
 		   INSTR_NOLOTTERY == inst ||
@@ -1468,6 +1581,8 @@ senddostartexpr(struct kreq *r)
 		munmap(map, sz);
 		close(fd);
 	}
+
+	free(json);
 
 	http_open(r, KHTTP_200);
 	khttp_body(r);

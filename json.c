@@ -15,6 +15,7 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 #include <assert.h>
+#include <ctype.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdint.h>
@@ -253,7 +254,6 @@ json_putexpr(struct kjsonreq *r, const struct expr *expr, int admin)
 	time_t	 	 tt;
 	struct ktemplate t;
 	struct jsoncache c;
-	size_t		 sz;
 
 	frac = 0.0;
 
@@ -329,11 +329,13 @@ json_putexpr(struct kjsonreq *r, const struct expr *expr, int admin)
 		kill(expr->roundpid, 0) < 0 ? 0 : 1);
 	kjson_putintp(r, "roundbegan", expr->roundbegan);
 	kjson_putintp(r, "autoadd", expr->autoadd);
-	if ('{' == expr->history[0] && (sz = strlen(expr->history)) > 2) {
-		khttp_puts(r->req, ", ");
-		khttp_write(r->req, expr->history + 1, sz - 2);
-	} else
+
+	if ('\0' != *expr->history) {
+		khttp_putc(r->req, ',');
+		khttp_puts(r->req, expr->history);
+	} else 
 		kjson_putnullp(r, "history");
+
 	kjson_putintp(r, "autoaddpreserve", expr->autoaddpreserve);
 	kjson_obj_close(r);
 }
