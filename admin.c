@@ -1255,6 +1255,58 @@ senddosetmturk(struct kreq *r)
 	khttp_body(r);
 }
 
+/*
+ * Make sure that, if a history file was uploaded, it matches the
+ * current number of games and strategies per game.
+ */
+static int
+historybad(struct kreq *r)
+{
+	struct json_object	*obj;
+	struct json_object	*history;
+	struct json_object	*game;
+	size_t			 i, gamesz;
+	int			 rc = 1;
+	struct game		*games;
+
+	if (NULL == r->fieldmap[KEY_HISTORYFILE])
+		return(0);
+
+	games = db_game_load_all_array(&gamesz);
+	assert(NULL != games);
+
+	obj = json_tokener_parse
+		(r->fieldmap[KEY_HISTORYFILE]->parsed.s);
+	assert(NULL != obj);
+	if (json_type_object != json_object_get_type(obj)) {
+		WARNX("history: top-level JSON is not object");
+		goto out;
+	}
+	if ( ! json_object_object_get_ex(obj, "history", &history)) {
+		WARNX("history: no top-level history array");
+		goto out;
+	} else if (json_type_array != json_object_get_type(history)) {
+		WARNX("history: top-level history JSON not array");
+		goto out;
+	} else if ((int)gamesz != json_object_array_length(history)) {
+		WARNX("history: different number of games");
+		goto out;
+	}
+
+	for (i = 0; i < gamesz; i++) {
+		game = json_object_array_get_idx(history, i);
+		if (json_type_object != json_object_get_type(obj)) {
+			WARNX("history: game JSON is not object");
+			goto out;
+		}
+	}
+	rc = 0;
+out:
+	json_object_put(obj);
+	db_game_free_array(games, gamesz);
+	return(rc);
+}
+
 static void
 senddostartexpr(struct kreq *r)
 {
@@ -1267,15 +1319,6 @@ senddostartexpr(struct kreq *r)
 	int64_t		 flags;
 	struct stat	 st;
 	size_t		 sz;
-
-
-	fprintf(stderr, "%p (%zd), %p (%zu)",
-		r->fieldmap[KEY_HISTORYFILE],
-		NULL != r->fieldmap[KEY_HISTORYFILE] ?
-		r->fieldmap[KEY_HISTORYFILE]->valsz : -1,
-		r->fieldnmap[KEY_HISTORYFILE],
-		NULL != r->fieldnmap[KEY_HISTORYFILE] ?
-		r->fieldnmap[KEY_HISTORYFILE]->valsz : -1);
 
 	if (kpairbad(r, KEY_DATE) ||
 	    kpairbad(r, KEY_INSTR) ||
@@ -1295,7 +1338,8 @@ senddostartexpr(struct kreq *r)
 	    kpairbad(r, KEY_SHUFFLE) ||
 	    kpairbad(r, KEY_TIME) ||
 	    kpairbad(r, KEY_URI) ||
-	    db_game_count_all() < 1) {
+	    db_game_count_all() < 1 ||
+	    historybad(r)) {
 		http_open(r, KHTTP_400);
 		khttp_body(r);
 		return;
