@@ -170,6 +170,14 @@ function doPlay(e)
 	return(sendFormData(e, data, doSetup, doError, doSuccess));
 }
 
+function doRowPlay(e)
+{
+	var data = new FormData(e);
+
+	augmentForm(data);
+	return(sendFormData(e, data, doSetup, doErrorPlay, doSuccess));
+}
+
 function startQuestions()
 {
 
