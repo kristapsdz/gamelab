@@ -1262,48 +1262,69 @@ senddosetmturk(struct kreq *r)
 static int
 historybad(struct kreq *r)
 {
-	struct json_object	*obj;
-	struct json_object	*history;
-	struct json_object	*game;
-	size_t			 i, gamesz;
+	struct json_object	*obj, *h, *game, *p1, *p2;
+	size_t			 i, gsz;
 	int			 rc = 1;
-	struct game		*games;
+	struct game		*gs;
 
 	if (NULL == r->fieldmap[KEY_HISTORYFILE])
 		return(0);
 
-	games = db_game_load_all_array(&gamesz);
-	assert(NULL != games);
+	gs = db_game_load_all_array(&gsz);
+	assert(NULL != gs);
 
+	/* Get top-level "history" object. */
 	obj = json_tokener_parse
 		(r->fieldmap[KEY_HISTORYFILE]->parsed.s);
 	assert(NULL != obj);
+
+	/* Make sure top-level object is array with correct size. */
 	if (json_type_object != json_object_get_type(obj)) {
 		WARNX("history: top-level JSON is not object");
 		goto out;
-	}
-	if ( ! json_object_object_get_ex(obj, "history", &history)) {
+	} else if ( ! json_object_object_get_ex(obj, "history", &h)) {
 		WARNX("history: no top-level history array");
 		goto out;
-	} else if (json_type_array != json_object_get_type(history)) {
+	} else if (json_type_array != json_object_get_type(h)) {
 		WARNX("history: top-level history JSON not array");
 		goto out;
-	} else if ((int)gamesz != json_object_array_length(history)) {
+	} else if ((int)gsz != json_object_array_length(h)) {
 		WARNX("history: different number of games");
 		goto out;
 	}
 
-	for (i = 0; i < gamesz; i++) {
-		game = json_object_array_get_idx(history, i);
+	/* Make sure number of actions match. */
+	for (i = 0; i < gsz; i++) {
+		game = json_object_array_get_idx(h, i);
 		if (json_type_object != json_object_get_type(obj)) {
 			WARNX("history: game JSON is not object");
+			goto out;
+		}
+		if ( ! json_object_object_get_ex(game, "p1", &p1)) {
+			WARNX("history: no player 1 strategy size");
+			goto out;
+		} else if (json_type_int != json_object_get_type(p1)) {
+			WARNX("history: player 1 size not int");
+			goto out;
+		} else if ((int)gs[i].p1 != json_object_get_int(p1)) {
+			WARNX("history: player 1 action mismatch");
+			goto out;
+		}
+		if ( ! json_object_object_get_ex(game, "p2", &p2)) {
+			WARNX("history: no player 2 strategy size");
+			goto out;
+		} else if (json_type_int != json_object_get_type(p2)) {
+			WARNX("history: player 2 size not int");
+			goto out;
+		} else if ((int)gs[i].p2 != json_object_get_int(p2)) {
+			WARNX("history: player 2 action mismatch");
 			goto out;
 		}
 	}
 	rc = 0;
 out:
 	json_object_put(obj);
-	db_game_free_array(games, gamesz);
+	db_game_free_array(gs, gsz);
 	return(rc);
 }
 
