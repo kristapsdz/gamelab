@@ -43,6 +43,7 @@
 		"player.version,player.joined,player.answer," \
 		"player.hitid,player.assignmentid,player.hash," \
 		"player.mturkdone"
+#define	GAME	"game.p1,game.p2,game.payoffs,game.name,game.id"
 
 /*
  * The database, its location, and its statement (if any).
@@ -1052,21 +1053,6 @@ db_admin_valid(const char *email, const char *pass)
 	return(1);
 }
 
-void
-db_game_free(struct game *game)
-{
-	size_t	 i;
-
-	if (NULL == game)
-		return;
-
-	for (i = 0; i < (size_t)(game->p1 * game->p2 * 2); i++)
-		mpq_clear(game->payoffs[i]);
-	free(game->payoffs);
-	free(game->name);
-	free(game);
-}
-
 size_t
 db_game_count_all(void)
 {
@@ -1151,6 +1137,56 @@ db_player_set_instr(int64_t player, int64_t instr)
 	db_bind_int(stmt, 2, player);
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);
+}
+
+static void
+db_game_fill(struct game *p, size_t *pos, sqlite3_stmt *s)
+{
+	size_t	 i = 0, sz;
+
+	memset(p, 0, sizeof(struct game));
+	if (NULL == pos)
+		pos = &i;
+	p->p1 = sqlite3_column_int64(s, (*pos)++);
+	p->p2 = sqlite3_column_int64(s, (*pos)++);
+	sz = 2 * p->p1 * p->p2;
+	p->payoffs = mpq_str2mpqsinit
+		(sqlite3_column_text(s, (*pos)++), sz);
+	p->name = kstrdup((char *)
+		sqlite3_column_text(s, (*pos)++));
+	p->id = sqlite3_column_int64(s, (*pos)++);
+}
+
+static void
+db_game_unfill(struct game *p)
+{
+	size_t	 i, sz;
+
+	if (NULL == p)
+		return;
+	sz = 2 * p->p1 * p->p2;
+	for (i = 0; i < sz; i++)
+		mpq_clear(p->payoffs[i]);
+	free(p->payoffs);
+	free(p->name);
+}
+
+void
+db_game_free_array(struct game *game, size_t sz)
+{
+	size_t	 i;
+
+	for (i = 0; i < sz; i++)
+		db_game_unfill(&game[i]);
+	free(game);
+}
+
+void
+db_game_free(struct game *game)
+{
+
+	db_game_unfill(game);
+	free(game);
 }
 
 static void
@@ -1585,24 +1621,34 @@ db_game_load(int64_t gameid)
 	sqlite3_stmt	*stmt;
 	struct game	*game = NULL;
 
-	stmt = db_stmt("SELECT payoffs,p1,p2,"
-		"name,id FROM game WHERE id=?");
+	stmt = db_stmt("SELECT " GAME " FROM game WHERE id=?");
 	db_bind_int(stmt, 1, gameid);
-
 	if (SQLITE_ROW == db_step(stmt, 0)) {
 		game = kcalloc(1, sizeof(struct game));
-		game->p1 = sqlite3_column_int64(stmt, 1);
-		game->p2 = sqlite3_column_int64(stmt, 2);
-		game->payoffs = mpq_str2mpqsinit
-			(sqlite3_column_text(stmt, 0), 
-			 game->p1 * game->p2 * 2);
-		game->name = kstrdup((char *)
-			sqlite3_column_text(stmt, 3));
-		game->id = sqlite3_column_int64(stmt, 4);
+		db_game_fill(game, NULL, stmt);
 	}
 
 	sqlite3_finalize(stmt);
 	return(game);
+}
+
+struct game *
+db_game_load_all_array(size_t *sz)
+{
+	sqlite3_stmt	*stmt;
+	struct game	*games = NULL;
+	size_t		 i = 0;
+
+	stmt = db_stmt("SELECT " GAME " FROM game ORDER BY id");
+	while (SQLITE_ROW == db_step(stmt, 0)) {
+		games = kreallocarray
+			(games, i + 1, sizeof(struct game));
+		db_game_fill(&games[i++], NULL, stmt);
+	}
+
+	sqlite3_finalize(stmt);
+	*sz = i;
+	return(games);
 }
 
 void
@@ -1610,27 +1656,13 @@ db_game_load_all(gamef fp, void *arg)
 {
 	sqlite3_stmt	*stmt;
 	struct game	 game;
-	size_t		 i;
 
-	stmt = db_stmt("SELECT payoffs,p1,p2,"
-		"name,id FROM game ORDER BY id");
+	stmt = db_stmt("SELECT " GAME " FROM game ORDER BY id");
 	while (SQLITE_ROW == db_step(stmt, 0)) {
-		memset(&game, 0, sizeof(struct game));
-		game.p1 = sqlite3_column_int64(stmt, 1);
-		game.p2 = sqlite3_column_int64(stmt, 2);
-		game.payoffs = mpq_str2mpqsinit
-			(sqlite3_column_text(stmt, 0), 
-			 game.p1 * game.p2 * 2);
-		game.name = kstrdup((char *)
-			sqlite3_column_text(stmt, 3));
-		game.id = sqlite3_column_int64(stmt, 4);
+		db_game_fill(&game, NULL, stmt);
 		(*fp)(&game, arg);
-		for (i = 0; i < (size_t)(2 * game.p1 * game.p2); i++)
-			mpq_clear(game.payoffs[i]);
-		free(game.payoffs);
-		free(game.name);
+		db_game_unfill(&game);
 	}
-
 	sqlite3_finalize(stmt);
 }
 

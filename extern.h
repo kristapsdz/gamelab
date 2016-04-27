@@ -290,10 +290,11 @@ int		 db_game_check_player(int64_t, int64_t, int64_t);
 size_t		 db_game_count_all(void);
 int		 db_game_delete(int64_t);
 void		 db_game_free(struct game *);
+void		 db_game_free_array(struct game *, size_t);
 struct game	*db_game_load(int64_t);
-struct game	*db_game_load_array(size_t *);
 size_t		 db_game_round_count_done(int64_t, int64_t, size_t);
 void		 db_game_load_all(gamef fp, void *);
+struct game	*db_game_load_all_array(size_t *);
 void		 db_game_load_player(int64_t, 
 			int64_t, gameroundf, void *);
 
