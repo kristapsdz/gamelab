@@ -227,7 +227,9 @@ static const char *const pages[PAGE__MAX] = {
 	"index", /* PAGE_INDEX */
 };
 
+#if 0
 static int kvalid_history(struct kpair *);
+#endif
 static int kvalid_minutes(struct kpair *);
 static int kvalid_rounds(struct kpair *);
 static int kvalid_time(struct kpair *);
@@ -259,7 +261,7 @@ static const struct kvalid keys[KEY__MAX] = {
 	{ kvalid_email, "email2" }, /* KEY_EMAIL2 */
 	{ kvalid_email, "email3" }, /* KEY_EMAIL3 */
 	{ kvalid_int, "gid" }, /* KEY_GAMEID */
-	{ kvalid_history, "historyfile" }, /* KEY_HISTORYFILE */
+	{ kvalid_string, "historyfile" }, /* KEY_HISTORYFILE */
 	{ NULL, "trimhist" }, /* KEY_HISTORYTRIM */
 	{ kvalid_stringne, "instr" }, /* KEY_INSTR */
 	{ kvalid_stringne, "instrFile" }, /* KEY_INSTRFILE */
@@ -1319,6 +1321,10 @@ historytrim(struct kreq *r)
 /*
  * Make sure that, if a history file was uploaded, it matches the
  * current number of games and strategies per game.
+ * XXX: since json-c can't run in a validator (it access /dev/urandom),
+ * we need to check against an invalid file and an empty one.
+ * We require a KEY_HISTORYFILE for this, but it can be an empty string
+ * in which case we return false (not bad).
  */
 static int
 historybad(struct kreq *r)
@@ -1329,16 +1335,18 @@ historybad(struct kreq *r)
 	int			 rc = 1;
 	struct game		*gs;
 
-	if (NULL == r->fieldmap[KEY_HISTORYFILE])
+	if (0 == r->fieldmap[KEY_HISTORYFILE]->valsz)
 		return(0);
-
-	gs = db_game_load_all_array(&gsz);
-	assert(NULL != gs);
 
 	/* Get top-level "history" object. */
 	obj = json_tokener_parse
 		(r->fieldmap[KEY_HISTORYFILE]->parsed.s);
+	if (NULL == obj)
+		return(1);
 	assert(NULL != obj);
+
+	gs = db_game_load_all_array(&gsz);
+	assert(NULL != gs);
 
 	/* Make sure top-level object is array with correct size. */
 	if (json_type_object != json_object_get_type(obj)) {
@@ -1440,8 +1448,7 @@ senddostartexpr(struct kreq *r)
 	    kpairbad(r, KEY_ROUNDPCT) ||
 	    kpairbad(r, KEY_ROUNDS) ||
 	    kpairbad(r, KEY_SHOWHISTORY) ||
-	    (NULL != r->fieldnmap[KEY_HISTORYFILE] &&
-	     r->fieldnmap[KEY_HISTORYFILE]->valsz) ||
+	    kpairbad(r, KEY_HISTORYFILE) ||
 	    kpairbad(r, KEY_SHUFFLE) ||
 	    kpairbad(r, KEY_TIME) ||
 	    kpairbad(r, KEY_URI) ||
@@ -1520,9 +1527,9 @@ senddostartexpr(struct kreq *r)
 
 	json = NULL;
 	if (NULL != r->fieldmap[KEY_HISTORYTRIM] &&
-	    NULL != r->fieldmap[KEY_HISTORYFILE])
+	    r->fieldmap[KEY_HISTORYFILE]->valsz)
 		json = historytrim(r);
-	else if (NULL != r->fieldmap[KEY_HISTORYFILE]) 
+	else if (r->fieldmap[KEY_HISTORYFILE]->valsz) 
 		json = kstrdup(r->fieldmap[KEY_HISTORYFILE]->parsed.s);
 
 	/* Trim outer object scaffolding from JSON file. */
@@ -1744,6 +1751,11 @@ senddowipe(struct kreq *r, int mail)
 	}
 }
 
+#if 0
+/*
+ * For now, we need to disable this: the json library will call out to
+ * /dev/urandom and that will cause this to crash.
+ */
 static int
 kvalid_history(struct kpair *kp)
 {
@@ -1757,6 +1769,7 @@ kvalid_history(struct kpair *kp)
 	json_object_put(obj);
 	return(1);
 }
+#endif
 
 static int
 kvalid_rounds(struct kpair *kp)
