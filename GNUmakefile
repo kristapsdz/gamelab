@@ -29,9 +29,9 @@ else ifeq ($(shell uname), OpenBSD)
 # OpenBSD example: chroot in nginx.
 # This accepts RELPREFIX as the prefix within the chroot.
 # This is also used in production.
-PREFIX		?= /var/www/gamelab
-URIPREFIX	?= /gamelab
-RELPREFIX	?= /gamelab
+PREFIX		?= /var/www
+URIPREFIX	?= 
+RELPREFIX	?=
 ADMINURI	 = $(URIPREFIX)/cgi-bin/admin
 HTURI		 = $(URIPREFIX)
 LABURI		 = $(URIPREFIX)/cgi-bin/lab
