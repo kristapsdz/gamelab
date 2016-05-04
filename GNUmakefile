@@ -76,6 +76,7 @@ VMONTH	 = March
 VYEAR	 = 2016
 CFLAGS 	+= -g -W -Wall -Wstrict-prototypes -Wno-unused-parameter -Wwrite-strings -I/usr/local/include
 CFLAGS	+= -DDATADIR=\"$(RDATADIR)\" -DHTURI=\"$(HTURI)\" -DLABURI=\"$(LABURI)\"
+CFLAGS	+= -DLOGFILE=\"$(LOGFILE)\"
 INSTRS 	 = instructions-lottery.xml \
 	   instructions-nolottery.xml \
 	   instructions-mturk.xml

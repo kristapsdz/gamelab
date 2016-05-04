@@ -27,6 +27,7 @@
 #include <time.h>
 #include <unistd.h>
 
+#include <sqlite3.h>
 #include <gmp.h>
 #include <kcgi.h>
 #include <kcgijson.h>
@@ -1346,11 +1347,28 @@ doreq(struct kreq *r)
 	}
 }
 
+static void 
+errLogCallback(void *pArg, int iErrCode, const char *zMsg)
+{
+
+	WARNX("sqlite3: %s (%d)", zMsg, iErrCode);
+}
+
 int
 main(void)
 {
 	struct kreq	 r;
 	enum kcgi_err	 er;
+
+	/*
+	 * Open our own log file.
+	 * This is because we might double-fork, and doing so will cause
+	 * problems with FastCGI implementations that wait on stderr
+	 * before seeing a channel as closed.
+	 */
+	freopen(LOGFILE, "a", stderr);
+	setlinebuf(stderr);
+	sqlite3_config(SQLITE_CONFIG_LOG, errLogCallback, NULL);
 
 	er = khttp_parse(&r, keys, KEY__MAX, 
 		pages, PAGE__MAX, PAGE_INDEX);
