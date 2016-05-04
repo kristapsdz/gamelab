@@ -1,40 +1,71 @@
 .SUFFIXES: .min.js .js .html .xml
 
-# Mac OSX testing.
-# This is useful when running in a userdir.
-ADMINURI	 = /~kristaps/admin.cgi
+# The (GNU) Makefile.
+# This begins with a bunch of examples for different installations.
+# Choose as you wish.
+# Some of these you can override during Makefile.
+
+ifeq ($(shell uname), Darwin)
+# Mac OSX example: userdir and apache2.
+# I use the userdir ("~/kristaps") just for demonstration.
+PREFIX		?= /Users/kristaps/Sites
+URIPREFIX	?= /~kristaps
+RELPREFIX	?= # Not used.
+ADMINURI	 = $(URIPREFIX)/admin.cgi
+HTURI		 = $(URIPREFIX)
+LABURI		 = $(URIPREFIX)/lab.cgi
+FONTURI	 	 = $(URIPREFIX)/font-awesome-4.5.0/css/font-awesome.min.css
 CGIBIN		 = $(PREFIX)
-CFLAGS		+= -Wno-deprecated-declarations
 DATADIR		 = $(PREFIX)
-#DSYMUTIL	 = sudo dsymutil
-FONTURI		 = /~kristaps/font-awesome-4.5.0/css/font-awesome.min.css
 HTDOCS		 = $(PREFIX)
-HTURI		 = /~kristaps
-LABURI		 = /~kristaps/lab.cgi
-LIBS		 = 
-PREFIX		 = /Users/kristaps/Sites
 RDATADIR	 = $(PREFIX)
+CFLAGS		+= -Wno-deprecated-declarations
+#DSYMUTIL	 = sudo dsymutil
+DSYMUTIL	 = # Not used.
+LIBS		 = 
 STATIC		 = 
-
-# Linux testing.
-# LIBS		 = -lbsd -lm
-
-# OpenBSD production.
-#PREFIX		?= /var/www/gamelab
-#URIPREFIX	?= /gamelab
-#RELPREFIX	?= /gamelab
-#ADMINURI	 = $(URIPREFIX)/cgi-bin/admin
-#CGIBIN		 = $(PREFIX)/cgi-bin
-#CFLAGS		+= -DLOGTIME=1
-#DATADIR	 	 = $(PREFIX)/data
-#FONTURI		 = //maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css
-#HTDOCS		 = $(PREFIX)/htdocs
-#HTURI		 = $(URIPREFIX)
-#LABURI		 = $(URIPREFIX)/cgi-bin/lab
-#LIBS		 = -lintl -liconv -lm
-#RDATADIR	 = $(RELPREFIX)/data
-#STATIC		 = -static -nopie
+LOGFILE	 	 = $(PREFIX)/gamelab.log
+else ifeq ($(shell uname), OpenBSD)
+# OpenBSD example: chroot in nginx.
+# This accepts RELPREFIX as the prefix within the chroot.
+# This is also used in production.
+PREFIX		?= /var/www/gamelab
+URIPREFIX	?= /gamelab
+RELPREFIX	?= /gamelab
+ADMINURI	 = $(URIPREFIX)/cgi-bin/admin
+HTURI		 = $(URIPREFIX)
+LABURI		 = $(URIPREFIX)/cgi-bin/lab
+CGIBIN		 = $(PREFIX)/cgi-bin
+DATADIR	 	 = $(PREFIX)/data
+HTDOCS		 = $(PREFIX)/htdocs
+RDATADIR	 = $(RELPREFIX)/data
+FONTURI		 = //maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css
+DSYMUTIL	 = # Not used.
+CFLAGS		+= -DLOGTIME=1
+LIBS		 = -lintl -liconv -lm
+STATIC		 = -static -nopie
+LOGFILE	 	 = /logs/gametheorylab.org-system.log
 # OpenBSD 5.8 needs -nopie or the binaries segfault.
+# I think this is due to GMP.
+else 
+# Generic example (no chroot).
+PREFIX		?= /var/www
+URIPREFIX	?= 
+RELPREFIX	?= # Not used.
+ADMINURI	 = $(URIPREFIX)/cgi-bin/admin
+HTURI		 = $(URIPREFIX)
+LABURI		 = $(URIPREFIX)/cgi-bin/lab
+CGIBIN		 = $(PREFIX)/cgi-bin
+DATADIR	 	 = $(PREFIX)/data
+HTDOCS		 = $(PREFIX)/htdocs
+RDATADIR	 = $(PREFIX)/data
+FONTURI		 = //maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css
+DSYMUTIL	 = # Not used.
+CFLAGS		+= 
+LIBS		 = -lbsd -lm # For Linux...
+STATIC		 =
+LOGFILE	 	 = /logs/gamelab.log
+endif
 
 #####################################################################
 # You really don't want to change anything below this line.
