@@ -1296,12 +1296,16 @@ historytrim(struct kreq *r)
 			if (0 == json_object_get_int(skip))
 				break;
 		}
+#if 0
 		WARNX("high[%zu] = %d", i, j);
+#endif
 		if (j + 1 > hiskip)
 			hiskip = j + 1;
 	}
 
+#if 0
 	WARNX("high = %d", hiskip);
+#endif
 
 	for (i = 0; i < gsz; i++) {
 		game = json_object_array_get_idx(h, i);

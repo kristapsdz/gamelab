@@ -204,7 +204,9 @@ node_parse(void *contents, size_t len, size_t nm, void *arg)
 
 	/* XXX: debugging */
 	rsz = nm * len;
+#if 0
 	INFO("%.*s", (int)rsz, (char *)contents);
+#endif
 
 	if (0 == XML_Parse(parser, contents, (int)rsz, 0)) {
 		erc = XML_GetErrorCode(parser);
