@@ -1347,12 +1347,14 @@ doreq(struct kreq *r)
 	}
 }
 
+#if 0
 static void 
 errLogCallback(void *pArg, int iErrCode, const char *zMsg)
 {
 
 	WARNX("sqlite3: %s (%d)", zMsg, iErrCode);
 }
+#endif
 
 int
 main(void)
@@ -1368,7 +1370,7 @@ main(void)
 	 */
 	freopen(LOGFILE, "a", stderr);
 	setlinebuf(stderr);
-	sqlite3_config(SQLITE_CONFIG_LOG, errLogCallback, NULL);
+	/*sqlite3_config(SQLITE_CONFIG_LOG, errLogCallback, NULL);*/
 
 	er = khttp_parse(&r, keys, KEY__MAX, 
 		pages, PAGE__MAX, PAGE_INDEX);

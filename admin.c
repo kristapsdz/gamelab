@@ -1827,12 +1827,14 @@ kvalid_minutes(struct kpair *kp)
 	return(kp->parsed.i > 0 && kp->parsed.i <= 1440);
 }
 
+#if 0
 static void 
 errLogCallback(void *pArg, int iErrCode, const char *zMsg)
 {
 
 	WARNX("sqlite3: %s (%d)", zMsg, iErrCode);
 }
+#endif
 
 int
 main(void)
@@ -1848,7 +1850,9 @@ main(void)
 	 */
 	freopen(LOGFILE, "a", stderr);
 	setlinebuf(stderr);
+#if 0
 	sqlite3_config(SQLITE_CONFIG_LOG, errLogCallback, NULL);
+#endif
 
 	if (KCGI_OK != khttp_parse(&r, keys, KEY__MAX, 
 			pages, PAGE__MAX, PAGE_INDEX))
