@@ -596,6 +596,7 @@
 				Considerably clean up the experimenter interface internals, though there should be no (or very little, beyond
 				polish) visible difference to experimenters.
 				Also focus on using <q>experimenter</q> instead of <q>administrator</q>.
+				This is a stable release of the system: it has been used for several production games.
 			</p>
 		</aside>
 	</article>
