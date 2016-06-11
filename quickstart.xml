@@ -3,9 +3,10 @@
 	<head>
 		<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
 		<meta charset="utf-8" /> 
-		<title>gamelab :: quickstart</title>
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" type="text/css" />
-		<link rel="stylesheet" href="manual.css" type="text/css" />
+		<title>gamelab quickstart</title>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" />
+		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Alegreya+Sans:300,300italic" />
+		<link rel="stylesheet" href="manual.css" />
 	</head>
 	<body>
 		<header>

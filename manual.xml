@@ -3,9 +3,10 @@
 	<head>
 		<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
 		<meta charset="utf-8" /> 
-		<title>gamelab :: manual</title>
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" type="text/css" />
-		<link rel="stylesheet" href="manual.css" type="text/css" />
+		<title>gamelab manual</title>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" />
+		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Alegreya+Sans:300,300italic" />
+		<link rel="stylesheet" href="manual.css" />
 	</head>
 	<body>
 		<header>
@@ -354,7 +355,7 @@
 						<h3>Server Backend</h3>
 					</header>
 					<p>
-						The backend of <span class="nm">gamelab</span> is a <a href="http://learnbchs.org">BCHS</a>
+						The backend of <span class="nm">gamelab</span> is a <a href="https://learnbchs.org">BCHS</a>
 						system consisting of two compiled CGI programs: one for the experimenter, one for participants.
 						These are small ISO C applications linking to a number of open source libraries.
 						Consult the <a href="#deploy">Deployment</a> section for how to install these libraries.
@@ -394,7 +395,7 @@
 						Matrix ordering and player role, among other subsystems, require a
 						non-deterministic random number generator.
 						To accomplish this, <span class="nm">gamelab</span> uses the BSD <a
-							href="http://www.openbsd.org/cgi-bin/man.cgi/OpenBSD-current/man3/arc4random.3">arc4random</a>
+							href="http://man.openbsd.org/arc4random.3">arc4random</a>
 						system interface to provide high-quality randomness.
 						This is emulated with <a href="https://wiki.freedesktop.org/libbsd/">libbsd</a> on GNU/Linux.
 						The lottery computation uses a deterministic random number generator using an
@@ -420,7 +421,7 @@
 						jail.
 						You can effect the same conditions on any well-configured web server configuration, however.
 						On any supported system, the library used to communicate with the web server, <a
-							href="http://kristaps.bsd.lv/kcgi">kcgi</a>, is heavily invested in security.
+							href="https://kristaps.bsd.lv/kcgi">kcgi</a>, is heavily invested in security.
 					</p>
 					<p>
 						The <q>logical</q> security of the application itself is proportionate to the data security.
@@ -479,12 +480,12 @@
 						of BSD systems.
 						It has been run under the <a href="https://httpd.apache.org/">Apache</a> web server, 
 						<a href="http://nginx.org/">nginx</a> via <a
-							href="http://www.openbsd.org/cgi-bin/man.cgi/OpenBSD-current/man8/slowcgi.8">slowcgi(8)</a>,
+							href="http://man.openbsd.org/slowcgi.8">slowcgi(8)</a>,
 						and OpenBSD's <a
-							href="http://www.openbsd.org/cgi-bin/man.cgi/OpenBSD-current/man8/httpd.8">httpd(8)</a> via
-						<a href="http://www.openbsd.org/cgi-bin/man.cgi/OpenBSD-current/man8/slowcgi.8">slowcgi(8)</a>.
+							href="http://man.openbsd.org/httpd.8">httpd(8)</a> via
+						<a href="http://man.openbsd.org/slowcgi.8">slowcgi(8)</a>.
 						The system is designed to run in a <q>jail</q> as is the default with OpenBSD <a
-							href="http://www.openbsd.org/cgi-bin/man.cgi/OpenBSD-current/man8/httpd.8">httpd(8)</a>.
+							href="http://man.openbsd.org/httpd.8">httpd(8)</a>.
 						You are encouraged to do the same in any environment for security reasons; however, the system
 						will also run fine in a non-jail context.
 					</p>
@@ -507,7 +508,7 @@
 						The dependencies consist of the following:
 					</p>
 					<ul>
-						<li><a href="http://kristaps.bsd.lv">kcgi</a> (the CGI framework),</li>
+						<li><a href="https://kristaps.bsd.lv">kcgi</a> (the CGI framework),</li>
 						<li><a href="https://gmplib.org">GMP</a> (rational number library),</li>
 						<li><a href="https://sqlite.org">SQLite</a> (database), and</li>
 						<li><a href="http://libbsd.freedesktop.org/wiki/">libbsd</a> (Linux compatibility, if applicable),</li>
@@ -732,17 +733,17 @@
 							You will need the <span class="file">/dev/null</span> device in your file-system.  The
 							file-system of the device directory must not be <code>nodev</code> in its mount options
 							(see <a
-								href="http://www.openbsd.org/cgi-bin/man.cgi/OpenBSD-current/man8/mount.8">mount(8)</a>).
+								href="http://man.openbsd.org/mount.8">mount(8)</a>).
 						</li>
 						<li>
 							If you're running in a file-system jail, the security measures of <a
-								href="http://kristaps.bsd.lv/kcgi">kcgi</a> on OpenBSD with <a
-								href="http://www.openbsd.org/cgi-bin/man.cgi/OpenBSD-current/man4/systrace.4">systrace(4)</a>
+								href="https://kristaps.bsd.lv/kcgi">kcgi</a> on OpenBSD with <a
+								href="http://man.openbsd.org/systrace.4">systrace(4)</a>
 							(i.e., OpenBSD &lt;5.9) require a systrace device in the <span class="file">dev</span>
 							directory of the document root, e.g., <span class="file">/var/www/dev</span>.  Moreover,
 							the file-system of this directory must not be <code>nodev</code> in its mount options
 							(see <a
-								href="http://www.openbsd.org/cgi-bin/man.cgi/OpenBSD-current/man8/mount.8">mount(8)</a>).
+								href="http://man.openbsd.org/mount.8">mount(8)</a>).
 						</li>
 					</ul>
 					<p>
@@ -2060,7 +2061,7 @@
 				&copy; 2015, 2016, <a href="http://www.kcons.eu"><i>k</i>-Consulting</a>
 			</div>
 			<div>
-				Powered by <a href="http://kristaps.bsd.lv/sblg">sblg</a> on <a href="http://www.openbsd.org">OpenBSD</a>
+				Powered by <a href="https://kristaps.bsd.lv/sblg">sblg</a> on <a href="http://www.openbsd.org">OpenBSD</a>
 			</div>
 		</footer>
 	</body>

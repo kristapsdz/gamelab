@@ -71,7 +71,7 @@ endif
 # You really don't want to change anything below this line.
 #####################################################################
 
-VERSION	 = 1.1.4
+VERSION	 = 1.1.5
 VMONTH	 = March
 VYEAR	 = 2016
 CFLAGS 	+= -g -W -Wall -Wstrict-prototypes -Wno-unused-parameter -Wwrite-strings -I/usr/local/include
@@ -104,7 +104,7 @@ OBJS	 = base64.o \
 	   mturk.o \
 	   sha1.o \
 	   util.o
-SRCS	 = Makefile \
+SRCS	 = GNUmakefile \
 	   admin.c \
 	   adminhome.js \
 	   adminhome.xml \

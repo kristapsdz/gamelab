@@ -4,8 +4,9 @@
 		<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
 		<meta charset="utf-8" /> 
 		<title>gamelab</title>
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" type="text/css" />
-		<link rel="stylesheet" href="index.css" type="text/css" />
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" />
+		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Alegreya+Sans:300,300italic" />
+		<link rel="stylesheet" href="index.css" />
 	</head>
 	<body>
 		<header>
@@ -55,9 +56,10 @@
 		<article>
 			<p>
 				Welcome to <span class="nm">gamelab</span>, a web application for online game theory experiments.
-				<span class="nm">Gamelab</span> allows you to configure two-player normal-form games for play over the Internet.
-				Participants accumulate tickets from their payoffs against the average play.
-				At the end of the experiment, these tickets may be used in a lottery drawing to select winners.
+				<span class="nm">Gamelab</span> allows experimenters to configure two-player normal-form games for play over the
+				Internet.
+				It features lottery incentives, <a href="https://www.mturk.com">Mechanical Turk</a> integration, programmatic
+				play, and many other features.
 			</p>
 			<figure id="team">
 				<div>
@@ -78,7 +80,7 @@
 					Weibull</a> with financial support from the <a href="https://www.wallenberg.com/kaw/en">Knut and Alice
 					Wallenberg Research Foundation</a>.  
 				The project was designed by <a href="http://www.hhs.se/en/person/?personid=33861033">Eskil Forsell</a> and
-				<a href="https://sites.google.com/site/joergenweibull">J&#x00f6;rgen Weibull</a>, and implemented by <a href="http://kristaps.bsd.lv">Kristaps
+				<a href="https://sites.google.com/site/joergenweibull">J&#x00f6;rgen Weibull</a>, and implemented by <a href="https://kristaps.bsd.lv">Kristaps
 					Dzonsons</a>.
 			</p>
 			<section id="moreinfo">
@@ -109,7 +111,7 @@
 				&#169; 2015, 2016, <a href="http://www.kcons.eu"><i>k</i>-Consulting</a>
 			</div>
 			<div>
-				Powered by <a href="http://kristaps.bsd.lv/sblg">sblg</a> on <a href="http://www.openbsd.org">OpenBSD</a>
+				Powered by <a href="https://kristaps.bsd.lv/sblg">sblg</a> on <a href="http://www.openbsd.org">OpenBSD</a>
 			</div>
 			<div>
 				<a href="https://scan.coverity.com/projects/gamelab">
