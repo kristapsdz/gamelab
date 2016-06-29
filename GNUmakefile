@@ -253,6 +253,16 @@ $(JSMINS): jsmin
 		-e "s!@HTURI@!$(HTURI)!g" $< > $@
 	chmod 444 $@
 
+manual.html: manual.xml gamelab.sql
+	( sed -n '1,/@DATABASE_SCHEMA@/p' manual.xml ; \
+	  sqlite2html gamelab.sql ; \
+	  sed -n '/@DATABASE_SCHEMA@/,$$p' manual.xml ; ) | \
+	  sed -e "s!@ADMINURI@!$(ADMINURI)!g" \
+		-e "s!@LABURI@!$(LABURI)!g" \
+		-e "s!@FONTURI@!$(FONTURI)!g" \
+		-e "s!@VERSION@!$(VERSION)!g" \
+		-e "s!@HTURI@!$(HTURI)!g" >$@
+
 .xml.html:
 	sed -e "s!@ADMINURI@!$(ADMINURI)!g" \
 		-e "s!@LABURI@!$(LABURI)!g" \
