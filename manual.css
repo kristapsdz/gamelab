@@ -17,6 +17,9 @@ body > nav > *:first-child
 			{ padding-left: 4%; }
 body > nav > *:last-child	
 			{ padding-right: 4%; }
+.tabs .cols .foreign	{ font-size: smaller; }
+.tabs .cols .foreign:before
+			{ content: 'Foreign key reference: '; }
 #nav			{ position: absolute;
 			  margin: 0;
 			  padding-top: 1em;
