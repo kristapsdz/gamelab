@@ -1096,6 +1096,7 @@ function loadExprSuccess(resp)
 
 		doClearReplace('exprCountdown', 'finished');
 		if (null !== res.expr.lottery && 
+		    '' !== res.player.hitid &&
 		    res.expr.lottery.length > 0) {
 			doUnhide('exprLottery');
 			doHide('exprNoLottery');
@@ -1105,28 +1106,19 @@ function loadExprSuccess(resp)
 		}
 
 		if (null === res.win) {
-			doHide('exprFinishedResults');
 			doUnhide('exprFinishedWinWait');
-			doHide('exprFinishedWin');
-			doHide('exprFinishedLose');
-			doHide('exprFinishedWinHead');
-			doHide('exprFinishedWinRnums');
+			doHide('exprFinishedLotteryDone');
 			setTimeout(loadExpr, 1000 * 60);
 		} else if (res.win.winner < 0) {
-			doUnhide('exprFinishedResults');
 			doHide('exprFinishedWinWait');
+			doUnhide('exprFinishedLotteryDone');
 			doHide('exprFinishedWin');
 			doUnhide('exprFinishedLose');
-			doUnhide('exprFinishedWinHead');
-			doUnhide('exprFinishedWinRnums');
 		} else {
-			doUnhide('exprFinishedResults');
 			doHide('exprFinishedWinWait');
+			doUnhide('exprFinishedLotteryDone');
 			doUnhide('exprFinishedWin');
 			doHide('exprFinishedLose');
-			doUnhide('exprFinishedWinHead');
-			doUnhide('exprFinishedWinRnums');
-			/*doClearReplace('exprFinishedWinRnum', res.win.winrnum);*/
 		}
 	}
 }

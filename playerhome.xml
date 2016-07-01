@@ -154,23 +154,25 @@
 								<p id="exprFinishedWinWait">
 									<i class="fa fa-spinner fa-spin"></i> Waiting for lottery draw...
 								</p>
+								<div id="exprFinishedLotteryDone">
+									<h4>
+										Lottery
+									</h4>
+									<p>
+										The draw has been finished with winning number(s) 
+										<span class="gamelab-winrnums"></span>.
+									</p>
+									<p id="exprFinishedWin">
+										This means that you have won prize number 
+										<span class="gamelab-winrank"></span>!
+										You will be contacted by the experimenter shortly.
+									</p>
+									<p id="exprFinishedLose">
+										This means that you unfortunately didn't win this time around. 
+										Thank you for participating!
+									</p>
+								</div>
 							</div>
-							<h4 id="exprFinishedWinHead">
-								Lottery
-							</h4>
-							<p id="exprFinishedWinRnums">
-								The draw has been finished with winning number(s) 
-								<span class="gamelab-winrnums"></span>.
-							</p>
-							<p id="exprFinishedWin">
-								This means that you have won prize number 
-								<span class="gamelab-winrank"></span>!
-								You will be contacted by the experimenter shortly.
-							</p>
-							<p id="exprFinishedLose">
-								This means that you unfortunately didn't win this time around. 
-								Thank you for participating!
-							</p>
 						</div>
 						<div id="exprNotAllFinished" class="noshow">
 							<p>
