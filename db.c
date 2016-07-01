@@ -725,42 +725,64 @@ db_winners_load_all(void *arg, winnerf fp)
 	sqlite3_finalize(stmt);
 }
 
+/*
+ * This computes the ranking and final score (points) awarded to
+ * individuals who are playing the lottery; i.e., all players who are
+ * not mechanical turk players.
+ * Once finished, the experiment is set to EXPR_PREWIN.
+ */
 void
 db_expr_finish(struct expr **expr, size_t count)
 {
 	sqlite3_stmt	*stmt;
-	size_t		 i, players;
+	size_t		 i, j, players;
 	int64_t		*pids;
 	int64_t	 	 total, score;
 	mpq_t		 sum, cmp;
 
 again:
-	/* Reload the experiment and see if we've already tallied. */
+	/* 
+	 * Reload the experiment and see if we've already tallied. 
+	 * This might still be simultaneous, however.
+	 * Check that we're after the last round, in which case we won't
+	 * be joined by late-coming players.
+	 */
+
 	db_expr_free(*expr);
 	*expr = db_expr_get(1);
 	assert(NULL != *expr);
-	if ((*expr)->state >= ESTATE_PREWIN)
+	if ((*expr)->round < (*expr)->rounds) {
+		WARNX("Trying to compute lottery tickets "
+		      "when rounds not completed");
+		return;
+	} else if ((*expr)->state >= ESTATE_PREWIN)
 		return;
 
 	/* 
 	 * No tally: do so now.
 	 * Don't worry about simultaneous updates because the tally will
 	 * be the same in each one.
+	 * Use only Mechanical Turk players.
 	 */
 
 	mpq_init(sum);
 	mpq_init(cmp);
 
-	players = db_player_count_all();
+	players = db_player_count_all(); /* max players */
 	pids = kcalloc(players, sizeof(int64_t));
 
-	stmt = db_stmt("SELECT id FROM player");
-	for (i = 0; SQLITE_ROW == db_step(stmt, 0); i++) {
+	stmt = db_stmt("SELECT id FROM player WHERE '' != hitid");
+	for (i = j = 0; SQLITE_ROW == db_step(stmt, 0); i++, j++) {
 		assert(i < players);
 		pids[i] = sqlite3_column_int64(stmt, 0);
 	}
 	sqlite3_finalize(stmt);
-	assert(i == players);
+	assert(i <= players);
+	players = j;
+	
+	if (0 == players)
+		WARNX("No (non-mturk) lottery players for "
+			"computing final scores or rankings");
 
 	/*
 	 * Set the rank of each player with respect to the total number
@@ -769,6 +791,7 @@ again:
 	 * will have x, then the second x + y, then x + y + z, etc.
 	 * NOTE: we're rounding up!
 	 */
+
 	stmt = db_stmt("UPDATE player SET "
 		"finalrank=?,finalscore=?,version=version+1 "
 	        "WHERE id=?");
@@ -790,6 +813,7 @@ again:
 	 * Store that we've created our total but haven't yet computed
 	 * the winners.
 	 */
+
 	INFO("Total lottery tickets: %" PRId64, total);
 	stmt = db_stmt("UPDATE experiment SET state=?,total=?");
 	db_bind_int(stmt, 1, ESTATE_PREWIN);
@@ -803,6 +827,11 @@ again:
 	goto again;
 }
 
+/*
+ * Compute "winnersz" number of lottery winners, using "seed".
+ * The number of games is "count".
+ * This only selects from non-Mechanical Turk players.
+ */
 int
 db_winners(struct expr **expr, size_t winnersz, int64_t seed, size_t count)
 {
@@ -814,9 +843,11 @@ db_winners(struct expr **expr, size_t winnersz, int64_t seed, size_t count)
 	mpq_t		 div, aggr;
 
 	/* Compute the total count of players. */
+
 	db_expr_finish(expr, count);
 
 	/* See if we already have winners computed. */
+
 	db_trans_begin(0);
 
 	stmt = db_stmt("SELECT state FROM experiment");
@@ -827,9 +858,7 @@ db_winners(struct expr **expr, size_t winnersz, int64_t seed, size_t count)
 		INFO("Win request when experiment already winnered");
 		db_trans_rollback();
 		return(1);
-	}
-
-	if ((*expr)->total <= 0) {
+	} else if ((*expr)->total <= 0) {
 		INFO("Win request when experiment has <=0 "
 			"tickets: %" PRId64, (*expr)->total);
 		db_trans_rollback();
@@ -837,26 +866,40 @@ db_winners(struct expr **expr, size_t winnersz, int64_t seed, size_t count)
 	}
 
 	/* Disallow more winners than players. */
-	if (winnersz > (players = db_player_count_all()))
-		winnersz = players;
 
+	players = db_player_count_all();
 	winners = kcalloc(players, sizeof(int64_t));
 	rnums = kcalloc(winnersz, sizeof(int64_t));
 	pids = kcalloc(players, sizeof(int64_t));
 	mpq_init(div);
 	mpq_init(aggr);
 
-	/* Assign player identifiers. */
-	stmt = db_stmt("SELECT id FROM player");
-	for (i = 0; SQLITE_ROW == db_step(stmt, 0); i++) {
+	/* 
+	 * Assign player identifiers.
+	 * Only draw from non-Mechanical Turk players.
+	 * Then reset our number of players to match the non-Mechanical
+	 * turk players and the winners to be less than that.
+	 */
+
+	stmt = db_stmt("SELECT id FROM player WHERE '' != hitid");
+	for (i = j = 0; SQLITE_ROW == db_step(stmt, 0); i++, j++) {
 		assert(i < players);
 		pids[i] = sqlite3_column_int64(stmt, 0);
 	}
 	sqlite3_finalize(stmt);
+	players = j;
+	if (winnersz > players)
+		winnersz = players;
 
-	stmt = db_stmt("SELECT id,finalrank,finalscore "
-		"FROM player ORDER BY rseed ASC, id ASC");
+	/*
+	 * Here we're going to use random(), which is deterministic,
+	 * with the seed supplied by the administrator.
+	 * This yields repeatable results when given the same random
+	 * seed, which is exactly what we want.
+	 */
 	srandom(seed);
+	stmt = db_stmt("SELECT id,finalrank,finalscore FROM player "
+		"WHERE '' != hitid ORDER BY rseed ASC, id ASC ");
 	for (i = 0; i < winnersz; i++) {
 		/* coverity[dont_call] */
 		top = random() % (*expr)->total;
@@ -922,6 +965,8 @@ db_winners(struct expr **expr, size_t winnersz, int64_t seed, size_t count)
 	db_bind_int(stmt, 1, ESTATE_POSTWIN);
 	db_step(stmt, 0);
 	sqlite3_finalize(stmt);
+
+	INFO("All lottery winners computed!");
 
 	db_trans_commit();
 	mpq_clear(div);
