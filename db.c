@@ -771,7 +771,7 @@ again:
 	players = db_player_count_all(); /* max players */
 	pids = kcalloc(players, sizeof(int64_t));
 
-	stmt = db_stmt("SELECT id FROM player WHERE '' != hitid");
+	stmt = db_stmt("SELECT id FROM player WHERE '' == hitid");
 	for (i = j = 0; SQLITE_ROW == db_step(stmt, 0); i++, j++) {
 		assert(i < players);
 		pids[i] = sqlite3_column_int64(stmt, 0);
@@ -881,7 +881,7 @@ db_winners(struct expr **expr, size_t winnersz, int64_t seed, size_t count)
 	 * turk players and the winners to be less than that.
 	 */
 
-	stmt = db_stmt("SELECT id FROM player WHERE '' != hitid");
+	stmt = db_stmt("SELECT id FROM player WHERE '' == hitid");
 	for (i = j = 0; SQLITE_ROW == db_step(stmt, 0); i++, j++) {
 		assert(i < players);
 		pids[i] = sqlite3_column_int64(stmt, 0);
@@ -899,7 +899,7 @@ db_winners(struct expr **expr, size_t winnersz, int64_t seed, size_t count)
 	 */
 	srandom(seed);
 	stmt = db_stmt("SELECT id,finalrank,finalscore FROM player "
-		"WHERE '' != hitid ORDER BY rseed ASC, id ASC ");
+		"WHERE '' == hitid ORDER BY rseed ASC, id ASC ");
 	for (i = 0; i < winnersz; i++) {
 		/* coverity[dont_call] */
 		top = random() % (*expr)->total;
