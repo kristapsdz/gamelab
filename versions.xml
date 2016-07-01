@@ -600,4 +600,19 @@
 			</p>
 		</aside>
 	</article>
+	<article data-sblg-article="1" data-sblg-tags="version">
+		<header>
+			<h1>1.1.6</h1>
+			<address>Kristaps Dzonsons</address>
+			<time datetime="2016-07-01">2016-07-01</time>
+		</header>
+		<aside>
+			<p>
+				Since Mechanical Turk players and regular players are not compatible regarding the lottery, do not include them
+				when computing the lottery.
+				This allows Mechanical Turk players and lottery players to mix.
+				While there, update the database schema documentation.
+			</p>
+		</aside>
+	</article>
 </articles>
