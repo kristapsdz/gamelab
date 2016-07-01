@@ -274,6 +274,8 @@
 						When all rounds have concluded, the experiment halts.
 						Participants may still log in and review the history, as well as see the total number of points
 						awarded and their lottery ticket allotment.
+						<strong>Note</strong>: Mechanical Turk players are now included in the lottery computation, nor
+						are they shown any information pertaining to the lottery.
 					</p>
 					<p>
 						The experimenter may then trigger the lottery from the console.
