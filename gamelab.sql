@@ -18,10 +18,11 @@
 PRAGMA journal_mode=WAL;
 
 -- The winner table consists of rows corresponding to a player and her
--- winner status. This table does not exist until the @experiment.status
+-- winner status. This table does not exist until the @experiment.state
 -- field is set to 3. This table is deleted when the database is wiped.
 
 CREATE TABLE winner (
+	-- Participant.
 	playerid INTEGER REFERENCES player(id) NOT NULL,
 	-- Boolean value as to whether the player is a winner. If this
 	-- is false, then the @winner.winrank and @winner.rnum columns
@@ -96,9 +97,13 @@ CREATE TABLE player (
 	-- participants with roughly 10 tickets each, this might be 543
 	-- to indicate that slot 543 to 543 plus @player.finalscore are
 	-- this participant's slots in the lottery.
+	-- Mechanical Turk players are not included in this computation,
+	-- so this value is not meaningful for them.
 	finalrank INTEGER NOT NULL DEFAULT(0),
 	-- Set to the accumulated payoffs from @lottery.aggrpayoff
 	-- rounded up to the nearest integer.
+	-- Mechanical Turk players are not included in this computation,
+	-- so this value is not meaningful for them.
 	finalscore INTEGER NOT NULL DEFAULT(0),
 	-- A number from zero that indicates the number of time the
 	-- @player columns have been updated. This is used to make the
