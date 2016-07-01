@@ -17,7 +17,7 @@
 			<div>
 				<div>
 					<h2>
-						<i class="fa fa-spinner fa-spin"></i>
+						<i class="fa fa-spinner fa-pulse"></i>
 						Loading gamelab...
 					</h2>
 				</div>
@@ -46,17 +46,17 @@
 								<label for="toggle-mailaddr">
 									<i class="fa fa-fw fa-envelope-o"></i> 
 									E-mail
-									<i id="checkChangeEmail" class="fa fa-spinner"></i>
+									<i id="checkChangeEmail" class="fa fa-spinner fa-pulse"></i>
 								</label>
 								<label for="toggle-smtp">
 									<i class="fa fa-fw fa-database"></i> 
 									SMTP
-									<i id="checkSmtpLoad2" class="fa fa-spinner"></i>
+									<i id="checkSmtpLoad2" class="fa fa-spinner fa-pulse"></i>
 								</label>
 								<label for="toggle-password">
 									<i class="fa fa-fw fa-lock"></i> 
 									Password
-									<i id="checkChangePass" class="fa fa-spinner"></i>
+									<i id="checkChangePass" class="fa fa-spinner fa-pulse"></i>
 								</label>
 								<label class="only-started" for="toggle-players">
 									<i class="fa fa-fw fa-user"></i> 
@@ -71,7 +71,7 @@
 						</label>
 						<h1>gamelab<span class="bigview">control</span><span class="smallview">ctrl</span></h1>
 						<span id="exprCountdownGame">
-							Next round: <span id="exprCountdown"><i class="fa fa-spinner"></i></span>
+							Next round: <span id="exprCountdown"><i class="fa fa-spinner fa-pulse"></i></span>
 						</span>
 					</div>
 				</div>
@@ -91,7 +91,7 @@
 				</p>
 				<div>
 					<ul id="loadGames2" class="table">
-						<li><i class="fa fa-spinner"></i></li>
+						<li><i class="fa fa-spinner fa-pulse"></i></li>
 					</ul>
 				</div>
 			</article>
@@ -250,7 +250,7 @@
 							<button type="button" id="checkSmtpButton" onclick="testSmtp();">Send test</button>
 						</div>
 						<div class="input input-submit noshow" id="testSmtpPBtn">
-							<i class="fa fa-spinner"></i>
+							<i class="fa fa-spinner fa-pulse"></i>
 							<button type="button">Sending...</button>
 						</div>
 					</fieldset>
@@ -268,7 +268,7 @@
 					Enable or disable a participant by flipping the toggle icon.
 					Participants may be in the <i class="fa fa-bars"></i> player row role or <i class="fa fa-columns"></i>
 					column role.
-					However, they may also be in the <i class="fa fa-spinner"></i> lobby, in which case they are not
+					However, they may also be in the <i class="fa fa-spinner fa-pulse"></i> lobby, in which case they are not
 					yet assigned a role.
 					Participants also may be <i class="fa fa-thumb-tack"></i> captive or
 					<i class="fa fa-amazon"></i> Mechanical Turk workers.
@@ -276,7 +276,7 @@
 				</div>
 				<div>
 					<ul id="loadPlayers" class="table">
-						<li><i class="fa fa-spinner"></i></li>
+						<li><i class="fa fa-spinner fa-pulse"></i></li>
 					</ul>
 				</div>
 				<div id="playerInfo" class="canclose noshow">
@@ -425,7 +425,7 @@
 				</article>
 				<article>
 					<div class="top" id="statusExprLoading">
-						<i class="fa fa-spinner fa-spin"></i>
+						<i class="fa fa-spinner fa-pulse"></i>
 						Loading status...
 					</div>
 					<section id="statusExprLoaded">
@@ -580,6 +580,7 @@
 								<p>
 									You may compute lottery winners by entering <i class="fa fa-cubes"></i> a numeric random seed
 									used to pick winners and <i class="fa fa-trophy"></i> the number of winners to choose.
+									<strong>Note</strong>: lottery values will only be computed from non-Mechanical Turk players.
 								</p>
 								<div class="noshow" id="statusExprFinishedWinError">
 									<div class="warning">
@@ -696,7 +697,7 @@
 						<section id="addGameSection">
 							<h3>
 								1. Experiment games
-								<i id="checkGameLoad2" class="fa fa-spinner"></i>
+								<i id="checkGameLoad2" class="fa fa-spinner fa-pulse"></i>
 							</h3>
 							<p>
 								To run an experiment, you'll need at least normal-form game.
@@ -705,7 +706,7 @@
 							</p>
 							<div>
 								<ul id="loadGames" class="table">
-									<li><i class="fa fa-spinner"></i></li>
+									<li><i class="fa fa-spinner fa-pulse"></i></li>
 								</ul>
 							</div>
 							<p>
@@ -764,10 +765,14 @@
 								To delete a participant, just click the <i class="fa fa-remove"></i> symbol alongside.
 								Participants marked with <i class="fa fa-thumb-tack"></i> are captive.
 								You don't need any participants to start&#8212;you can add them after starting.
-							</p>
+								You can have a mix of all types of participants; however, if you have a
+								lottery, the Mechanical Turk players will not be included in that
+								lottery.  
+								They use an optional bonus-based system of reward, instead.
+						</p>
 							<div>
 								<ul id="loadNewPlayers" class="table">
-									<li><i class="fa fa-spinner"></i></li>
+									<li><i class="fa fa-spinner fa-pulse"></i></li>
 								</ul>
 							</div>
 							<section class="advanced" id="players-mail">
@@ -1139,9 +1144,10 @@
 											</div>
 										</div>
 										<div>
-											If you're running a lottery (the default), change its amount here.
+											To run a lottery (the default), set an amount here.
+											Leave this field blank if you don't want a lottery.
 											You can use any currency: the following is a free-form text for the reward amount.
-											If you leave it blank, no lottery will be computed.
+											<strong>Note</strong>: your Mechanical Turk players will not be included in the lottery.
 										</div>
 										<div class="input">
 											<i class="fa fa-fw fa-money"></i>

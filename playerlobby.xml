@@ -22,7 +22,7 @@
 					<section id="ploading">
 						<h3>Participant Lobby</h3>
 						<p>
-							<i class="fa fa-spinner fa-spin"></i> Loading...
+							<i class="fa fa-spinner fa-pulse"></i> Loading...
 						</p>
 					</section>
 					<section id="ploaded" class="noshow">

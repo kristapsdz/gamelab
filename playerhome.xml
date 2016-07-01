@@ -24,14 +24,14 @@
 			</div>
 		</section>
 		<section id="loading">
-			<i class="fa fa-spinner"></i> Gamelab is loading...
+			<i class="fa fa-spinner fa-pulse"></i> Gamelab is loading...
 		</section>
 		<section id="loaded" class="noshow">
 			<header>
 				<a id="navButton" href="#" onclick="return(onNav(event));"><i class="fa fa-navicon"></i></a>
 				<h1>gamelab</h1>
 				<span>
-					<span id="nextRound">Next round</span>: <span id="exprCountdown"><i class="fa fa-spinner"></i></span>
+					<span id="nextRound">Next round</span>: <span id="exprCountdown"><i class="fa fa-spinner fa-pulse"></i></span>
 				</span>
 				<div id="navParent">
 					<nav id="nav">
@@ -46,7 +46,7 @@
 			</header>
 			<article id="history" class="tab">
 				<h2>History of play</h2>
-				<div id="historyLoading"><i class="fa fa-spinner"></i></div>
+				<div id="historyLoading"><i class="fa fa-spinner fa-pulse"></i></div>
 				<div id="historyLoaded" class="noshow">
 					<div id="historyPlay" class="noshow">
 						<section>
@@ -102,7 +102,7 @@
 			</article>
 			<article id="play" class="tab">
 				<h2>Play game</h2>
-				<div id="exprLoading"><i class="fa fa-spinner"></i></div>
+				<div id="exprLoading"><i class="fa fa-spinner fa-pulse"></i></div>
 				<div id="exprLoaded" class="noshow">
 					<section id="exprNotStarted" class="noshow">
 						<p>
@@ -152,7 +152,7 @@
 									of awarded tickets. 
 								</p>
 								<p id="exprFinishedWinWait">
-									<i class="fa fa-spinner fa-spin"></i> Waiting for lottery draw...
+									<i class="fa fa-spinner  fa-pulse"></i> Waiting for lottery draw...
 								</p>
 								<div id="exprFinishedLotteryDone">
 									<h4>
@@ -191,7 +191,7 @@
 								<span class="gamelab-aggrtickets"></span> tickets.
 							</p>
 							<p>
-								<i class="fa fa-spinner fa-spin"></i> 
+								<i class="fa fa-spinner  fa-pulse"></i> 
 								Waiting for lottery draw...
 							</p>
 						</div>
@@ -222,7 +222,7 @@
 									Finish 
 								</button>
 								<button type="button" class="aws noshow" id="mturkpbtn">
-									<i class="fa fa-spin fa-spinner"></i>
+									<i class="fa fa-spinner fa-pulse"></i>
 									Finishing...
 								</button>
 								<button type="button" disabled="disabled" class="aws noshow" id="mturkfbtn">
@@ -238,7 +238,7 @@
 									Finish (sandbox)
 								</button>
 								<button type="button" class="aws noshow" id="mturkpbtn">
-									<i class="fa fa-spin fa-spinner"></i>
+									<i class="fa fa-spinner fa-pulse"></i>
 									Finishing...
 								</button>
 								<button type="button" disabled="disabled" class="aws noshow" id="mturkfbtn">
@@ -328,7 +328,7 @@
 			</article>
 			<article id="defaultTab" class="tab">
 				<h2>Instructions</h2>
-				<div id="instructionsLoading"><i class="fa fa-spinner"></i></div>
+				<div id="instructionsLoading"><i class="fa fa-spinner fa-pulse"></i></div>
 				<div id="instructionsLoaded"></div>
 				<form action="@LABURI@/doinstr.json" method="post" onsubmit="return(updateInstr(this));">
 					<div id="instructionsPrompt">

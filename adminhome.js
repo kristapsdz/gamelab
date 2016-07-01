@@ -20,7 +20,7 @@ function doClassLoading(name)
 {
 	var e;
 	if (null != (e = document.getElementById(name)))
-		e.className = 'fa fa-spinner';
+		e.className = 'fa fa-spinner fa-pulse';
 }
 
 function doClassFail(name)
@@ -323,7 +323,7 @@ function loadPlayersSuccess(resp)
 		/* Append whether the player is a row or column role. */
 		sup = document.createElement('i');
 		if (player.joined < 0)
-			sup.className = 'fa fa-fw fa-spinner';
+			sup.className = 'fa fa-fw fa-spinner fa-pulse';
 		else if (0 == parseInt(player.role))
 			sup.className = 'fa fa-fw fa-bars';
 		else
@@ -724,7 +724,7 @@ function loadList(url, name, onsuccess, onerror)
 
 	li = document.createElement('li');
 	ii = document.createElement('i');
-	ii.setAttribute('class', 'fa fa-spinner');
+	ii.setAttribute('class', 'fa fa-spinner fa-pulse');
 	li.appendChild(ii);
 	doClear(name).appendChild(li);
 	sendQuery(url, null, onsuccess, onerror);
