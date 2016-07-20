@@ -99,6 +99,7 @@ enum	key {
 	KEY_AWSWORKERS,
 	KEY_AWSCONVERSION,
 	KEY_CUSTOMANSWER,
+	KEY_CUSTOMCOUNT,
 	KEY_CUSTOMQUESTION,
 	KEY_DATE,
 	KEY_TIME,
@@ -253,6 +254,7 @@ static const struct kvalid keys[KEY__MAX] = {
 	{ kvalid_uint, "workers" }, /* KEY_AWSWORKERS */
 	{ kvalid_udouble, "conversion" }, /* KEY_AWSCONVERSION */
 	{ kvalid_string, "customanswer" }, /* KEY_CUSTOMANSWER */
+	{ kvalid_uint, "customcount" }, /* KEY_CUSTOMCOUNT */
 	{ kvalid_string, "customquestion" }, /* KEY_CUSTOMQUESTION */
 	{ kvalid_date, "date" }, /* KEY_DATE */
 	{ kvalid_time, "time" }, /* KEY_TIME */
@@ -1434,15 +1436,17 @@ out:
 static void
 senddostartexpr(struct kreq *r)
 {
-	pid_t		 pid;
-	char		*loginuri, *uri, *map, *server, *json, *start;
-	struct expr	*expr;
-	const char	*instdat;
-	enum instrs	 inst;
-	int		 fd;
-	int64_t		 flags;
-	struct stat	 st;
-	size_t		 sz;
+	pid_t		  pid;
+	char		 *loginuri, *uri, *map, *server, *json, *start;
+	struct kpair	 *kpques, *kpans;
+	struct expr	 *expr;
+	const char	 *instdat;
+	const char	**questions, **answers;
+	enum instrs	  inst;
+	int		  fd;
+	int64_t		  flags;
+	struct stat	  st;
+	size_t		  i, sz, qsz;
 
 	if (kpairbad(r, KEY_DATE) ||
 	    kpairbad(r, KEY_INSTR) ||
@@ -1452,6 +1456,7 @@ senddostartexpr(struct kreq *r)
 	    kpairbad(r, KEY_PLAYERMAX) ||
 	    kpairbad(r, KEY_PROUNDS) ||
 	    kpairbad(r, KEY_QUESTIONNAIRE) ||
+	    kpairbad(r, KEY_CUSTOMCOUNT) ||
 	    kpairbad(r, KEY_RELATIVE) ||
 	    kpairbad(r, KEY_ROUNDMIN) ||
 	    kpairbad(r, KEY_ROUNDPCT) ||
@@ -1467,6 +1472,42 @@ senddostartexpr(struct kreq *r)
 		khttp_body(r);
 		return;
 	} 
+
+	/* 
+	 * Check that we have all custom questions and answers. 
+	 * We only do this if we've both indicated that we want
+	 * questions *and* that the administrator has given us some.
+	 */
+
+	questions = answers = NULL;
+	qsz = 0;
+
+	if (r->fieldmap[KEY_QUESTIONNAIRE]->parsed.i &&
+	    r->fieldmap[KEY_CUSTOMCOUNT]->parsed.i) {
+		qsz = r->fieldmap[KEY_CUSTOMCOUNT]->parsed.i;
+		questions = kcalloc(qsz, sizeof(char *));
+		answers = kcalloc(qsz, sizeof(char *));
+		kpques = r->fieldmap[KEY_CUSTOMQUESTION];
+		kpans = r->fieldmap[KEY_CUSTOMANSWER];
+		for (i = 0; i < qsz; i++) {
+			if (NULL == kpques || NULL == kpans)
+				break;
+			if ( ! kvalid_stringne(kpques) ||
+			     ! kvalid_stringne(kpans))
+				break;
+			questions[qsz - i - 1] = kpques->parsed.s;
+			answers[qsz - i - 1] = kpans->parsed.s;
+			kpques = kpques->next;
+			kpans = kpans->next;
+		}
+		if (i < qsz) {
+			http_open(r, KHTTP_400);
+			khttp_body(r);
+			free(questions);
+			free(answers);
+			return;
+		}
+	}
 
 	/* 
 	 * Determine what kind of instructions to use. 
@@ -1489,6 +1530,8 @@ senddostartexpr(struct kreq *r)
 	if (INSTR__MAX == inst) {
 		http_open(r, KHTTP_400);
 		khttp_body(r);
+		free(questions);
+		free(answers);
 		return;
 	} 
 
@@ -1521,6 +1564,8 @@ senddostartexpr(struct kreq *r)
 			khttp_body(r);
 			if (-1 != fd)
 				close(fd);
+			free(questions);
+			free(answers);
 			return;
 		}
 		sz = (size_t)st.st_size;
@@ -1530,6 +1575,8 @@ senddostartexpr(struct kreq *r)
 			http_open(r, KHTTP_400);
 			khttp_body(r);
 			close(fd);
+			free(questions);
+			free(answers);
 			return;
 		}
 		instdat = map;
@@ -1594,7 +1641,7 @@ senddostartexpr(struct kreq *r)
 		 start,
 		 r->fieldmap[KEY_LOTTERY]->parsed.s,
 		 r->fieldmap[KEY_QUESTIONNAIRE]->parsed.i,
-		 flags)) {
+		 flags, questions, answers, qsz)) {
 		http_open(r, KHTTP_409);
 		khttp_body(r);
 		if (INSTR_LOTTERY == inst || 
@@ -1604,6 +1651,8 @@ senddostartexpr(struct kreq *r)
 			close(fd);
 		}
 		free(json);
+		free(questions);
+		free(answers);
 		return;
 	} 
 	
@@ -1614,6 +1663,8 @@ senddostartexpr(struct kreq *r)
 		close(fd);
 	}
 	free(json);
+	free(questions);
+	free(answers);
 
 	http_open(r, KHTTP_200);
 	khttp_body(r);

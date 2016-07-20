@@ -457,6 +457,25 @@ CREATE TABLE past (
 	unique (round, gameid)
 );
 
+-- Most of the time, gamelab users will want to use the pre-bundled
+-- questionnaire at the start of a game.
+-- However, sometimes they'll want their own questions.
+-- Provide a space for that here.
+
+CREATE TABLE customquestion (
+	-- The free-form question.
+	-- This is in regular text.
+	question TEXT NOT NULL,
+	-- The answer to the question.
+	-- This is checked by a strict string comparison for equality.
+	answer TEXT NOT NULL,
+	-- The rank of the question.
+	rank INTEGER NOT NULL,
+	-- Unique identifier.
+	id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+	unique (rank)
+);
+
 -- This consists of the SMTP server information used in sending e-mails.
 -- There is always only one row set, which defaults to empty values (see
 -- @smtp.isset). 

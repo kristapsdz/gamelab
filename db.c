@@ -2054,7 +2054,7 @@ db_expr_start(int64_t date, int64_t roundpct, int64_t roundmin,
 	int64_t rounds, int64_t prounds, int64_t minutes, 
 	int64_t playermax, const char *instr, const char *uri,
 	const char *historyfile, const char *lottery, int64_t ques,
-	int64_t flags)
+	int64_t flags, const char **qs, const char **as, size_t qsz)
 {
 	sqlite3_stmt	*stmt, *stmt2;
 	int64_t		 id;
@@ -2063,6 +2063,7 @@ db_expr_start(int64_t date, int64_t roundpct, int64_t roundmin,
 	int64_t		 players[2];
 
 	db_trans_begin(0);
+
 	if ( ! db_expr_checkstate(ESTATE_NEW)) {
 		db_trans_rollback();
 		return(0);
@@ -2154,6 +2155,18 @@ db_expr_start(int64_t date, int64_t roundpct, int64_t roundmin,
 		INFO("Started experiment: reset "
 			"roles, random seeds, join status");
 	}
+
+	stmt = db_stmt("INSERT INTO customquestion "
+		"(question,answer,rank) VALUES (?,?,?)");
+	for (i = 0; i < qsz; i++) {
+		db_bind_text(stmt, 1, qs[i]);
+		db_bind_text(stmt, 2, as[i]);
+		db_bind_int(stmt, 3, qsz - i - 1);
+		db_step(stmt, 0);
+		sqlite3_reset(stmt);
+	}
+	sqlite3_finalize(stmt);
+	INFO("Added %zu custom questions to experiment", qsz);
 
 	db_trans_commit();
 	return(1);
@@ -3216,6 +3229,7 @@ db_expr_wipe(void)
 	db_exec("DELETE FROM choice");
 	db_exec("DELETE FROM past");
 	db_exec("DELETE FROM lottery");
+	db_exec("DELETE FROM customquestion");
 	db_exec("DELETE FROM winner");
 	db_exec("DELETE FROM player WHERE autoadd=1");
 	db_exec("UPDATE player SET version=0,instr=1,state=0,"

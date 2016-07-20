@@ -281,7 +281,8 @@ void		 db_expr_setmturk(const char *, const char *, int64_t,
 int		 db_expr_start(int64_t, int64_t, int64_t, int64_t, 
 			int64_t, int64_t, int64_t, const char *, 
 			const char *, const char *, const char *, 
-			int64_t, int64_t);
+			int64_t, int64_t, const char **, 
+			const char **, size_t);
 void		 db_expr_wipe(void);
 
 struct game	*db_game_alloc(const char *,

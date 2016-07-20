@@ -1035,7 +1035,9 @@
 										<div>
 											<div><i class="fa fa-exclamation-circle"></i></div>
 											<div>
-												Can't start: no games listed or JSON pre-history (if supplied) invalid.
+												Can't start: no games listed, JSON pre-history
+												(if supplied) is invalid, or custom questions
+												not well-formed.
 											</div>
 										</div>
 									</div>
@@ -1249,7 +1251,7 @@
 										</div>
 										<div class="input">
 											<i class="fa fa-fw fa-question-circle-o"></i>
-											<input type="number" min="0" value="0" onchange="customQuestions(this);" />
+											<input type="number" min="0" value="0" name="customcount" onchange="customQuestions(this);" />
 										</div>
 										<div>
 											<ol class="noshow" id="questionblock">
