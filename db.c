@@ -737,7 +737,7 @@ db_expr_finish(struct expr **expr, size_t count)
 	sqlite3_stmt	*stmt;
 	size_t		 i, j, players;
 	int64_t		*pids;
-	int64_t	 	 total, score;
+	int64_t	 	 total, score, min;
 	mpq_t		 sum, cmp;
 
 again:
@@ -758,18 +758,17 @@ again:
 	} else if ((*expr)->state >= ESTATE_PREWIN)
 		return;
 
+	mpq_init(sum);
+	mpq_init(cmp);
+	players = db_player_count_all(); /* max players */
+	pids = kcalloc(players, sizeof(int64_t));
+
 	/* 
-	 * No tally: do so now.
+	 * Start tallying all the players' payouts.
 	 * Don't worry about simultaneous updates because the tally will
 	 * be the same in each one.
 	 * Use only Mechanical Turk players.
 	 */
-
-	mpq_init(sum);
-	mpq_init(cmp);
-
-	players = db_player_count_all(); /* max players */
-	pids = kcalloc(players, sizeof(int64_t));
 
 	stmt = db_stmt("SELECT id FROM player WHERE '' == hitid");
 	for (i = j = 0; SQLITE_ROW == db_step(stmt, 0); i++, j++) {
@@ -784,11 +783,52 @@ again:
 		WARNX("No (non-mturk) lottery players for "
 			"computing final scores or rankings");
 
+	if (players) {
+		/*
+		 * First, compute the minimum lottery ticket.
+		 * This will establish whether we need to offset
+		 * negative values.
+		 * To do so, we need to force all lottery values to be
+		 * computed: to date, they might not be there.
+		 */
+		INFO("Forcing lottery computation at end of game...");
+		for (i = 0; i < players; i++) {
+			mpq_clear(cmp);
+			mpq_clear(sum);
+			db_player_lottery((*expr)->rounds - 1, 
+				pids[i], cmp, sum, &score, count);
+		}
+
+		/* 
+		 * Now get the minimum ticket.
+		 * If we have a positive ticket, use the standard
+		 * lottery method by zeroing the offset.
+		 */
+
+		stmt = db_stmt
+			("SELECT MIN(aggrtickets) FROM lottery "
+			 "INNER JOIN player ON player.id=playerid "
+			 "WHERE '' == player.hitid "
+			 "AND lottery.round = ?");
+		db_bind_int(stmt, 1, (*expr)->rounds - 1);
+		db_step(stmt, 0);
+		min = sqlite3_column_int64(stmt, 0);
+		sqlite3_finalize(stmt);
+		if (min >= 0)
+			min = 0;
+		INFO("Payoffs offset (check for negative "
+			"payoffs) is at %" PRId64, min);
+	} else
+		min = 0;
+
 	/*
 	 * Set the rank of each player with respect to the total number
-	 * of accumulated tickets.
+	 * of accumulated tickets, taking into account a negative offset
+	 * if we're playing a negative lottery.
 	 * So if we have 100 total tickets with 10 players, the first
 	 * will have x, then the second x + y, then x + y + z, etc.
+	 * If we have any negative tickets, offset all tickets by the
+	 * minimum negative.
 	 * NOTE: we're rounding up!
 	 */
 
@@ -800,6 +840,8 @@ again:
 		mpq_clear(sum);
 		db_player_lottery((*expr)->rounds - 1, 
 			pids[i], cmp, sum, &score, count);
+		/* Offset negative (or zero). */
+		score -= min;
 		db_bind_int(stmt, 1, total);
 		db_bind_int(stmt, 2, score);
 		db_bind_int(stmt, 3, pids[i]);
