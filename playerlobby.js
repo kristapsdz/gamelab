@@ -203,7 +203,9 @@ function doInitSuccess(resp)
 	ques = res.answered;
 	url = getURL('@HTURI@/playerhome.html');
 
-	if (res.questionnaire && res.answered < 8) {
+	if (res.questionnaire &&
+	    ((0 === res.custom.length && res.answered < 8) ||
+	     (res.custom.length && res.answered < res.custom.length))) {
 		doHide('main');
 		doUnhide('questionnaire');
 		if (res.custom.length > 0) {

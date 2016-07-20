@@ -302,6 +302,7 @@ void		 db_game_load_player(int64_t,
 
 int		 db_customq_verify(int64_t, const char *);
 void		 db_customq_load_all(customqf, void *);
+size_t		 db_customq_count(void);
 
 struct interval	*db_interval_get(int64_t);
 void		 db_interval_free(struct interval *);

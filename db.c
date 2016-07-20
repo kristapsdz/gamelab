@@ -1727,6 +1727,13 @@ db_game_load_all_array(size_t *sz)
 	return(games);
 }
 
+size_t
+db_customq_count(void)
+{
+
+	return(db_count_all("customquestion"));
+}
+
 int
 db_customq_verify(int64_t rank, const char *answer)
 {

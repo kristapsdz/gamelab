@@ -34,6 +34,7 @@
 
 #include "extern.h"
 
+/* Default number of questions in questionnaire. */
 #define	QUESTIONS 8
 
 /*
@@ -281,6 +282,7 @@ sendmturk(struct kreq *r)
 	char		*hash;
 	const char	*id, *hitid, *assid;
 	char		 addr[1024];
+	size_t		 questions;
 
 	if (NULL != r->fieldmap[KEY_ASSIGNMENTID] && 
 	    0 == strcmp("ASSIGNMENT_ID_NOT_AVAILABLE", 
@@ -346,6 +348,11 @@ sendmturk(struct kreq *r)
 		 r->reqmap[KREQU_USER_AGENT]->val : "");
 	assert(NULL != sess);
 
+	/* To know if we've answered all questions... */
+
+	if (0 == (questions = db_customq_count()))
+		questions = QUESTIONS;
+
 	/* 
 	 * If applicable, try to "join" us now.
 	 * This just prevents us from bouncing the user around
@@ -353,7 +360,7 @@ sendmturk(struct kreq *r)
 	 */
 	needjoin = player->joined < 0;
 	if (needjoin)
-		needjoin = ! db_player_join(player, QUESTIONS);
+		needjoin = ! db_player_join(player, questions);
 
 	/*
 	 * Mechanical Turk players have no cookie set at all, as they'll
@@ -433,6 +440,7 @@ senddologin(struct kreq *r)
 	struct kjsonreq	 req;
 	time_t		 t;
 	struct tm	*tm;
+	size_t		 questions;
 	char		 buf[64];
 
 	if (NULL == (expr = db_expr_get(1))) {
@@ -463,13 +471,18 @@ senddologin(struct kreq *r)
 			 r->reqmap[KREQU_USER_AGENT]->val : "");
 		assert(NULL != sess);
 
+		/* To know if we've answered all questions... */
+
+		if (0 == (questions = db_customq_count()))
+			questions = QUESTIONS;
+
 		/* 
 		 * If applicable, try to "join" us now.
 		 * This just prevents us from bouncing the user around
 		 * when they finally try to log in.
 		 */
 		if ((needjoin = player->joined < 0))
-			needjoin = ! db_player_join(player, QUESTIONS);
+			needjoin = ! db_player_join(player, questions);
 
 		if (KMIME_TEXT_HTML == r->mime) 
 			http_open(r, KHTTP_303);
@@ -718,6 +731,7 @@ senddoanswercustom(struct kreq *r, int64_t id)
 {
 	struct player	*player;
 	int		 ok;
+	size_t		 questions;
 
 	if (NULL == r->fieldmap[KEY_CHOICECUSTOM] ||
 	    NULL == r->fieldmap[KEY_ANSWERID]) {
@@ -731,10 +745,11 @@ senddoanswercustom(struct kreq *r, int64_t id)
 		 r->fieldmap[KEY_CHOICECUSTOM]->parsed.s);
 
 	if (ok) {
+		questions = db_customq_count();
 		db_player_set_answered(id, 
 			r->fieldmap[KEY_ANSWERID]->parsed.i);
 		player = db_player_load(id);
-		db_player_join(player, QUESTIONS);
+		db_player_join(player, questions);
 		db_player_free(player);
 		http_open(r, KHTTP_200);
 	} else
@@ -749,7 +764,8 @@ senddoanswercustom(struct kreq *r, int64_t id)
  * We have several different ``kinds'' of questions here, most of which
  * are checked during the key-value validation.
  * Returns 400 if the answer was wrong (including being wrong
- * because we couldn't find the question).
+ * because we couldn't find the question, or having this function called
+ * when we have custom questions).
  * Otherwise returns 200 (no document body).
  */
 static void
@@ -761,7 +777,8 @@ senddoanswer(struct kreq *r, int64_t id)
 	mpq_t		 one, sum, v1, v2;
 	size_t		 c1, c2;
 
-	if (NULL == r->fieldmap[KEY_ANSWERID]) {
+	if (NULL == r->fieldmap[KEY_ANSWERID] ||
+	    0 != db_customq_count()) {
 		http_open(r, KHTTP_400);
 		khttp_body(r);
 		return;
@@ -968,7 +985,7 @@ senddoloadexpr(struct kreq *r, int64_t playerid)
 	struct winner	*win;
 	mpq_t		 cur, aggr;
 	int64_t	 	 i, tics;
-	size_t		 gamesz;
+	size_t		 gamesz, questions;
 	struct kjsonreq	 req;
 	char		 buf[22];
 	const char	*cp;
@@ -990,7 +1007,9 @@ again:
 	 */
 	if (player->joined < 0) {
 		db_expr_free(expr);
-		if (db_player_join(player, QUESTIONS)) {
+		if (0 == (questions = db_customq_count()))
+			questions = QUESTIONS;
+		if (db_player_join(player, questions)) {
 			db_player_free(player);
 			goto again;
 		}
