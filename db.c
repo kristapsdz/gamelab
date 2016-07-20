@@ -3010,6 +3010,7 @@ db_expr_clearmturk(void)
 		"awsworkers=2,"
 		"awsname='',"
 		"awsdesc='',"
+		"awserror='',"
 		"awskeys='',"
 		"awssandbox=1,"
 		"awsconvert=1,"
