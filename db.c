@@ -1727,6 +1727,41 @@ db_game_load_all_array(size_t *sz)
 	return(games);
 }
 
+int
+db_customq_verify(int64_t rank, const char *answer)
+{
+	sqlite3_stmt	*stmt;
+	int		 rc;
+
+	stmt = db_stmt("SELECT * FROM customquestion "
+		"WHERE rank=? AND answer=?");
+	db_bind_int(stmt, 1, rank);
+	db_bind_text(stmt, 2, answer);
+	rc = db_step(stmt, 0);
+	sqlite3_finalize(stmt);
+	return(SQLITE_ROW == rc);
+}
+
+void
+db_customq_load_all(customqf fp, void *arg)
+{
+	sqlite3_stmt	*stmt;
+	char		*ques, *ans;
+
+	stmt = db_stmt("SELECT rank,question,answer "
+		"FROM customquestion ORDER BY rank ASC");
+	while (SQLITE_ROW == db_step(stmt, 0)) {
+		ques = kstrdup((char *)
+			sqlite3_column_text(stmt, 1));
+		ans = kstrdup((char *)
+			sqlite3_column_text(stmt, 2));
+		(*fp)(ques, ans, arg);
+		free(ques);
+		free(ans);
+	}
+	sqlite3_finalize(stmt);
+}
+
 void
 db_game_load_all(gamef fp, void *arg)
 {
@@ -2161,7 +2196,7 @@ db_expr_start(int64_t date, int64_t roundpct, int64_t roundmin,
 	for (i = 0; i < qsz; i++) {
 		db_bind_text(stmt, 1, qs[i]);
 		db_bind_text(stmt, 2, as[i]);
-		db_bind_int(stmt, 3, qsz - i - 1);
+		db_bind_int(stmt, 3, i);
 		db_step(stmt, 0);
 		sqlite3_reset(stmt);
 	}

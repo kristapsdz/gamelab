@@ -237,6 +237,7 @@ size_t		  base64buf(char *, const char *, size_t);
 
 int		  doublefork(struct kreq *);
 
+typedef void	(*customqf)(const char *, const char *, void *);
 typedef void	(*gamef)(const struct game *, void *);
 typedef void	(*gameroundf)(const struct game *, int64_t, void *);
 typedef void	(*winnerf)(const struct player *, const struct winner *, void *);
@@ -298,6 +299,9 @@ void		 db_game_load_all(gamef fp, void *);
 struct game	*db_game_load_all_array(size_t *);
 void		 db_game_load_player(int64_t, 
 			int64_t, gameroundf, void *);
+
+int		 db_customq_verify(int64_t, const char *);
+void		 db_customq_load_all(customqf, void *);
 
 struct interval	*db_interval_get(int64_t);
 void		 db_interval_free(struct interval *);
