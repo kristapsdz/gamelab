@@ -98,6 +98,8 @@ enum	key {
 	KEY_AWSWORKER_PCTAPPRV,
 	KEY_AWSWORKERS,
 	KEY_AWSCONVERSION,
+	KEY_CUSTOMANSWER,
+	KEY_CUSTOMQUESTION,
 	KEY_DATE,
 	KEY_TIME,
 	KEY_ROUNDMIN,
@@ -250,6 +252,8 @@ static const struct kvalid keys[KEY__MAX] = {
 	{ kvalid_int, "workerpctapprv" }, /* KEY_AWSWORKER_PCTAPPRV */
 	{ kvalid_uint, "workers" }, /* KEY_AWSWORKERS */
 	{ kvalid_udouble, "conversion" }, /* KEY_AWSCONVERSION */
+	{ kvalid_string, "customanswer" }, /* KEY_CUSTOMANSWER */
+	{ kvalid_string, "customquestion" }, /* KEY_CUSTOMQUESTION */
 	{ kvalid_date, "date" }, /* KEY_DATE */
 	{ kvalid_time, "time" }, /* KEY_TIME */
 	{ kvalid_uint, "roundmin" }, /* KEY_ROUNDMIN */
@@ -1464,11 +1468,16 @@ senddostartexpr(struct kreq *r)
 		return;
 	} 
 
-	/* Determine what kind of instructions to use. */
+	/* 
+	 * Determine what kind of instructions to use. 
+	 * This is important because we're later going to load the
+	 * instructions either from the given string or defaults on our
+	 * disc.
+	 */
+
 	inst = INSTR__MAX;
 	if (0 == strcmp("custom", r->fieldmap[KEY_INSTR]->parsed.s))
-		inst = kpairbad
-			(r, KEY_INSTRFILE) ? 
+		inst = kpairbad(r, KEY_INSTRFILE) ?  
 			INSTR__MAX : INSTR_CUSTOM;
 	if (0 == strcmp("mturk", r->fieldmap[KEY_INSTR]->parsed.s))
 		inst = INSTR_MTURK;
@@ -1483,10 +1492,12 @@ senddostartexpr(struct kreq *r)
 		return;
 	} 
 
-	/* Silence compiler warnings. */
 	sz = 0;
 	map = NULL;
 	fd = -1;
+
+	flags = 0;
+	json = NULL;
 
 	/*
 	 * If we have pre-supplied instructions, then read them now.
@@ -1494,6 +1505,7 @@ senddostartexpr(struct kreq *r)
 	 * If we don't have pre-supplied instructions, we point to the
 	 * memory held by the uploaded instruction buffer.
 	 */
+
 	if (INSTR_LOTTERY == inst || 
 	    INSTR_NOLOTTERY == inst ||
 	    INSTR_MTURK == inst) {
@@ -1504,6 +1516,7 @@ senddostartexpr(struct kreq *r)
 			   DATADIR "/instructions-mturk.xml"),
 			  O_RDONLY, 0);
 		if (-1 == fd || -1 == fstat(fd, &st)) {
+			WARN("open");
 			http_open(r, KHTTP_400);
 			khttp_body(r);
 			if (-1 != fd)
@@ -1513,6 +1526,7 @@ senddostartexpr(struct kreq *r)
 		sz = (size_t)st.st_size;
 		map = mmap(NULL, sz, PROT_READ, MAP_SHARED, fd, 0);
 		if (MAP_FAILED == map) {
+			WARN("mmap");
 			http_open(r, KHTTP_400);
 			khttp_body(r);
 			close(fd);
@@ -1522,7 +1536,6 @@ senddostartexpr(struct kreq *r)
 	} else 
 		instdat = r->fieldmap[KEY_INSTRFILE]->parsed.s;
 
-	flags = 0;
 	if (r->fieldmap[KEY_SHOWHISTORY]->parsed.i)
 		flags |= EXPR_NOHISTORY;
 	if (r->fieldmap[KEY_SHUFFLE]->parsed.i)
@@ -1530,14 +1543,18 @@ senddostartexpr(struct kreq *r)
 	if (r->fieldmap[KEY_RELATIVE]->parsed.i)
 		flags |= EXPR_RELATIVE;
 
-	json = NULL;
 	if (NULL != r->fieldmap[KEY_HISTORYTRIM] &&
 	    r->fieldmap[KEY_HISTORYFILE]->valsz)
 		json = historytrim(r);
 	else if (r->fieldmap[KEY_HISTORYFILE]->valsz) 
 		json = kstrdup(r->fieldmap[KEY_HISTORYFILE]->parsed.s);
 
-	/* Trim outer object scaffolding from JSON file. */
+	/* 
+	 * In order to use the JSON file the user gives us, we need to
+	 * trim out the outer `object' components, since the JSON file
+	 * was (presumably) directly downloaded from the browser window.
+	 */
+
 	if (NULL != json) {
 		start = json;
 		sz = strlen(start);
@@ -1562,6 +1579,7 @@ senddostartexpr(struct kreq *r)
 	 * This only fails if the experiment has already been started in
 	 * the meantime.
 	 */
+
 	if ( ! db_expr_start
 		(r->fieldmap[KEY_DATE]->parsed.i +
 		 r->fieldmap[KEY_TIME]->parsed.i,
@@ -1587,13 +1605,14 @@ senddostartexpr(struct kreq *r)
 		}
 		free(json);
 		return;
-	} else if (INSTR_LOTTERY == inst || 
-		   INSTR_NOLOTTERY == inst ||
-		   INSTR_MTURK == inst) {
+	} 
+	
+	if (INSTR_LOTTERY == inst || 
+	    INSTR_NOLOTTERY == inst ||
+	    INSTR_MTURK == inst) {
 		munmap(map, sz);
 		close(fd);
 	}
-
 	free(json);
 
 	http_open(r, KHTTP_200);
@@ -1604,10 +1623,12 @@ senddostartexpr(struct kreq *r)
 		"/playerlogin.html", kschemes[r->scheme], r->host);
 
 	/*
-	 * Begin by preparing the round mailer.
+	 * The experiment has been started!
+	 * Begin everything by preparing the round mailer.
 	 * This will fire periodically to mail out notices that the
 	 * round has advanced.
 	 */
+
 	if (r->fieldmap[KEY_MAILROUND]->parsed.i) {
 		db_close();
 		if (-1 == (pid = fork())) {
@@ -1664,6 +1685,7 @@ senddostartexpr(struct kreq *r)
 	 * Now mail out to each of the players to inform them of being
 	 * added to the experiment.
 	 */
+
 	db_close();
 	if (-1 == (pid = fork())) {
 		WARN("fork");

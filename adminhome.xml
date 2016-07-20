@@ -1089,12 +1089,12 @@
 										<div>
 											<i class="fa fa-chevron-circle-down"></i>
 											<a href="#" onclick="document.getElementById('advanced').className='advanced showadv'; return false;">
-												Show Advanced Options</a>.
+												Show advanced options</a>
 										</div>
 										<p>
 											<i class="fa fa-chevron-circle-up"></i>
 											<a href="#" onclick="document.getElementById('advanced').className='advanced'; return false;">
-												Hide Advanced Options</a>.
+												Hide advanced options</a>
 										</p>
 										<div>
 											Enter the <i class="fa fa-link"></i> address for logging in, which is
@@ -1188,19 +1188,13 @@
 											<span onclick="toggler('trimhist', 'trimhistToggle');">Trim history</span>
 										</div>
 										<div>
-											Finally, set the toggle for <q>Show questionnaire</q> to require
-											that participants submit answers to some verification questions before
-											playing; or
+											Set the toggle for 
 											<q>E-mail round advancement</q> to e-mail non-captive participants when
 											the round advances.
 											If you don't want to transmit (or show) experiment history to participants,
 											select <q>Do not show history</q>.
 											Lastly, set <q>Do not shuffle games/actions</q> to present games and
 											game bimatrices consistently across participants.
-										</div>
-										<div class="input input-check">
-											<i onclick="toggler('question', 'questionToggle');" id="questionToggle" class="fa fa-fw fa-toggle-off"></i>
-											<span onclick="toggler('question', 'questionToggle');">Show questionnaire</span>
 										</div>
 										<div class="input input-check">
 											<i onclick="toggler('mailround', 'mailroundToggle');" id="mailroundToggle" class="fa fa-fw fa-toggle-off"></i>
@@ -1219,11 +1213,61 @@
 											<span onclick="toggler('relative', 'relativeToggle');">Show relative round numbers</span>
 										</div>
 										<input type="hidden" id="trimhist" name="trimhist" value="1" />
-										<input type="hidden" id="question" name="question" value="0" />
 										<input type="hidden" id="mailround" name="mailround" value="0" />
 										<input type="hidden" id="showhistory" name="showhistory" value="0" />
 										<input type="hidden" id="shuffle" name="shuffle" value="0" />
 										<input type="hidden" id="relative" name="relative" value="0" />
+									</section>
+									<section class="advanced" id="questionnaire">
+										<div>
+											<i class="fa fa-chevron-circle-down"></i>
+											<a href="#" onclick="document.getElementById('questionnaire').className='advanced showadv'; return false;">
+												Show questionnaire options</a>
+										</div>
+										<p>
+											<i class="fa fa-chevron-circle-up"></i>
+											<a href="#" onclick="document.getElementById('questionnaire').className='advanced'; return false;">
+												Hide questionnaire options</a>
+										</p>
+										<div>
+											Here you can configure a questionnaire shown to
+											participants prior to play.
+										</div>
+										<div class="input input-check">
+											<i onclick="toggler('question', 'questionToggle');" id="questionToggle" class="fa fa-fw fa-toggle-off"></i>
+											<span onclick="toggler('question', 'questionToggle');">Show questionnaire</span>
+										</div>
+										<div>
+											You can either use the default questions or supply your
+											own using the fields below.
+											You are <strong>strongly</strong> urged to used the
+											default questions, as they have been carefully created
+											to avoid biasing participants.
+											If you do want to use custom questions, specify the
+											<i class="fa fa-question-circle-o"></i> number of questions.
+											To use the defaults, set this to zero.
+										</div>
+										<div class="input">
+											<i class="fa fa-fw fa-question-circle-o"></i>
+											<input type="number" min="0" value="0" onchange="customQuestions(this);" />
+										</div>
+										<div>
+											<ol class="noshow" id="questionblock">
+												<li>
+													<div class="input">
+														<i class="fa fa-fw fa-square"></i>
+														<textarea class="questions-dat" name="customquestion" 
+															placeholder="Custom question"></textarea>
+													</div>
+													<div class="input">
+														<i class="fa fa-fw fa-square"></i>
+														<input class="questions-dat" type="text" name="customanswer" 
+															placeholder="Custom answer" />
+													</div>
+												</li>
+											</ol>
+										</div>
+										<input type="hidden" id="question" name="question" value="0" />
 									</section>
 									<div class="input input-submit">
 										<i class="fa fa-check"></i>

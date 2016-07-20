@@ -1659,3 +1659,34 @@ function loadall()
 	sendQuery('@ADMINURI@/dogetexpr.json', 
 		loadallSetup, loadallSuccess, logout);
 }
+
+function customQuestions(e)
+{
+	var sz, dst, clone, list, i;
+
+	dst = document.getElementById('questionblock');
+	if (null === dst || (sz = parseInt(e.value)) < 0)
+		return;
+
+	if (0 === sz) {
+		doHideNode(dst);
+		return;
+	}
+
+	doUnhideNode(dst);
+
+	if (sz > dst.children.length)
+		while (sz > dst.children.length) {
+			clone = dst.children[0].cloneNode(true);
+			list = clone.getElementsByClassName('questions-dat');
+			for (i = 0; i < list.length; i++) {
+				list[i].value = '';
+				while (list[i].firstChild)
+					list[i].removeChild(list[i].firstChild);
+			}
+			dst.appendChild(clone);
+		}
+	else if (sz < dst.children.length)
+		while (dst.children.length > sz)
+			dst.removeChild(dst.children[dst.children.length - 1]);
+}

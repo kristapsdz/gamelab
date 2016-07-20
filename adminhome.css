@@ -272,6 +272,7 @@ span.inputheader		{ color: #666; }
 .seconds, .error		{ color: red; }
 #mturkbonusesButton		{ margin-top: 4pt; }
 .smallview			{ display: none; }
+#questionblock			{ margin-top: 0; }
 @media only screen and (max-width: 800px), only screen and (max-device-width: 800px) {
 	article			{ padding-left: 10%; 
 			  	  padding-right: 10%; }
