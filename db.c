@@ -843,6 +843,7 @@ again:
 		/* Offset negative (or zero). */
 		score -= min;
 		db_bind_int(stmt, 1, total);
+		assert(score >= 0);
 		db_bind_int(stmt, 2, score);
 		db_bind_int(stmt, 3, pids[i]);
 		db_step(stmt, 0);
@@ -951,19 +952,7 @@ db_winners(struct expr **expr, size_t winnersz, int64_t seed, size_t count)
 			id = sqlite3_column_int64(stmt, 0);
 			sum = sqlite3_column_int64(stmt, 1);
 			score = sqlite3_column_int64(stmt, 2);
-			if (score < 0) {
-				sqlite3_finalize(stmt);
-				db_trans_rollback();
-				WARNX("Win (lottery) request when "
-					"player %" PRId64 " has "
-					"negative tickets", id);
-				free(winners);
-				free(rnums);
-				free(pids);
-				mpq_clear(div);
-				mpq_clear(aggr);
-				return(0);
-			}
+			assert(score >= 0);
 			if (top >= sum && top < sum + score)
 				break;
 		}
