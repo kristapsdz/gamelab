@@ -274,7 +274,8 @@
 						When all rounds have concluded, the experiment halts.
 						Participants may still log in and review the history, as well as see the total number of points
 						awarded and their lottery ticket allotment.
-						<strong>Note</strong>: Mechanical Turk players are now included in the lottery computation, nor
+						The lottery ticket allotment is computed by rounding up the participant's total payoffs.
+						<strong>Note</strong>: Mechanical Turk players are not included in the lottery computation, nor
 						are they shown any information pertaining to the lottery.
 					</p>
 					<p>
@@ -284,7 +285,12 @@
 						Each of these values is mapped into the lottery tickets to choose a winner.
 						A participant is only chosen once for winning: if the random number re-selects a participant,
 						a new number is drawn (rejection sampling).
-						If any participants have a negative total score, the lottery is disallowed.
+					</p>
+					<p>
+						<strong>Note</strong>: if any final allotments are less than zero, the lottery uses
+						negative-valued semantics as follows.  First, all allotments are offset by the minimum
+						(negative) allotment.  For example, if the smallest allotment is -11, all allotments are
+						increased by 11.  Then lottery is then computed from these non-negative adjustment allotments.
 					</p>
 					<p>
 						Upon triggering winner selection, winner participants are notified on their login screen, along
