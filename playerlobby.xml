@@ -54,6 +54,42 @@
 									</div>
 								</div>
 							</section>
+							<section id="questioncustom" class="noshow">
+								<p class="error noshow" id="questionerrorcustom">
+									Answer incorrect.
+									Please try again.
+								</p>
+								<p>
+									Before playing, you must answer some questions.
+									This is question <span id="questioncustomrank"></span>.
+								</p>
+								<p id="questioncustomq">
+								</p>
+								<form action="@LABURI@/doanswercustom.json" method="post" onsubmit="return(doPlay(this));">
+									<input type="hidden" name="aid" id="questioncustomid" />
+									<fieldset>
+										<div class="input">
+											<i class="fa fa-fw fa-square"></i>
+											<input name="choicecustom" required="required" type="text" />
+										</div>
+										<div class="input input-submit">
+											<i class="fa fa-fw fa-check"></i>
+											<input id="questionSubmitcustom" type="submit" value="Submit" />
+										</div>
+									</fieldset>
+								</form>
+							</section>
+							<section id="questioncustom-correct" class="noshow">
+								<p>
+									That's right!
+								</p>
+								<div class="standalone">
+									<div class="input input-submit">
+										<i class="fa fa-fw fa-check"></i>
+										<button onclick="window.location.reload();">Next Question</button>
+									</div>
+								</div>
+							</section>
 							<section id="question0" class="noshow">
 								<p class="error noshow" id="questionerror0">
 									Answer incorrect.

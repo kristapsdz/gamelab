@@ -64,6 +64,7 @@ struct	poffstor {
  */
 enum	page {
 	PAGE_DOANSWER,
+	PAGE_DOANSWERCUSTOM,
 	PAGE_DOAUTOADD,
 	PAGE_DOCHECKROUND,
 	PAGE_DOINSTR,
@@ -95,6 +96,7 @@ enum	key {
 	KEY_CHOICE5B,
 	KEY_CHOICE6,
 	KEY_CHOICE7,
+	KEY_CHOICECUSTOM,
 	KEY_GAMEID,
 	KEY_HITID,
 	KEY_IDENTIFIER,
@@ -117,6 +119,7 @@ enum	key {
 
 static	unsigned int perms[PAGE__MAX] = {
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOANSWER */
+	PERM_JSON | PERM_LOGIN, /* PAGE_DOANSWERCUSTOM */
 	PERM_JSON, /* PAGE_DOAUTOADD */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOCHECKROUND */
 	PERM_JSON | PERM_LOGIN, /* PAGE_DOINSTR */
@@ -132,6 +135,7 @@ static	unsigned int perms[PAGE__MAX] = {
 
 static const char *const pages[PAGE__MAX] = {
 	"doanswer", /* PAGE_DOANSWER */
+	"doanswercustom", /* PAGE_DOANSWERCUSTOM */
 	"doautoadd", /* PAGE_DOAUTOADD */
 	"docheckround", /* PAGE_DOCHECKROUND */
 	"doinstr", /* PAGE_DOINSTR */
@@ -173,6 +177,7 @@ static const struct kvalid keys[KEY__MAX] = {
 	{ kvalid_rational, "choice5b" }, /* KEY_CHOICE5B */
 	{ kvalid_choice6, "choice6" }, /* KEY_CHOICE6 */
 	{ kvalid_choice7, "choice7" }, /* KEY_CHOICE7 */
+	{ kvalid_stringne, "choicecustom" }, /* KEY_CHOICECUSTOM */
 	{ kvalid_int, "gid" }, /* KEY_GAMEID */
 	{ kvalid_mstring, "hitId" }, /* KEY_HITID */
 	{ kvalid_stringne, "ident" }, /* KEY_IDENTIFIER */
@@ -701,6 +706,52 @@ senddocheckround(struct kreq *r)
 	db_expr_free(expr);
 }
 
+/*
+ * Answer a custom question.
+ * These pulls answers directly out of the database.
+ * Returns 400 if the answer was wrong (including being wrong
+ * because we couldn't find the question).
+ * Otherwise returns 200 (no document body).
+ */
+static void
+senddoanswercustom(struct kreq *r, int64_t id)
+{
+	struct player	*player;
+	int		 ok;
+
+	if (NULL == r->fieldmap[KEY_CHOICECUSTOM] ||
+	    NULL == r->fieldmap[KEY_ANSWERID]) {
+		http_open(r, KHTTP_400);
+		khttp_body(r);
+		return;
+	}
+
+	ok = db_customq_verify
+		(r->fieldmap[KEY_ANSWERID]->parsed.i,
+		 r->fieldmap[KEY_CHOICECUSTOM]->parsed.s);
+
+	if (ok) {
+		db_player_set_answered(id, 
+			r->fieldmap[KEY_ANSWERID]->parsed.i);
+		player = db_player_load(id);
+		db_player_join(player, QUESTIONS);
+		db_player_free(player);
+		http_open(r, KHTTP_200);
+	} else
+		http_open(r, KHTTP_400);
+
+	khttp_body(r);
+}
+
+/*
+ * Answer one of the pre-supplied questionnaire questions.
+ * The mapping between question and answer is fixed here.
+ * We have several different ``kinds'' of questions here, most of which
+ * are checked during the key-value validation.
+ * Returns 400 if the answer was wrong (including being wrong
+ * because we couldn't find the question).
+ * Otherwise returns 200 (no document body).
+ */
 static void
 senddoanswer(struct kreq *r, int64_t id)
 {
@@ -866,6 +917,17 @@ senddowinrnums(const struct player *p,
 }
 
 static void
+senddoloadcustomq(const char *ques, const char *ans, void *arg)
+{
+	struct kjsonreq	*r = arg;
+
+	kjson_obj_open(r);
+	kjson_putstringp(r, "question", ques);
+	kjson_putstringp(r, "answer", ans);
+	kjson_obj_close(r);
+}
+
+static void
 senddoloadquestions(struct kreq *r, int64_t playerid)
 {
 	struct expr	*expr;
@@ -887,6 +949,9 @@ senddoloadquestions(struct kreq *r, int64_t playerid)
 	kjson_obj_open(&req);
 	kjson_putintp(&req, "questionnaire", expr->questionnaire);
 	kjson_putintp(&req, "answered", player->answer);
+	kjson_arrayp_open(&req, "custom");
+	db_customq_load_all(senddoloadcustomq, &req);
+	kjson_array_close(&req);
 	kjson_obj_close(&req);
 	kjson_close(&req);
 	db_expr_free(expr);
@@ -1309,6 +1374,9 @@ doreq(struct kreq *r)
 		break;
 	case (PAGE_DOANSWER):
 		senddoanswer(r, id);
+		break;
+	case (PAGE_DOANSWERCUSTOM):
+		senddoanswercustom(r, id);
 		break;
 	case (PAGE_DOCHECKROUND):
 		senddocheckround(r);

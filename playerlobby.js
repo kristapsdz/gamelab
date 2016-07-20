@@ -195,6 +195,8 @@ function doInitSuccess(resp)
 		return;
 	}
 
+	console.log(resp);
+
 	doUnhide('ploaded');
 	doHide('ploading');
 
@@ -204,7 +206,17 @@ function doInitSuccess(resp)
 	if (res.questionnaire && res.answered < 8) {
 		doHide('main');
 		doUnhide('questionnaire');
-		if (res.answered > 0) {
+		if (res.custom.length > 0) {
+			/* Custom questions. */
+			doUnhide('questioncustom');
+			doClearReplace('questioncustomrank', 
+				(res.answered + 1));
+			doClearReplace('questioncustomq', 
+				res.custom[res.answered].question);
+			doValue('questioncustomid', res.answered);
+			ques = 'custom';
+		} else if (res.answered > 0) {
+			/* Default questions. */
 			doUnhide('question' + res.answered);
 			if (res.answered == 7)
 				loadGraphs(history);
