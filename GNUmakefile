@@ -155,10 +155,14 @@ JSMINS   = adminhome.min.js \
 IMAGES   = eskil.jpg \
 	   jorgen.jpg \
 	   kristaps.jpg
+CSSS	 = index.css \
+	   manual.css
+BUILTMGS = schema.png
 BUILTMLS = history.html \
 	   index.html \
 	   manual.html \
-	   quickstart.html
+	   quickstart.html \
+	   schema.html
 
 all: admin lab gamers $(HTMLS) $(JSMINS)
 
@@ -176,7 +180,7 @@ lab: lab.o $(OBJS)
 
 admin.o lab.o $(OBJS): extern.h
 
-www: $(BUILTMLS) gamelab.tgz gamelab.tgz.sha512 gamelab.bib 
+www: $(BUILTMLS) $(BUILTMGS) gamelab.tgz gamelab.tgz.sha512 gamelab.bib 
 
 gamelab.bib: gamelab.in.bib
 	sed -e "s!@VERSION@!$(VERSION)!g" \
@@ -218,7 +222,7 @@ gamelab.tgz.sha512: gamelab.tgz
 installwww: www
 	mkdir -p $(PREFIX)
 	mkdir -p $(PREFIX)/snapshots
-	install -m 0444 $(IMAGES) $(BUILTMLS) gamelab.bib index.css manual.css logo.png $(PREFIX)
+	install -m 0444 $(IMAGES) $(BUILTMLS) $(BUILTMGS) gamelab.bib $(CSSS) logo.png $(PREFIX)
 	install -m 0444 gamelab.tgz $(PREFIX)/snapshots
 	install -m 0444 gamelab.tgz.sha512 $(PREFIX)/snapshots
 	install -m 0444 gamelab.tgz $(PREFIX)/snapshots/gamelab-$(VERSION).tgz
@@ -252,6 +256,12 @@ $(JSMINS): jsmin
 		-e "s!@LABURI@!$(LABURI)!g" \
 		-e "s!@HTURI@!$(HTURI)!g" $< > $@
 	chmod 444 $@
+
+schema.html: gamelab.sql
+	sqliteconvert gamelab.sql >$@
+
+schema.png: gamelab.sql
+	sqliteconvert -i gamelab.sql >$@
 
 manual.html: manual.xml gamelab.sql
 	( sed -n '1,/@DATABASE_SCHEMA@/p' manual.xml ; \

@@ -1090,6 +1090,7 @@
 						In all of these, note that <q>Unique Identifier</q> fields are non-zero SQLite <q>rowid</q> fields.
 						Rational numbers are stored as text, such as <var>1/2</var> or just <var>2</var>, starting with
 						<var>0/1</var>.
+						You can also see a <a href="schema.html">detailed map</a> of the schema.
 					</p>
 					<!-- @DATABASE_SCHEMA@ -->
 				</section>

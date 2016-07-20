@@ -615,4 +615,17 @@
 			</p>
 		</aside>
 	</article>
+	<article data-sblg-article="1" data-sblg-tags="version">
+		<header>
+			<h1>1.1.7</h1>
+			<address>Kristaps Dzonsons</address>
+			<time datetime="2016-07-18">2016-07-18</time>
+		</header>
+		<aside>
+			<p>
+				Allow for negatively-valued lottery values as now documented in the <a href="manual.html#lottery">manual</a>.
+				Link to a <a href="schema.html">detailed map</a> of the database schema (again, courtesy of <a href="https://kristaps.bsd.lv/sqliteconvert">sqliteconvert</a>).
+			</p>
+		</aside>
+	</article>
 </articles>
