@@ -71,8 +71,8 @@ endif
 # You really don't want to change anything below this line.
 #####################################################################
 
-VERSION	 = 1.1.5
-VMONTH	 = March
+VERSION	 = 1.1.7
+VMONTH	 = July
 VYEAR	 = 2016
 CFLAGS 	+= -g -W -Wall -Wstrict-prototypes -Wno-unused-parameter -Wwrite-strings -I/usr/local/include
 CFLAGS	+= -DDATADIR=\"$(RDATADIR)\" -DHTURI=\"$(HTURI)\" -DLABURI=\"$(LABURI)\"
