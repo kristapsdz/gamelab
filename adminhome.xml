@@ -769,7 +769,7 @@
 								lottery, the Mechanical Turk players will not be included in that
 								lottery.  
 								They use an optional bonus-based system of reward, instead.
-						</p>
+							</p>
 							<div>
 								<ul id="loadNewPlayers" class="table">
 									<li><i class="fa fa-spinner fa-pulse"></i></li>
@@ -782,30 +782,32 @@
 										E-mail participant configuration
 									</a>
 								</div>
-								<p>
-									<i class="fa fa-fw fa-chevron-circle-up"></i>
-									<a href="#" onclick="document.getElementById('players-mail').className='advanced'; return false;">
-										E-mail participant configuration
-									</a>
-								</p>
-								<p>
-									Add participants to the game using this form.
-									Participants consist of e-mail addresses separated by white-space (newlines, tabs, spaces, whatever).
-								</p>
-								<form action="@ADMINURI@/doaddplayers.json" method="post" id="addNewPlayers" onsubmit="return(addNewPlayers(this));">
-									<fieldset>
-										<div class="input">
-											<i class="fa fa-fw fa-users"></i>
-											<textarea name="players" placeholder="Space-separated participant e-mail addresses..."></textarea>
-										</div>
-										<div class="input input-submit">
-											<i class="fa fa-fw fa-check"></i>
-											<input id="addNewPlayersSubmit" type="submit" value="Save" />
-										</div>
-									</fieldset>
-									<input type="hidden" id="autoadd4" name="autoadd" value="0" />
-									<input type="hidden" id="autoaddpreserve2" name="autoaddpreserve" value="0" />
-								</form>
+								<div>
+									<div>
+										<i class="fa fa-fw fa-chevron-circle-up"></i>
+										<a href="#" onclick="document.getElementById('players-mail').className='advanced'; return false;">
+											E-mail participant configuration
+										</a>
+									</div>
+									<p>
+										Add participants to the game using this form.
+										Participants consist of e-mail addresses separated by white-space (newlines, tabs, spaces, whatever).
+									</p>
+									<form action="@ADMINURI@/doaddplayers.json" method="post" id="addNewPlayers" onsubmit="return(addNewPlayers(this));">
+										<fieldset>
+											<div class="input">
+												<i class="fa fa-fw fa-users"></i>
+												<textarea name="players" placeholder="Space-separated participant e-mail addresses..."></textarea>
+											</div>
+											<div class="input input-submit">
+												<i class="fa fa-fw fa-check"></i>
+												<input id="addNewPlayersSubmit" type="submit" value="Save" />
+											</div>
+										</fieldset>
+										<input type="hidden" id="autoadd4" name="autoadd" value="0" />
+										<input type="hidden" id="autoaddpreserve2" name="autoaddpreserve" value="0" />
+									</form>
+								</div>
 							</section>
 							<section class="advanced" id="players-captive">
 								<div>
@@ -814,39 +816,41 @@
 										Captive participant configuration
 									</a>
 								</div>
-								<p>
-									<i class="fa fa-fw fa-chevron-circle-up"></i>
-									<a href="#" onclick="document.getElementById('players-captive').className='advanced'; return false;">
-										Captive participant configuration
-									</a>
-								</p>
-								<p>
-									If you set the <q>Allow Captive Participants</q> toggle, then participants may add themselves.
-									Captive participants will not be e-mailed when the experiment is started, nor will they be remembered
-									when the experiment is wiped.
-									If checked, <q>E-mail round advancement</q> will mail currently-playing non-captive participants a
-									note whenever the round advances.
-								</p>
-								<form action="@ADMINURI@/doaddplayers.json" method="post" id="addNewPlayers2" onsubmit="return(addNewPlayers2(this));">
-									<fieldset>
-										<div class="input input-check">
-											<i onclick="toggler('autoadd', 'autoaddToggle');" id="autoaddToggle" class="fa fa-fw fa-toggle-off"></i>
-											<span onclick="toggler('autoadd', 'autoaddToggle');">Allow captive participants</span>
-										</div>
-										<div>
+								<div>
+									<div>
+										<i class="fa fa-fw fa-chevron-circle-up"></i>
+										<a href="#" onclick="document.getElementById('players-captive').className='advanced'; return false;">
+											Captive participant configuration
+										</a>
+									</div>
+									<p>
+										If you set the <q>Allow Captive Participants</q> toggle, then participants may add themselves.
+										Captive participants will not be e-mailed when the experiment is started, nor will they be remembered
+										when the experiment is wiped.
+										If checked, <q>E-mail round advancement</q> will mail currently-playing non-captive participants a
+										note whenever the round advances.
+									</p>
+									<form action="@ADMINURI@/doaddplayers.json" method="post" id="addNewPlayers2" onsubmit="return(addNewPlayers2(this));">
+										<fieldset>
 											<div class="input input-check">
-												<i onclick="toggler('autoaddpreserve', 'autoaddTogglePreserve');" id="autoaddTogglePreserve" class="fa fa-fw fa-toggle-off"></i>
-												<span onclick="toggler('autoaddpreserve', 'autoaddTogglePreserve');">Preserve modes after startup</span>
+												<i onclick="toggler('autoadd', 'autoaddToggle');" id="autoaddToggle" class="fa fa-fw fa-toggle-off"></i>
+												<span onclick="toggler('autoadd', 'autoaddToggle');">Allow captive participants</span>
 											</div>
-										</div>
-										<div class="input input-submit">
-											<i class="fa fa-fw fa-check"></i>
-											<input id="addNewPlayersSubmit2" type="submit" value="Save" />
-										</div>
-										<input type="hidden" id="autoadd" name="autoadd" value="0" />
-										<input type="hidden" id="autoaddpreserve" name="autoaddpreserve" value="0" />
-									</fieldset>
-								</form>
+											<div>
+												<div class="input input-check">
+													<i onclick="toggler('autoaddpreserve', 'autoaddTogglePreserve');" id="autoaddTogglePreserve" class="fa fa-fw fa-toggle-off"></i>
+													<span onclick="toggler('autoaddpreserve', 'autoaddTogglePreserve');">Preserve modes after startup</span>
+												</div>
+											</div>
+											<div class="input input-submit">
+												<i class="fa fa-fw fa-check"></i>
+												<input id="addNewPlayersSubmit2" type="submit" value="Save" />
+											</div>
+											<input type="hidden" id="autoadd" name="autoadd" value="0" />
+											<input type="hidden" id="autoaddpreserve" name="autoaddpreserve" value="0" />
+										</fieldset>
+									</form>
+								</div>
 							</section>
 							<section class="advanced" id="players-mturk">
 								<div>
@@ -855,155 +859,157 @@
 										Mechanical Turk configuration
 									</a>
 								</div>
-								<p>
-									<i class="fa fa-fw fa-chevron-circle-up"></i>
-									<a href="#" onclick="document.getElementById('players-mturk').className='advanced'; return false;">
-										Mechanical Turk configuration
-									</a>
-								</p>
-								<form action="@ADMINURI@/dosetmturk.json" method="post" id="setmturk" onsubmit="return(setMturk(this));">
-									<div class="noshow err setmturkerr500">
-										<div class="warning">
-											<div>
-												<div><i class="fa fa-exclamation-circle"></i></div>
+								<div>
+									<div>
+										<i class="fa fa-fw fa-chevron-circle-up"></i>
+										<a href="#" onclick="document.getElementById('players-mturk').className='advanced'; return false;">
+											Mechanical Turk configuration
+										</a>
+									</div>
+									<form action="@ADMINURI@/dosetmturk.json" method="post" id="setmturk" onsubmit="return(setMturk(this));">
+										<div class="noshow err setmturkerr500">
+											<div class="warning">
 												<div>
-													Uh-oh... a system error occurred.
+													<div><i class="fa fa-exclamation-circle"></i></div>
+													<div>
+														Uh-oh... a system error occurred.
+													</div>
 												</div>
 											</div>
 										</div>
-									</div>
-									<div class="noshow err setmturkerr400">
-										<div class="warning">
-											<div>
-												<div><i class="fa fa-exclamation-circle"></i></div>
+										<div class="noshow err setmturkerr400">
+											<div class="warning">
 												<div>
-													Invalid parameters.
-													Try again.
+													<div><i class="fa fa-exclamation-circle"></i></div>
+													<div>
+														Invalid parameters.
+														Try again.
+													</div>
 												</div>
 											</div>
 										</div>
-									</div>
-									<p>
-										Enter your AWS access key <i class="fa fa-amazon"></i>, secret
-										key <i class="fa fa-lock"></i>, number of workers <i class="fa
-											fa-group"></i> (minimum of 1), and a meaningful
-										experiment name <i class="fa fa-pencil-square-o"></i>.
-										<strong>Note</strong>: your secret key will be stored as-is in
-										the database, but never sent out and redacted on back-up.
-									</p>
-									<fieldset>
-										<div class="input">
-											<i class="fa fa-fw fa-amazon"></i>
-											<input class="expr-aws-accesskey" required="required" 
-												type="text" name="awsaccesskey" placeholder="AWS Access Key ID" />
-										</div>
-										<div class="input">
-											<i class="fa fa-fw fa-lock"></i>
-											<input required="required" type="text" name="awssecretkey" placeholder="AWS Secret Access Key" />
-										</div>
-										<div class="input">
-											<i class="fa fa-fw fa-group"></i>
-											<input class="expr-aws-workers" required="required" 
-												type="number" name="workers" value="2" min="1" />
-										</div>
-										<div class="input">
-											<i class="fa fa-fw fa-pencil-square-o"></i>
-											<input required="required" class="expr-aws-name" type="text" 
-												name="awsname" placeholder="Gamelab Experiment" />
-										</div>
-									</fieldset>
-									<p>
-										Next, provide an optional <i class="fa fa-pencil-square"></i> description and
-										optional <i class="fa fa-ellipsis-h"></i> keywords.
-										(You do want workers, yes?  Be descriptive!)
-										Lastly, note whether you're running in sandbox or <q>real</q>
-										mode.
-										<strong>Always</strong> test in sandbox mode first!
-									</p>
-									<fieldset>
-										<div class="input">
-											<i class="fa fa-fw fa-pencil-square"></i>
-											<textarea class="expr-aws-desc" name="awsdesc" placeholder="Experiment description"></textarea>
-										</div>
-										<div class="input">
-											<i class="fa fa-fw fa-ellipsis-h"></i>
-											<textarea class="expr-aws-keys" name="awskeywords" placeholder="Comma-separated keywords"></textarea>
-										</div>
-										<input type="checkbox" class="intoggler expr-aws-sandbox" 
-											checked="checked" id="sandbox" name="sandbox" value="1" />
-										<div>
-											<label for="sandbox" class="intoggler-on input input-check">
-												<i class="fa fa-fw fa-toggle-on"></i>
-												<span>Sandbox Mode: enabled</span>
-											</label>
-											<label for="sandbox" class="intoggler-off input input-check">
-												<i class="fa fa-fw fa-toggle-off"></i>
-												<span>Sandbox Mode: disabled</span>
-											</label>
-										</div>
-									</fieldset>
-									<p>
-										Set <i class="fa fa-exchange"></i> to the conversion rate from points to USD and
-										<i class="fa fa-money"></i> to the reward (minimum clamped to 0.01) for workers.
-									</p>
-									<fieldset>
-										<div class="input">
-											<i class="fa fa-fw fa-exchange"></i>
-											<input required="required" class="expr-aws-convert" type="number" 
-												name="conversion" step="any" min="0.0" value="1.0" />
-										</div>
-										<div class="input">
-											<i class="fa fa-fw fa-money"></i>
-											<input required="required" class="expr-aws-reward" type="number" 
-												name="awsreward" step="0.01" min="0.01" value="1.0" />
-										</div>
-									</fieldset>
-									<p>
-										Worker requirements: set <i class="fa fa-globe"></i> to be <a
-											href="http://www.iso.org/iso/country_codes/iso_3166_code_lists.htm">ISO
-											3166</a> country code (or blank for no restriction); <i
-											class="fa fa-check"></i> to be the minimum number of approved
-										HITs, with -1 meaning no restriction; and <i class="fa fa-percent"></i>
-										to be the percent of approved assignments, with -1 being no restriction.
-									</p>
-									<fieldset>
-										<div class="input">
-											<i class="fa fa-fw fa-globe"></i>
-											<input type="text" class="expr-aws-locale" name="workerlocale" 
-												placeholder="Worker locale" />
-										</div>
-										<div class="input">
-											<i class="fa fa-fw fa-check"></i>
-											<input type="number" class="expr-aws-whit" name="workerhitapprv" 
-												step="1" min="-1" value="-1" />
-										</div>
-										<div class="input">
-											<i class="fa fa-fw fa-percent"></i>
-											<input type="number" class="expr-aws-wpct" name="workerpctapprv" 
-												step="1" max="100" min="-1" value="-1" />
-										</div>
-									</fieldset>
-									<div class="buttons">
-										<div>
-											<div class="input input-submit" id="setmturkbtn">
-												<i class="fa fa-fw fa-save"></i>
-												<input type="submit" value="Save" />
+										<p>
+											Enter your AWS access key <i class="fa fa-amazon"></i>, secret
+											key <i class="fa fa-lock"></i>, number of workers <i class="fa
+												fa-group"></i> (minimum of 1), and a meaningful
+											experiment name <i class="fa fa-pencil-square-o"></i>.
+											<strong>Note</strong>: your secret key will be stored as-is in
+											the database, but never sent out and redacted on back-up.
+										</p>
+										<fieldset>
+											<div class="input">
+												<i class="fa fa-fw fa-amazon"></i>
+												<input class="expr-aws-accesskey" required="required" 
+													type="text" name="awsaccesskey" placeholder="AWS Access Key ID" />
+											</div>
+											<div class="input">
+												<i class="fa fa-fw fa-lock"></i>
+												<input required="required" type="text" name="awssecretkey" placeholder="AWS Secret Access Key" />
+											</div>
+											<div class="input">
+												<i class="fa fa-fw fa-group"></i>
+												<input class="expr-aws-workers" required="required" 
+													type="number" name="workers" value="2" min="1" />
+											</div>
+											<div class="input">
+												<i class="fa fa-fw fa-pencil-square-o"></i>
+												<input required="required" class="expr-aws-name" type="text" 
+													name="awsname" placeholder="Gamelab Experiment" />
+											</div>
+										</fieldset>
+										<p>
+											Next, provide an optional <i class="fa fa-pencil-square"></i> description and
+											optional <i class="fa fa-ellipsis-h"></i> keywords.
+											(You do want workers, yes?  Be descriptive!)
+											Lastly, note whether you're running in sandbox or <q>real</q>
+											mode.
+											<strong>Always</strong> test in sandbox mode first!
+										</p>
+										<fieldset>
+											<div class="input">
+												<i class="fa fa-fw fa-pencil-square"></i>
+												<textarea class="expr-aws-desc" name="awsdesc" placeholder="Experiment description"></textarea>
+											</div>
+											<div class="input">
+												<i class="fa fa-fw fa-ellipsis-h"></i>
+												<textarea class="expr-aws-keys" name="awskeywords" placeholder="Comma-separated keywords"></textarea>
+											</div>
+											<input type="checkbox" class="intoggler expr-aws-sandbox" 
+												checked="checked" id="sandbox" name="sandbox" value="1" />
+											<div>
+												<label for="sandbox" class="intoggler-on input input-check">
+													<i class="fa fa-fw fa-toggle-on"></i>
+													<span>Sandbox Mode: enabled</span>
+												</label>
+												<label for="sandbox" class="intoggler-off input input-check">
+													<i class="fa fa-fw fa-toggle-off"></i>
+													<span>Sandbox Mode: disabled</span>
+												</label>
+											</div>
+										</fieldset>
+										<p>
+											Set <i class="fa fa-exchange"></i> to the conversion rate from points to USD and
+											<i class="fa fa-money"></i> to the reward (minimum clamped to 0.01) for workers.
+										</p>
+										<fieldset>
+											<div class="input">
+												<i class="fa fa-fw fa-exchange"></i>
+												<input required="required" class="expr-aws-convert" type="number" 
+													name="conversion" step="any" min="0.0" value="1.0" />
+											</div>
+											<div class="input">
+												<i class="fa fa-fw fa-money"></i>
+												<input required="required" class="expr-aws-reward" type="number" 
+													name="awsreward" step="0.01" min="0.01" value="1.0" />
+											</div>
+										</fieldset>
+										<p>
+											Worker requirements: set <i class="fa fa-globe"></i> to be <a
+												href="http://www.iso.org/iso/country_codes/iso_3166_code_lists.htm">ISO
+												3166</a> country code (or blank for no restriction); <i
+												class="fa fa-check"></i> to be the minimum number of approved
+											HITs, with -1 meaning no restriction; and <i class="fa fa-percent"></i>
+											to be the percent of approved assignments, with -1 being no restriction.
+										</p>
+										<fieldset>
+											<div class="input">
+												<i class="fa fa-fw fa-globe"></i>
+												<input type="text" class="expr-aws-locale" name="workerlocale" 
+													placeholder="Worker locale" />
+											</div>
+											<div class="input">
+												<i class="fa fa-fw fa-check"></i>
+												<input type="number" class="expr-aws-whit" name="workerhitapprv" 
+													step="1" min="-1" value="-1" />
+											</div>
+											<div class="input">
+												<i class="fa fa-fw fa-percent"></i>
+												<input type="number" class="expr-aws-wpct" name="workerpctapprv" 
+													step="1" max="100" min="-1" value="-1" />
+											</div>
+										</fieldset>
+										<div class="buttons">
+											<div>
+												<div class="input input-submit" id="setmturkbtn">
+													<i class="fa fa-fw fa-save"></i>
+													<input type="submit" value="Save" />
+												</div>
+											</div>
+											<div>
+												<div class="input input-submit noshow" id="setmturkpbtn">
+													<i class="fa fa-fw fa-save"></i>
+													<input type="button" value="Saving..." />
+												</div>
+											</div>
+											<div>
+												<div class="input input-submit">
+													<i class="fa fa-fw fa-refresh"></i>
+													<input type="button" value="Unset" onclick="unsetMturk(); return false;" />
+												</div>
 											</div>
 										</div>
-										<div>
-											<div class="input input-submit noshow" id="setmturkpbtn">
-												<i class="fa fa-fw fa-save"></i>
-												<input type="button" value="Saving..." />
-											</div>
-										</div>
-										<div>
-											<div class="input input-submit">
-												<i class="fa fa-fw fa-refresh"></i>
-												<input type="button" value="Unset" onclick="unsetMturk(); return false;" />
-											</div>
-										</div>
-									</div>
-								</form>
+									</form>
+								</div>
 							</section>
 							<p id="captiveGame">
 								<strong>Note</strong>: you have opted for a captive experiment.
@@ -1014,7 +1020,7 @@
 								wish to continue adding participants.
 							</p>
 						</section>
-						<section id="startExprSection">
+						<form id="startExprSection" action="@ADMINURI@/dostartexpr.json" method="post" onsubmit="return(startExpr(this));">
 							<h3>
 								3. Experiment parameters
 							</h3>
@@ -1046,62 +1052,64 @@
 									Experiment already started!
 								</div>
 							</div>
-							<form action="@ADMINURI@/dostartexpr.json" method="post" id="startExpr" onsubmit="return(startExpr(this));">
-								<fieldset>
-									<span class="inputheader">
-										Current GMT date and time:
-										<script>
-											var now = new Date();
-											document.write
-												(now.getUTCFullYear() + '-' +
-												 ('0' + (now.getUTCMonth()+1)).slice(-2) + '-' +
-												 ('0' + now.getUTCDate()).slice(-2) + ', ' +
-												 ('0' + now.getUTCHours()).slice(-2) + ':' +
-												 ('0' + now.getUTCMinutes()).slice(-2));
-										</script>
-									</span>
-									<div class="input">
-										<i class="fa fa-fw fa-calendar"></i>
-										<input required="required" id="date" type="date" name="date" placeholder="yyyy-mm-dd" />
+							<fieldset>
+								<span class="inputheader">
+									Current GMT date and time:
+									<script>
+										var now = new Date();
+										document.write
+											(now.getUTCFullYear() + '-' +
+											 ('0' + (now.getUTCMonth()+1)).slice(-2) + '-' +
+											 ('0' + now.getUTCDate()).slice(-2) + ', ' +
+											 ('0' + now.getUTCHours()).slice(-2) + ':' +
+											 ('0' + now.getUTCMinutes()).slice(-2));
+									</script>
+								</span>
+								<div class="input">
+									<i class="fa fa-fw fa-calendar"></i>
+									<input required="required" id="date" type="date" name="date" placeholder="yyyy-mm-dd" />
+								</div>
+								<div class="input">
+									<i class="fa fa-fw fa-clock-o"></i>
+									<input required="required" id="time" type="time" name="time" placeholder="hh:mm GMT" />
+								</div>
+								<span>
+									...or start in 
+									<a href="#" onclick="exprStartTime(60 * 1000); return false;">one minute</a>, 
+									<a href="#" onclick="exprStartTime(60 * 10 * 1000); return false;">ten minutes</a>, 
+									<a href="#" onclick="exprStartTime(60 * 60 * 1000); return false;">one hour</a>, or
+									<a href="#" onclick="exprStartTime(24 * 60 * 60 * 1000); return false;">one day</a> from now.
+								</span>
+								<div class="input">
+									<i class="fa fa-fw fa-gear"></i>
+									<input required="required" type="number" name="rounds" min="1" step="1" value="14" />
+								</div>
+								<div class="input">
+									<i class="fa fa-fw fa-history"></i>
+									<input required="required" type="number" name="minutes" max="1440" min="1" step="1" value="1440" />
+								</div>
+								<div class="input">
+									<i class="fa fa-fw fa-pie-chart"></i>
+									<input required="required" type="number" name="roundpct" max="100" min="0" step="1" value="100" />
+								</div>
+							</fieldset>
+							<section class="advanced" id="advanced">
+								<div>
+									<i class="fa fa-chevron-circle-down"></i>
+									<a href="#" onclick="document.getElementById('advanced').className='advanced showadv'; return false;">
+										Show advanced options</a>
+								</div>
+								<div>
+									<div>
+										<i class="fa fa-chevron-circle-up"></i>
+										<a href="#" onclick="document.getElementById('advanced').className='advanced'; return false;">
+											Hide advanced options</a>
 									</div>
-									<div class="input">
-										<i class="fa fa-fw fa-clock-o"></i>
-										<input required="required" id="time" type="time" name="time" placeholder="hh:mm GMT" />
+									<div>
+										Enter the <i class="fa fa-link"></i> address for logging in, which is
+										sent in participants' welcome email.
 									</div>
-									<span>
-										...or start in 
-										<a href="#" onclick="exprStartTime(60 * 1000); return false;">one minute</a>, 
-										<a href="#" onclick="exprStartTime(60 * 10 * 1000); return false;">ten minutes</a>, 
-										<a href="#" onclick="exprStartTime(60 * 60 * 1000); return false;">one hour</a>, or
-										<a href="#" onclick="exprStartTime(24 * 60 * 60 * 1000); return false;">one day</a> from now.
-									</span>
-									<div class="input">
-										<i class="fa fa-fw fa-gear"></i>
-										<input required="required" type="number" name="rounds" min="1" step="1" value="14" />
-									</div>
-									<div class="input">
-										<i class="fa fa-fw fa-history"></i>
-										<input required="required" type="number" name="minutes" max="1440" min="1" step="1" value="1440" />
-									</div>
-									<div class="input">
-										<i class="fa fa-fw fa-pie-chart"></i>
-										<input required="required" type="number" name="roundpct" max="100" min="0" step="1" value="100" />
-									</div>
-									<section class="advanced" id="advanced">
-										<div>
-											<i class="fa fa-chevron-circle-down"></i>
-											<a href="#" onclick="document.getElementById('advanced').className='advanced showadv'; return false;">
-												Show advanced options</a>
-										</div>
-										<p>
-											<i class="fa fa-chevron-circle-up"></i>
-											<a href="#" onclick="document.getElementById('advanced').className='advanced'; return false;">
-												Hide advanced options</a>
-										</p>
-										<div>
-											Enter the <i class="fa fa-link"></i> address for logging in, which is
-											sent in participants' welcome email.
-										</div>
+									<fieldset>
 										<div class="input">
 											<i class="fa fa-fw fa-link"></i>
 											<input required="required" id="loginURI" type="url" name="uri" />
@@ -1219,36 +1227,40 @@
 										<input type="hidden" id="showhistory" name="showhistory" value="0" />
 										<input type="hidden" id="shuffle" name="shuffle" value="0" />
 										<input type="hidden" id="relative" name="relative" value="0" />
-									</section>
-									<section class="advanced" id="questionnaire">
-										<div>
-											<i class="fa fa-chevron-circle-down"></i>
-											<a href="#" onclick="document.getElementById('questionnaire').className='advanced showadv'; return false;">
-												Show questionnaire options</a>
-										</div>
-										<p>
-											<i class="fa fa-chevron-circle-up"></i>
-											<a href="#" onclick="document.getElementById('questionnaire').className='advanced'; return false;">
-												Hide questionnaire options</a>
-										</p>
-										<div>
-											Here you can configure a questionnaire shown to
-											participants prior to play.
-										</div>
-										<div class="input input-check">
-											<i onclick="toggler('question', 'questionToggle');" id="questionToggle" class="fa fa-fw fa-toggle-off"></i>
-											<span onclick="toggler('question', 'questionToggle');">Show questionnaire</span>
-										</div>
-										<div>
-											You can either use the default questions or supply your
-											own using the fields below.
-											You are <strong>strongly</strong> urged to used the
-											default questions, as they have been carefully created
-											to avoid biasing participants.
-											If you do want to use custom questions, specify the
-											<i class="fa fa-question-circle-o"></i> number of questions.
-											To use the defaults, set this to zero.
-										</div>
+									</fieldset>
+								</div>
+							</section>
+							<section class="advanced" id="questionnaire">
+								<div>
+									<i class="fa fa-chevron-circle-down"></i>
+									<a href="#" onclick="document.getElementById('questionnaire').className='advanced showadv'; return false;">
+										Show questionnaire options</a>
+								</div>
+								<div>
+									<div>
+										<i class="fa fa-chevron-circle-up"></i>
+										<a href="#" onclick="document.getElementById('questionnaire').className='advanced'; return false;">
+											Hide questionnaire options</a>
+									</div>
+									<div>
+										Here you can configure a questionnaire shown to
+										participants prior to play.
+									</div>
+									<div class="input input-check">
+										<i onclick="toggler('question', 'questionToggle');" id="questionToggle" class="fa fa-fw fa-toggle-off"></i>
+										<span onclick="toggler('question', 'questionToggle');">Show questionnaire</span>
+									</div>
+									<div>
+										You can either use the default questions or supply your
+										own using the fields below.
+										You are <strong>strongly</strong> urged to used the
+										default questions, as they have been carefully created
+										to avoid biasing participants.
+										If you do want to use custom questions, specify the
+										<i class="fa fa-question-circle-o"></i> number of questions.
+										To use the defaults, set this to zero.
+									</div>
+									<fieldset>
 										<div class="input">
 											<i class="fa fa-fw fa-question-circle-o"></i>
 											<input type="number" min="0" value="0" name="customcount" onchange="customQuestions(this);" />
@@ -1270,14 +1282,16 @@
 											</ol>
 										</div>
 										<input type="hidden" id="question" name="question" value="0" />
-									</section>
-									<div class="input input-submit">
-										<i class="fa fa-check"></i>
-										<input id="startExprSubmit" type="submit" value="Start Experiment" gamelab-submit-pending="Starting..." />
-									</div>
-								</fieldset>
-							</form>
-						</section>
+									</fieldset>
+								</div>
+							</section>
+							<fieldset>
+								<div class="input input-submit">
+									<i class="fa fa-check"></i>
+									<input id="startExprSubmit" type="submit" value="Start Experiment" gamelab-submit-pending="Starting..." />
+								</div>
+							</fieldset>
+						</form>
 					</section>
 				</article>
 			</section>

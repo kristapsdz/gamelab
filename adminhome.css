@@ -52,11 +52,12 @@ label:hover > i[class~="fa-navicon"]
 #exprLoading > * > *		{ display: table-cell;
 				  vertical-align: middle; }
 #rolls				{ margin-top: 1em; }
-#rolls > section		{ background-color: #efefef; 
+#rolls > *			{ background-color: #efefef; 
 				  margin-bottom: 1em;
-				  padding: 8pt; }
-#rolls > section > :first-child	{ margin-top: 0; }
-#rolls > section > :last-child	{ margin-bottom: 0; }
+				  padding: 8pt 0pt; }
+#rolls > * > :first-child	{ margin-top: 0; }
+#rolls > * > :last-child	{ margin-bottom: 0; }
+#rolls > * > *			{ padding: 0 8pt; }
 article				{ padding: 0 20% 0 20%; }
 .top				{ text-align: center; }
 .table				{ display: table; 
@@ -256,19 +257,20 @@ span.inputheader		{ color: #666; }
 				  border-bottom-right-radius: 1ex;
 				  border-left: 0; }
 .warning > div > :last-child a	{ color: #ccc; }
-.advanced > *:not(:first-child)	{ display: none; }
-.advanced > :first-child 	{ color: #333; }
-.advanced > :first-child i	{ margin-right: 0.25ex; }
-.advanced.showadv > p		{ display: block;
-	       			  margin-top: 0em; }
-.advanced.showadv > fieldset,
-.advanced.showadv > form,
-.advanced.showadv > div		{ display: block; }
-.advanced.showadv > .input	{ display: table-row; }
-.advanced.showadv > :first-child 	
-				{ display: none; }
-.advanced.showadv 		{ margin-bottom: 0.5em;
-				  border-bottom: thin solid #666; }
+#rolls > * > .advanced		{ padding: 0; }
+.advanced			{ margin-bottom: 4pt; }
+.advanced > *			{ padding: 0 8pt; }
+.advanced > :last-child		{ display: none; }
+.advanced > :first-child 	{ color: #333; 
+				  border-top: thin solid transparent;
+				  border-bottom: thin solid transparent; }
+.advanced.showadv > :last-child	{ display: block; }
+.advanced.showadv > :first-child { display: none; }
+.advanced > :last-child		{ background-color: #ccc; 
+				  border-top: thin solid #fff;
+				  border-bottom: thin solid #fff; }
+.advanced > :last-child > :first-child
+				{ margin-bottom: 12pt; }
 .seconds, .error		{ color: red; }
 #mturkbonusesButton		{ margin-top: 4pt; }
 .smallview			{ display: none; }

@@ -1169,7 +1169,7 @@ function doStartExprSuccess(resp)
 {
 
 	doValue('startExprSubmit', 'Started!  Reloading...');
-	document.getElementById('startExpr').reset();
+	document.getElementById('startExprSection').reset();
 	window.location.reload(true);
 }
 
