@@ -20,6 +20,7 @@
 #include <ctype.h>
 #include <fcntl.h>
 #include <inttypes.h>
+#include <stdarg.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
@@ -332,7 +333,11 @@ mail_players(const char *uri, const char *loginuri)
 	int64_t		   id;
 	char		  *encto, *encpass;
 	struct ktemplate   t;
+	struct ktemplatex  tx;
 	int		   rc;
+
+	memset(&tx, 0, sizeof(struct ktemplatex));
+	tx.writer = mail_write;
 
 	curl = mail_init(&m, &t);
 	/* Can be NULL: we want to set the statuses. */
@@ -355,7 +360,7 @@ mail_players(const char *uri, const char *loginuri)
 		free(encpass);
 
 		rc = khttp_templatex(&t, DATADIR 
-			"/mail-addplayer.eml", mail_write, &m);
+			"/mail-addplayer.eml", &tx, &m);
 		if (0 == rc) {
 			WARNX("khttp_templatex");
 			break;
@@ -386,14 +391,18 @@ mail_test(void)
 	struct curl_slist *recpts = NULL;
 	struct mail	   m;
 	struct ktemplate   t;
+	struct ktemplatex  tx;
 	int		   rc;
+
+	memset(&tx, 0, sizeof(struct ktemplatex));
+	tx.writer = mail_write;
 
 	if (NULL == (curl = mail_init(&m, &t)))
 		return;
 
 	m.to = db_admin_get_mail();
 	rc = khttp_templatex(&t, DATADIR 
-		"/mail-test.eml", mail_write, &m);
+		"/mail-test.eml", &tx, &m);
 
 	if (0 == rc) {
 		WARNX("khttp_templatex");
@@ -419,14 +428,18 @@ mail_backupfail(const char *fname)
 	struct curl_slist *recpts = NULL;
 	struct mail	   m;
 	struct ktemplate   t;
+	struct ktemplatex  tx;
 	int		   rc;
+
+	memset(&tx, 0, sizeof(struct ktemplatex));
+	tx.writer = mail_write;
 
 	if (NULL == (curl = mail_init(&m, &t)))
 		return;
 
 	m.to = db_admin_get_mail();
 	rc = khttp_templatex(&t, DATADIR 
-		"/mail-backupfail.eml", mail_write, &m);
+		"/mail-backupfail.eml", &tx, &m);
 
 	if (0 == rc) {
 		WARNX("khttp_templatex");
@@ -452,10 +465,14 @@ mail_backup(void)
 	struct curl_slist *recpts = NULL;
 	struct mail	   m;
 	struct ktemplate   t;
+	struct ktemplatex  tx;
 	int		   rc;
 	char		   fname[PATH_MAX], date[27];
 	char	   	  *cp;
 	time_t		   tt;
+
+	memset(&tx, 0, sizeof(struct ktemplatex));
+	tx.writer = mail_write;
 
 	tt = time(NULL);
 	asctime_r(gmtime(&tt), date);
@@ -482,7 +499,7 @@ mail_backup(void)
 	m.fname = fname;
 	m.to = db_admin_get_mail();
 	rc = khttp_templatex(&t, DATADIR 
-		"/mail-backupsuccess.eml", mail_write, &m);
+		"/mail-backupsuccess.eml", &tx, &m);
 
 	if (0 == rc) {
 		WARNX("khttp_templatex");
@@ -529,8 +546,12 @@ mail_roundadvance(const char *uri, int64_t last, int64_t round)
 	struct curl_slist *recpts = NULL;
 	struct mail	   m;
 	struct ktemplate   t;
+	struct ktemplatex  tx;
 	int		   rc;
 	struct expr	  *expr;
+
+	memset(&tx, 0, sizeof(struct ktemplatex));
+	tx.writer = mail_write;
 
 	if (NULL == (curl = mail_init(&m, &t))) 
 		return;
@@ -551,7 +572,7 @@ mail_roundadvance(const char *uri, int64_t last, int64_t round)
 	rc = khttp_templatex(&t, -1 == last ?
 		DATADIR "/mail-roundfirst.eml" : 
 		DATADIR "/mail-roundadvance.eml",
-		mail_write, &m);
+		&tx, &m);
 
 	if (0 == rc) {
 		WARNX("khttp_templatex");

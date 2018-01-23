@@ -23,6 +23,7 @@
 #include <ctype.h>
 #include <fcntl.h>
 #include <inttypes.h>
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -591,7 +592,7 @@ senddogetexpr(struct kreq *r)
 		 */
 		kjson_open(&req, r);
 		kjson_obj_open(&req);
-		json_putexpr(&req, expr, 1);
+		json_putexpr(r, &req, expr, 1);
 		kjson_putintp(&req, "adminflags", 
 			db_admin_get_flags());
 		kjson_obj_close(&req);
@@ -611,7 +612,7 @@ senddogetexpr(struct kreq *r)
 	kjson_open(&req, r);
 	kjson_obj_open(&req);
 
-	json_putexpr(&req, expr, 1);
+	json_putexpr(r, &req, expr, 1);
 	kjson_putintp(&req, "adminflags", db_admin_get_flags());
 
 	if (expr->round >= 0)

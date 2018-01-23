@@ -373,7 +373,8 @@ void		 json_putmpqs(struct kjsonreq *,
 			const char *, mpq_t *, int64_t, int64_t);
 void		 json_putroundup(struct kjsonreq *, 
 			const char *, const struct roundup *, int);
-void		 json_putexpr(struct kjsonreq *, const struct expr *, int);
+void		 json_putexpr(struct kreq *, 
+			struct kjsonreq *, const struct expr *, int);
 
 mpq_t		*mpq_str2mpqsinit(const unsigned char *, size_t);
 void		 mpq_str2mpqinit(const unsigned char *, mpq_t);

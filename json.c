@@ -17,6 +17,7 @@
 #include <assert.h>
 #include <ctype.h>
 #include <signal.h>
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -247,13 +248,21 @@ json_putplayer(struct kjsonreq *r, const struct player *p)
 	kjson_obj_close(r);
 }
 
-void
-json_putexpr(struct kjsonreq *r, const struct expr *expr, int admin)
+static int
+json_writer(const char *cp, size_t sz, void *arg)
 {
-	double	 	 frac;
-	time_t	 	 tt;
-	struct ktemplate t;
-	struct jsoncache c;
+	return(KCGI_OK == kjson_string_write(cp, sz, arg));
+}
+
+void
+json_putexpr(struct kreq *req, 
+	struct kjsonreq *r, const struct expr *expr, int admin)
+{
+	double	 	  frac;
+	time_t	 	  tt;
+	struct ktemplate  t;
+	struct ktemplatex tx;
+	struct jsoncache  c;
 
 	frac = 0.0;
 
@@ -274,6 +283,7 @@ json_putexpr(struct kjsonreq *r, const struct expr *expr, int admin)
 	kjson_objp_open(r, "expr");
 	kjson_stringp_open(r, "instr");
 	memset(&t, 0, sizeof(struct ktemplate));
+	memset(&tx, 0, sizeof(struct ktemplatex));
 	memset(&c, 0, sizeof(struct jsoncache));
 	c.r = r;
 	c.mail = db_admin_get_mail();
@@ -283,9 +293,9 @@ json_putexpr(struct kjsonreq *r, const struct expr *expr, int admin)
 	t.keysz = TKEY__MAX;
 	t.arg = &c;
 	t.cb = json_instructions;
+	tx.writer = json_writer;
 	khttp_templatex_buf(&t, expr->instr, 
-		strlen(expr->instr), 
-		kjson_string_write, r);
+		strlen(expr->instr), &tx, r);
 	kjson_string_close(r);
 	kjson_putintp(r, "maxtickets", expr->total);
 	kjson_putstringp(r, "admin", c.mail);
@@ -331,8 +341,8 @@ json_putexpr(struct kjsonreq *r, const struct expr *expr, int admin)
 	kjson_putintp(r, "autoadd", expr->autoadd);
 
 	if ('\0' != *expr->history) {
-		khttp_putc(r->req, ',');
-		khttp_puts(r->req, expr->history);
+		khttp_putc(req, ',');
+		khttp_puts(req, expr->history);
 	} else 
 		kjson_putnullp(r, "history");
 

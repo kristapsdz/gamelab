@@ -20,6 +20,7 @@
 #include <ctype.h>
 #include <inttypes.h>
 #include <math.h>
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -1075,7 +1076,7 @@ again:
 	 * other than the experiment data itself.
 	 */
 	if (expr->round < 0) {
-		json_putexpr(&req, expr, 0);
+		json_putexpr(r, &req, expr, 0);
 		kjson_putnullp(&req, "win");
 		kjson_putnullp(&req, "history");
 		json_putplayer(&req, player);
@@ -1120,7 +1121,7 @@ again:
 		player = db_player_load(playerid);
 	}
 
-	json_putexpr(&req, expr, 0);
+	json_putexpr(r, &req, expr, 0);
 
 	if (ESTATE_POSTWIN == expr->state) {
 		kjson_objp_open(&req, "win");
