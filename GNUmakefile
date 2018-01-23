@@ -41,8 +41,9 @@ HTDOCS		 = $(PREFIX)/htdocs
 RDATADIR	 = $(RELPREFIX)/data
 FONTURI		 = //maxcdn.bootstrapcdn.com/font-awesome/4.6.0/css/font-awesome.min.css
 DSYMUTIL	 = # Not used.
-CFLAGS		+= -DLOGTIME=1
+CFLAGS		+= -DLOGTIME=1 -I/usr/local/opt/include
 LIBS		 = -lintl -liconv -lm
+LDFLAGS		 = -L/usr/local/lib -L/usr/local/opt/lib
 STATIC		 = -static -nopie
 LOGFILE	 	 = /logs/gametheorylab.org-system.log
 # OpenBSD 5.8 needs -nopie or the binaries segfault.
@@ -173,10 +174,10 @@ gamers: gamers.c
 	$(CC) $(CFLAGS) `curl-config --cflags` -o $@ gamers.c `curl-config --libs` -ljson-c -lm
 
 admin: admin.o $(OBJS)
-	$(CC) $(STATIC) -L/usr/local/lib -o $@ admin.o $(OBJS) -lsqlite3 -lkcgi -lkcgijson -lz -ljson-c -lgmp -lexpat `curl-config --libs` $(LIBS)
+	$(CC) $(STATIC) -L/usr/local/lib -o $@ admin.o $(OBJS) $(LDFLAGS) -lsqlite3 -lpthread -lkcgi -lkcgijson -lz -ljson-c -lgmp -lexpat `curl-config --libs` $(LIBS)
 
 lab: lab.o $(OBJS)
-	$(CC) $(STATIC) -L/usr/local/lib -o $@ lab.o $(OBJS) -lsqlite3 -lkcgi -lkcgijson -lz -lgmp -lexpat `curl-config --libs` $(LIBS)
+	$(CC) $(STATIC) -L/usr/local/lib -o $@ lab.o $(OBJS) $(LDFLAGS) -lsqlite3 -lpthread -lkcgi -lkcgijson -lz -lgmp -lexpat `curl-config --libs` $(LIBS)
 
 admin.o lab.o $(OBJS): extern.h
 
