@@ -1,72 +1,27 @@
 .SUFFIXES: .min.js .js .html .xml
 
-# The (GNU) Makefile.
-# This begins with a bunch of examples for different installations.
-# Choose as you wish.
-# Some of these you can override during Makefile.
-
-ifeq ($(shell uname), Darwin)
-# Mac OSX example: userdir and apache2.
-# I use the userdir ("~/kristaps") just for demonstration.
-PREFIX		?= /Users/kristaps/Sites
-URIPREFIX	?= /~kristaps
-RELPREFIX	?= # Not used.
-ADMINURI	 = $(URIPREFIX)/admin.cgi
-HTURI		 = $(URIPREFIX)
-LABURI		 = $(URIPREFIX)/lab.cgi
-FONTURI		 = //maxcdn.bootstrapcdn.com/font-awesome/4.6.0/css/font-awesome.min.css
-CGIBIN		 = $(PREFIX)
-DATADIR		 = $(PREFIX)
-HTDOCS		 = $(PREFIX)
-RDATADIR	 = $(PREFIX)
-CFLAGS		+= -Wno-deprecated-declarations
-#DSYMUTIL	 = sudo dsymutil
-DSYMUTIL	 = # Not used.
-LIBS		 = 
-STATIC		 = 
-LOGFILE	 	 = $(PREFIX)/gamelab.log
-else ifeq ($(shell uname), OpenBSD)
 # OpenBSD example: chroot in nginx.
 # This accepts RELPREFIX as the prefix within the chroot.
 # This is also used in production.
-PREFIX		?= /var/www
-URIPREFIX	?= 
-RELPREFIX	?=
-ADMINURI	 = $(URIPREFIX)/cgi-bin/admin
-HTURI		 = $(URIPREFIX)
-LABURI		 = $(URIPREFIX)/cgi-bin/lab
-CGIBIN		 = $(PREFIX)/cgi-bin
-DATADIR	 	 = $(PREFIX)/data
-HTDOCS		 = $(PREFIX)/htdocs
-RDATADIR	 = $(RELPREFIX)/data
+
+NAME		 = master
+PREFIX		 = /var/www/vhosts/gametheorylab.org
+URIPREFIX	 = 
+RELPREFIX	 = /vhosts/gametheorylab.org
+ADMINURI	 = $(URIPREFIX)/cgi-bin/$(NAME)/admin
+LABURI		 = $(URIPREFIX)/cgi-bin/$(NAME)/lab
+CGIBIN		 = $(PREFIX)/cgi-bin/$(NAME)
+DATADIR	 	 = $(PREFIX)/data/$(NAME)
+HTURI		 = $(URIPREFIX)/$(NAME)
+HTDOCS		 = $(PREFIX)/htdocs/$(NAME)
+RDATADIR	 = $(RELPREFIX)/data/$(NAME)
 FONTURI		 = //maxcdn.bootstrapcdn.com/font-awesome/4.6.0/css/font-awesome.min.css
-DSYMUTIL	 = # Not used.
-CFLAGS		+= -DLOGTIME=1 -I/usr/local/opt/include
-LIBS		 = -lintl -liconv -lm
-LDFLAGS		 = -L/usr/local/lib -L/usr/local/opt/lib
+CFLAGS		+= -DLOGTIME=1 
+CFLAGS		+= -I/usr/local/include -I/usr/local/opt/include
+LDFLAGS		+= -L/usr/local/lib -L/usr/local/opt/lib
 STATIC		 = -static -nopie
+LIBS		+= 
 LOGFILE	 	 = /logs/gametheorylab.org-system.log
-# OpenBSD 5.8 needs -nopie or the binaries segfault.
-# I think this is due to GMP.
-else 
-# Generic example (no chroot).
-PREFIX		?= /var/www
-URIPREFIX	?= 
-RELPREFIX	?= # Not used.
-ADMINURI	 = $(URIPREFIX)/cgi-bin/admin
-HTURI		 = $(URIPREFIX)
-LABURI		 = $(URIPREFIX)/cgi-bin/lab
-CGIBIN		 = $(PREFIX)/cgi-bin
-DATADIR	 	 = $(PREFIX)/data
-HTDOCS		 = $(PREFIX)/htdocs
-RDATADIR	 = $(PREFIX)/data
-FONTURI		 = //maxcdn.bootstrapcdn.com/font-awesome/4.6.0/css/font-awesome.min.css
-DSYMUTIL	 = # Not used.
-CFLAGS		+= 
-LIBS		 = -lbsd -lm # For Linux...
-STATIC		 =
-LOGFILE	 	 = /logs/gamelab.log
-endif
 
 #####################################################################
 # You really don't want to change anything below this line.
@@ -75,7 +30,7 @@ endif
 VERSION	 = 1.1.7
 VMONTH	 = July
 VYEAR	 = 2016
-CFLAGS 	+= -g -W -Wall -Wstrict-prototypes -Wno-unused-parameter -Wwrite-strings -I/usr/local/include
+CFLAGS 	+= -g -W -Wall -Wextra -Wstrict-prototypes -Wno-unused-parameter -Wwrite-strings
 CFLAGS	+= -DDATADIR=\"$(RDATADIR)\" -DHTURI=\"$(HTURI)\" -DLABURI=\"$(LABURI)\"
 CFLAGS	+= -DLOGFILE=\"$(LOGFILE)\"
 INSTRS 	 = instructions-lottery.xml \
@@ -174,10 +129,10 @@ gamers: gamers.c
 	$(CC) $(CFLAGS) `curl-config --cflags` -o $@ gamers.c `curl-config --libs` -ljson-c -lm
 
 admin: admin.o $(OBJS)
-	$(CC) $(STATIC) -L/usr/local/lib -o $@ admin.o $(OBJS) $(LDFLAGS) -lsqlite3 -lpthread -lkcgi -lkcgijson -lz -ljson-c -lgmp -lexpat `curl-config --libs` $(LIBS)
+	$(CC) $(STATIC) -L/usr/local/lib -o $@ admin.o $(OBJS) $(LDFLAGS) -lsqlite3 -lpthread -lkcgi -lkcgijson -lz -ljson-c -lgmp -lm -lexpat `curl-config --static-libs` $(LIBS)
 
 lab: lab.o $(OBJS)
-	$(CC) $(STATIC) -L/usr/local/lib -o $@ lab.o $(OBJS) $(LDFLAGS) -lsqlite3 -lpthread -lkcgi -lkcgijson -lz -lgmp -lexpat `curl-config --libs` $(LIBS)
+	$(CC) $(STATIC) -L/usr/local/lib -o $@ lab.o $(OBJS) $(LDFLAGS) -lsqlite3 -lpthread -lkcgi -lkcgijson -lz -lgmp -lm -lexpat `curl-config --static-libs` $(LIBS)
 
 admin.o lab.o $(OBJS): extern.h
 
@@ -192,16 +147,15 @@ updatecgi: all
 	mkdir -p $(HTDOCS)
 	mkdir -p $(DATADIR)
 	mkdir -p $(CGIBIN)
+	mkdir -p /var/www/etc
+	mkdir -p /var/www/etc/ssl
 	install -m 0444 $(STATICS) $(HTMLS) $(JSMINS) flotr2.min.js logo.png logo-dark.png $(HTDOCS)
 	for f in $(INSTRS) ; do install -m 0444 $$f $(HTDOCS)/`basename $$f`.txt ; done
 	install -m 0444 $(INSTRS) $(MAILS) $(DATADIR)
-	install -m 0755 admin $(CGIBIN)/admin.cgi
 	install -m 0755 admin $(CGIBIN)
-	install -m 0755 lab $(CGIBIN)/lab.cgi
-	install -m 0755 lab $(CGIBIN)/lab.fcgi
 	install -m 0755 lab $(CGIBIN)
-	[ -z "$(DSYMUTIL)" ] || $(DSYMUTIL) $(CGIBIN)/lab
-	[ -z "$(DSYMUTIL)" ] || $(DSYMUTIL) $(CGIBIN)/admin
+	install -m 0444 /etc/resolv.conf /var/www/etc/resolv.conf
+	install -m 0444 /etc/ssl/cert.pem /var/www/etc/ssl/cert.pem
 
 installcgi: updatecgi gamelab.db
 	mkdir -p $(DATADIR)
