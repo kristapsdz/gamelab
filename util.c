@@ -16,6 +16,7 @@
  */
 #include <sys/wait.h>
 
+#include <stdarg.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
