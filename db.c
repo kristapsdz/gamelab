@@ -1808,8 +1808,9 @@ db_game_alloc(const char *poffs,
 			continue;
 		if (count >= maxcount)
 			goto err;
-		else if ( ! mpq_str2mpq(tok, rops[count++]))
+		else if ( ! mpq_str2mpq(tok, rops[count]))
 			goto err;
+		count++;
 	}
 
 	free(sv);
