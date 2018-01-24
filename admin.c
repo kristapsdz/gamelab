@@ -1190,7 +1190,6 @@ senddoresetpasswordss(struct kreq *r)
 static void
 senddoresendmail(struct kreq *r)
 {
-	pid_t		 pid;
 	char		*loginuri, *uri;
 	struct expr	*expr;
 
@@ -1209,25 +1208,13 @@ senddoresendmail(struct kreq *r)
 		"/playerlogin.html", 
 		kschemes[r->scheme], r->host);
 	db_expr_free(expr);
-	db_close();
 
-	if (-1 == (pid = fork())) {
-		WARN("fork");
-		return;
-	} else if (pid > 0) {
-		if (-1 == waitpid(pid, NULL, 0))
-			WARN("waitpid");
+	if (0 == doublefork(r)) {
+		mail_players(uri, loginuri);
 		free(loginuri);
 		free(uri);
-		return;
+		exit(EXIT_SUCCESS);
 	}
-
-	khttp_child_free(r);
-
-	if (daemon(1, 1) < 0)
-		WARN("daemon");
-	else
-		mail_players(uri, loginuri);
 
 	free(loginuri);
 	free(uri);
