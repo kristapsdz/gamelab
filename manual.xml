@@ -564,8 +564,8 @@
 					</p>
 					<p>
 						Once you've unpacked the source code, you need to compile the server.
-						Begin by editing the <span class="file">Makefile</span> to your specifications: these will
-						hard-code a configuration that will define run-time operation, e.g., paths and filenames.
+						You can override variables in the <span class="file">Makefile</a> by specifying a <span
+							class="file">Makefile.local</span>, which will be automatically sourced.
 					</p>
 					<dl>
 						<dt id="adminuri"><code>ADMINURI</code></dt>
@@ -639,21 +639,9 @@
 						</dd>
 					</dl>
 					<p>
-						Sample variables are set for a local Mac OS X installation (non-static in one's <span
-							class="file">~/Sites</span> directory) and OpenBSD production (static in a named
-						subdirectory of the usual installation locations).
-					</p>
-					<p>
 						There are some miscellaneous components that one may tune.
 					</p>
 					<dl>
-						<dt><code>DSYMUTIL</code></dt>
-						<dd>
-							Only used for testing on systems supporting <a href="http://valgrind.org/">valgrind</a>.
-							This should point to the command required to run <code>dsymutil</code>, which is usually
-							<code>sudo dsymutil</code>, to generate debugging information for valgrind processes.
-						</dd>
-
 						<dt><code>FONTURI</code></dt>
 						<dd>
 							Specify an alternative path for the <a
