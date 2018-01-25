@@ -1,9 +1,7 @@
 .SUFFIXES: .min.js .js .html .xml
 
-# OpenBSD example: chroot in nginx.
-# This accepts RELPREFIX as the prefix within the chroot.
-# This is also used in production.
-
+# You pobably want to change this.
+#
 NAME		 = master
 PREFIX		 = /var/www/vhosts/gametheorylab.org
 URIPREFIX	 = 
@@ -15,21 +13,24 @@ DATADIR	 	 = $(PREFIX)/data/$(NAME)
 HTURI		 = $(URIPREFIX)/$(NAME)
 HTDOCS		 = $(PREFIX)/htdocs/$(NAME)
 RDATADIR	 = $(RELPREFIX)/data/$(NAME)
+LOGFILE	 	 = /logs/gametheorylab.org-system.log
+
+# And probably not this.
+
 FONTURI		 = //maxcdn.bootstrapcdn.com/font-awesome/4.6.0/css/font-awesome.min.css
 CFLAGS		+= -DLOGTIME=1 
 CFLAGS		+= -I/usr/local/include -I/usr/local/opt/include
 LDFLAGS		+= -L/usr/local/lib -L/usr/local/opt/lib
 STATIC		 = -static -nopie
 LIBS		+= 
-LOGFILE	 	 = /logs/gametheorylab.org-system.log
 
 #####################################################################
 # You really don't want to change anything below this line.
 #####################################################################
 
-VERSION	 = 1.1.7
-VMONTH	 = July
-VYEAR	 = 2016
+VERSION	 = 1.1.8
+VMONTH	 = January
+VYEAR	 = 2018
 CFLAGS 	+= -g -W -Wall -Wextra -Wstrict-prototypes -Wno-unused-parameter -Wwrite-strings
 CFLAGS	+= -DDATADIR=\"$(RDATADIR)\" -DHTURI=\"$(HTURI)\" -DLABURI=\"$(LABURI)\"
 CFLAGS	+= -DLOGFILE=\"$(LOGFILE)\"
@@ -60,7 +61,7 @@ OBJS	 = base64.o \
 	   mturk.o \
 	   sha1.o \
 	   util.o
-SRCS	 = GNUmakefile \
+SRCS	 = Makefile \
 	   admin.c \
 	   adminhome.js \
 	   adminhome.xml \
