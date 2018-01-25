@@ -5,7 +5,7 @@
 		<meta charset="utf-8" /> 
 		<title>gamelab</title>
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" />
-		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Alegreya+Sans:300,300italic" />
+		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Alegreya+Sans:400,400italic" />
 		<link rel="stylesheet" href="index.css" />
 	</head>
 	<body>
@@ -87,14 +87,14 @@
 				<p>
 					If you're interested in deploying a <span class="nm">gamelab</span> server of your own, consult the <a
 						href="manual.html">manual</a> on how to download, install, and conduct experiments.
-					If you'd rather have managed experiments, you can use <a href="http://gametheorylab.org">gametheorylab.org</a>.
+					If you'd rather have managed experiments, you can use <a href="https://gametheorylab.org">gametheorylab.org</a>.
 					Otherwise, if you're interested in teaming up, or just want to share your experiences, contact
 					J&#x00f6;rgen or Eskil.
 					In the spirit of academic sharing, <span class="nm">gamelab</span> is <a rel="license"
-						href="http://cvsweb.openbsd.org/cgi-bin/cvsweb/src/share/misc/license.template?rev=HEAD">open
+						href="https://cvsweb.openbsd.org/cgi-bin/cvsweb/src/share/misc/license.template?rev=HEAD">open
 						source</a>, and we kindly suggest that experimenters <a href="gamelab.bib">cite</a> our work!
 				</p>
-				<nav data-sblg-nav="1" data-sblg-navsz="2" data-sblg-navcontent="1">
+				<nav data-sblg-nav="1" data-sblg-navsz="5" data-sblg-navcontent="1">
 					<div>
 						<time datetime="${sblg-date}">${sblg-date}</time>:
 						v<span class="version">${sblg-title}</span>
@@ -108,10 +108,10 @@
 		</article>
 		<footer>
 			<div>
-				&#169; 2015, 2016, <a href="http://www.kcons.eu"><i>k</i>-Consulting</a>
+				&#169; 2015, 2016, 2018 <i>k</i>-Consulting
 			</div>
 			<div>
-				Powered by <a href="https://kristaps.bsd.lv/sblg">sblg</a> on <a href="http://www.openbsd.org">OpenBSD</a>
+				Powered by <a href="https://kristaps.bsd.lv/sblg">sblg</a> on <a href="https://www.openbsd.org">OpenBSD</a>
 			</div>
 			<div>
 				<a href="https://scan.coverity.com/projects/gamelab">
