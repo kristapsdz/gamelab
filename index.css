@@ -1,6 +1,7 @@
 body			{ margin: 0; 
 			  font-family: "Alegreya Sans", Calibri, Candara, Segoe, Segoe UI, Optima, Arial, sans-serif;
 			  font-size: 12pt;
+			  font-weight: 400;
 			  background-color: #393939; }
 header			{ padding-top: 2em; }
 header h1		{ font-size: 64pt; 
