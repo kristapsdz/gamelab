@@ -1,6 +1,7 @@
 body, html		{ margin: 0; }
-body			{ font-family: "Alegreya Sans", Calibri, Candara, Segoe, Segoe UI, Optima, Arial, sans-serif;
-			  font-size: 12pt;
+body			{ font-family: "Alegreya Sans", sans-serif;
+			  font-size: 14pt;
+			  font-weight: 400;
 			  background-color: #393939; 
 		 	  color: #cecece; }
 .nm, .file, .url	{ font-style: italic; }
@@ -87,6 +88,7 @@ article ol		{ padding-left: 1em;
 			  padding-right: 0; }
 nav[data-sblg-nav] ul	{ list-style-type: none; 
 			  padding: 0; }
+
 @media only screen and (max-width: 480px), only screen and (max-device-width: 480px) {
 body > nav > span span	{ display: none; }
 body > header img	{ height: 34pt; 
@@ -100,3 +102,4 @@ article dd		{ margin-left: 2ex; }
 article dl		{ margin-top: 1ex; }
 .bigview		{ display: none; }
 }
+

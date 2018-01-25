@@ -3,9 +3,10 @@
 	<head>
 		<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
 		<meta charset="utf-8" /> 
-		<title>gamelab :: history</title>
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" type="text/css" />
-		<link rel="stylesheet" href="manual.css" type="text/css" />
+		<title>gamelab history</title>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" />
+		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Alegreya+Sans:400,400italic" />
+		<link rel="stylesheet" href="manual.css" />
 	</head>
 	<body>
 		<header>
@@ -17,19 +18,19 @@
 			<div>
 				<a title="Contact" href="mailto:kristaps@kcons.eu">
 					<span class="bigview">Contact</span>
-					<i class="fa fa-envelope-o"></i>
+					<i class="fa fa-fw fa-envelope-o"></i>
 				</a>
 			</div>
 			<span>
 				<a title="Source Code" href="snapshots">
 					<span class="bigview">Download</span>
-					<i class="fa fa-cloud-download"></i>
+					<i class="fa fa-fw fa-cloud-download"></i>
 				</a>
 			</span>
 			<div>
 				<a title="BibTeX Citation" href="gamelab.bib">
 					<span class="bigview">Cite</span>
-					<i class="fa fa-bookmark"></i>
+					<i class="fa fa-fw fa-bookmark"></i>
 				</a>
 			</div>
 		</nav>

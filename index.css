@@ -1,6 +1,6 @@
 body			{ margin: 0; 
 			  font-family: "Alegreya Sans", Calibri, Candara, Segoe, Segoe UI, Optima, Arial, sans-serif;
-			  font-size: 12pt;
+			  font-size: 14pt;
 			  font-weight: 400;
 			  background-color: #393939; }
 header			{ padding-top: 2em; }
@@ -36,10 +36,12 @@ header div		{ color: #ff5a09;
 header div > span	{ padding-left: 1ex;
 			  padding-right: 1ex; }
 header span:first-child	{ padding-left: 0; }
+nav[data-sblg-nav],
+.history,
 article			{ color: #fff; 
 		   	  margin-left: 7%;
-		   	  margin-right: 7%;
-			  line-height: 130%;
+		   	  margin-right: 7%; }
+article			{ line-height: 130%;
 			  font-size: 16pt; }
 footer			{ margin-top: 3em; 
 		  	  margin-bottom: 2em;
@@ -59,7 +61,6 @@ section a		{ color: #dd8000; }
 section a:hover	{ color: #ff9000;
 			  text-shadow: none; }
 section			{ text-shadow: none;
-			  font-size: 13pt;
 			  color: #dfdfdf; }
 nav[data-sblg-nav] ul	{ list-style-type: none; 
 			  margin-top: 24pt;
@@ -70,35 +71,37 @@ nav[data-sblg-nav] li	{ margin-bottom: 1em; }
 nav[data-sblg-nav] li p	{ margin: 0; 
 			  line-height: 120%; }
 nav[data-sblg-nav] li code
-			{ font-size: 11pt; }
+			{ font-size: 12pt; }
 nav[data-sblg-nav] li p + p	
 			{ margin-top: 0.5em; }
 nav[data-sblg-nav] li > div:first-child
 			{ color: #dfdfdf; 
 			  margin-bottom: 4pt;
 			  border-bottom: thin groove #bc2806; }
-.history		{ font-size: 11pt; }
+.history		{ font-size: 12pt; }
+
 @media only screen and (max-width: 760px), only screen and (max-device-width: 760px) {
-header			{ padding-top: 1ex; }
-header h1		{ font-size: 32pt; 
-			  margin-top: 1ex; 
-			  margin-bottom: 0; }
-#logoh1			{ text-align: center; 
-			  padding-top: 0; }
-header img		{ height: 30pt; }
-article			{ font-size: 13pt; 
-			  margin-left: 4%; 
-			  margin-right: 4%; }
-#moreinfo		{ padding-top: 0; }
-nav[data-sblg-nav]	{ font-size: 12pt; }
-#logoh1			{ padding-top: 0; }
-#logoh1 img		{ height: 38pt; }
-#team			{ text-align: center; 
-			  margin-bottom: 0.5em; 
-			  margin-top: 1em; }
-.bigview		{ display: none; }
-header div > span	{ padding-left: 0.25ex;
-			  padding-right: 0.25ex; }
-header div > span:first-child
+ body			{ font-size: 13pt; }
+ header			{ padding-top: 1ex; }
+ header h1		{ font-size: 32pt; 
+ 			  margin-top: 1ex; 
+ 			  margin-bottom: 0; }
+ #logoh1		{ text-align: center; 
+ 			  padding-top: 0; }
+ header img		{ height: 30pt; }
+ nav[data-sblg-nav],
+ .history,
+ article		{ margin-left: 4%; 
+ 			  margin-right: 4%; }
+ #moreinfo		{ padding-top: 0; }
+ #logoh1		{ padding-top: 0; }
+ #logoh1 img		{ height: 38pt; }
+ #team			{ text-align: center; 
+ 			  margin-bottom: 0.5em; 
+ 			  margin-top: 1em; }
+ .bigview		{ display: none; }
+ header div > span	{ padding-left: 0.25ex;
+ 			  padding-right: 0.25ex; }
+ header div > span:first-child
 			{ padding-right: 2ex; }
 }

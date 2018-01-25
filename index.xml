@@ -15,37 +15,37 @@
 				<span>
 					<a title="Contact" href="mailto:kristaps@kcons.eu">
 						<span class="bigview">Contact</span>
-						<i class="fa fa-envelope-o"></i>
+						<i class="fa fa-fw fa-envelope-o"></i>
 					</a>
 				</span>
 				<span>
 					<a title="Download" href="snapshots">
 						<span class="bigview">Download</span>
-						<i class="fa fa-cloud-download"></i>
+						<i class="fa fa-fw fa-cloud-download"></i>
 					</a>
 				</span>
 				<span>
 					<a title="GitHub" href="https://github.com/kristapsdz/gamelab">
 						<span class="bigview">GitHub</span>
-						<i class="fa fa-github"></i>
+						<i class="fa fa-fw fa-github"></i>
 					</a>
 				</span>
 				<span>
 					<a title="BibTeX Citation" href="gamelab.bib">
 						<span class="bigview">Cite</span>
-						<i class="fa fa-bookmark"></i>
+						<i class="fa fa-fw fa-bookmark"></i>
 					</a>
 				</span>
 				<span>
 					<a title="Manual" href="manual.html">
 						<span class="bigview">Manual</span>
-						<i class="fa fa-file-text"></i>
+						<i class="fa fa-fw fa-file-text"></i>
 					</a>
 				</span>
 				<span>
 					<a title="Quick-start" href="quickstart.html">
 						<span class="bigview">Quickstart</span>
-						<i class="fa fa-file-text-o"></i>
+						<i class="fa fa-fw fa-file-text-o"></i>
 					</a>
 				</span>
 			</div>
@@ -87,36 +87,30 @@
 				<p>
 					If you're interested in deploying a <span class="nm">gamelab</span> server of your own, consult the <a
 						href="manual.html">manual</a> on how to download, install, and conduct experiments.
-					If you'd rather have managed experiments, you can use <a href="https://gametheorylab.org">gametheorylab.org</a>.
 					Otherwise, if you're interested in teaming up, or just want to share your experiences, contact
 					J&#x00f6;rgen or Eskil.
 					In the spirit of academic sharing, <span class="nm">gamelab</span> is <a rel="license"
 						href="https://cvsweb.openbsd.org/cgi-bin/cvsweb/src/share/misc/license.template?rev=HEAD">open
 						source</a>, and we kindly suggest that experimenters <a href="gamelab.bib">cite</a> our work!
 				</p>
-				<nav data-sblg-nav="1" data-sblg-navsz="5" data-sblg-navcontent="1">
-					<div>
-						<time datetime="${sblg-date}">${sblg-date}</time>:
-						v<span class="version">${sblg-title}</span>
-					</div>
-					<div>${sblg-aside}</div>
-				</nav>
-				<div class="history">
-					<a href="history.html"><i class="fa fa-history"></i> History</a>
-				</div>
 			</section>
 		</article>
+		<nav data-sblg-nav="1" data-sblg-navsz="5" data-sblg-navcontent="1">
+			<div>
+				<time datetime="${sblg-date}">${sblg-date}</time>:
+				v<span class="version">${sblg-title}</span>
+			</div>
+			<div>${sblg-aside}</div>
+		</nav>
+		<div class="history">
+			<a href="history.html"><i class="fa fa-history"></i> History</a>
+		</div>
 		<footer>
 			<div>
 				&#169; 2015, 2016, 2018 <i>k</i>-Consulting
 			</div>
 			<div>
 				Powered by <a href="https://kristaps.bsd.lv/sblg">sblg</a> on <a href="https://www.openbsd.org">OpenBSD</a>
-			</div>
-			<div>
-				<a href="https://scan.coverity.com/projects/gamelab">
-					<img alt="Coverity Scan Build Status" src="https://scan.coverity.com/projects/7912/badge.svg" />
-				</a>
 			</div>
 		</footer>
 	</body>
