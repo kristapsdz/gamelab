@@ -189,7 +189,7 @@ gamelab.db: gamelab.sql
 	sqlite3 $@ < gamelab.sql
 
 history.html: history.xml versions.xml
-	sblg -t history.xml -o- versions.xml | \
+	sblg -s date -t history.xml -o- versions.xml | \
 		sed -e "s!@ADMINURI@!$(ADMINURI)!g" \
 			-e "s!@LABURI@!$(LABURI)!g" \
 			-e "s!@FONTURI@!$(FONTURI)!g" \
@@ -197,7 +197,7 @@ history.html: history.xml versions.xml
 			-e "s!@HTURI@!$(HTURI)!g" >$@
 
 index.html: index.xml versions.xml
-	sblg -t index.xml -o- versions.xml | \
+	sblg -s date -t index.xml -o- versions.xml | \
 		sed -e "s!@ADMINURI@!$(ADMINURI)!g" \
 			-e "s!@LABURI@!$(LABURI)!g" \
 			-e "s!@FONTURI@!$(FONTURI)!g" \
