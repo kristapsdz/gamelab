@@ -2,20 +2,6 @@
 <articles>
 	<article data-sblg-article="1" data-sblg-tags="version">
 		<header>
-			<h1>1.0.8</h1>
-			<address>Kristaps Dzonsons</address>
-			<time datetime="2018-01-25">2018-01-25</time>
-		</header>
-		<aside>
-			<p>
-				Maintenance release: bring up to date with newest dependencies and simplify Makefile a bit.
-				Fix two bugs: a double-free when re-sending errored e-mails to players and a superfluous free when given bad
-				payoff values during game configuration.
-			</p>
-		</aside>
-	</article>
-	<article data-sblg-article="1" data-sblg-tags="version">
-		<header>
 			<h1>1.0.7</h1>
 			<address>Kristaps Dzonsons</address>
 			<time datetime="2015-07-08">2015-07-08</time>
@@ -642,6 +628,20 @@
 					href="https://kristaps.bsd.lv/sqliteconvert">sqliteconvert</a>).
 				Also allow experimenters to specify a set of free-form question and answer pairs in lieu of the default pre-play
 				questionnaire.
+			</p>
+		</aside>
+	</article>
+	<article data-sblg-article="1" data-sblg-tags="version">
+		<header>
+			<h1>1.1.8</h1>
+			<address>Kristaps Dzonsons</address>
+			<time datetime="2018-01-25">2018-01-25</time>
+		</header>
+		<aside>
+			<p>
+				Maintenance release: bring up to date with newest dependencies and simplify Makefile a bit.
+				Fix two bugs: a double-free when re-sending errored e-mails to players and a superfluous free when given bad
+				payoff values during game configuration.
 			</p>
 		</aside>
 	</article>
