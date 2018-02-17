@@ -14,6 +14,7 @@ HTURI		 = $(URIPREFIX)/$(NAME)
 HTDOCS		 = $(PREFIX)/htdocs/$(NAME)
 RDATADIR	 = $(RELPREFIX)/data/$(NAME)
 LOGFILE	 	 = /logs/gametheorylab.org-system.log
+WWWDIR		 = $(PREFIX)/htdocs
 
 # And probably not this.
 
@@ -176,13 +177,13 @@ gamelab.tgz.sha512: gamelab.tgz
 	openssl dgst -sha512 gamelab.tgz >$@
 
 installwww: www
-	mkdir -p $(PREFIX)
-	mkdir -p $(PREFIX)/snapshots
-	install -m 0444 $(IMAGES) $(BUILTMLS) $(BUILTMGS) gamelab.bib $(CSSS) logo.png $(PREFIX)
-	install -m 0444 gamelab.tgz $(PREFIX)/snapshots
-	install -m 0444 gamelab.tgz.sha512 $(PREFIX)/snapshots
-	install -m 0444 gamelab.tgz $(PREFIX)/snapshots/gamelab-$(VERSION).tgz
-	install -m 0444 gamelab.tgz.sha512 $(PREFIX)/snapshots/gamelab-$(VERSION).tgz.sha512
+	mkdir -p $(WWWDIR)
+	mkdir -p $(WWWDIR)/snapshots
+	install -m 0444 $(IMAGES) $(BUILTMLS) $(BUILTMGS) gamelab.bib $(CSSS) logo.png $(WWWDIR)
+	install -m 0444 gamelab.tgz $(WWWDIR)/snapshots
+	install -m 0444 gamelab.tgz.sha512 $(WWWDIR)/snapshots
+	install -m 0444 gamelab.tgz $(WWWDIR)/snapshots/gamelab-$(VERSION).tgz
+	install -m 0444 gamelab.tgz.sha512 $(WWWDIR)/snapshots/gamelab-$(VERSION).tgz.sha512
 
 gamelab.db: gamelab.sql
 	rm -f $@
