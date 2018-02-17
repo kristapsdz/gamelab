@@ -564,7 +564,7 @@
 					</p>
 					<p>
 						Once you've unpacked the source code, you need to compile the server.
-						You can override variables in the <span class="file">Makefile</a> by specifying a <span
+						You can override variables in the <span class="file">Makefile</span> by specifying a <span
 							class="file">Makefile.local</span>, which will be automatically sourced.
 					</p>
 					<dl>
