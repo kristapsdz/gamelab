@@ -496,11 +496,11 @@
 									<fieldset>
 										<div class="input">
 											<span class="strat">a</span>
-											<input type="text" readonly="readonly" id="index0" name="choice4a" onkeypress="return(disableEnter(event))">
+											<input type="text" readonly="readonly" id="index0" name="choice4a" onkeypress="return(disableEnter(event))" />
 										</div>
 										<div class="input">
 											<span class="strat">b</span>
-											<input type="text" readonly="readonly" id="index1" name="choice4b" onkeypress="return(disableEnter(event))">
+											<input type="text" readonly="readonly" id="index1" name="choice4b" onkeypress="return(disableEnter(event))" />
 										</div>
 										<div class="input input-submit">
 											<i class="fa fa-fw fa-check"></i>
@@ -571,11 +571,11 @@
 									<fieldset>
 										<div class="input">
 											<span class="strat">a</span>
-											<input type="text" readonly="readonly" id="index2" name="choice5a" onkeypress="return(disableEnter(event))">
+											<input type="text" readonly="readonly" id="index2" name="choice5a" onkeypress="return(disableEnter(event))" />
 										</div>
 										<div class="input">
 											<span class="strat">b</span>
-											<input type="text" readonly="readonly" id="index3" name="choice5b" onkeypress="return(disableEnter(event))">
+											<input type="text" readonly="readonly" id="index3" name="choice5b" onkeypress="return(disableEnter(event))" />
 										</div>
 										<div class="input input-submit">
 											<i class="fa fa-fw fa-check"></i>
