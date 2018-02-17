@@ -1595,14 +1595,13 @@ function exprStartTime(val)
  */
 function seturls() 
 {
-	var url = document.URL;
+	var path = window.location.pathname.split('/')[1];
 
-	if (null == url)
-		return;
-
-	url = url.substring(0, url.lastIndexOf("/"));
-	url = url.replace('admin', 'lab');
-	doValue('loginURI', url + '/dologin.html');
+	doValue('loginURI', 
+		window.location.protocol + '//' +
+		window.location.host + '/cgi-bin' +
+		(0 == path.length ? '' : '/' + path) +
+		'/lab/dologin.html');
 }
 
 function loadallSuccess(resp)
