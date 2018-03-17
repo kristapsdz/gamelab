@@ -317,16 +317,24 @@ function loadGame()
 			(res.expr.round + 1) :
 			((res.expr.round - res.player.joined) + 1));
 		doUnhideNode(e);
-		if (window.Notification && Notification.permission === "granted") {
+		if ('Notification' in window &&
+		    window.Notification && Notification.permission === "granted") {
 			var options = {
 				body: 'Gamelab round has advanced to ' +
 					(res.expr.absoluteround ?  
 					 (res.expr.round + 1) :
 					 ((res.expr.round - res.player.joined) + 1))
 			};
-			var n = new Notification('Gamelab Update', options);
-			n.onclick = function() { doHide('nextround'); };
-			setTimeout(n.close.bind(n), 5000);
+			var n;
+			try {
+				n = new Notification('Gamelab Update', options);
+			} catch (e) {
+				n = null;
+			}
+			if (null !== n) {
+				n.onclick = function() { doHide('nextround'); };
+				setTimeout(n.close.bind(n), 5000);
+			}
 		}
 	}
 
@@ -1142,7 +1150,9 @@ function loadExprFirst()
 {
 
 	doHide('loaded');
-	if (window.Notification && Notification.permission !== "granted") {
+	if ('Notification' in window &&
+	    window.Notification && 
+	    Notification.permission !== "granted") {
 		Notification.requestPermission(function (status) {
 			if (Notification.permission !== status) {
 				Notification.permission = status;
