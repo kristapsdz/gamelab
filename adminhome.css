@@ -179,9 +179,10 @@ span.inputheader		{ color: #666; }
 .input.noshow			{ display: none; }
 .input >*			{ display: table-cell; 
 				  background-color: #ddd;
-				  padding: 1ex 1ex;
+				  padding: 0 1ex;
 				  border: none;
 				  border-radius: 0;
+				  line-height: 32pt;
 				  font-size: inherit;
 				  border-left: thin solid #ccc;
 				  border-top: thin solid #ccc;
@@ -220,7 +221,6 @@ span.inputheader		{ color: #666; }
 .input textarea.bigtext	{ height: 30ex; }
 .input-submit >*		{ background-color: #666; 
 				  color: #fff; 
-				  padding: 0.75ex;
 				  border-left: thin solid #000;
 				  border-top: thin solid #000;
 				  border-bottom: thin solid #000; }
