@@ -192,7 +192,7 @@ span.inputheader		{ color: #666; }
 .input >*:last-child		{ border-right: thin solid #ccc; 
 				  border-bottom-right-radius: 0.5ex;
 				  border-top-right-radius: 0.5ex; }
-.input >*:first-child	{ border-bottom-left-radius: 0.5ex;
+.input >*:first-child		{ border-bottom-left-radius: 0.5ex;
 				  border-top-left-radius: 0.5ex; }
 .input i			{ text-align: center; 
 				  width: 1%; }
@@ -239,7 +239,7 @@ span.inputheader		{ color: #666; }
 .input input[type=reset],
 .input input[type=submit]	{ width: auto; }
 .input input[type=number]	{ width: 20ex; }
-.input input[type=time]	{ width: 20ex; }
+.input input[type=time]		{ width: 20ex; }
 .warning			{ display: table; 
 			 	  margin: 0.75em 0; }
 .warning > div			{ display: table-row; }

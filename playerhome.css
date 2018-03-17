@@ -225,9 +225,10 @@ fieldset			{ display: table;
 div.input			{ display: table-row; }
 div.input >*			{ display: table-cell; 
 				  background-color: #ddd;
-				  padding: 1ex 1ex;
+				  padding: 0 1ex;
 				  border: none;
 				  border-radius: 0;
+				  line-height: 32pt;
 				  font-size: inherit;
 				  border-left: thin solid #ccc;
 				  border-top: thin solid #ccc;
