@@ -341,7 +341,7 @@
 			<footer>
 				&copy; 2014&#8211;2016
 				<a href="http://www.kcons.eu"><i>k</i>-Consulting</a>
-				<a href="http://www.kcons.eu/gamelab">gamelab @VERSION@</a>
+				<a href="https://gametheorylab.org">gamelab @VERSION@</a>
 				<a href="@HTURI@/privacy.html">Privacy</a>
 			</footer>
 		</section>

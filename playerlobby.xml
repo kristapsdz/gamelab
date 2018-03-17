@@ -15,8 +15,8 @@
 		<article>
 			<section>
 				<div id="top">
-					<a href="http://www.kcons.eu/gamelab"><img src="logo.png" alt="Gamelab Logo" /></a>
-					<h1><a href="http://www.kcons.eu/gamelab">gamelab</a></h1>
+					<a href="https://gametheorylab.org"><img src="logo.png" alt="Gamelab Logo" /></a>
+					<h1><a href="https://gametheorylab.org">gamelab</a></h1>
 				</div>
 				<div>
 					<section id="ploading">
@@ -738,7 +738,7 @@
 		<footer>
 			&copy; 2014&#8211;2016
 			<a href="http://www.kcons.eu"><i>k</i>-Consulting</a>
-			<a href="http://www.kcons.eu/gamelab">gamelab @VERSION@</a>
+			<a href="https://gametheorylab.org">gamelab @VERSION@</a>
 			<a href="@HTURI@/privacy.html">Privacy</a>
 		</footer>
 	</body>

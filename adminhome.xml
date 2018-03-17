@@ -680,7 +680,7 @@
 							<p>
 								You can also fetch a copy of the <a href="@ADMINURI@/dogethistory.json">history JSON</a> or the
 								source for the current version of <span class="nm">gamelab</span>, version <a
-									href="http://www.kcons.eu/gamelab/snapshots/gamelab-@VERSION@.tgz">@VERSION@</a>.
+									href="https://gametheorylab.org/snapshots/gamelab-@VERSION@.tgz">@VERSION@</a>.
 							</p>
 							<div id="wipeExprResults" class="noshow">
 								<div class="warning">
@@ -1299,7 +1299,7 @@
 		<footer>
 			&copy; 2014&#8211;2016
 			<a href="http://www.kcons.eu"><i>k</i>-Consulting</a>
-			<a href="http://www.kcons.eu/gamelab">gamelab @VERSION@</a>
+			<a href="https://gametheorylab.org">gamelab @VERSION@</a>
 			<a href="@HTURI@/privacy.html">Privacy</a>
 		</footer>
 	</body>
