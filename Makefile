@@ -1,7 +1,7 @@
 .SUFFIXES: .min.js .js .html .xml
 
 # You pobably want to change this.
-#
+
 NAME		 = master
 PREFIX		 = /var/www/vhosts/gametheorylab.org
 URIPREFIX	 = 
@@ -29,8 +29,8 @@ LIBS		+=
 # You really don't want to change anything below this line.
 #####################################################################
 
-VERSION	 = 1.1.8
-VMONTH	 = January
+VERSION	 = 1.1.9
+VMONTH	 = March
 VYEAR	 = 2018
 CFLAGS 	+= -g -W -Wall -Wextra -Wstrict-prototypes -Wno-unused-parameter -Wwrite-strings
 CFLAGS	+= -DDATADIR=\"$(RDATADIR)\" -DHTURI=\"$(HTURI)\" -DLABURI=\"$(LABURI)\"
@@ -158,6 +158,7 @@ updatecgi: all
 	install -m 0755 lab $(CGIBIN)
 	install -m 0444 /etc/resolv.conf /var/www/etc/resolv.conf
 	install -m 0444 /etc/ssl/cert.pem /var/www/etc/ssl/cert.pem
+	[ -f $(HTDOCS)/index.html ] || (cd $(HTDOCS) && ln -s playerhome.html index.html)
 
 installcgi: updatecgi gamelab.db
 	mkdir -p $(DATADIR)
