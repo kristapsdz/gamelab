@@ -645,4 +645,18 @@
 			</p>
 		</aside>
 	</article>
+	<article data-sblg-article="1" data-sblg-tags="version">
+		<header>
+			<h1>1.1.9</h1>
+			<address>Kristaps Dzonsons</address>
+			<time datetime="2018-03-17">2018-03-17</time>
+		</header>
+		<aside>
+			<p>
+				Fix playing games on Android's browser, which had issues with the Notification API.
+				Fix canonical URL of project.
+				Fix buttons on Chrome to look better.
+			</p>
+		</aside>
+	</article>
 </articles>
