@@ -240,6 +240,6 @@ manual.html: manual.xml gamelab.sql
 
 clean:
 	rm -f admin admin.o gamelab.db lab lab.o $(OBJS) jsmin gamers
-	rm -f $(HTMLS) $(JSMINS) $(BUILTMLS)
+	rm -f $(HTMLS) $(JSMINS) $(BUILTMLS) $(BUILTMGS)
 	rm -f gamelab.tgz gamelab.tgz.sha512 gamelab.bib
 	rm -rf *.dSYM
