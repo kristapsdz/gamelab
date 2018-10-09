@@ -1,0 +1,18 @@
+Date: @@date@@ GMT
+From: @@from@@
+Content-Type: text/plain; charset=utf-8
+Subject: Gamelab: passage au prochain tour
+MIME-Version: 1.0
+
+Bonjour,
+
+Le tour numéro @@round@@ de votre étude Gamelab vient de commencer.
+Le tour sera ouvert pendant au moins 8 heures.
+
+Vous pouvez vous connecter avec votre adresse e-mail et votre mot de passe
+
+URL: @@uri@@
+
+Meilleures salutations,
+
+Administrateur de Gamelab
