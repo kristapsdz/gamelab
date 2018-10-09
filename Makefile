@@ -10,8 +10,8 @@ ADMINURI	 = $(URIPREFIX)/cgi-bin/$(NAME)/admin
 LABURI		 = $(URIPREFIX)/cgi-bin/$(NAME)/lab
 CGIBIN		 = $(PREFIX)/cgi-bin/$(NAME)
 DATADIR	 	 = $(PREFIX)/data/$(NAME)
-HTURI		 = $(URIPREFIX)/$(NAME)
-HTDOCS		 = $(PREFIX)/htdocs/$(NAME)
+HTURI		 = $(URIPREFIX)/games/$(NAME)
+HTDOCS		 = $(PREFIX)/htdocs/games/$(NAME)
 RDATADIR	 = $(RELPREFIX)/data/$(NAME)
 LOGFILE	 	 = /logs/gametheorylab.org-system.log
 WWWDIR		 = $(PREFIX)/htdocs
@@ -156,8 +156,6 @@ updatecgi: all
 	install -m 0444 $(INSTRS) $(MAILS) $(DATADIR)
 	install -m 0755 admin $(CGIBIN)
 	install -m 0755 lab $(CGIBIN)
-	install -m 0444 /etc/resolv.conf /var/www/etc/resolv.conf
-	install -m 0444 /etc/ssl/cert.pem /var/www/etc/ssl/cert.pem
 	[ -f $(HTDOCS)/index.html ] || (cd $(HTDOCS) && ln -s playerhome.html index.html)
 
 installcgi: updatecgi gamelab.db
