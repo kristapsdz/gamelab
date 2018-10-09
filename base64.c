@@ -126,7 +126,7 @@ encodeblock(unsigned char *in, unsigned char *out, int len)
 
 void
 base64file(FILE *infile, size_t lsz, 
-	int (*fp)(const char *, size_t, void *), void *arg)
+	enum kcgi_err (*fp)(const char *, size_t, void *), void *arg)
 {
 	unsigned char	in[3];
 	unsigned char	out[4];

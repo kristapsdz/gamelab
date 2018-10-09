@@ -132,14 +132,14 @@ dobuf(void *ptr, size_t sz, size_t nm, void *arg)
  * We make sure to nil-terminate this buffer all of the time because
  * libcurl will work on a nil-terminated buffer.
  */
-static int
+static enum kcgi_err
 mail_write(const char *s, size_t sz, void *arg)
 {
 	struct mail	*m = arg;
 	struct buf	*b = &m->b;
 
 	if (NULL == s)
-		return(1);
+		return KCGI_OK;
 
 	if (b->sz + sz + 1 > b->maxsz) {
 		b->maxsz = b->sz + sz + 1 + 1024;
@@ -149,7 +149,7 @@ mail_write(const char *s, size_t sz, void *arg)
 	memcpy(&b->buf[b->sz], s, sz);
 	b->sz += sz;
 	b->buf[b->sz] = '\0';
-	return(1);
+	return KCGI_OK;
 }
 
 /*

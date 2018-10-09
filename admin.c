@@ -1357,7 +1357,7 @@ historybad(struct kreq *r)
 	} else if (json_type_array != json_object_get_type(h)) {
 		WARNX("history: top-level history JSON not array");
 		goto out;
-	} else if ((int)gsz != json_object_array_length(h)) {
+	} else if (gsz != json_object_array_length(h)) {
 		WARNX("history: different number of games");
 		goto out;
 	}

@@ -248,12 +248,6 @@ json_putplayer(struct kjsonreq *r, const struct player *p)
 	kjson_obj_close(r);
 }
 
-static int
-json_writer(const char *cp, size_t sz, void *arg)
-{
-	return(KCGI_OK == kjson_string_write(cp, sz, arg));
-}
-
 void
 json_putexpr(struct kreq *req, 
 	struct kjsonreq *r, const struct expr *expr, int admin)
@@ -293,7 +287,7 @@ json_putexpr(struct kreq *req,
 	t.keysz = TKEY__MAX;
 	t.arg = &c;
 	t.cb = json_instructions;
-	tx.writer = json_writer;
+	tx.writer = kjson_string_write;
 	khttp_templatex_buf(&t, expr->instr, 
 		strlen(expr->instr), &tx, r);
 	kjson_string_close(r);

@@ -230,7 +230,7 @@ void		  mturk_bonus(const struct expr *,
 void		  mturk_create(const struct expr *, const char *);
 
 void		  base64file(FILE *, size_t, 
-			int (*)(const char *, size_t, void *), 
+			enum kcgi_err (*)(const char *, size_t, void *), 
 			void *);
 size_t		  base64len(size_t);
 size_t		  base64buf(char *, const char *, size_t);
