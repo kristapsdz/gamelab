@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 	<head>
 		<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
 		<meta charset="utf-8" /> 
-		<title>Gamelab | Participant Lobby</title>
+		<title>Gamelab |  Dans la salle d'attente</title>
 		<link rel="stylesheet" href="@HTURI@/style.css" type="text/css" />
 		<link rel="stylesheet" href="@HTURI@/playerlobby.css" type="text/css" />
 		<link rel="stylesheet" href="@FONTURI@" type="text/css" />
@@ -20,48 +20,44 @@
 				</div>
 				<div>
 					<section id="ploading">
-						<h3>Participant Lobby</h3>
+						<h3> Dans la salle d'attente</h3>
 						<p>
-							<i class="fa fa-spinner fa-pulse"></i> Loading...
+							<i class="fa fa-spinner fa-pulse"></i> Chargement...
 						</p>
 					</section>
 					<section id="ploaded" class="noshow">
-						<h3>Participant Lobby</h3>
+						<h3> Dans la salle d'attente</h3>
 						<div id="main">
 							<p>
-								You're in the participant lobby, waiting for a chance to play.
+								Vous êtes dans le lobby des participants, en attente d'une chance de jouer.
 							</p>
 						</div>
 						<div id="questionnaire">
 							<section id="question-1" class="noshow">
 								<p>
-									Before playing, you must answer some questions.
+									Avant de commencer le test, vous devez répondre à plusieurs questions.
 								</p>
 								<p>
-									In this task you will use this web page to play a number of games. Before being
-									able to play you have to read through some short instructions and will be asked
-									to answer a few questions to make sure you understand. You can read these
-									instructions again once you have answered all questions.
+									Dans cette expérience, vous allez utiliser cette page web pour jouer à quelques jeux. Avant de commencer, nous vous demandons de lire les instructions qui vont suivre et de répondre à quelques questions pour être certains que vous ayez compris le jeu qui va suivre. Vous pourrez relire ces instructions lorsque vous aurez terminé de répondre aux questions.
 								</p>
 								<p>
-									Since you can earn a substantial amount as a bonus payment in addition to the
-									task completion fee it is important that you read the instructions carefully.
+									Puisque vous avez la possibilité de gagner une somme importante en plus de la rémunération accordée pour votre participation à cette expérience, nous vous demandons de lire ces instructions attentivement.
 								</p>
 								<div class="standalone">
 									<div class="input input-submit">
 										<i class="fa fa-fw fa-check"></i>
-										<button onclick="startQuestions();">Start</button>
+										<button onclick="startQuestions();">Commencer</button>
 									</div>
 								</div>
 							</section>
 							<section id="questioncustom" class="noshow">
 								<p class="error noshow" id="questionerrorcustom">
-									Answer incorrect.
-									Please try again.
+									Réponse incorrecte. 
+									S'il vous plaît, réessayer.
 								</p>
 								<p>
-									Before playing, you must answer some questions.
-									This is question <span id="questioncustomrank"></span>.
+									Avant de commencer le test, vous devez répondre à plusieurs questions.
+									C'est la question <span id="questioncustomrank"></span>.
 								</p>
 								<p id="questioncustomq">
 								</p>
@@ -81,35 +77,31 @@
 							</section>
 							<section id="questioncustom-correct" class="noshow">
 								<p>
-									That's right!
+									C’est exact ! 
 								</p>
 								<div class="standalone">
 									<div class="input input-submit">
 										<i class="fa fa-fw fa-check"></i>
-										<button onclick="window.location.reload();">Next Question</button>
+										<button onclick="window.location.reload();"> Question suivante</button>
 									</div>
 								</div>
 							</section>
 							<section id="question0" class="noshow">
 								<p class="error noshow" id="questionerror0">
-									Answer incorrect.
-									Please try again.
+									Réponse incorrecte. 
+									S'il vous plaît, réessayer.
 								</p>
 								<p>
-									You will participate in 10 rounds. 
-									In each round you and others will make decisions in 5 games. 
-									These games are identical in all rounds.
+									Vous allez participer à 30 tours. Dans chaque tour, les autre joueurs et vous-même prendrez part à six jeux différents. Ces jeux sont les mêmes pour chacun des 30 tours. 
 								</p>
 								<p>
-									In addition to the completion fee you will earn a bonus payment that
-									depends on both your own and others' decisions in the games.
+									En plus de votre rémunération pour votre participation à l’expérience, vous aurez la possibilité de gagner un bonus qui dépendra de votre décision et de celles des autres joueurs. À la fin de l'expérience,  tous les billets de loterie gagnés par tous les sujets de l'expérience sont mis dans un pool, et un seul ticket de loterie en sera tiré. Le sujet ayant gagné ce ticket de loterie gagne 1 000 €.
 								</p>
 								<p>
-									Each round will last for at least 3 minutes and will end either when 60%
-									of all participants have played or after 5 minutes have passed.
+									Chaque tour dure 8 heures.
 								</p>
 								<p>
-									How many games will you play in each round?
+									A combien de jeux allez-vous jouer à chaque tour?
 								</p>
 								<form action="@LABURI@/doanswer.json" method="post" onsubmit="return(doPlay(this));">
 									<input type="hidden" name="aid" value="0" />
@@ -119,23 +111,23 @@
 											<div class="inputgroup">
 												<div>
 													<input id="choice0a" name="choice0" type="radio" value="0" />
-													<label for="choice0a">2</label>
+													<label for="choice0a">3</label>
 												</div>
 												<div>
 													<input id="choice0b" name="choice0" type="radio" value="1" />
-													<label for="choice0b">3</label>
+													<label for="choice0b">4</label>
 												</div>
 												<div>
 													<input id="choice0c" name="choice0" type="radio" value="2" />
-													<label for="choice0c">4</label>
+													<label for="choice0c">5</label>
 												</div>
 												<div>
 													<input id="choice0d" name="choice0" type="radio" value="3" />
-													<label for="choice0d">5</label>
+													<label for="choice0d">6</label>
 												</div>
 												<div>
 													<input id="choice0e" name="choice0" type="radio" value="4" />
-													<label for="choice0e">6</label>
+													<label for="choice0e">7</label>
 												</div>
 											</div>
 										</div>
@@ -149,33 +141,29 @@
 							</section>
 							<section id="question0-correct" class="noshow">
 								<p>
-									That's right!
+									C’est exact!
 								</p>
 								<div class="standalone">
 									<div class="input input-submit">
 										<i class="fa fa-fw fa-check"></i>
-										<button onclick="window.location.reload();">Next Question</button>
+										<button onclick="window.location.reload();">Question suivante</button>
 									</div>
 								</div>
 							</section>
 							<section id="question1" class="noshow">
 								<p class="error noshow" id="questionerror1">
-									Answer incorrect.
-									Please try again.
+									Réponse incorrecte. 
+									S'il vous plaît, réessayer.
 								</p>
 								<p>
-									Each game is given in a table and you will have to choose one or more
-									rows to play in each. You will then be matched against the other
-									participants who will choose one or more columns.
+									haque jeu se présente sous forme d’un tableau dans lequel vous devrez sélectionner une ou plusieurs lignes. A chaque partie de jeu, vous allez etre jumelé à un autre joueur parmi les participants qui choisira les colonnes – le joueur colonne. 
 								</p>
 								<p>
-									Your payoff for a given row and column combination is the first number
-									in each cell, shown here in
+									Votre gain pour une ligne et une colonne choisies par vous et le joueur colonne correspond alors au premier nombre de chaque case, représenté ici en
 									<i style="color: #333;" class="fa fa-square"></i>.
-									The column player's payoff is the second number in each cell, shown here in
+									Le gain du joueur colonne correspond au deuxième nombre dans cette case, représenté ici en
 									<i style="color: #aaa;" class="fa fa-square"></i>.
-									Your payoff contributes to your bonus payment, with higher payoffs
-									resulting in a higher bonus payment.
+									Un point gagné dans une partie vous donne un ticket de loterie à la fin de l’expérience.
 								</p>
 								<div class="poffs">
 									<div>
@@ -195,8 +183,7 @@
 									</div>
 								</div>
 								<p>
-									What is your payoff from the combinations of row <strong>a</strong> and
-									column <strong>B</strong> in the game table?
+									Quel est votre gain lorsque la ligne  <strong>a</strong> et la colonne <strong>B</strong> du tableau sont sélectionnées?
 								</p>
 								<form action="@LABURI@/doanswer.json" method="post" onsubmit="return(doPlay(this));">
 									<input type="hidden" name="aid" value="1" />
@@ -236,7 +223,7 @@
 							</section>
 							<section id="question1-correct" class="noshow">
 								<p>
-									That's right!
+									C’est exact !
 								</p>
 								<div class="poffs">
 									<div>
@@ -258,19 +245,17 @@
 								<div class="standalone">
 									<div class="input input-submit">
 										<i class="fa fa-fw fa-check"></i>
-										<button onclick="window.location.reload();">Next Question</button>
+										<button onclick="window.location.reload();">Question suivante</button>
 									</div>
 								</div>
 							</section>
 							<section id="question2" class="noshow">
 								<p class="error noshow" id="questionerror2">
-									Answer incorrect.
-									Please try again.
+									Réponse incorrecte. 
+									S'il vous plaît, réessayer.
 								</p>
 								<p>
-									You will only get payoffs from the rows you choose to play. However,
-									column players will be choosing which of the columns to play, so you
-									won't have full control over the payoff you get.
+									Vous recevrez uniquement les gains des lignes que vous aurez sélectionnées. Cependant, les autres joueurs choisissant seuls la colonne qui qui déterminera votre gain, leur décision influence également le montant de ce gain.
 								</p>
 								<div class="poffs">
 									<div>
@@ -290,7 +275,7 @@
 									</div>
 								</div>
 								<p>
-									What would your payoff be if you played row <strong>b</strong> in the game above?
+									A combien se monte votre gain si vous sélectionnez la ligne <strong>b</strong> dans le tableau ci-dessus?
 								</p>
 								<form action="@LABURI@/doanswer.json" method="post" onsubmit="return(doPlay(this));">
 									<input type="hidden" name="aid" value="2" />
@@ -316,7 +301,7 @@
 												</div>
 												<div>
 													<input id="choice2e" name="choice2" type="radio" value="4" />
-													<label for="choice2e">Can't Tell</label>
+													<label for="choice2e">Ne peut pas dire</label>
 												</div>
 											</div>
 										</div>
@@ -330,31 +315,26 @@
 							</section>
 							<section id="question2-correct" class="noshow">
 								<p>
-									That's right!
-									In order to know your payoff, it is necessary to know how the column players played.
+									C’est exact ! Pour connaître le montant de votre gain, il est nécessaire de savoir quelles colonnes ont été sélectionnées par les autres joueurs.
 								</p>
 								<div class="standalone">
 									<div class="input input-submit">
 										<i class="fa fa-fw fa-check"></i>
-										<button onclick="window.location.reload();">Next Question</button>
+										<button onclick="window.location.reload();">Question suivante</button>
 									</div>
 								</div>
 							</section>
 							<section id="question3" class="noshow">
 								<p class="error noshow" id="questionerror3">
-									Answer incorrect.
-									Please try again.
+									Réponse incorrecte. 
+									S'il vous plaît, réessayer.
 								</p>
 								<p>
-									After you have chosen which rows to play you must assign a weight to
-									each of these. 
-									The weights must add up to <strong>1</strong>. 
-									A weight of <strong>1</strong> means that payoffs (for you and the
-									column player) will be calculated solely based on that row. 
-									A smaller weight, for example <strong>1/3</strong>, means that <strong>1/3</strong> of your payoffs will
-									be calculated from that row. 
-									The columns from which your payoffs are calculated are chosen by the
-									column players in the same fashion.
+									Lorsque vous avez sélectionné toutes les lignes que vous souhaitez jouer, vous devez donner un poids pour chacune d’entre elles. 
+									La somme de ces poids doit être égale à  <strong>1</strong>. 
+									Un poids égal à <strong>1</strong> signifie que votre gain (pour vous et le joueur colonne) dépendra uniquement de cette ligne pour ce jeu. 
+									Un poids plus faible, par exemple <strong>1/3</strong>,signifie qu’un tiers de vos gains seront issus de cette ligne.
+									Les colonnes qui déterminent le montant de vos gains seront choisies par le joueur colonne selon le même mode opératoire.
 								</p>
 								<div class="poffs">
 									<div>
@@ -374,10 +354,10 @@
 									</div>
 								</div>
 								<p>
-									If the column players play column <strong>A</strong> with weight
-									<strong>1</strong>, and you play row <strong>a</strong> with weight
-									<strong>1/2</strong> and row <strong>b</strong> with weight
-									<strong>1/2</strong>, what would your payoff be?
+									Si le joueur choisissant les colonnes sélectionne la colonne <strong>A</strong> avec un poids de
+									<strong>1</strong>, et que vous sélectionnez la ligne <strong>a</strong> avec un poids de 
+									<strong>1/2</strong> et la ligne <strong>b</strong> avec un poids de
+									<strong>1/2</strong>, combien sera votre gain?
 								</p>
 								<form action="@LABURI@/doanswer.json" method="post" onsubmit="return(doPlay(this));">
 									<input type="hidden" name="aid" value="3" />
@@ -417,12 +397,12 @@
 							</section>
 							<section id="question3-correct" class="noshow">
 								<p>
-									That's right! <strong>1/2</strong> of the payoffs from row
-									<strong>a</strong> and column <strong>A</strong> is
-									<strong>0.5</strong>, and <strong>1/2</strong> of the payoffs from row
-									<strong>b</strong> and column <strong>A</strong> is
+									C’est exact. La moitié <strong>1/2</strong> des gains de la ligne 
+									<strong>a</strong> et de la colonne <strong>A</strong> vaut
+									<strong>0.5</strong>, et la moitié des gains de la ligne
+									<strong>b</strong> et de la colonne <strong>A</strong> vaut
 									<strong>2.5</strong>.
-									Together that's <strong>3</strong>.
+									Leur somme est donc égale à <strong>3</strong>.
 								</p>
 								<div class="poffs">
 									<div>
@@ -444,27 +424,22 @@
 								<div class="standalone">
 									<div class="input input-submit">
 										<i class="fa fa-fw fa-check"></i>
-										<button onclick="window.location.reload();">Next Question</button>
+										<button onclick="window.location.reload();">Question suivante</button>
 									</div>
 								</div>
 							</section>
 							<section id="question4" class="noshow">
 								<p class="error noshow" id="questionerror4">
-									Weights must be positive fractions or decimal numbers with
-									no greater accuracy than four digits following the decimal. 
-									They must sum to 1.
+									Les poids doivent être des fractions positives ou des nombres décimaux sans précision supérieure à quatre chiffres après la virgule. Leur total doit être 1.
 								</p>
 								<p>
-									To make a decision in a game, first click all rows you want to play and
-									then input the weights you want to assign to them. Once you have chosen
-									rows and weights, click the <q>Submit play</q> button. 
+									Pour prendre une décision dans un jeu, cliquez d'abord sur toutes les lignes que vous voulez jouer, puis entrez les poids que vous voulez leur attribuer. Une fois que vous avez choisi des lignes et des poids, cliquez sur le bouton <q>Submit play</q>. 
 								</p>
 								<p>
-									You must make decisions for all 5 games in a round in order to receive
-									payoffs from that round. 
+									Vous devez prendre des décisions pour les 6 parties d'un tour afin de recevoir les gains de ce tour. 
 								</p>
 								<p>
-									Try playing any rows with any weight you want.
+									Essayez maintenant de sélectionner les lignes et entrer les poids.
 								</p>
 								<div class="payoffs" style="max-width: 20em;">
 									<div class="labelaside">
@@ -512,34 +487,28 @@
 							</section>
 							<section id="question4-correct" class="noshow">
 								<p>
-									That's right!
+									C’est exact!
 								</p>
 								<div class="standalone">
 									<div class="input input-submit">
 										<i class="fa fa-fw fa-check"></i>
-										<button onclick="window.location.reload();">Next Question</button>
+										<button onclick="window.location.reload();">Question suivante</button>
 									</div>
 								</div>
 							</section>
 							<section id="question5" class="noshow">
 								<p class="error noshow" id="questionerror5">
-									Weights must be positive fractions or decimal numbers with
-									no greater accuracy than four digits following the decimal. 
-									They must sum to 1.
-									Please try to play both rows!
+									Les poids doivent être des fractions positives ou des nombres décimaux sans précision supérieure à quatre chiffres après la virgule. Leur total doit être 1.
+									S'il vous plaît essayez de jouer les deux lignes!
 								</p>
 								<p>
-									To make a decision in a game, first click all rows you want to play and
-									then input the weights you want to assign to them. Once you have chosen
-									rows and weights, click the <q>Submit play</q> button.
+									Pour prendre une décision dans un jeu, cliquez d'abord sur toutes les lignes que vous voulez jouer, puis entrez les poids que vous voulez leur attribuer. Une fois que vous avez choisi des lignes et des poids, cliquez sur le bouton <q>Submit play</q>.
 								</p>
 								<p>
-									You must make decisions for all 5 games in a round in order to receive
-									payoffs from that round. 
+									Vous devez prendre des décisions pour les 6 parties d'un tour afin de recevoir les gains de ce tour. 
 								</p>
 								<p>
-									Try playing rows <strong>a</strong> and <strong>b</strong> in the game below, you can assign them
-									any weight you want.
+									Essayez de jouer les lignes <strong>a</strong> et <strong>b</strong> ans le jeu ci-dessous, vous pouvez leur attribuer le poids que vous voulez.
 								</p>
 								<div class="payoffs" style="max-width: 20em;">
 									<div class="labelaside">
@@ -587,35 +556,29 @@
 							</section>
 							<section id="question5-correct" class="noshow">
 								<p>
-									That's right!
+									C’est exact !
 								</p>
 								<div class="standalone">
 									<div class="input input-submit">
 										<i class="fa fa-fw fa-check"></i>
-										<button onclick="window.location.reload();">Next Question</button>
+										<button onclick="window.location.reload();">Question suivante</button>
 									</div>
 								</div>
 							</section>
 							<section id="question6" class="noshow">
 								<p class="error noshow" id="questionerror6">
-									Answer incorrect.
-									Please try again.
+									Réponse incorrecte. 
+									S'il vous plaît, réessayer.
 								</p>
 								<p>
-									Your payoffs from a game depend on the rows and weights you choose, as
-									well as  how the column players choose on average. 
-									Other players' payoffs are calculated in the same fashion.
+									Vos gains d'un jeu dépendent des lignes et des poids que vous choisissez, ainsi que de la façon dont les joueurs colonne ont joué en moyenne. Les gains des autres joueurs sont calculés de la même manière.
 								</p>
 								<p>
-									At the end of the task your bonus payment will be calculated by summing
-									your payoffs from all games in all rounds in which you have
-									participated. 
-									Your payoff will be converted to US dollars at a <strong>1</strong>
-									payoff point = $<strong>0.03</strong> rate.
+									À la fin de la tâche, votre paiement de bonus sera calculé en additionnant vos gains de tous les jeux dans tous les tours auxquels vous avez participé. Chaque point de paiement correspond à un ticket de loterie.
 								</p>
 								<p>
-									If you earn <strong>100</strong> points in total from the
-									<strong>10</strong> rounds, how large will your bonus payment be?
+									Si vous gagnez <strong>500</strong> points au total des
+									<strong>30</strong> tours, quel sera le montant de votre bonus?
 								</p>
 								<form action="@LABURI@/doanswer.json" method="post" onsubmit="return(doPlay(this));">
 									<input type="hidden" name="aid" value="6" />
@@ -625,23 +588,23 @@
 											<div class="inputgroup">
 												<div>
 													<input id="choice6a" name="choice6" type="radio" value="0" />
-													<label for="choice6a">$1</label>
+													<label for="choice6a">250</label>
 												</div>
 												<div>
 													<input id="choice6b" name="choice6" type="radio" value="1" />
-													<label for="choice6b">$2</label>
+													<label for="choice6b">300</label>
 												</div>
 												<div>
 													<input id="choice6c" name="choice6" type="radio" value="2" />
-													<label for="choice6c">$3</label>
+													<label for="choice6c">500</label>
 												</div>
 												<div>
 													<input id="choice6d" name="choice6" type="radio" value="3" />
-													<label for="choice6d">$4</label>
+													<label for="choice6d">700</label>
 												</div>
 												<div>
 													<input id="choice6e" name="choice6" type="radio" value="4" />
-													<label for="choice6e">$5</label>
+													<label for="choice6e">1000</label>
 												</div>
 											</div>
 										</div>
@@ -655,40 +618,34 @@
 							</section>
 							<section id="question6-correct" class="noshow">
 								<p>
-									That's right. <strong>100</strong> points times
-									$<strong>0.03</strong>/point is $<strong>3</strong>.
+									C’est exact ! 500 points x 1 ticket / point = 500 tickets.
 								</p>
 								<div class="standalone">
 									<div class="input input-submit">
 										<i class="fa fa-fw fa-check"></i>
-										<button onclick="window.location.reload();">Next Question</button>
+										<button onclick="window.location.reload();">Question suivante</button>
 									</div>
 								</div>
 							</section>
 							<section id="question7" class="noshow">
 								<p class="error noshow" id="questionerror7">
-									Answer incorrect.
-									Please try again.
+									Réponse incorrecte. 
+									S'il vous plaît, réessayer.
 								</p>
 								<p>
-									The graphs on the <q>Play</q> and <q>History</q> tabs provide
-									information about the games and how they have been played in previous
-									rounds. 
-									This information includes your previous payoffs, how much payoff you
-									would have gotten by choosing each row with full weight
-									(<strong>1</strong>) in previous rounds, and the average choices of the
-									row and column players in previous rounds.
+									Les graphiques des onglets <q>Play</q> et <q>History</q> fournissent des informations sur les jeux et la façon dont ils ont été joués lors des tours précédents. 
+									Ces informations incluent vos gains antérieurs, le montant que vous auriez obtenu en choisissant chaque rangée avec un poids complet 
+									(<strong>1</strong>) dans les tours précédents, et les choix moyens des joueurs de rangées et de colonnes des tours précédents.
 								</p>
 								<p>
-									Example of graphs from a game with two rows:
+									Exemple de graphiques d'un jeu avec deux lignes:
 								</p>
 								<figure id="graphFig">
 									<div id="historyLineGraphs"></div>
 									<div id="historyBarGraphs"></div>
 								</figure>
 								<p>
-									Based on the graphs above: in the last round, choosing what row with full
-									weight (<strong>1</strong>) would have given you the highest payoff?
+									Basé sur les graphiques ci-dessus: dans la dernière ronde, choisir quelle rangée avec poids complet (<strong>1</strong>) vous aurait donné le plus gain le plus grand?
 								</p>
 								<form action="@LABURI@/doanswer.json" method="post" onsubmit="return(doPlay(this));">
 									<input type="hidden" name="aid" value="7" />
@@ -716,12 +673,10 @@
 							</section>
 							<section id="question7-correct" class="noshow">
 								<p>
-									Great! That's the end of the instructions. You can go through them again
-									at any time by clicking the <q>Instructions</q> tab in the menu.
+									Génial! C'est la fin des instructions. Vous pouvez les parcourir à tout moment en cliquant sur l'onglet <q>Instructions</q> du menu.
 								</p>
 								<p>
-									Click <q>Start Playing</q> to begin, there might be a short wait before your
-									first round.
+									Cliquez sur <q>Start Playing</q> pour commencer, il pourrait y avoir une courte attente avant votre premier tour.
 								</p>
 								<div class="standalone">
 									<div class="input input-submit">
