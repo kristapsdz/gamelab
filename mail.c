@@ -334,7 +334,7 @@ mail_players(const char *uri, const char *loginuri)
 	char		  *encto, *encpass;
 	struct ktemplate   t;
 	struct ktemplatex  tx;
-	int		   rc;
+	enum kcgi_err	   rc;
 
 	memset(&tx, 0, sizeof(struct ktemplatex));
 	tx.writer = mail_write;
@@ -361,8 +361,8 @@ mail_players(const char *uri, const char *loginuri)
 
 		rc = khttp_templatex(&t, DATADIR 
 			"/mail-addplayer.eml", &tx, &m);
-		if (0 == rc) {
-			WARNX("khttp_templatex");
+		if (KCGI_OK != rc) {
+			WARNX("khttp_templatex: %s", kcgi_strerror(rc));
 			break;
 		}
 
@@ -392,7 +392,7 @@ mail_test(void)
 	struct mail	   m;
 	struct ktemplate   t;
 	struct ktemplatex  tx;
-	int		   rc;
+	enum kcgi_err	   rc;
 
 	memset(&tx, 0, sizeof(struct ktemplatex));
 	tx.writer = mail_write;
@@ -403,9 +403,8 @@ mail_test(void)
 	m.to = db_admin_get_mail();
 	rc = khttp_templatex(&t, DATADIR 
 		"/mail-test.eml", &tx, &m);
-
-	if (0 == rc) {
-		WARNX("khttp_templatex");
+	if (KCGI_OK != rc) {
+		WARNX("khttp_templatex: %s", kcgi_strerror(rc));
 		goto out;
 	}
 
@@ -429,7 +428,7 @@ mail_backupfail(const char *fname)
 	struct mail	   m;
 	struct ktemplate   t;
 	struct ktemplatex  tx;
-	int		   rc;
+	enum kcgi_err	   rc;
 
 	memset(&tx, 0, sizeof(struct ktemplatex));
 	tx.writer = mail_write;
@@ -440,9 +439,8 @@ mail_backupfail(const char *fname)
 	m.to = db_admin_get_mail();
 	rc = khttp_templatex(&t, DATADIR 
 		"/mail-backupfail.eml", &tx, &m);
-
-	if (0 == rc) {
-		WARNX("khttp_templatex");
+	if (KCGI_OK != rc) {
+		WARNX("khttp_templatex: %s", kcgi_strerror(rc));
 		goto out;
 	}
 
@@ -466,7 +464,7 @@ mail_backup(void)
 	struct mail	   m;
 	struct ktemplate   t;
 	struct ktemplatex  tx;
-	int		   rc;
+	enum kcgi_err	   rc;
 	char		   fname[PATH_MAX], date[27];
 	char	   	  *cp;
 	time_t		   tt;
@@ -500,9 +498,8 @@ mail_backup(void)
 	m.to = db_admin_get_mail();
 	rc = khttp_templatex(&t, DATADIR 
 		"/mail-backupsuccess.eml", &tx, &m);
-
-	if (0 == rc) {
-		WARNX("khttp_templatex");
+	if (KCGI_OK != rc) {
+		WARNX("khttp_templatex: %s", kcgi_strerror(rc));
 		goto out;
 	}
 
@@ -547,7 +544,7 @@ mail_roundadvance(const char *uri, int64_t last, int64_t round)
 	struct mail	   m;
 	struct ktemplate   t;
 	struct ktemplatex  tx;
-	int		   rc;
+	enum kcgi_err	   rc;
 	struct expr	  *expr;
 
 	memset(&tx, 0, sizeof(struct ktemplatex));
@@ -573,9 +570,8 @@ mail_roundadvance(const char *uri, int64_t last, int64_t round)
 		DATADIR "/mail-roundfirst.eml" : 
 		DATADIR "/mail-roundadvance.eml",
 		&tx, &m);
-
-	if (0 == rc) {
-		WARNX("khttp_templatex");
+	if (KCGI_OK != rc) {
+		WARNX("khttp_templatex: %s", kcgi_strerror(rc));
 		goto out;
 	}
 
