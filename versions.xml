@@ -659,4 +659,18 @@
 			</p>
 		</aside>
 	</article>
+	<article data-sblg-article="1" data-sblg-tags="version">
+		<header>
+			<h1>1.1.10</h1>
+			<address>Kristaps Dzonsons</address>
+			<time datetime="2018-10-24">2018-10-24</time>
+		</header>
+		<aside>
+			<p>
+				Fix e-mail notifications for administrative purposes.
+				These would internally error out due to changing function call return values in 
+				<a href="https://kristaps.bsd.lv/kcgi">kcgi</a> from many versions ago.
+			</p>
+		</aside>
+	</article>
 </articles>

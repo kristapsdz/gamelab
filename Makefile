@@ -29,8 +29,8 @@ LIBS		+=
 # You really don't want to change anything below this line.
 #####################################################################
 
-VERSION	 = 1.1.9
-VMONTH	 = March
+VERSION	 = 1.1.10
+VMONTH	 = October
 VYEAR	 = 2018
 CFLAGS 	+= -g -W -Wall -Wextra -Wstrict-prototypes -Wno-unused-parameter -Wwrite-strings
 CFLAGS	+= -DDATADIR=\"$(RDATADIR)\" -DHTURI=\"$(HTURI)\" -DLABURI=\"$(LABURI)\"
