@@ -1005,8 +1005,9 @@ again:
 	/*
 	 * If we're currently in the player lobby, then see if we can be
 	 * added in the next round.
+	 * This is only relevant of the experiment is running!
 	 */
-	if (player->joined < 0) {
+	if (player->joined < 0 && expr->round < expr->rounds) {
 		db_expr_free(expr);
 		if (0 == (questions = db_customq_count()))
 			questions = QUESTIONS;
