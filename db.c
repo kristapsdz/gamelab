@@ -2155,7 +2155,7 @@ db_expr_start(int64_t date, int64_t roundpct, int64_t roundmin,
 	INFO("Started experiment: %" PRId64 "%%, "
 		"with%s a lottery, with%s questions, "
 		"with%s a pre-history", roundpct, 
-		lottery ? "" : "out",
+		lottery && '\0' != *lottery ? "" : "out",
 		ques ? "" : "out",
 		NULL != historyfile ? "" : "out");
 	INFO("Started experiment: "
